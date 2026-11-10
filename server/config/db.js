@@ -1,5 +1,13 @@
 import mongoose from 'mongoose';
+import dns from 'node:dns';
 import { config } from './env.js';
+
+// Fix for Windows / ISP DNS querySrv ECONNREFUSED on mongodb+srv://
+try {
+  dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
+} catch {
+  // Ignore fallback if platform restricts dns.setServers
+}
 
 let isConnected = false;
 
