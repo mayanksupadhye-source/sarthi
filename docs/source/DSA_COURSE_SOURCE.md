@@ -1,0 +1,278 @@
+# C++ DSA Course — Full Source Extract
+
+> Extracted from the owner-provided DOCX. Preserve lesson numbering, titles, section order, and durations when importing. This file is a reference, not a generated schedule.
+
+Complete C++ DSA Course
+Data Structures & Algorithms Playlist — Apna College
+- **Lecture 1: Flowchart & Pseudocode + Installation | DSA Series by Shradha Khapra Ma'am | C++**
+  - Duration: 1:25:52
+- **Lecture 2: Lecture 2 : Variable, Data Types & Operators | DSA Series by Shradha Ma'am | C++**
+  - Duration: 1:16:44
+- **Lecture 3: Lecture 3: Conditional Statements & Loops | DSA Series by Shradha Ma'am | C++**
+  - Duration: 1:34:39
+- **Lecture 4: Lecture 4: Patterns | DSA Series by Shradha Khapra Ma'am | C++**
+  - Duration: 1:31:07
+- **Lecture 5: Lecture 5: Functions | DSA Series by Shradha Khapra Ma'am | C++**
+  - Duration: 49:13
+- **Lecture 6: Binary Number System | DSA Series by Shradha Khapra Ma'am | C++**
+  - Duration: 37:20
+- **Lecture 7: Bitwise Operators, Data Type Modifiers & more | DSA Series by Shradha Khapra Ma'am | C++**
+  - Duration: 38:33
+- **Lecture 8: Array Data Structure - Part1 | DSA Series by Shradha Khapra Ma'am | C++**
+  - Duration: 54:07
+- **Lecture 9: Vectors in C++ | Arrays Part 2 | DSA Series by Shradha Ma'am | Lecture 9**
+  - Duration: 40:06
+- **Lecture 10: Kadane's Algorithm | Maximum Subarray Sum | DSA Series by Shradha Ma'am**
+  - Duration: 23:29
+- **Lecture 11: Majority Element | Brute- Better-Best Approach | Moore's Voting Algorithm | & Pair Sum**
+  - Duration: 39:10
+- **Lecture 12: Time & Space Complexity - DSA Series by Shradha Ma'am**
+  - Duration: 1:25:41
+- **Lecture 13: Buy and Sell Stock Problem and Pow(X,N) Power exponential Problem - Leetcode | DSA Series**
+  - Duration: 29:10
+- **Lecture 14: Container with Most Water Problem | Brute & Optimal Solution | Two Pointer Approach - Leetcode 11**
+  - Duration: 32:00
+- **Lecture 15: Product of Array Except Self | Brute to Optimal Solution | Leetcode 238**
+  - Duration: 29:30
+- **Lecture 16: Pointers in C++ | In Detail | DSA Series by Shradha Ma'am**
+  - Duration: 46:08
+- **Lecture 17: Binary Search Algorithm - Iterative and Recursive Method | [Theory + Code] with Example**
+  - Duration: 44:16
+- **Lecture 18: Search in Rotated Sorted Array | Binary Search | Leetcode 33**
+  - Duration: 19:30
+- **Lecture 19: Peak Index in Mountain Array | Binary Search | Leetcode 852**
+  - Duration: 23:34
+- **Lecture 20: Single Element in Sorted Array | Binary Search | DSA Series Lecture 20**
+  - Duration: 27:33
+- **Lecture 21: Book Allocation or Allocate Books Problem | DSA Series - Binary Search**
+  - Duration: 32:59
+- **Lecture 22: Painter's Partition Problem | DSA Placement Series - Binary Search | Lecture 22**
+  - Duration: 27:44
+- **Lecture 23: Aggressive Cows Problem | DSA Placement Series - Binary Search | Lecture 23**
+  - Duration: 30:12
+- **Lecture 24: Sorting Algorithms | Bubble Sort, Selection Sort & Insertion Sort | DSA Series by Shradha Ma'am**
+  - Duration: 34:33
+- **Lecture 25: Sort an Array of 0s, 1s & 2s | DNF Sorting Algorithm | Leetcode 75**
+  - Duration: 33:39
+- **Lecture 26: Merge Sorted Arrays Problem and Next Permutation Problem | DSA Series**
+  - Duration: 43:49
+- **Lecture 27: C++ STL Complete Tutorial | Standard Template Library - One Shot**
+  - Duration: 1:27:20
+- **Lecture 28: How to setup C++ compiler on Mac ? | Software Installation for Mac users**
+  - Duration: 1:40
+- **Lecture 29: Strings & Character Arrays in C++ - Part 1 | DSA Placement Series**
+  - Duration: 30:03
+- **Lecture 30: Valid Palindrome & Remove all Occurrences | Strings Part 2 | DSA Placement Series**
+  - Duration: 24:02
+- **Lecture 31: Strings - Part 3 | Permutation in String | DSA Placement Series**
+  - Duration: 21:41
+- **Lecture 32: Strings - Part 4 | Reverse Words in String | DSA Placement Series**
+  - Duration: 14:42
+- **Lecture 33: String Compression problem - Lecture 32 | Leetcode 443**
+  - Duration: 19:29
+- **Lecture 34: Maths for DSA - One Shot | Euclid's Algorithm | Sieve of Eratosthenes | Modular Arithmetics**
+  - Duration: 55:48
+- **Lecture 35: 2D Arrays in C++ | Part 1 | DSA Series by Shradha Ma'am**
+  - Duration: 37:31
+- **Lecture 36: Search a 2D Matrix - Variation I & II | 2D Arrays - Part 2 | DSA Series by Shradha Ma'am**
+  - Duration: 37:43
+- **Lecture 37: Spiral Matrix | 2D Arrays - Part 3 | Leetcode 54 | DSA Series by Shradha Ma'am**
+  - Duration: 24:33
+- **Lecture 38: Two Sum | Find Duplicate | Find Repeating & Missing Values | Hashing Problems**
+  - Duration: 53:30
+- **Lecture 39: 3 Sum | Brute, Better & Optimized Approach with Codes | Leetcode 15**
+  - Duration: 43:43
+- **Lecture 40: 4 Sum Problem | Optimal Approach | DSA Series by Shradha Ma'am**
+  - Duration: 23:02
+- **Lecture 41: Subarray Sum Equals K | Brute-Better-Optimal approach**
+  - Duration: 34:45
+- **Lecture 42: Recursion Tutorial - Basics to Advanced | Part 1**
+  - Duration: 46:22
+- **Lecture 43: Recursion Part 2 : Fibonacci numbers problem, Binary search problem, Find if array sorted problem**
+  - Duration: 41:30
+- **Lecture 44: Recursion Part 3 : Backtracking in Detail | Print all Subsets | Subsets II**
+  - Duration: 42:20
+- **Lecture 45: Permutations of an Array/String | Recursion & Backtracking**
+  - Duration: 22:55
+- **Lecture 46: N-Queens Problem | using Backtracking | Leetcode Hard**
+  - Duration: 24:26
+- **Lecture 47: Sudoku Solver Problem | using Backtracking | Leetcode Hard**
+  - Duration: 26:58
+- **Lecture 48: Rat in a Maze Problem | Backtracking**
+  - Duration: 32:45
+- **Lecture 49: Combination Sum Problem | Recursion & Backtracking**
+  - Duration: 23:35
+- **Lecture 50: Palindrome Partitioning Problem | Recursion & Backtracking**
+  - Duration: 20:44
+- **Lecture 51: Merge Sort Algorithm | Recursion & Backtracking**
+  - Duration: 32:04
+- **Lecture 52: One Major update & reaching 1000M views**
+  - Duration: 3:50
+- **Lecture 53: Quick Sort Algorithm - Lecture 51 of Complete DSA Placement Series**
+  - Duration: 26:23
+- **Lecture 54: Count Inversions Problem | Brute and Optimal**
+  - Duration: 24:33
+- **Lecture 55: KNIGHTS TOUR Problem - Backtracking | Leetcode 2596**
+  - Duration: 22:32
+- **Lecture 56: OOPs Tutorial in One Shot | Object Oriented Programming | in C++ Language | for Placement Interviews**
+  - Duration: 2:04:23
+- **Lecture 57: Introduction to Linked List | Data Structures & Algorithms**
+  - Duration: 50:43
+- **Lecture 58: Reverse a Linked List | DSA Series by @shradhaKD**
+  - Duration: 10:29
+- **Lecture 59: Middle of a Linked List | DSA Series by @shradhaKD**
+  - Duration: 10:32
+- **Lecture 60: Detect & Remove Cycle in Linked List | DSA Series by @shradhaKD**
+  - Duration: 30:24
+- **Lecture 61: Merge Two Sorted Lists | DSA Series by @shradhaKD**
+  - Duration: 12:41
+- **Lecture 62: Copy List with Random Pointer | DSA Series by @shradhaKD**
+  - Duration: 20:52
+- **Lecture 63: Doubly Linked List Tutorial**
+  - Duration: 32:16
+- **Lecture 64: Circular Linked List in Data Structures**
+  - Duration: 33:56
+- **Lecture 65: Flatten a Doubly Linked List | Leetcode 430 | DSA Series by @shradhaKD**
+  - Duration: 24:47
+- **Lecture 66: Reverse Nodes in K-Group | Linked List**
+  - Duration: 20:39
+- **Lecture 67: Swap Nodes in Pairs | Linked List**
+  - Duration: 20:06
+- **Lecture 68: Introduction to STACKS | Data Structures & Algorithms | Lecture 66**
+  - Duration: 22:11
+- **Lecture 69: Valid Parentheses | Stack | Lecture 67**
+  - Duration: 16:25
+- **Lecture 70: Stock Span Problem | Optimal Solution**
+  - Duration: 26:29
+- **Lecture 71: Next Greater Element | Optimal Solution & Code**
+  - Duration: 23:32
+- **Lecture 72: Previous Smaller Element | Optimal Solution & Code**
+  - Duration: 9:24
+- **Lecture 73: Design a Min Stack | Optimal Solution & Code**
+  - Duration: 24:34
+- **Lecture 74: Largest Rectangle in Histogram | Best Solution & Code**
+  - Duration: 32:56
+- **Lecture 75: L73. Next Greater Element - II | Stack & Queue**
+  - Duration: 20:04
+- **Lecture 76: L74. Trapping Rainwater Problem | Optimal Solution & Code**
+  - Duration: 30:50
+- **Lecture 77: L75. The Celebrity Problem | Stack & Queue**
+  - Duration: 15:11
+- **Lecture 78: L76. Implement LRU Cache | Linked List**
+  - Duration: 35:34
+- **Lecture 79: New Chapter : Queue Data Structure**
+  - Duration: 18:55
+- **Lecture 80: L78. Circular Queue in Data Strucuture**
+  - Duration: 18:37
+- **Lecture 81: L79. Implement Queue using Stack & Stack using Queue**
+  - Duration: 15:47
+- **Lecture 82: L80. First Unique Character in String | Easy - Leetcode387**
+  - Duration: 13:23
+- **Lecture 83: L81. Sliding Window Maximum | Queue**
+  - Duration: 31:22
+- **Lecture 84: L82. Gas Station | Greedy Approach | Leetcode 134**
+  - Duration: 22:16
+- **Lecture 85: Binary Trees in Data Structures | Tree Traversal | DSA Placement Series**
+  - Duration: 1:14:15
+- **Lecture 86: L.84 Height of a Binary Tree | Count of Nodes in a Binary Tree**
+  - Duration: 23:09
+- **Lecture 87: L.85 Identical Tree (same tree) | Subtree of another Tree**
+  - Duration: 23:28
+- **Lecture 88: L.86 Diameter of Binary Tree**
+  - Duration: 19:29
+- **Lecture 89: Top View of a Binary Tree | DSA Series : L.87**
+  - Duration: 19:39
+- **Lecture 90: Kth Level of a Binary Tree | DSA Series : L.88**
+  - Duration: 7:59
+- **Lecture 91: Lowest Common Ancestor in Binary Tree | DSA Series : L.89**
+  - Duration: 18:20
+- **Lecture 92: Build Tree from Preorder & Inorder | DSA Series : L.90**
+  - Duration: 20:59
+- **Lecture 93: Transform to Sum Tree | DSA Series : L.91**
+  - Duration: 8:41
+- **Lecture 94: Binary Tree Paths | DSA Series : L.92**
+  - Duration: 10:01
+- **Lecture 95: Maximum Width of Binary Tree | DSA Series : L.93**
+  - Duration: 21:09
+- **Lecture 96: Morris Inorder Traversal | DSA Series : L.94**
+  - Duration: 17:52
+- **Lecture 97: Flatten Binary Tree to Linked List | DSA Series : L.95**
+  - Duration: 15:43
+- **Lecture 98: Binary Search Trees (BSTs) | DSA Series : L.96**
+  - Duration: 43:16
+- **Lecture 99: Sorted Array to Balanced BST | DSA Series : L.97**
+  - Duration: 8:44
+- **Lecture 100: Validate Binary Search Tree | DSA Series : L.98**
+  - Duration: 12:41
+- **Lecture 101: Min Distance between BST Nodes | DSA Series : L.99**
+  - Duration: 14:16
+- **Lecture 102: Kth Smallest in BST | DSA Series : L.100**
+  - Duration: 12:42
+- **Lecture 103: Lowest Common Ancestor in BST | DSA Series : L.101**
+  - Duration: 12:29
+- **Lecture 104: Construct BST from Preorder | DSA Series : L.102**
+  - Duration: 19:10
+- **Lecture 105: Merge Two Binary Search Trees | DSA Series : L.103**
+  - Duration: 16:39
+- **Lecture 106: Recover BST | DSA Series : L.104**
+  - Duration: 24:03
+- **Lecture 107: Largest BST in Binary Tree | DSA Series : L.105**
+  - Duration: 24:56
+- **Lecture 108: Populate Next Right Pointers in Each Node | DSA Series : L.106**
+  - Duration: 11:12
+- **Lecture 109: BST Iterator | DSA Series : L.107**
+  - Duration: 17:16
+- **Lecture 110: Inorder Predecessor & Successor in BST | DSA Series : L.108**
+  - Duration: 19:50
+- **Lecture 111: Introduction to Graphs | Data Structure & Algorithms**
+  - Duration: 26:08
+- **Lecture 112: BFS Traversal in Graphs | Data Structure & Algorithms**
+  - Duration: 18:31
+- **Lecture 113: DFS Traversal in Graphs | Data Structure & Algorithms**
+  - Duration: 14:03
+- **Lecture 114: Detect a Cycle in Undirected Graph using DFS | Data Structure & Algorithms**
+  - Duration: 19:45
+- **Lecture 115: Detect a Cycle in Undirected Graph using BFS | Data Structure & Algorithms**
+  - Duration: 18:23
+- **Lecture 116: Number of Islands | Connected Components in Matrix | Leetcode 200**
+  - Duration: 17:05
+- **Lecture 117: Rotting Oranges | Multi-source BFS | Leetcode 994**
+  - Duration: 26:22
+- **Lecture 118: Detect a Cycle in Directed Graph using DFS | Lecture 116**
+  - Duration: 15:59
+- **Lecture 119: Topological Sorting in Graph | using DFS | Lecture 117**
+  - Duration: 15:58
+- **Lecture 120: Course Schedule Problem | using Graph & Topological Sort**
+  - Duration: 17:54
+- **Lecture 121: Course Schedule II Problem | using Graph & Topological Sort**
+  - Duration: 19:33
+- **Lecture 122: Flood Fill Algorithm | Graph Problem**
+  - Duration: 15:10
+- **Lecture 123: Topological Sorting using Kahn's Algorithm | Graph - DSA Lecture 121**
+  - Duration: 18:47
+- **Lecture 124: Dijkstra's Algorithm - Single Source Shortest Path - Greedy Method**
+  - Duration: 35:20
+- **Lecture 125: Bellman Ford Algorithm - Single Source Shortest Path - Dynamic Programming**
+  - Duration: 23:38
+- **Lecture 126: DSA Series Quick Update - 125 lectures | New DSA Sheet | DP, Heaps, Tries etc**
+  - Duration: 6:24
+- **Lecture 127: Prim's Algorithm - Minimum Spanning Tree in Graph**
+  - Duration: 26:07
+- **Lecture 128: Disjoint Set Union | With Rank/Size & Path Compression | Union Find**
+  - Duration: 34:04
+- **Lecture 129: Kruskal's Algorithm - Minimum Spanning Tree in Graph**
+  - Duration: 29:07
+- **Lecture 130: Number of Provinces | Graph Problem**
+  - Duration: 12:35
+- **Lecture 131: Min Cost to Connect All Points | Graph Problem**
+  - Duration: 21:16
+- **Lecture 132: Cheapest Flights Within K Stops | Graph Problem**
+  - Duration: 30:29
+- **Lecture 133: Bridge in Graph using Tarjan's Algorithm | Critical Connections**
+  - Duration: 32:36
+- **Lecture 134: Articulation Point in Graph using Tarjan's Algorithm | Critical Points**
+  - Duration: 36:53
+- **Lecture 135: Strongly Connected Components - Kosaraju's Algorithm | Graphs**
+  - Duration: 26:26
+- **Lecture 136: Floyd Warshall Algorithm | All Pairs Shortest Path in Graph**
+  - Duration: 27:36

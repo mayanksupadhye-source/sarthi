@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <style>
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background-color: var(--color-border);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .cal-header-cell {
+      background-color: var(--color-bg-base);
+      padding: var(--space-2) var(--space-3);
+      text-align: center;
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      text-transform: uppercase;
+    }
+    .cal-day-cell {
+      background-color: var(--color-bg-paper);
+      min-height: 100px;
+      padding: var(--space-2);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .cal-day-cell.other-month {
+      background-color: var(--color-bg-base);
+      opacity: 0.5;
+    }
+    .cal-day-cell.today {
+      background-color: #FFFBEB;
+      border: 1px solid #FCD34D;
+    }
+    .cal-date-num {
+      font-weight: 700;
+      font-size: 0.8125rem;
+      color: var(--color-ink);
+      margin-bottom: 2px;
+    }
+    .cal-event-pill {
+      font-size: 0.7rem;
+      padding: 2px 4px;
+      border-radius: 2px;
+      background-color: var(--color-bg-subtle);
+      border-left: 2px solid var(--color-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cal-event-pill.p1 {
+      border-left-color: var(--color-p1);
+      background-color: var(--color-p1-bg);
+      color: var(--color-p1);
+    }
+    .cal-event-pill.exam {
+      border-left-color: #6D28D9;
+      background-color: #EDE9FE;
+      color: #6D28D9;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Monthly Execution Calendar</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Integration Diagnostic Box -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <div style="font-weight: 700;">Google Calendar Integration</div>
+              <div class="text-subtle text-sm" id="calendarIntegrationStatus">
+                Checking integration status...
+              </div>
+            </div>
+            <a href="/pages/settings.html" class="btn btn-outline btn-sm">Configure Credentials in Settings</a>
+          </div>
+        </div>
+
+        <!-- Month Navigation -->
+        <div class="card-header" style="border: none; padding: 0; margin-bottom: var(--space-4);">
+          <div style="display: flex; align-items: center; gap: var(--space-4);">
+            <button id="prevMonthBtn" class="btn btn-outline btn-sm">← Prev</button>
+            <h2 id="currentMonthYearLabel" style="font-size: 1.25rem;">November 2026</h2>
+            <button id="nextMonthBtn" class="btn btn-outline btn-sm">Next →</button>
+          </div>
+          <button id="todayBtn" class="btn btn-outline btn-sm">Jump to Today</button>
+        </div>
+
+        <!-- Calendar Month Grid -->
+        <div class="calendar-grid" id="calendarGrid">
+          <div class="cal-header-cell">Sun</div>
+          <div class="cal-header-cell">Mon</div>
+          <div class="cal-header-cell">Tue</div>
+          <div class="cal-header-cell">Wed</div>
+          <div class="cal-header-cell">Thu</div>
+          <div class="cal-header-cell">Fri</div>
+          <div class="cal-header-cell">Sat</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { getTodayString } from '/assets/js/utils.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    let currentYear = 2026;
+    let currentMonth = 10; // 0-indexed: 10 is November
+    let tasksMap = {};
+    let examsMap = {};
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('calendar');
+
+      const today = new Date();
+      currentYear = today.getFullYear();
+      currentMonth = today.getMonth();
+
+      await checkGoogleStatus();
+      await loadEvents();
+      renderCalendar();
+      setupEvents();
+    }
+
+    async function checkGoogleStatus() {
+      try {
+        const res = await api.get('/settings/integrations/status');
+        if (res.success && res.integrations.googleCalendar) {
+          const g = res.integrations.googleCalendar;
+          document.getElementById('calendarIntegrationStatus').textContent = g.message;
+        }
+      } catch {}
+    }
+
+    async function loadEvents() {
+      try {
+        const [taskRes, examRes] = await Promise.all([
+          api.get('/tasks'),
+          api.get('/academic/exams')
+        ]);
+
+        tasksMap = {};
+        if (taskRes.success && taskRes.tasks) {
+          taskRes.tasks.forEach(t => {
+            const d = t.scheduledDate || t.deadline;
+            if (d) {
+              tasksMap[d] = tasksMap[d] || [];
+              tasksMap[d].push(t);
+            }
+          });
+        }
+
+        examsMap = {};
+        if (examRes.success && examRes.exams) {
+          examRes.exams.forEach(e => {
+            if (e.examDate) {
+              examsMap[e.examDate] = examsMap[e.examDate] || [];
+              examsMap[e.examDate].push(e);
+            }
+          });
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function renderCalendar() {
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      document.getElementById('currentMonthYearLabel').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+      const grid = document.getElementById('calendarGrid');
+      // Keep headers
+      grid.innerHTML = `
+        <div class="cal-header-cell">Sun</div>
+        <div class="cal-header-cell">Mon</div>
+        <div class="cal-header-cell">Tue</div>
+        <div class="cal-header-cell">Wed</div>
+        <div class="cal-header-cell">Thu</div>
+        <div class="cal-header-cell">Fri</div>
+        <div class="cal-header-cell">Sat</div>
+      `;
+
+      const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      const todayStr = getTodayString();
+
+      // Pad previous month days
+      const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+      for (let i = firstDayOfMonth - 1; i >= 0; i--) {
+        const dayNum = daysInPrevMonth - i;
+        grid.innerHTML += `<div class="cal-day-cell other-month"><div class="cal-date-num">${dayNum}</div></div>`;
+      }
+
+      // Current month days
+      for (let d = 1; d <= daysInMonth; d++) {
+        const monthPad = String(currentMonth + 1).padStart(2, '0');
+        const dayPad = String(d).padStart(2, '0');
+        const dateKey = `${currentYear}-${monthPad}-${dayPad}`;
+
+        const isToday = dateKey === todayStr;
+        const dayTasks = tasksMap[dateKey] || [];
+        const dayExams = examsMap[dateKey] || [];
+
+        let eventsHtml = '';
+        dayExams.forEach(e => {
+          eventsHtml += `<div class="cal-event-pill exam">🎓 ${e.subjectName} (${e.examType})</div>`;
+        });
+        dayTasks.slice(0, 3).forEach(t => {
+          const p1Class = t.priority === 'P1' ? 'p1' : '';
+          eventsHtml += `<div class="cal-event-pill ${p1Class}">${t.title}</div>`;
+        });
+        if (dayTasks.length > 3) {
+          eventsHtml += `<div class="text-subtle text-xs">+${dayTasks.length - 3} more</div>`;
+        }
+
+        grid.innerHTML += `
+          <div class="cal-day-cell ${isToday ? 'today' : ''}" data-date="${dateKey}">
+            <div class="cal-date-num">${d}</div>
+            ${eventsHtml}
+          </div>
+        `;
+      }
+    }
+
+    function setupEvents() {
+      document.getElementById('prevMonthBtn').addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        renderCalendar();
+      });
+
+      document.getElementById('nextMonthBtn').addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        renderCalendar();
+      });
+
+      document.getElementById('todayBtn').addEventListener('click', () => {
+        const today = new Date();
+        currentYear = today.getFullYear();
+        currentMonth = today.getMonth();
+        renderCalendar();
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

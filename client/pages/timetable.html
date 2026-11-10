@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Timetable & Conflicts — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <style>
+    .block-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-4);
+      background-color: var(--color-bg-paper);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--space-2);
+    }
+    .block-card.study {
+      border-left: 4px solid var(--color-primary);
+    }
+    .block-card.college {
+      border-left: 4px solid var(--color-ink);
+    }
+    .block-card.gym {
+      border-left: 4px solid #16A34A;
+    }
+    .block-card.rest {
+      border-left: 4px solid #4B5563;
+      background-color: var(--color-bg-base);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Timetable & Schedule Templates</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Conflict Alerts Banner -->
+        <div id="conflictAlertsContainer"></div>
+
+        <!-- Template Tabs -->
+        <div class="tab-group">
+          <button class="tab-btn active" data-type="weekday">Monday–Friday (College)</button>
+          <button class="tab-btn" data-type="saturday">Saturday</button>
+          <button class="tab-btn" data-type="sunday">Sunday (Oratory & Deep Work)</button>
+          <button class="tab-btn" data-type="exam">Exam Mode Schedule</button>
+        </div>
+
+        <div class="grid-asymmetric">
+          <!-- Main Timetable Column -->
+          <div>
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title" id="templateTitle">Schedule Template</div>
+                  <div class="text-subtle text-sm">Timezone: Asia/Kolkata · Fixed & Study Blocks</div>
+                </div>
+              </div>
+              <div id="blocksContainer">
+                <p class="text-muted text-sm">Loading blocks...</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Schedule Analysis & Capacity Sidebar -->
+          <div style="display: flex; flex-direction: column; gap: var(--space-6);">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Day Capacity Analysis</div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                <div style="display: flex; justify-content: space-between;">
+                  <span class="text-subtle">Study/Focus Capacity:</span>
+                  <strong id="studyCapText">-</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span class="text-subtle">College & Commute:</span>
+                  <strong id="collegeCapText">-</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span class="text-subtle">Gym & Routine:</span>
+                  <strong id="gymCapText">-</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span class="text-subtle">Sleep Window:</span>
+                  <strong id="sleepCapText">-</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Schedule Principle</div>
+              </div>
+              <p class="text-sm text-subtle" style="line-height: 1.6;">
+                Schedules must reflect reality. Never schedule tasks inside your sleep window. A template change updates future planning capacity without modifying historical execution records.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { formatMinutes } from '/assets/js/utils.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    let currentDayType = 'weekday';
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('timetable');
+      await loadTemplate(currentDayType);
+      await checkConflicts(currentDayType);
+      setupEvents();
+    }
+
+    async function loadTemplate(dayType) {
+      try {
+        const res = await api.get(`/timetable/templates/${dayType}`);
+        if (!res.success) return;
+        const t = res.template;
+
+        document.getElementById('templateTitle').textContent = t.title;
+
+        // Render Blocks
+        const container = document.getElementById('blocksContainer');
+        if (!t.blocks || t.blocks.length === 0) {
+          container.innerHTML = '<p class="text-muted text-sm">No blocks defined for this schedule.</p>';
+          return;
+        }
+
+        container.innerHTML = t.blocks.map(b => `
+          <div class="block-card ${b.category}">
+            <div>
+              <div style="font-weight: 700; font-size: 0.9375rem;">${b.startTime} – ${b.endTime}</div>
+              <div style="color: var(--color-ink); font-size: 0.875rem;">${b.label}</div>
+            </div>
+            <div style="text-align: right;">
+              <span class="badge ${b.isProtected ? 'badge-p1' : 'badge-neutral'}">${b.durationMinutes}m</span>
+              <div class="text-subtle text-xs" style="margin-top: 2px;">${b.category}</div>
+            </div>
+          </div>
+        `).join('');
+
+        // Calculate Breakdown
+        let study = 0, college = 0, gym = 0, rest = 0;
+        for (const b of t.blocks) {
+          if (['study', 'webdev', 'dsa', 'oratory', 'exploration'].includes(b.category)) study += b.durationMinutes;
+          else if (b.category === 'college') college += b.durationMinutes;
+          else if (['gym', 'routine'].includes(b.category)) gym += b.durationMinutes;
+          else if (b.category === 'rest') rest += b.durationMinutes;
+        }
+
+        document.getElementById('studyCapText').textContent = formatMinutes(study);
+        document.getElementById('collegeCapText').textContent = formatMinutes(college);
+        document.getElementById('gymCapText').textContent = formatMinutes(gym);
+        document.getElementById('sleepCapText').textContent = formatMinutes(rest);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function checkConflicts(dayType) {
+      try {
+        const res = await api.get('/timetable/conflicts', { dayType });
+        if (!res.success) return;
+
+        const container = document.getElementById('conflictAlertsContainer');
+        let html = '';
+
+        if (res.conflicts && res.conflicts.length > 0) {
+          html += res.conflicts.map(c => `
+            <div class="alert alert-danger">
+              <strong>Time Overlap Detected:</strong> ${c.message} (${c.time1} vs ${c.time2})
+            </div>
+          `).join('');
+        }
+
+        if (res.warnings && res.warnings.length > 0) {
+          html += res.warnings.map(w => `
+            <div class="alert alert-warning">
+              <strong>Notice:</strong> ${w.message}
+            </div>
+          `).join('');
+        }
+
+        container.innerHTML = html;
+      } catch (err) {}
+    }
+
+    function setupEvents() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentDayType = btn.dataset.type;
+          await loadTemplate(currentDayType);
+          await checkConflicts(currentDayType);
+        });
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

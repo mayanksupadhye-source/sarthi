@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Journal & Notes — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Journal & Personal Notes</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+          <button id="newNoteBtn" class="btn btn-primary btn-sm">+ New Entry</button>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Search and Filter -->
+        <div style="display: flex; gap: var(--space-4); margin-bottom: var(--space-6); flex-wrap: wrap;">
+          <input type="text" id="journalSearchInput" class="form-input" placeholder="Search notes and reflections..." style="max-width: 320px;">
+          <select id="typeFilter" class="form-select" style="max-width: 180px;">
+            <option value="">All Types</option>
+            <option value="journal">Daily Journal</option>
+            <option value="reflection">Reflection</option>
+            <option value="history">History Notes</option>
+            <option value="note">General Note</option>
+          </select>
+        </div>
+
+        <div class="grid-asymmetric">
+          <!-- Notes List -->
+          <div>
+            <div id="notesContainer">
+              <p class="text-muted text-sm">Loading notes...</p>
+            </div>
+          </div>
+
+          <!-- Quick Write & Reflection Prompts -->
+          <div style="display: flex; flex-direction: column; gap: var(--space-6);">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">10-Min Evening Prompt</div>
+              </div>
+              <p class="text-subtle text-sm" style="line-height: 1.6; margin-bottom: var(--space-3);">
+                "What was the single most meaningful action I completed today? Where did my attention wander, and what is my first step tomorrow morning at 05:30?"
+              </p>
+              <button id="quickJournalBtn" class="btn btn-outline btn-sm" style="width: 100%;">Write Today's Journal</button>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">History & Reference</div>
+              </div>
+              <p class="text-subtle text-sm" style="line-height: 1.6;">
+                Saturday evenings (20:30–22:30) are dedicated to Indian history and contextual learning. Capture key timelines, Chhatrapati Shivaji Maharaj notes, and Golden Age reflections here.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Note Modal -->
+  <div id="noteModal" class="modal-backdrop hidden">
+    <div class="modal-box" style="max-width: 650px;">
+      <div class="card-header">
+        <div class="card-title" id="noteModalTitle">New Note Entry</div>
+        <button id="closeNoteModal" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <form id="noteForm">
+        <input type="hidden" id="editNoteId">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" id="noteTitle" class="form-input" placeholder="Title or evening prompt..." required>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select id="noteType" class="form-select">
+              <option value="journal">Daily Journal (10m Routine)</option>
+              <option value="reflection">Reflection</option>
+              <option value="history">History Notes</option>
+              <option value="note" selected>General Reference Note</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tags (comma-separated)</label>
+            <input type="text" id="noteTags" class="form-input" placeholder="e.g. history, reflection, dsa">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Content</label>
+          <textarea id="noteContent" class="form-textarea" style="min-height: 180px;" placeholder="Write freely..."></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
+          <button type="button" id="cancelNoteBtn" class="btn btn-outline">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Entry</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    let allNotes = [];
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('journal');
+      await loadNotes();
+      setupEvents();
+    }
+
+    async function loadNotes() {
+      try {
+        const res = await api.get('/personal/notes');
+        if (!res.success) return;
+        allNotes = res.notes || [];
+        renderNotes(allNotes);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function renderNotes(notes) {
+      const container = document.getElementById('notesContainer');
+      const q = document.getElementById('journalSearchInput').value.toLowerCase().trim();
+      const type = document.getElementById('typeFilter').value;
+
+      const filtered = notes.filter(n => {
+        if (type && n.type !== type) return false;
+        if (q && !n.title.toLowerCase().includes(q) && !(n.content || '').toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; padding: var(--space-8);">
+            <p class="text-muted">No entries found.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(n => `
+        <div class="card" style="margin-bottom: var(--space-4);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-2);">
+            <div>
+              <span class="badge badge-neutral" style="text-transform: uppercase;">${n.type}</span>
+              <h3 style="font-size: 1.125rem; margin-top: 4px;">${n.title}</h3>
+              <div class="text-subtle text-xs" style="margin-top: 2px;">
+                ${new Date(n.createdAt).toLocaleDateString()} ${(n.tags || []).map(t => `#${t}`).join(' ')}
+              </div>
+            </div>
+            <button class="btn btn-outline btn-sm edit-note-btn" data-id="${n._id}">Edit</button>
+          </div>
+          <p class="text-sm" style="white-space: pre-wrap; line-height: 1.6; color: var(--color-charcoal); margin-top: var(--space-3);">
+            ${n.content}
+          </p>
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.edit-note-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const note = allNotes.find(x => x._id === btn.dataset.id);
+          if (!note) return;
+          document.getElementById('editNoteId').value = note._id;
+          document.getElementById('noteTitle').value = note.title;
+          document.getElementById('noteType').value = note.type;
+          document.getElementById('noteTags').value = (note.tags || []).join(', ');
+          document.getElementById('noteContent').value = note.content;
+          document.getElementById('noteModalTitle').textContent = 'Edit Entry';
+          document.getElementById('noteModal').classList.remove('hidden');
+        });
+      });
+    }
+
+    function setupEvents() {
+      document.getElementById('journalSearchInput').addEventListener('input', () => renderNotes(allNotes));
+      document.getElementById('typeFilter').addEventListener('change', () => renderNotes(allNotes));
+
+      document.getElementById('newNoteBtn').addEventListener('click', () => {
+        document.getElementById('noteForm').reset();
+        document.getElementById('editNoteId').value = '';
+        document.getElementById('noteModalTitle').textContent = 'New Note Entry';
+        document.getElementById('noteModal').classList.remove('hidden');
+      });
+
+      document.getElementById('quickJournalBtn').addEventListener('click', () => {
+        document.getElementById('noteForm').reset();
+        document.getElementById('editNoteId').value = '';
+        document.getElementById('noteTitle').value = `Daily Journal — ${new Date().toLocaleDateString()}`;
+        document.getElementById('noteType').value = 'journal';
+        document.getElementById('noteTags').value = 'daily, evening-routine';
+        document.getElementById('noteModalTitle').textContent = 'Evening Journal (10 Min)';
+        document.getElementById('noteModal').classList.remove('hidden');
+      });
+
+      document.getElementById('closeNoteModal').addEventListener('click', () => {
+        document.getElementById('noteModal').classList.add('hidden');
+      });
+      document.getElementById('cancelNoteBtn').addEventListener('click', () => {
+        document.getElementById('noteModal').classList.add('hidden');
+      });
+
+      document.getElementById('noteForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('editNoteId').value;
+        const title = document.getElementById('noteTitle').value.trim();
+        const type = document.getElementById('noteType').value;
+        const content = document.getElementById('noteContent').value;
+        const tags = document.getElementById('noteTags').value.split(',').map(t => t.trim()).filter(Boolean);
+
+        try {
+          if (id) {
+            await api.put(`/personal/notes/${id}`, { title, type, content, tags });
+            showToast('Note updated!', 'success');
+          } else {
+            await api.post('/personal/notes', { title, type, content, tags });
+            showToast('Note saved!', 'success');
+          }
+          document.getElementById('noteModal').classList.add('hidden');
+          await loadNotes();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

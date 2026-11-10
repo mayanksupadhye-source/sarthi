@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings & Backup — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <style>
+    /* Settings-specific styles */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--space-6);
+    }
+
+    .section-card {
+      background-color: var(--color-bg-paper);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: var(--space-5);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--color-border);
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .section-header-title {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--color-ink);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .section-header-desc {
+      font-size: 0.8125rem;
+      color: var(--color-subtle);
+      margin-top: var(--space-1);
+    }
+
+    /* Tactile Switch Input */
+    .switch-label {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-3);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .switch-input {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 48px;
+      height: 26px;
+      background-color: #D1D5DB;
+      border-radius: var(--radius-pill);
+      position: relative;
+      cursor: pointer;
+      outline: none;
+      transition: background-color var(--transition-fast);
+      margin: 0;
+    }
+
+    .switch-input:checked {
+      background-color: var(--color-primary);
+    }
+
+    .switch-input::before {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 20px;
+      height: 20px;
+      border-radius: var(--radius-pill);
+      background-color: #FFFFFF;
+      transition: transform var(--transition-fast);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+    }
+
+    .switch-input:checked::before {
+      transform: translateX(22px);
+    }
+
+    .switch-input:focus-visible {
+      box-shadow: 0 0 0 2px var(--color-primary-light);
+    }
+
+    /* Diagnostics cards */
+    .diag-card {
+      background-color: var(--color-bg-base);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .diag-card.unconfigured {
+      border-left: 4px solid var(--color-warning);
+    }
+
+    .diag-card.configured {
+      border-left: 4px solid var(--color-success);
+    }
+
+    .diag-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+    }
+
+    .diag-name {
+      font-weight: 700;
+      font-size: 0.9375rem;
+      color: var(--color-ink);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .diag-detail {
+      font-size: 0.8125rem;
+      color: var(--color-muted);
+      line-height: 1.5;
+    }
+
+    .diag-guide {
+      background-color: var(--color-bg-paper);
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: var(--space-3);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--color-charcoal);
+    }
+
+    /* Collection tags */
+    .collections-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-2);
+      margin: var(--space-4) 0;
+    }
+
+    .collection-chip {
+      background-color: var(--color-bg-subtle);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      padding: 0.25rem 0.5rem;
+      font-size: 0.75rem;
+      color: var(--color-charcoal);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .collection-chip span.dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--color-primary);
+      display: inline-block;
+    }
+
+    .target-callout {
+      background-color: var(--color-bg-subtle);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      margin-top: var(--space-4);
+    }
+
+    .target-stat {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .target-stat-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--color-ink);
+    }
+
+    .target-stat-lbl {
+      font-size: 0.75rem;
+      color: var(--color-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .target-arrow {
+      font-size: 1.25rem;
+      color: var(--color-primary);
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Settings & System Diagnostics</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Page Overview Header -->
+        <div class="card" style="margin-bottom: var(--space-6); background-color: var(--color-bg-subtle); border-left: 4px solid var(--color-ink);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <div style="font-weight: 800; font-size: 1.125rem; color: var(--color-ink);">System Calibration & Data Sovereignty</div>
+              <p class="text-subtle text-sm" style="margin-top: 4px; max-width: 720px;">
+                Manage cognitive work capacity, Indian Standard Timezone sync, deliberate slack buffers, exam period reprioritization, full offline JSON export, and honest third-party integration diagnostics.
+              </p>
+            </div>
+            <div style="display: flex; gap: var(--space-2);">
+              <a href="#backup-section" class="btn btn-outline btn-sm">📦 Data Backup</a>
+              <a href="#diagnostics-section" class="btn btn-outline btn-sm">🔌 Diagnostics</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-grid">
+          <!-- 1. Profile & Timezone Settings -->
+          <section class="section-card" id="profile-section">
+            <div class="section-header">
+              <div>
+                <div class="section-header-title">
+                  <span>👤</span> Profile & Timezone Calibration
+                </div>
+                <div class="section-header-desc">
+                  Identity anchors and temporal standard for all scheduled planner windows and habit logs.
+                </div>
+              </div>
+            </div>
+
+            <form id="profileForm">
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="userName">Student Name</label>
+                  <input type="text" id="userName" class="form-input" placeholder="e.g. Mayank" readonly style="background-color: var(--color-bg-subtle); cursor: not-allowed;">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="userEmail">Account Email</label>
+                  <input type="email" id="userEmail" class="form-input" placeholder="user@sarthi.app" readonly style="background-color: var(--color-bg-subtle); cursor: not-allowed;">
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="timezoneSelect">System Timezone</label>
+                  <select id="timezoneSelect" class="form-select">
+                    <option value="Asia/Kolkata" selected>Asia/Kolkata (IST — UTC+05:30) [Default SARTHI]</option>
+                    <option value="UTC">UTC (Coordinated Universal Time — UTC+00:00)</option>
+                    <option value="Asia/Dubai">Asia/Dubai (GST — UTC+04:00)</option>
+                    <option value="Asia/Singapore">Asia/Singapore (SGT — UTC+08:00)</option>
+                    <option value="Asia/Tokyo">Asia/Tokyo (JST — UTC+09:00)</option>
+                    <option value="Europe/London">Europe/London (GMT/BST — UTC+00:00 / +01:00)</option>
+                    <option value="America/New_York">America/New_York (EST/EDT — UTC-05:00 / -04:00)</option>
+                    <option value="America/Los_Angeles">America/Los_Angeles (PST/PDT — UTC-08:00 / -07:00)</option>
+                  </select>
+                  <span class="text-xs text-subtle">All timetable slots, night routines, and attendance blocks evaluate against this timezone.</span>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="userIdDisplay">User Reference ID</label>
+                  <input type="text" id="userIdDisplay" class="form-input" readonly style="background-color: var(--color-bg-subtle); font-family: var(--font-mono); font-size: 0.8125rem; cursor: not-allowed;">
+                  <span class="text-xs text-subtle">Unique internal token identifier.</span>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: var(--space-4);">
+                <button type="submit" id="saveProfileBtn" class="btn btn-primary">Save Profile & Timezone</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- 2. Planning & Capacity Preferences -->
+          <section class="section-card" id="capacity-section">
+            <div class="section-header">
+              <div>
+                <div class="section-header-title">
+                  <span>🧠</span> Planning & Cognitive Capacity Preferences
+                </div>
+                <div class="section-header-desc">
+                  Defines the mathematical constraints of the SARTHI Adaptive Planner engine to prevent over-scheduling and burnout.
+                </div>
+              </div>
+            </div>
+
+            <form id="capacityForm">
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="dailyMaxWorkMinutes">Daily Max Work Capacity (Minutes)</label>
+                  <input type="number" id="dailyMaxWorkMinutes" class="form-input" min="60" max="960" step="15" value="480" required>
+                  <span class="text-xs text-subtle" id="workCapacityHelper">480 minutes = 8 hours 0 mins maximum realistic daily load.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="monthlySlackDaysAllowed">Monthly Slack Days Allowance</label>
+                  <input type="number" id="monthlySlackDaysAllowed" class="form-input" min="0" max="10" step="1" value="2" required>
+                  <span class="text-xs text-subtle">Permitted disruption recovery days per calendar month without penalty.</span>
+                </div>
+              </div>
+
+              <div class="grid-3" style="margin-top: var(--space-2);">
+                <div class="form-group">
+                  <label class="form-label" for="sleepWindowStart">Sleep Window Start</label>
+                  <input type="time" id="sleepWindowStart" class="form-input" value="23:40">
+                  <span class="text-xs text-subtle">Fixed night routine anchor.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="sleepWindowEnd">Wake-up Anchor Time</label>
+                  <input type="time" id="sleepWindowEnd" class="form-input" value="05:00">
+                  <span class="text-xs text-subtle">Start of morning cycle.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="protectedSleepMinutes">Protected Sleep Buffer (Minutes)</label>
+                  <input type="number" id="protectedSleepMinutes" class="form-input" min="240" max="600" step="10" value="320">
+                  <span class="text-xs text-subtle">320 minutes (~5h 20m) non-negotiable rest.</span>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: var(--space-4);">
+                <button type="submit" id="saveCapacityBtn" class="btn btn-primary">Save Capacity Preferences</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- 3. Fitness & Weight Targets -->
+          <section class="section-card" id="fitness-section">
+            <div class="section-header">
+              <div>
+                <div class="section-header-title">
+                  <span>💪</span> Fitness & Weight Baseline Targets
+                </div>
+                <div class="section-header-desc">
+                  Calibrate your physical conditioning trajectory without unsustainable crash dieting.
+                </div>
+              </div>
+            </div>
+
+            <form id="fitnessForm">
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="startingWeightKg">Starting Weight (kg)</label>
+                  <input type="number" id="startingWeightKg" class="form-input" step="0.1" min="30" max="250" value="88" required>
+                  <span class="text-xs text-subtle">Initial baseline weight recorded at program inception.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="targetWeightKg">Target Weight (kg)</label>
+                  <input type="number" id="targetWeightKg" class="form-input" step="0.1" min="30" max="250" value="73" required>
+                  <span class="text-xs text-subtle">Long-term target weight goal for athletic conditioning.</span>
+                </div>
+              </div>
+
+              <div class="target-callout">
+                <div class="target-stat">
+                  <span class="target-stat-lbl">Starting Baseline</span>
+                  <span class="target-stat-val" id="dispStartingWeight">88.0 kg</span>
+                </div>
+                <div class="target-arrow">➔</div>
+                <div class="target-stat">
+                  <span class="target-stat-lbl">Target Goal</span>
+                  <span class="target-stat-val" id="dispTargetWeight">73.0 kg</span>
+                </div>
+                <div class="target-arrow">=</div>
+                <div class="target-stat">
+                  <span class="target-stat-lbl">Planned Reduction</span>
+                  <span class="target-stat-val" id="dispDeltaWeight" style="color: var(--color-primary);">15.0 kg</span>
+                </div>
+                <div style="flex: 1; min-width: 200px;">
+                  <span class="text-xs text-subtle">Tracked on a strict 14-day weigh-in cadence with daily 17:00–18:30 gym execution.</span>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: var(--space-4);">
+                <button type="submit" id="saveFitnessBtn" class="btn btn-primary">Save Fitness Targets</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- 4. Exam Mode Configuration -->
+          <section class="section-card" id="exam-mode-section">
+            <div class="section-header">
+              <div>
+                <div class="section-header-title">
+                  <span>🎓</span> Exam Mode Configuration
+                </div>
+                <div class="section-header-desc">
+                  Adaptive academic reprioritization mechanism to guarantee semester success.
+                </div>
+              </div>
+              <div id="examModeStatusBadge" class="badge badge-neutral">Mode: Inactive</div>
+            </div>
+
+            <form id="examModeForm">
+              <div class="card" style="background-color: var(--color-bg-subtle); margin-bottom: var(--space-5);">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+                  <label class="switch-label" for="examModeToggle">
+                    <input type="checkbox" id="examModeToggle" class="switch-input">
+                    <span style="font-weight: 700; font-size: 1rem; color: var(--color-ink);">Activate Academic Exam Mode</span>
+                  </label>
+                  <span class="text-xs text-subtle">Toggling instantly alerts the planner engine on next regeneration.</span>
+                </div>
+                <p class="text-subtle text-sm" style="margin-top: var(--space-3); line-height: 1.6;">
+                  <strong>Explainer:</strong> When active, non-academic priorities (P2/P3 learning tracks, general exploration, secondary hackathon items) are automatically deferred to preserve maximum study capacity for university examinations and attendance recovery.
+                </p>
+              </div>
+
+              <div class="grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="examStartDate">Exam Period Start Date</label>
+                  <input type="date" id="examStartDate" class="form-input">
+                  <span class="text-xs text-subtle">Date when academic lock-in begins.</span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="examEndDate">Exam Period End Date</label>
+                  <input type="date" id="examEndDate" class="form-input">
+                  <span class="text-xs text-subtle">Date when full multi-track schedule automatically resumes.</span>
+                </div>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; margin-top: var(--space-4);">
+                <button type="submit" id="saveExamModeBtn" class="btn btn-primary">Save Exam Mode Configuration</button>
+              </div>
+            </form>
+          </section>
+
+          <!-- 5. Data Export & Backup (Critical Feature) -->
+          <section class="section-card" id="backup-section">
+            <div class="section-header">
+              <div>
+                <div class="section-header-title">
+                  <span>📦</span> Data Export & Sovereignty Backup
+                </div>
+                <div class="section-header-desc">
+                  Complete offline snapshot of all system collections. Zero vendor lock-in.
+                </div>
+              </div>
+              <span class="badge badge-success">18 Collections Complete</span>
+            </div>
+
+            <div class="alert alert-success" style="margin-bottom: var(--space-4);">
+              <div style="font-weight: 700; margin-bottom: 4px;">Data Sovereignty Guarantee</div>
+              <div>
+                SARTHI adheres to absolute local data sovereignty. All records across all 18 database collections belong strictly to you. You can download an uncorrupted, human-readable JSON snapshot at any point for offline archiving, audit, or migration.
+              </div>
+            </div>
+
+            <div style="font-size: 0.8125rem; font-weight: 700; color: var(--color-ink); margin-bottom: var(--space-2);">
+              Collections included in the export payload:
+            </div>
+            <div class="collections-grid">
+              <div class="collection-chip"><span class="dot"></span> 1. Tasks & Backlog</div>
+              <div class="collection-chip"><span class="dot"></span> 2. Daily Plans</div>
+              <div class="collection-chip"><span class="dot"></span> 3. Slack Day Logs</div>
+              <div class="collection-chip"><span class="dot"></span> 4. Focus Sessions</div>
+              <div class="collection-chip"><span class="dot"></span> 5. Learning Courses</div>
+              <div class="collection-chip"><span class="dot"></span> 6. Oratory Weeks</div>
+              <div class="collection-chip"><span class="dot"></span> 7. Academic Subjects</div>
+              <div class="collection-chip"><span class="dot"></span> 8. Attendance Records</div>
+              <div class="collection-chip"><span class="dot"></span> 9. Assignments</div>
+              <div class="collection-chip"><span class="dot"></span> 10. Examinations</div>
+              <div class="collection-chip"><span class="dot"></span> 11. Hackathons</div>
+              <div class="collection-chip"><span class="dot"></span> 12. Fitness Logs</div>
+              <div class="collection-chip"><span class="dot"></span> 13. Weight Logs</div>
+              <div class="collection-chip"><span class="dot"></span> 14. Habits</div>
+              <div class="collection-chip"><span class="dot"></span> 15. Habit Logs</div>
+              <div class="collection-chip"><span class="dot"></span> 16. Notes & Journal</div>
+              <div class="collection-chip"><span class="dot"></span> 17. Reading Logs</div>
+              <div class="collection-chip"><span class="dot"></span> 18. Savings & Rewards</div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-4); margin-top: var(--space-6); padding-top: var(--space-4); border-top: 1px solid var(--color-border);">
+              <div>
+                <div style="font-weight: 600; font-size: 0.875rem; color: var(--color-ink);">Generate JSON Archive</div>
+                <div class="text-xs text-subtle">Downloads file named: <code style="font-family: var(--font-mono); color: var(--color-primary);" id="backupFilenamePreview">sarthi_backup_YYYY-MM-DD.json</code></div>
+              </div>
+              <button id="downloadBackupBtn" class="btn btn-primary">
+                <span>⬇ Download Complete Data Backup</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- 6. System Integration Diagnostics -->
+          <section class="section-card" id="diagnostics-section">
+            <div class="section-header">
+              <div>
+                <div class="section-header-title">
+                  <span>🔌</span> System Integration Diagnostics
+                </div>
+                <div class="section-header-desc">
+                  Real-time status check for external sync APIs and background services. Honest reporting: no fake green checkmarks.
+                </div>
+              </div>
+              <button id="refreshDiagBtn" class="btn btn-outline btn-sm">↻ Re-check Status</button>
+            </div>
+
+            <div class="grid-2" id="diagnosticsContainer">
+              <!-- Google Calendar Card -->
+              <div class="diag-card unconfigured" id="diagGoogleCard">
+                <div class="diag-header">
+                  <div class="diag-name">
+                    <span>📅</span> Google Calendar Sync
+                  </div>
+                  <span id="googleStatusBadge" class="badge badge-warning">Checking...</span>
+                </div>
+                <div class="diag-detail" id="googleStatusMessage">
+                  Querying server environment configuration for OAuth credentials...
+                </div>
+                <div class="diag-guide" id="googleGuideBox">
+                  Status: Checking server status...
+                </div>
+              </div>
+
+              <!-- Web Push Card -->
+              <div class="diag-card unconfigured" id="diagPushCard">
+                <div class="diag-header">
+                  <div class="diag-name">
+                    <span>🔔</span> Web Push Notifications
+                  </div>
+                  <span id="pushStatusBadge" class="badge badge-warning">Checking...</span>
+                </div>
+                <div class="diag-detail" id="pushStatusMessage">
+                  Querying server environment configuration for VAPID key pairs...
+                </div>
+                <div class="diag-guide" id="pushGuideBox">
+                  Status: Checking server status...
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth, getCurrentUser } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    let currentSettings = null;
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+
+      renderLayout('settings');
+      populateUserInfo(user);
+      updateBackupDatePreview();
+
+      await loadSettings();
+      await loadIntegrationsDiagnostics();
+      setupEventListeners();
+    }
+
+    function populateUserInfo(user) {
+      const nameInput = document.getElementById('userName');
+      const emailInput = document.getElementById('userEmail');
+      const idInput = document.getElementById('userIdDisplay');
+
+      if (nameInput) nameInput.value = user.name || 'Student';
+      if (emailInput) emailInput.value = user.email || 'user@sarthi.app';
+      if (idInput) idInput.value = user.id || user._id || 'UID-LOCAL-ACTIVE';
+    }
+
+    function updateBackupDatePreview() {
+      const dateStr = new Date().toISOString().split('T')[0];
+      const preview = document.getElementById('backupFilenamePreview');
+      if (preview) {
+        preview.textContent = `sarthi_backup_${dateStr}.json`;
+      }
+    }
+
+    async function loadSettings() {
+      try {
+        const res = await api.get('/settings');
+        if (res.success && res.settings) {
+          currentSettings = res.settings;
+          applySettingsToForm(res.settings);
+        }
+      } catch (err) {
+        showToast('Error loading current settings: ' + err.message, 'error');
+      }
+    }
+
+    function applySettingsToForm(s) {
+      // 1. Timezone
+      const tzSelect = document.getElementById('timezoneSelect');
+      if (tzSelect && s.timezone) {
+        tzSelect.value = s.timezone;
+      }
+
+      // 2. Planning & Capacity
+      const dailyMaxInput = document.getElementById('dailyMaxWorkMinutes');
+      if (dailyMaxInput && s.dailyMaxWorkMinutes !== undefined) {
+        dailyMaxInput.value = s.dailyMaxWorkMinutes;
+        updateCapacityHelper(s.dailyMaxWorkMinutes);
+      }
+
+      const slackInput = document.getElementById('monthlySlackDaysAllowed');
+      if (slackInput) {
+        const slackVal = s.monthlySlackDaysAllowed !== undefined 
+          ? s.monthlySlackDaysAllowed 
+          : (s.monthlySlackDayAllowance !== undefined ? s.monthlySlackDayAllowance : 2);
+        slackInput.value = slackVal;
+      }
+
+      const sleepStart = document.getElementById('sleepWindowStart');
+      if (sleepStart && s.sleepWindowStart) sleepStart.value = s.sleepWindowStart;
+
+      const sleepEnd = document.getElementById('sleepWindowEnd');
+      if (sleepEnd && s.sleepWindowEnd) sleepEnd.value = s.sleepWindowEnd;
+
+      const sleepMins = document.getElementById('protectedSleepMinutes');
+      if (sleepMins && s.protectedSleepMinutes !== undefined) sleepMins.value = s.protectedSleepMinutes;
+
+      // 3. Fitness
+      const startWeightInput = document.getElementById('startingWeightKg');
+      if (startWeightInput && s.startingWeightKg !== undefined) {
+        startWeightInput.value = s.startingWeightKg;
+      }
+
+      const targetWeightInput = document.getElementById('targetWeightKg');
+      if (targetWeightInput && s.targetWeightKg !== undefined) {
+        targetWeightInput.value = s.targetWeightKg;
+      }
+      updateFitnessPreview(
+        startWeightInput ? Number(startWeightInput.value) : 88,
+        targetWeightInput ? Number(targetWeightInput.value) : 73
+      );
+
+      // 4. Exam Mode
+      const examToggle = document.getElementById('examModeToggle');
+      if (examToggle) {
+        examToggle.checked = Boolean(s.examModeEnabled);
+        updateExamModeBadge(examToggle.checked);
+      }
+
+      const examStart = document.getElementById('examStartDate');
+      if (examStart && s.examModeStartDate) {
+        examStart.value = s.examModeStartDate.split('T')[0];
+      }
+
+      const examEnd = document.getElementById('examEndDate');
+      if (examEnd && s.examModeEndDate) {
+        examEnd.value = s.examModeEndDate.split('T')[0];
+      }
+    }
+
+    function updateCapacityHelper(mins) {
+      const helper = document.getElementById('workCapacityHelper');
+      if (!helper) return;
+      const m = Number(mins) || 0;
+      const h = Math.floor(m / 60);
+      const rem = m % 60;
+      helper.textContent = `${m} minutes = ${h} hours ${rem} mins maximum realistic daily load.`;
+    }
+
+    function updateFitnessPreview(start, target) {
+      const s = Number(start) || 88;
+      const t = Number(target) || 73;
+      const delta = (s - t).toFixed(1);
+
+      const dispStart = document.getElementById('dispStartingWeight');
+      const dispTarget = document.getElementById('dispTargetWeight');
+      const dispDelta = document.getElementById('dispDeltaWeight');
+
+      if (dispStart) dispStart.textContent = `${s.toFixed(1)} kg`;
+      if (dispTarget) dispTarget.textContent = `${t.toFixed(1)} kg`;
+      if (dispDelta) dispDelta.textContent = `${delta} kg`;
+    }
+
+    function updateExamModeBadge(isActive) {
+      const badge = document.getElementById('examModeStatusBadge');
+      if (!badge) return;
+      if (isActive) {
+        badge.className = 'badge badge-warning';
+        badge.textContent = 'Mode: Active (Academic Focus Lock)';
+      } else {
+        badge.className = 'badge badge-neutral';
+        badge.textContent = 'Mode: Inactive';
+      }
+    }
+
+    async function loadIntegrationsDiagnostics() {
+      const googleCard = document.getElementById('diagGoogleCard');
+      const googleBadge = document.getElementById('googleStatusBadge');
+      const googleMsg = document.getElementById('googleStatusMessage');
+      const googleGuide = document.getElementById('googleGuideBox');
+
+      const pushCard = document.getElementById('diagPushCard');
+      const pushBadge = document.getElementById('pushStatusBadge');
+      const pushMsg = document.getElementById('pushStatusMessage');
+      const pushGuide = document.getElementById('pushGuideBox');
+
+      try {
+        const res = await api.get('/settings/integrations/status');
+        if (!res.success || !res.integrations) {
+          throw new Error('Invalid diagnostic response');
+        }
+
+        const { googleCalendar, webPush } = res.integrations;
+
+        // Google Calendar Diagnostics (honest reporting)
+        if (googleCalendar && googleCalendar.configured) {
+          googleCard.className = 'diag-card configured';
+          googleBadge.className = 'badge badge-success';
+          googleBadge.textContent = 'Configured & Ready';
+          googleMsg.textContent = googleCalendar.message || 'OAuth client credentials configured.';
+          googleGuide.innerHTML = googleCalendar.authUrl 
+            ? `Auth URL available: <a href="${googleCalendar.authUrl}" style="color: var(--color-primary); text-decoration: underline;">Connect Google Calendar</a>`
+            : `Client ID and Secret detected in server environment.`;
+        } else {
+          googleCard.className = 'diag-card unconfigured';
+          googleBadge.className = 'badge badge-warning';
+          googleBadge.textContent = 'Credentials Not Configured';
+          googleMsg.textContent = googleCalendar?.message || 'Optional integration. To enable, configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in server .env.';
+          googleGuide.innerHTML = `Environment required: <br>GOOGLE_CLIENT_ID=&lt;your_oauth_id&gt;<br>GOOGLE_CLIENT_SECRET=&lt;your_oauth_secret&gt;`;
+        }
+
+        // Web Push Diagnostics (honest reporting)
+        if (webPush && webPush.configured) {
+          pushCard.className = 'diag-card configured';
+          pushBadge.className = 'badge badge-success';
+          pushBadge.textContent = 'Configured & Active';
+          pushMsg.textContent = webPush.message || 'VAPID keys configured for browser notifications.';
+          pushGuide.innerHTML = `VAPID Public Key: <span style="word-break: break-all;">${webPush.publicKey || 'Key present'}</span>`;
+        } else {
+          pushCard.className = 'diag-card unconfigured';
+          pushBadge.className = 'badge badge-warning';
+          pushBadge.textContent = 'Credentials Not Configured';
+          pushMsg.textContent = webPush?.message || 'Optional push notifications. Add VAPID keys to server .env to enable web push.';
+          pushGuide.innerHTML = `Generate with:<br>npx web-push generate-vapid-keys<br>Then add VAPID_PUBLIC_KEY & VAPID_PRIVATE_KEY to .env`;
+        }
+      } catch (err) {
+        googleBadge.className = 'badge badge-danger';
+        googleBadge.textContent = 'Diagnostics Unreachable';
+        googleMsg.textContent = 'Could not contact diagnostics service: ' + err.message;
+
+        pushBadge.className = 'badge badge-danger';
+        pushBadge.textContent = 'Diagnostics Unreachable';
+        pushMsg.textContent = 'Could not contact diagnostics service: ' + err.message;
+      }
+    }
+
+    async function downloadBackup() {
+      const btn = document.getElementById('downloadBackupBtn');
+      const originalText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Exporting 18 Collections...</span>';
+
+      try {
+        const token = localStorage.getItem('sarthi_token');
+        const headers = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+
+        const response = await fetch('/api/settings/export', {
+          method: 'GET',
+          headers
+        });
+
+        if (!response.ok) {
+          throw new Error(`Export failed with HTTP status ${response.status}`);
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = downloadUrl;
+
+        const dateStamp = new Date().toISOString().split('T')[0];
+        a.download = `sarthi_backup_${dateStamp}.json`;
+
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        a.remove();
+
+        showToast('Complete data backup downloaded successfully (18 collections)!', 'success');
+      } catch (err) {
+        showToast('Backup export failed: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    }
+
+    function setupEventListeners() {
+      // 1. Profile & Timezone Form
+      document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const timezone = document.getElementById('timezoneSelect').value;
+        const btn = document.getElementById('saveProfileBtn');
+        btn.disabled = true;
+
+        try {
+          const res = await api.put('/settings', { timezone });
+          if (res.success) {
+            currentSettings = res.settings;
+            showToast('Timezone preference saved: ' + timezone, 'success');
+          }
+        } catch (err) {
+          showToast('Failed to update timezone: ' + err.message, 'error');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      // 2. Planning & Capacity Form
+      const workInput = document.getElementById('dailyMaxWorkMinutes');
+      workInput.addEventListener('input', () => {
+        updateCapacityHelper(workInput.value);
+      });
+
+      document.getElementById('capacityForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const dailyMaxWorkMinutes = Number(document.getElementById('dailyMaxWorkMinutes').value);
+        const monthlySlackDaysAllowed = Number(document.getElementById('monthlySlackDaysAllowed').value);
+        const sleepWindowStart = document.getElementById('sleepWindowStart').value;
+        const sleepWindowEnd = document.getElementById('sleepWindowEnd').value;
+        const protectedSleepMinutes = Number(document.getElementById('protectedSleepMinutes').value);
+
+        const btn = document.getElementById('saveCapacityBtn');
+        btn.disabled = true;
+
+        try {
+          const res = await api.put('/settings', {
+            dailyMaxWorkMinutes,
+            monthlySlackDaysAllowed,
+            monthlySlackDayAllowance: monthlySlackDaysAllowed,
+            sleepWindowStart,
+            sleepWindowEnd,
+            protectedSleepMinutes
+          });
+
+          if (res.success) {
+            currentSettings = res.settings;
+            showToast('Planning capacity & sleep constraints saved!', 'success');
+          }
+        } catch (err) {
+          showToast('Failed to update capacity settings: ' + err.message, 'error');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      // 3. Fitness Targets Form
+      const startWeightInput = document.getElementById('startingWeightKg');
+      const targetWeightInput = document.getElementById('targetWeightKg');
+      const handleWeightChange = () => {
+        updateFitnessPreview(startWeightInput.value, targetWeightInput.value);
+      };
+      startWeightInput.addEventListener('input', handleWeightChange);
+      targetWeightInput.addEventListener('input', handleWeightChange);
+
+      document.getElementById('fitnessForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const startingWeightKg = Number(document.getElementById('startingWeightKg').value);
+        const targetWeightKg = Number(document.getElementById('targetWeightKg').value);
+        const btn = document.getElementById('saveFitnessBtn');
+        btn.disabled = true;
+
+        try {
+          const res = await api.put('/settings', {
+            startingWeightKg,
+            targetWeightKg
+          });
+
+          if (res.success) {
+            currentSettings = res.settings;
+            showToast(`Fitness targets saved: ${startingWeightKg} kg → ${targetWeightKg} kg`, 'success');
+          }
+        } catch (err) {
+          showToast('Failed to update fitness targets: ' + err.message, 'error');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      // 4. Exam Mode Configuration Form
+      const examToggle = document.getElementById('examModeToggle');
+      examToggle.addEventListener('change', () => {
+        updateExamModeBadge(examToggle.checked);
+      });
+
+      document.getElementById('examModeForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const examModeEnabled = document.getElementById('examModeToggle').checked;
+        const examModeStartDate = document.getElementById('examStartDate').value || null;
+        const examModeEndDate = document.getElementById('examEndDate').value || null;
+        const btn = document.getElementById('saveExamModeBtn');
+        btn.disabled = true;
+
+        try {
+          const res = await api.put('/settings', {
+            examModeEnabled,
+            examModeStartDate,
+            examModeEndDate
+          });
+
+          if (res.success) {
+            currentSettings = res.settings;
+            updateExamModeBadge(res.settings.examModeEnabled);
+            showToast(
+              examModeEnabled 
+                ? 'Exam Mode activated! Non-academic tracks deferred.' 
+                : 'Exam Mode deactivated. Standard schedule restored.',
+              'success'
+            );
+          }
+        } catch (err) {
+          showToast('Failed to update exam mode: ' + err.message, 'error');
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      // 5. Data Backup Button
+      document.getElementById('downloadBackupBtn').addEventListener('click', (e) => {
+        e.preventDefault();
+        downloadBackup();
+      });
+
+      // 6. Diagnostics Refresh Button
+      document.getElementById('refreshDiagBtn').addEventListener('click', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('refreshDiagBtn');
+        btn.disabled = true;
+        btn.textContent = '↻ Checking...';
+        await loadIntegrationsDiagnostics();
+        btn.disabled = false;
+        btn.textContent = '↻ Re-check Status';
+        showToast('Integration diagnostics refreshed', 'info');
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

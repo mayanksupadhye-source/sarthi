@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Web Development Tracker — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <style>
+    .section-accordion {
+      background-color: var(--color-bg-paper);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-4);
+      overflow: hidden;
+    }
+    .section-header {
+      padding: var(--space-4) var(--space-5);
+      background-color: var(--color-bg-base);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .section-header:hover {
+      background-color: var(--color-bg-subtle);
+    }
+    .lecture-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-5);
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.875rem;
+    }
+    .lecture-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Web Development — Chai aur Code</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Progress Summary Card -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <h2 style="font-size: 1.25rem;">Chai aur Code — Complete Web Development</h2>
+              <p class="text-subtle text-sm">36 Sections · 331 Total Lectures · Active Code Practice (1.6× Multiplier)</p>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 1.5rem; font-weight: 800; color: var(--color-primary);" id="courseProgressVal">0 / 331</div>
+              <div class="text-subtle text-xs" id="courseTimeRemaining">-</div>
+            </div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill accent" id="courseProgressBar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Sections Container -->
+        <div id="sectionsContainer">
+          <p class="text-muted text-sm">Loading course curriculum...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { formatMinutes } from '/assets/js/utils.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    let course = null;
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('webdev');
+      await loadCourse();
+    }
+
+    async function loadCourse() {
+      try {
+        const res = await api.get('/courses/web-dev');
+        if (!res.success) return;
+        course = res.course;
+
+        // Render Summary
+        const percent = Math.round((course.completedLectures / (course.totalLectures || 1)) * 100);
+        document.getElementById('courseProgressVal').textContent = `${course.completedLectures} / ${course.totalLectures} (${percent}%)`;
+        document.getElementById('courseProgressBar').style.width = `${percent}%`;
+        
+        const remMin = Math.max(0, course.totalMinutes - course.completedMinutes);
+        document.getElementById('courseTimeRemaining').textContent = `${formatMinutes(course.completedMinutes)} completed · ${formatMinutes(remMin)} remaining`;
+
+        renderSections(course.sections);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function renderSections(sections) {
+      const container = document.getElementById('sectionsContainer');
+      if (!sections || sections.length === 0) {
+        container.innerHTML = '<p class="text-muted text-sm">No sections found.</p>';
+        return;
+      }
+
+      container.innerHTML = sections.map((sec, idx) => {
+        const doneLecs = sec.lectures.filter(l => l.isWatched && l.isCodeDone).length;
+        const totalLecs = sec.lectures.length;
+        const isOpen = idx < 4; // Open first 4 sections by default
+
+        return `
+          <div class="section-accordion">
+            <div class="section-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+              <div>
+                <strong style="font-size: 0.9375rem;">Section ${sec.sectionNumber}: ${sec.title}</strong>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--space-3);">
+                <span class="badge ${doneLecs === totalLecs && totalLecs > 0 ? 'badge-success' : 'badge-neutral'}">
+                  ${doneLecs} / ${totalLecs} done
+                </span>
+                <span class="text-subtle text-xs">▼</span>
+              </div>
+            </div>
+            <div class="section-body" style="display: ${isOpen ? 'block' : 'none'};">
+              ${sec.lectures.map(l => `
+                <div class="lecture-item">
+                  <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <input type="checkbox" class="lecture-chk" data-id="${l._id}" ${l.isWatched && l.isCodeDone ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
+                    <div>
+                      <div style="font-weight: 500; ${l.isWatched && l.isCodeDone ? 'text-decoration: line-through; opacity: 0.6;' : ''}">
+                        ${l.lectureNumber}. ${l.title}
+                      </div>
+                      <div class="text-subtle text-xs">
+                        Video: ${l.videoDurationMinutes}m · Practice Effort: ${l.totalEffortMinutes || Math.round(l.videoDurationMinutes * 1.6)}m
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: var(--space-2);">
+                    <a href="/pages/focus.html?courseSlug=web-dev&title=${encodeURIComponent('WebDev Lec ' + l.lectureNumber + ': ' + l.title)}" class="btn btn-outline btn-sm">
+                      Focus Practice
+                    </a>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.lecture-chk').forEach(chk => {
+        chk.addEventListener('change', async (e) => {
+          const lecId = e.target.dataset.id;
+          const checked = e.target.checked;
+          try {
+            await api.put(`/courses/web-dev/lecture/${lecId}`, {
+              isWatched: checked,
+              isCodeDone: checked
+            });
+            showToast(checked ? 'Lecture marked complete!' : 'Lecture unmarked');
+            await loadCourse();
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

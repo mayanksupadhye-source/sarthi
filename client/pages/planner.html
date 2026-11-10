@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adaptive Planner — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <style>
+    .replan-box {
+      border: 2px solid var(--color-ink);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      background-color: var(--color-bg-paper);
+      margin-top: var(--space-6);
+    }
+    .diff-column {
+      background-color: var(--color-bg-base);
+      border-radius: var(--radius-sm);
+      padding: var(--space-4);
+    }
+    .reason-item {
+      display: flex;
+      gap: var(--space-2);
+      font-size: 0.875rem;
+      color: var(--color-charcoal);
+      margin-bottom: var(--space-2);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Adaptive Planner & Recovery</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Explainer Card -->
+        <div class="card" style="margin-bottom: var(--space-6); border-left: 4px solid var(--color-primary);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+              <h2 style="font-size: 1.25rem; margin-bottom: var(--space-1);">Capacity-Aware Recovery Engine</h2>
+              <p class="text-subtle text-sm">
+                A missed day must never automatically invalidate the next day. SARTHI rebalances workload according to daily capacity limits, prioritises P1 essentials, and preserves all completed minutes.
+              </p>
+            </div>
+            <div style="text-align: right;">
+              <span class="badge badge-neutral" style="font-size: 0.8125rem;" id="slackStatusBadge">Slack Days: 4 / 4 Available</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <div class="card-header">
+            <div class="card-title">Run Capacity Replan</div>
+          </div>
+          <div style="display: flex; gap: var(--space-4); align-items: flex-end; flex-wrap: wrap;">
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Target Date</label>
+              <input type="date" id="targetDateInput" class="form-input">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label" style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer;">
+                <input type="checkbox" id="requestSlackDayChk" style="width: 16px; height: 16px;">
+                <span>Activate Slack Day (Disruption / Rest Buffer)</span>
+              </label>
+              <input type="text" id="slackReasonInput" class="form-input" placeholder="Reason (e.g. Unavoidable college exam prep / Illness)" style="display: none; margin-top: 4px;">
+            </div>
+
+            <button id="generateProposalBtn" class="btn btn-primary" style="margin-left: auto;">
+              🧠 Calculate Adaptive Replan
+            </button>
+          </div>
+        </div>
+
+        <!-- Proposal Output Box (Rendered when proposal is calculated) -->
+        <div id="proposalBox" class="replan-box" style="display: none;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); padding-bottom: var(--space-3); border-bottom: 2px solid var(--color-ink);">
+            <div>
+              <div class="text-xs" style="color: var(--color-primary); font-weight: 800;">PROPOSED SCHEDULE</div>
+              <h3 id="proposalTargetDate">Target: Today</h3>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 1.25rem; font-weight: 800;" id="proposalAllocation">0m / 330m</div>
+              <span class="text-subtle text-xs" id="proposalStatusText">Within Safe Capacity</span>
+            </div>
+          </div>
+
+          <!-- Warnings & Reasons -->
+          <div id="warningsBox" class="alert alert-warning" style="display: none;"></div>
+
+          <div style="margin-bottom: var(--space-6);">
+            <div class="form-label" style="margin-bottom: var(--space-2);">Why this plan was proposed:</div>
+            <div id="reasonsList"></div>
+          </div>
+
+          <!-- Before vs After Columns -->
+          <div class="grid-2" style="margin-bottom: var(--space-6);">
+            <!-- Accepted Column -->
+            <div class="diff-column">
+              <h4 style="margin-bottom: var(--space-3); display: flex; justify-content: space-between;">
+                <span>Scheduled for Execution</span>
+                <span class="badge badge-success" id="acceptedCountBadge">0 tasks</span>
+              </h4>
+              <div id="acceptedTasksList" style="display: flex; flex-direction: column; gap: var(--space-2);"></div>
+            </div>
+
+            <!-- Deferred Column -->
+            <div class="diff-column">
+              <h4 style="margin-bottom: var(--space-3); display: flex; justify-content: space-between;">
+                <span>Deferred to Backlog (Protected Capacity)</span>
+                <span class="badge badge-neutral" id="deferredCountBadge">0 tasks</span>
+              </h4>
+              <div id="deferredTasksList" style="display: flex; flex-direction: column; gap: var(--space-2);"></div>
+            </div>
+          </div>
+
+          <!-- Proposal Action Controls -->
+          <div style="display: flex; justify-content: flex-end; gap: var(--space-3); padding-top: var(--space-4); border-top: 1px solid var(--color-border);">
+            <button id="rejectProposalBtn" class="btn btn-outline">Reject Proposal</button>
+            <button id="confirmProposalBtn" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-size: 1rem;">
+              ✓ Confirm & Apply Plan
+            </button>
+          </div>
+        </div>
+
+        <!-- Slack Days History Card -->
+        <div class="card" style="margin-top: var(--space-8);">
+          <div class="card-header">
+            <div class="card-title">Slack Days Usage History</div>
+            <span class="text-subtle text-sm">Configurable buffer (4 days / month)</span>
+          </div>
+          <div id="slackDaysHistory">
+            <p class="text-muted text-sm">Loading recovery logs...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { formatMinutes, getPriorityBadge, getTodayString } from '/assets/js/utils.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    let currentProposal = null;
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('planner');
+
+      document.getElementById('targetDateInput').value = getTodayString();
+      await loadSlackDays();
+      setupEvents();
+    }
+
+    async function loadSlackDays() {
+      try {
+        const res = await api.get('/planner/slack-days');
+        if (!res.success) return;
+
+        document.getElementById('slackStatusBadge').textContent = `Slack Days: ${res.remainingCount} / ${res.allowance} Available`;
+
+        const container = document.getElementById('slackDaysHistory');
+        if (res.logs.length === 0) {
+          container.innerHTML = '<p class="text-muted text-sm">No Slack Days used this month. Your buffer is intact.</p>';
+          return;
+        }
+
+        container.innerHTML = res.logs.map(l => `
+          <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border);">
+            <div>
+              <strong>${l.date}</strong> — ${l.reason}
+            </div>
+            <span class="badge badge-warning">${l.tasksDeferredCount} task(s) deferred safely</span>
+          </div>
+        `).join('');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function setupEvents() {
+      const slackChk = document.getElementById('requestSlackDayChk');
+      const slackReason = document.getElementById('slackReasonInput');
+
+      slackChk.addEventListener('change', () => {
+        slackReason.style.display = slackChk.checked ? 'block' : 'none';
+      });
+
+      document.getElementById('generateProposalBtn').addEventListener('click', async () => {
+        const targetDate = document.getElementById('targetDateInput').value || getTodayString();
+        const requestSlackDay = slackChk.checked;
+        const slackDayReason = slackReason.value;
+
+        try {
+          showToast('Calculating capacity-aware plan...', 'info');
+          const res = await api.post('/planner/replan', {
+            targetDate,
+            requestSlackDay,
+            slackDayReason
+          });
+
+          if (res.success && res.proposal) {
+            currentProposal = res.proposal;
+            renderProposal(res.proposal);
+            document.getElementById('proposalBox').scrollIntoView({ behavior: 'smooth' });
+          }
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      document.getElementById('confirmProposalBtn').addEventListener('click', async () => {
+        if (!currentProposal) return;
+        try {
+          const acceptedTaskIds = currentProposal.acceptedTasks.map(t => t._id || t.id);
+          const deferredTaskIds = currentProposal.deferredTasks.map(t => t._id || t.id);
+
+          await api.post('/planner/replan/confirm', {
+            targetDate: currentProposal.targetDate,
+            acceptedTaskIds,
+            deferredTaskIds,
+            isSlackDay: currentProposal.isSlackDay,
+            slackDayReason: currentProposal.isSlackDay ? 'Activated by user' : ''
+          });
+
+          showToast('Adaptive replan confirmed and applied to schedule!', 'success');
+          document.getElementById('proposalBox').style.display = 'none';
+          currentProposal = null;
+          await loadSlackDays();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      document.getElementById('rejectProposalBtn').addEventListener('click', () => {
+        document.getElementById('proposalBox').style.display = 'none';
+        currentProposal = null;
+        showToast('Proposal rejected. Schedule left unchanged.', 'info');
+      });
+    }
+
+    function renderProposal(proposal) {
+      document.getElementById('proposalBox').style.display = 'block';
+      document.getElementById('proposalTargetDate').textContent = `Target: ${proposal.targetDate} ${proposal.isSlackDay ? '(Slack Day)' : ''}`;
+      document.getElementById('proposalAllocation').textContent = `${formatMinutes(proposal.allocatedMinutes)} / ${formatMinutes(proposal.capacityMinutes)}`;
+      
+      const statusText = document.getElementById('proposalStatusText');
+      if (proposal.isOverloaded) {
+        statusText.textContent = 'Exceeds standard capacity (using catch-up buffer)';
+        statusText.style.color = 'var(--color-warning)';
+      } else {
+        statusText.textContent = 'Fits comfortably within available study hours';
+        statusText.style.color = 'var(--color-success)';
+      }
+
+      // Warnings
+      const warningsBox = document.getElementById('warningsBox');
+      if (proposal.warnings && proposal.warnings.length > 0) {
+        warningsBox.style.display = 'block';
+        warningsBox.innerHTML = proposal.warnings.map(w => `<div>⚠ ${w}</div>`).join('');
+      } else {
+        warningsBox.style.display = 'none';
+      }
+
+      // Reasons
+      const reasonsList = document.getElementById('reasonsList');
+      if (proposal.reasons && proposal.reasons.length > 0) {
+        reasonsList.innerHTML = proposal.reasons.map(r => `
+          <div class="reason-item">
+            <span style="color: var(--color-primary); font-weight: bold;">•</span>
+            <span>${r}</span>
+          </div>
+        `).join('');
+      } else {
+        reasonsList.innerHTML = '<p class="text-subtle text-sm">All tasks scheduled according to standard timetable.</p>';
+      }
+
+      // Accepted Tasks
+      document.getElementById('acceptedCountBadge').textContent = `${proposal.acceptedTasks.length} tasks`;
+      const acceptedContainer = document.getElementById('acceptedTasksList');
+      if (proposal.acceptedTasks.length === 0) {
+        acceptedContainer.innerHTML = '<p class="text-subtle text-sm">No tasks allocated for this slot.</p>';
+      } else {
+        acceptedContainer.innerHTML = proposal.acceptedTasks.map(t => `
+          <div style="background: var(--color-bg-paper); padding: var(--space-3); border-radius: var(--radius-sm); border-left: 3px solid var(--color-ink);">
+            <div style="font-weight: 600; font-size: 0.875rem;">${t.title}</div>
+            <div class="text-subtle text-xs" style="margin-top: 2px;">
+              ${getPriorityBadge(t.priority)} · ${formatMinutes(t.remainingMinutes || t.estimatedMinutes)}
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Deferred Tasks
+      document.getElementById('deferredCountBadge').textContent = `${proposal.deferredTasks.length} tasks`;
+      const deferredContainer = document.getElementById('deferredTasksList');
+      if (proposal.deferredTasks.length === 0) {
+        deferredContainer.innerHTML = '<p class="text-subtle text-sm">No tasks needed deferral.</p>';
+      } else {
+        deferredContainer.innerHTML = proposal.deferredTasks.map(t => `
+          <div style="background: var(--color-bg-paper); padding: var(--space-3); border-radius: var(--radius-sm); border-left: 3px solid var(--color-muted); opacity: 0.85;">
+            <div style="font-weight: 600; font-size: 0.875rem;">${t.title}</div>
+            <div class="text-subtle text-xs" style="margin-top: 2px; color: var(--color-warning);">
+              ${t.deferReason || 'Deferred to prevent overload'} · (${formatMinutes(t.remainingMinutes || t.estimatedMinutes)})
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

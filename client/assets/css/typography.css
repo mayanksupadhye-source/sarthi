@@ -1,0 +1,63 @@
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-size: 1.875rem; /* 30px */
+}
+
+h2 {
+  font-size: 1.5rem;   /* 24px */
+}
+
+h3 {
+  font-size: 1.25rem;  /* 20px */
+}
+
+h4 {
+  font-size: 1.125rem; /* 18px */
+}
+
+.text-editorial {
+  font-family: var(--font-serif);
+  font-weight: 400;
+}
+
+.text-num {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.text-lead {
+  font-size: 1.125rem;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.text-subtle {
+  color: var(--color-subtle);
+  font-size: 0.875rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}

@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analytics & Insights — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <style>
+    /* Metric Cards */
+    .metric-card {
+      background-color: var(--color-bg-paper);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform var(--transition-fast), border-color var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+    }
+    .metric-card:hover {
+      border-color: var(--color-ink);
+    }
+    .metric-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-2);
+    }
+    .metric-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-muted);
+    }
+    .metric-icon {
+      font-size: 1.125rem;
+    }
+    .metric-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-ink);
+      line-height: 1.1;
+      margin-bottom: var(--space-2);
+      font-family: var(--font-mono), var(--font-sans);
+    }
+    .metric-subtext {
+      font-size: 0.8125rem;
+      color: var(--color-subtle);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      flex-wrap: wrap;
+    }
+    .metric-delta {
+      font-weight: 700;
+    }
+    .metric-delta.positive {
+      color: var(--color-success);
+    }
+    .metric-delta.negative {
+      color: var(--color-danger);
+    }
+    .metric-delta.neutral {
+      color: var(--color-muted);
+    }
+
+    /* Observations / Insights List */
+    .observation-item {
+      display: flex;
+      gap: var(--space-4);
+      padding: var(--space-4);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--color-border);
+      background-color: var(--color-bg-paper);
+      margin-bottom: var(--space-3);
+      align-items: flex-start;
+    }
+    .observation-item:last-child {
+      margin-bottom: 0;
+    }
+    .observation-item.danger {
+      border-left: 4px solid var(--color-danger);
+      background-color: #FEF2F2;
+    }
+    .observation-item.warning {
+      border-left: 4px solid var(--color-warning);
+      background-color: #FFFBEB;
+    }
+    .observation-item.success {
+      border-left: 4px solid var(--color-success);
+      background-color: #F0FDF4;
+    }
+    .observation-item.info {
+      border-left: 4px solid var(--color-ink);
+      background-color: var(--color-bg-subtle);
+    }
+    .observation-icon {
+      font-size: 1.25rem;
+      line-height: 1;
+      padding-top: 2px;
+    }
+    .observation-content {
+      flex: 1;
+    }
+    .observation-title {
+      font-weight: 700;
+      font-size: 0.9375rem;
+      color: var(--color-ink);
+      margin-bottom: 0.25rem;
+    }
+    .observation-desc {
+      font-size: 0.8125rem;
+      color: var(--color-charcoal);
+      line-height: 1.45;
+    }
+
+    /* Multi-segment Distribution Bar */
+    .distribution-bar {
+      display: flex;
+      width: 100%;
+      height: 16px;
+      border-radius: var(--radius-pill);
+      overflow: hidden;
+      background-color: var(--color-border);
+      margin: var(--space-4) 0;
+    }
+    .distribution-segment {
+      height: 100%;
+      transition: width var(--transition-normal);
+      position: relative;
+    }
+    .distribution-segment:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--color-ink);
+      color: #FFFFFF;
+      padding: 0.2rem 0.5rem;
+      font-size: 0.75rem;
+      border-radius: var(--radius-sm);
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* Track Cards */
+    .track-card {
+      background-color: var(--color-bg-paper);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .track-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .track-title {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--color-ink);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    .track-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8125rem;
+      color: var(--color-subtle);
+    }
+
+    /* Attendance Matrix Table */
+    .badge-attendance-safe {
+      background-color: var(--color-success-bg);
+      color: var(--color-success);
+      font-weight: 700;
+    }
+    .badge-attendance-shortage {
+      background-color: var(--color-danger-bg);
+      color: var(--color-danger);
+      font-weight: 700;
+    }
+    .badge-attendance-warning {
+      background-color: var(--color-warning-bg);
+      color: var(--color-warning);
+      font-weight: 700;
+    }
+
+    /* Section Headers */
+    .section-headline {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: var(--color-ink);
+      margin-bottom: var(--space-4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Category Legend */
+    .category-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      margin-top: var(--space-3);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.8125rem;
+      color: var(--color-charcoal);
+    }
+    .legend-color {
+      width: 10px;
+      height: 10px;
+      border-radius: var(--radius-sm);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">System Analytics & Execution Insights</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+          <select id="timeRangeFilter" class="form-select" style="padding: 0.35rem 0.75rem; font-size: 0.8125rem; width: auto;" title="Time Horizon">
+            <option value="all" selected>All Time</option>
+            <option value="month">Current Month</option>
+            <option value="week">Past 7 Days</option>
+          </select>
+          <button id="refreshBtn" class="btn btn-outline btn-sm" title="Reload live metrics">
+            <span>↻</span> Refresh
+          </button>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Transparent Architecture Banner -->
+        <div class="card" style="margin-bottom: var(--space-6); border-left: 4px solid var(--color-ink); background-color: var(--color-bg-subtle);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: 4px;">
+                <span class="badge badge-neutral" style="font-size: 0.75rem; letter-spacing: 0.05em;">DETERMINISTIC OBSERVABILITY</span>
+                <span class="text-subtle text-xs" id="lastSyncTime">Synced live</span>
+              </div>
+              <h2 style="font-size: 1.25rem; margin-bottom: var(--space-1); color: var(--color-ink);">Transparent Execution Analytics</h2>
+              <p class="text-subtle text-sm" style="max-width: 820px;">
+                SARTHI aggregates verified execution data: actual focus timer sessions, checked tasks, attendance roll logs, and physical check-ins. No synthetic scores, speculative algorithms, or black-box predictions.
+              </p>
+            </div>
+            <div style="text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: var(--space-2);">
+              <span id="systemHealthBadge" class="badge badge-success">System Status: Balanced</span>
+              <span class="text-subtle text-xs" id="activeModulesCount">4 Learning Tracks Active</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. Key Metric Overview Cards -->
+        <div class="grid-4" style="margin-bottom: var(--space-8);">
+          <!-- Focus Hours -->
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">Total Focus Time</span>
+              <span class="metric-icon">🎯</span>
+            </div>
+            <div class="metric-value" id="cardFocusHours">0.0<span style="font-size: 1rem; font-weight: 500; color: var(--color-muted); margin-left: 4px;">hrs</span></div>
+            <div class="metric-subtext">
+              <span id="cardFocusSessions">0 sessions logged</span>
+              <span>·</span>
+              <span id="cardFocusAvg">0m avg</span>
+            </div>
+          </div>
+
+          <!-- Task Completion Rate -->
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">Task Completion Rate</span>
+              <span class="metric-icon">📋</span>
+            </div>
+            <div class="metric-value" id="cardTaskRate">0<span style="font-size: 1.25rem; font-weight: 600; color: var(--color-muted); margin-left: 2px;">%</span></div>
+            <div class="metric-subtext">
+              <span id="cardTaskRatio">0 / 0 completed</span>
+              <span>·</span>
+              <span id="cardTaskBacklog">0 backlog</span>
+            </div>
+          </div>
+
+          <!-- Academic Attendance Health -->
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">Attendance Health</span>
+              <span class="metric-icon">🎓</span>
+            </div>
+            <div class="metric-value" id="cardAttendanceRate">100<span style="font-size: 1.25rem; font-weight: 600; color: var(--color-muted); margin-left: 2px;">%</span></div>
+            <div class="metric-subtext">
+              <span id="cardAttendanceRatio">All subjects safe</span>
+              <span>·</span>
+              <span id="cardAttendanceTarget">Target: ≥75%</span>
+            </div>
+          </div>
+
+          <!-- Weight Delta -->
+          <div class="metric-card">
+            <div class="metric-card-top">
+              <span class="metric-label">Weight Progression</span>
+              <span class="metric-icon">💪</span>
+            </div>
+            <div class="metric-value" id="cardWeightDelta">0.0<span style="font-size: 1rem; font-weight: 500; color: var(--color-muted); margin-left: 4px;">kg</span></div>
+            <div class="metric-subtext">
+              <span id="cardWeightCurrent">Current: 88 kg</span>
+              <span>·</span>
+              <span id="cardWeightGoal">Goal: 73 kg</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Deterministic Insights / Observations Section -->
+        <div style="margin-bottom: var(--space-8);">
+          <div class="section-headline">
+            <span>Deterministic Insights & System Alerts</span>
+            <span class="text-subtle text-xs" id="observationCountBadge">Evaluating live data...</span>
+          </div>
+          <div class="card" style="padding: var(--space-5);">
+            <div id="observationsContainer">
+              <p class="text-muted text-sm">Evaluating system signals...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Module Progress Bars -->
+        <div style="margin-bottom: var(--space-8);">
+          <div class="section-headline">
+            <span>Core Modules & Long-Horizon Tracks</span>
+            <span class="text-subtle text-xs">Direct syllabus & target progress</span>
+          </div>
+          <div class="grid-2">
+            <!-- Web Development Course -->
+            <div class="track-card">
+              <div class="track-card-header">
+                <div class="track-title">
+                  <span>🌐</span>
+                  <span>Web Development Course</span>
+                </div>
+                <a href="/pages/webdev.html" class="btn btn-outline btn-sm">View Syllabus →</a>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill accent" id="trackWebDevFill" style="width: 0%;"></div>
+              </div>
+              <div class="track-meta">
+                <span id="trackWebDevLectures">0 / 0 Lectures completed</span>
+                <strong id="trackWebDevPercent" style="color: var(--color-ink);">0%</strong>
+              </div>
+              <div class="text-subtle text-xs" id="trackWebDevTime">0m completed</div>
+            </div>
+
+            <!-- DSA 136 Course -->
+            <div class="track-card">
+              <div class="track-card-header">
+                <div class="track-title">
+                  <span>💻</span>
+                  <span>C++ DSA Mastery (136)</span>
+                </div>
+                <a href="/pages/dsa.html" class="btn btn-outline btn-sm">View Curriculum →</a>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="trackDsaFill" style="width: 0%;"></div>
+              </div>
+              <div class="track-meta">
+                <span id="trackDsaLectures">0 / 136 Topics solved</span>
+                <strong id="trackDsaPercent" style="color: var(--color-ink);">0%</strong>
+              </div>
+              <div class="text-subtle text-xs" id="trackDsaTime">Structured problem-solving cadence</div>
+            </div>
+
+            <!-- Oratory 13-Week Program -->
+            <div class="track-card">
+              <div class="track-card-header">
+                <div class="track-title">
+                  <span>🎙</span>
+                  <span>Oratory Mastery (13-Week)</span>
+                </div>
+                <a href="/pages/oratory.html" class="btn btn-outline btn-sm">Session Log →</a>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill accent" id="trackOratoryFill" style="width: 0%;"></div>
+              </div>
+              <div class="track-meta">
+                <span id="trackOratoryWeeks">0 / 13 Weeks Completed</span>
+                <strong id="trackOratoryPercent" style="color: var(--color-ink);">0%</strong>
+              </div>
+              <div class="text-subtle text-xs" id="trackOratoryDrills">Speech drills, voice modulation & persuasion</div>
+            </div>
+
+            <!-- Savings & Celebration Goal -->
+            <div class="track-card">
+              <div class="track-card-header">
+                <div class="track-title">
+                  <span>🏔</span>
+                  <span>Mountain Trekking & Birthday Fund</span>
+                </div>
+                <a href="/pages/rewards.html" class="btn btn-outline btn-sm">Fund Details →</a>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill success" id="trackSavingsFill" style="width: 0%;"></div>
+              </div>
+              <div class="track-meta">
+                <span id="trackSavingsAmount">₹0 / ₹4,000 saved</span>
+                <strong id="trackSavingsPercent" style="color: var(--color-success);">0%</strong>
+              </div>
+              <div class="text-subtle text-xs" id="trackSavingsRemaining">₹4,000 remaining to milestone</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Focus Time Distribution -->
+        <div style="margin-bottom: var(--space-8);">
+          <div class="section-headline">
+            <span>Focus Time Distribution</span>
+            <span class="text-subtle text-xs">Categorical breakdown of deep work sessions</span>
+          </div>
+          <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+              <div>
+                <strong style="font-size: 1rem; color: var(--color-ink);" id="distributionTotalHours">0.0 Hours Logged</strong>
+                <p class="text-subtle text-sm">Visual partition of tracked concentration blocks</p>
+              </div>
+              <a href="/pages/focus.html" class="btn btn-outline btn-sm">Open Focus Timer ⏱</a>
+            </div>
+
+            <!-- Multi-segment proportional bar -->
+            <div class="distribution-bar" id="focusDistributionBar">
+              <div style="width: 100%; height: 100%; background-color: var(--color-border); display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; color: var(--color-subtle);">No focus sessions recorded yet</div>
+            </div>
+
+            <!-- Legend -->
+            <div class="category-legend" id="focusLegendContainer"></div>
+
+            <!-- Distribution Breakdown Table -->
+            <div class="table-container" style="margin-top: var(--space-5);">
+              <table class="table" style="width: 100%;">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Sessions</th>
+                    <th>Total Minutes</th>
+                    <th>Total Time</th>
+                    <th>Share (%)</th>
+                  </tr>
+                </thead>
+                <tbody id="distributionTbody">
+                  <tr>
+                    <td colspan="5" style="text-align: center; color: var(--color-muted); padding: var(--space-5);">No completed focus sessions recorded yet. Start a session from the topbar widget or Focus page.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. Academic Attendance Health Matrix -->
+        <div style="margin-bottom: var(--space-8);">
+          <div class="section-headline">
+            <span>Academic Attendance Health Matrix</span>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <span class="badge badge-neutral text-xs">Mandatory Cutoff: 75%</span>
+              <a href="/pages/academics.html" class="btn btn-outline btn-sm">Mark Roll Call 🎓</a>
+            </div>
+          </div>
+          <div class="card" style="padding: 0; overflow: hidden;">
+            <div class="table-container" style="border: none; border-radius: 0;">
+              <table class="table" style="width: 100%;">
+                <thead>
+                  <tr>
+                    <th>Subject & Code</th>
+                    <th>Type</th>
+                    <th>Attended / Conducted</th>
+                    <th>Current Attendance</th>
+                    <th>Standing</th>
+                    <th>Deterministic Action Rule</th>
+                  </tr>
+                </thead>
+                <tbody id="attendanceTbody">
+                  <tr>
+                    <td colspan="6" style="text-align: center; color: var(--color-muted); padding: var(--space-6);">Loading subject attendance records...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Daily Capacity & Buffer Health Review -->
+        <div style="margin-bottom: var(--space-8);">
+          <div class="section-headline">
+            <span>Workload Capacity & Recovery Buffer</span>
+            <a href="/pages/planner.html" class="btn btn-outline btn-sm">Adaptive Planner 🧠</a>
+          </div>
+          <div class="grid-2">
+            <!-- Today's Execution Capacity Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title" style="font-size: 1rem;">Today's Daily Capacity Allocation</div>
+                <span class="badge badge-neutral" id="capacityDayTypeBadge">Weekday</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-3);">
+                <div>
+                  <span style="font-size: 1.5rem; font-weight: 800; color: var(--color-ink);" id="capacityAllocatedVal">0h 0m</span>
+                  <span class="text-subtle text-sm">scheduled</span>
+                </div>
+                <div style="text-align: right;">
+                  <span class="text-subtle text-sm">Target Limit: </span>
+                  <strong id="capacityTargetVal">5h 30m</strong>
+                </div>
+              </div>
+              <div class="progress-bar" style="height: 10px; margin-bottom: var(--space-3);">
+                <div class="progress-fill" id="capacityProgressBar" style="width: 0%;"></div>
+              </div>
+              <p class="text-subtle text-xs" id="capacityStatusText">
+                Capacity limit guarantees recovery by capping scheduled hours. Over-allocation increases cognitive fatigue.
+              </p>
+            </div>
+
+            <!-- Slack Days Buffer Card -->
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title" style="font-size: 1rem;">Monthly Slack Days Buffer</div>
+                <span class="badge badge-success" id="slackDaysStatusBadge">4 / 4 Available</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--space-3);">
+                <div>
+                  <span style="font-size: 1.5rem; font-weight: 800; color: var(--color-ink);" id="slackDaysRemainingVal">4</span>
+                  <span class="text-subtle text-sm">slack days remaining this month</span>
+                </div>
+                <div style="text-align: right;">
+                  <span class="text-subtle text-sm">Allowance: </span>
+                  <strong id="slackDaysAllowanceVal">4 Days</strong>
+                </div>
+              </div>
+              <div class="progress-bar" style="height: 10px; margin-bottom: var(--space-3);">
+                <div class="progress-fill accent" id="slackDaysProgressBar" style="width: 100%;"></div>
+              </div>
+              <p class="text-subtle text-xs" id="slackDaysExplainer">
+                Slack days absorb unforeseen illness, college duties, or overload without permanently invalidating future schedule tracks.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { showToast } from '/assets/js/toast.js';
+    import { formatMinutes } from '/assets/js/utils.js';
+
+    // State
+    let rawFocusData = { sessions: [], totalMinutes: 0, count: 0 };
+    let rawTasksData = [];
+    let rawSubjectsData = [];
+    let rawWeightData = { currentWeightKg: 88, lostSoFarKg: 0, remainingToTargetKg: 15, progressPercent: 0, logs: [] };
+    let rawHabitsData = [];
+    let rawPlannerData = null;
+    let rawSlackData = null;
+    let rawCoursesData = [];
+    let rawOratoryWeeks = [];
+    let rawSavingsData = null;
+
+    // Palette mapping for focus categories
+    const CATEGORY_COLORS = {
+      'study': '#1F2937',      // Charcoal
+      'webdev': '#E05A1B',     // Terracotta / Primary
+      'dsa': '#1D4ED8',        // Blue
+      'academic': '#15803D',    // Green
+      'college': '#047857',     // Emerald
+      'hackathon': '#7C3AED',   // Purple
+      'oratory': '#B45309',     // Amber
+      'personal': '#4B5563',    // Slate
+      'general': '#6B7280'      // Gray
+    };
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+
+      renderLayout('analytics');
+      setupEventListeners();
+      await fetchAllData();
+    }
+
+    function setupEventListeners() {
+      document.getElementById('refreshBtn')?.addEventListener('click', async () => {
+        showToast('Refreshing live metrics...', 'info');
+        await fetchAllData();
+        showToast('Analytics up to date.', 'success');
+      });
+
+      document.getElementById('timeRangeFilter')?.addEventListener('change', () => {
+        renderFocusDistribution();
+      });
+    }
+
+    async function fetchAllData() {
+      const lastSyncEl = document.getElementById('lastSyncTime');
+      if (lastSyncEl) {
+        lastSyncEl.textContent = `Updated ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+      }
+
+      const results = await Promise.allSettled([
+        api.get('/focus/history'),
+        api.get('/tasks'),
+        fetchSubjectsData(),
+        api.get('/personal/weight'),
+        api.get('/personal/habits'),
+        api.get('/planner/today'),
+        api.get('/planner/slack-days'),
+        api.get('/courses'),
+        api.get('/courses/oratory/weeks'),
+        api.get('/personal/rewards-savings'),
+        api.get('/insights/summary').catch(() => null)
+      ]);
+
+      // 1. Focus History
+      if (results[0].status === 'fulfilled' && results[0].value?.success) {
+        rawFocusData = results[0].value;
+      }
+
+      // 2. Tasks
+      if (results[1].status === 'fulfilled' && results[1].value?.success) {
+        rawTasksData = results[1].value.tasks || [];
+      }
+
+      // 3. Subjects (Academics)
+      if (results[2].status === 'fulfilled' && results[2].value?.success) {
+        rawSubjectsData = results[2].value.subjects || [];
+      }
+
+      // 4. Weight
+      if (results[3].status === 'fulfilled' && results[3].value?.success) {
+        rawWeightData = results[3].value;
+      }
+
+      // 5. Habits
+      if (results[4].status === 'fulfilled' && results[4].value?.success) {
+        rawHabitsData = results[4].value.habits || [];
+      }
+
+      // 6. Planner Today
+      if (results[5].status === 'fulfilled' && results[5].value?.success) {
+        rawPlannerData = results[5].value;
+      }
+
+      // 7. Slack Days
+      if (results[6].status === 'fulfilled' && results[6].value?.success) {
+        rawSlackData = results[6].value;
+      }
+
+      // 8. Courses
+      if (results[7].status === 'fulfilled' && results[7].value?.success) {
+        rawCoursesData = results[7].value.courses || [];
+      }
+
+      // 9. Oratory Weeks
+      if (results[8].status === 'fulfilled' && results[8].value?.success) {
+        rawOratoryWeeks = results[8].value.weeks || [];
+      }
+
+      // 10. Savings
+      if (results[9].status === 'fulfilled' && results[9].value?.success) {
+        rawSavingsData = results[9].value;
+      }
+
+      const backendInsights = (results[10].status === 'fulfilled' && results[10].value?.success) ? results[10].value : null;
+
+      // Render all visual modules
+      renderMetricCards();
+      renderObservations(backendInsights);
+      renderModuleProgress();
+      renderFocusDistribution();
+      renderAttendanceMatrix();
+      renderCapacityAndSlack();
+    }
+
+    // Attempt fetching subjects from /academics/subjects or /academic/subjects
+    async function fetchSubjectsData() {
+      try {
+        const res = await api.get('/academic/subjects');
+        if (res.success) return res;
+      } catch (err) {
+        // Fallback
+      }
+      return await api.get('/academics/subjects');
+    }
+
+    // 1. Metric Overview Cards
+    function renderMetricCards() {
+      // Focus Hours
+      const totalMins = Number(rawFocusData.totalMinutes) || 0;
+      const totalHours = (totalMins / 60).toFixed(1);
+      const sessionCount = rawFocusData.count || (rawFocusData.sessions ? rawFocusData.sessions.length : 0);
+      const avgMins = sessionCount > 0 ? Math.round(totalMins / sessionCount) : 0;
+
+      document.getElementById('cardFocusHours').innerHTML = `${totalHours}<span style="font-size: 1rem; font-weight: 500; color: var(--color-muted); margin-left: 4px;">hrs</span>`;
+      document.getElementById('cardFocusSessions').textContent = `${sessionCount} completed session${sessionCount === 1 ? '' : 's'}`;
+      document.getElementById('cardFocusAvg').textContent = avgMins > 0 ? `~${avgMins}m avg` : '0m avg';
+
+      // Task Completion
+      const totalTasks = rawTasksData.length;
+      const completedTasks = rawTasksData.filter(t => t.status === 'completed').length;
+      const backlogTasks = rawTasksData.filter(t => (!t.scheduledDate || t.isDeferred) && t.status !== 'completed').length;
+      const taskRate = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+      document.getElementById('cardTaskRate').innerHTML = `${taskRate}<span style="font-size: 1.25rem; font-weight: 600; color: var(--color-muted); margin-left: 2px;">%</span>`;
+      document.getElementById('cardTaskRatio').textContent = `${completedTasks} of ${totalTasks} completed`;
+      document.getElementById('cardTaskBacklog').textContent = `${backlogTasks} in backlog`;
+
+      // Academic Attendance
+      const totalSubs = rawSubjectsData.length;
+      if (totalSubs === 0) {
+        document.getElementById('cardAttendanceRate').innerHTML = `100<span style="font-size: 1.25rem; font-weight: 600; color: var(--color-muted); margin-left: 2px;">%</span>`;
+        document.getElementById('cardAttendanceRatio').textContent = 'No subjects enrolled';
+      } else {
+        const safeSubs = rawSubjectsData.filter(s => {
+          const st = s.theoryStatus || {};
+          const pct = st.currentPercent !== undefined ? st.currentPercent : 100;
+          return pct >= 75;
+        }).length;
+        const healthPercent = Math.round((safeSubs / totalSubs) * 100);
+        const dangerCount = totalSubs - safeSubs;
+
+        document.getElementById('cardAttendanceRate').innerHTML = `${healthPercent}<span style="font-size: 1.25rem; font-weight: 600; color: var(--color-muted); margin-left: 2px;">%</span>`;
+        if (dangerCount > 0) {
+          document.getElementById('cardAttendanceRatio').innerHTML = `<span style="color: var(--color-danger); font-weight: 700;">${dangerCount} subject${dangerCount === 1 ? '' : 's'} at risk</span>`;
+        } else {
+          document.getElementById('cardAttendanceRatio').textContent = `All ${totalSubs} subjects safe (≥75%)`;
+        }
+      }
+
+      // Weight Delta
+      const startWeight = 88;
+      const targetWeight = 73;
+      const currentWeight = Number(rawWeightData.currentWeightKg) || 88;
+      const lostSoFar = Math.max(0, Math.round((startWeight - currentWeight) * 10) / 10);
+      const remainingKg = Math.max(0, Math.round((currentWeight - targetWeight) * 10) / 10);
+
+      const sign = lostSoFar > 0 ? '-' : '';
+      document.getElementById('cardWeightDelta').innerHTML = `${sign}${lostSoFar}<span style="font-size: 1rem; font-weight: 500; color: var(--color-muted); margin-left: 4px;">kg</span>`;
+      document.getElementById('cardWeightCurrent').textContent = `Current: ${currentWeight} kg`;
+      document.getElementById('cardWeightGoal').textContent = remainingKg > 0 ? `${remainingKg} kg to reach ${targetWeight} kg` : `Target reached! (${targetWeight} kg)`;
+    }
+
+    // 2. Deterministic Insights / Observations Section
+    function renderObservations(backendInsights) {
+      const container = document.getElementById('observationsContainer');
+      const badge = document.getElementById('observationCountBadge');
+      const systemBadge = document.getElementById('systemHealthBadge');
+
+      const observations = [];
+
+      // A. Attendance Risk Analysis
+      const attendanceShortages = [];
+      rawSubjectsData.forEach(sub => {
+        const st = sub.theoryStatus || {};
+        const pct = st.currentPercent !== undefined ? st.currentPercent : 100;
+        if (pct < 75) {
+          const needed = st.classesNeededToTarget || Math.ceil((0.75 * (sub.totalTheorySessions || 1) - (sub.attendedTheorySessions || 0)) / 0.25);
+          attendanceShortages.push({
+            name: sub.name,
+            code: sub.code,
+            pct,
+            needed: Math.max(1, needed),
+            isCritical: pct < 65
+          });
+        }
+      });
+
+      if (attendanceShortages.length > 0) {
+        observations.push({
+          type: 'danger',
+          icon: '⚠',
+          title: `Attendance Shortage Detected in ${attendanceShortages.length} Subject${attendanceShortages.length === 1 ? '' : 's'}`,
+          desc: attendanceShortages.map(a => 
+            `<strong>${a.name} (${a.code})</strong> is at <strong>${a.pct}%</strong>. You must attend the next <strong>${a.needed} consecutive class${a.needed === 1 ? '' : 'es'}</strong> without absence to cross the mandatory 75% threshold.`
+          ).join('<br>')
+        });
+      }
+
+      // B. Backlog & Daily Capacity Overload Analysis
+      const pendingTasks = rawTasksData.filter(t => t.status !== 'completed');
+      const totalPendingMins = pendingTasks.reduce((sum, t) => sum + (t.remainingMinutes || t.estimatedMinutes || 0), 0);
+      const targetDailyCapacity = rawPlannerData?.targetCapacityMinutes || 330;
+
+      if (totalPendingMins > targetDailyCapacity * 2.5) {
+        const backlogHours = (totalPendingMins / 60).toFixed(1);
+        const daysEquiv = (totalPendingMins / targetDailyCapacity).toFixed(1);
+        observations.push({
+          type: 'warning',
+          icon: '⏳',
+          title: `Backlog Accumulation Risk (${backlogHours} hours pending)`,
+          desc: `Unfinished and deferred tasks equal <strong>${daysEquiv} days</strong> of maximum work capacity. Use the Adaptive Planner to defer low-priority (P3) tasks or trim daily scope to avoid cognitive fatigue.`
+        });
+      }
+
+      // C. Slack Days Buffer Check
+      const slackAllowance = rawSlackData?.allowance || 4;
+      const slackUsed = rawSlackData?.usedCount || 0;
+      const slackRemaining = Math.max(0, slackAllowance - slackUsed);
+
+      if (slackRemaining === 0) {
+        observations.push({
+          type: 'warning',
+          icon: '🛡',
+          title: `Monthly Slack Days Buffer Exhausted (${slackUsed}/${slackAllowance} Used)`,
+          desc: `All emergency slack days for this calendar month have been allocated. Future disruptions will be rebalanced by distributing catch-up blocks rather than activating full buffer days.`
+        });
+      } else if (slackRemaining === 1) {
+        observations.push({
+          type: 'info',
+          icon: '🛡',
+          title: `1 Slack Day Buffer Remaining for this Month`,
+          desc: `You have 1 recovery day available out of ${slackAllowance} monthly days. Keep standard execution prioritized to preserve this final safety net.`
+        });
+      }
+
+      // D. Repeated Over-Capacity Indicator for Today
+      if (rawPlannerData && rawPlannerData.dailyPlan) {
+        const allocated = rawPlannerData.dailyPlan.allocatedMinutes || 0;
+        const target = rawPlannerData.targetCapacityMinutes || 330;
+        if (allocated > target) {
+          const over = allocated - target;
+          observations.push({
+            type: 'warning',
+            icon: '⚡',
+            title: `Today is Over-Allocated by ${formatMinutes(over)}`,
+            desc: `Current schedule has ${formatMinutes(allocated)} allocated against a realistic capacity target of ${formatMinutes(target)}. Consider deferring non-essential items.`
+          });
+        }
+      }
+
+      // E. Habit Completion Momentum
+      if (rawHabitsData.length > 0) {
+        const doneHabits = rawHabitsData.filter(h => h.isCompletedToday).length;
+        const habitRate = Math.round((doneHabits / rawHabitsData.length) * 100);
+        if (habitRate === 100) {
+          observations.push({
+            type: 'success',
+            icon: '✓',
+            title: `100% Routine Execution: All ${rawHabitsData.length} Habits Completed Today`,
+            desc: `Full compliance on morning/evening routines and recovery habits. Strong baseline discipline supports deep cognitive work.`
+          });
+        } else if (doneHabits > 0) {
+          observations.push({
+            type: 'info',
+            icon: '🌙',
+            title: `Routine Check-in: ${doneHabits} of ${rawHabitsData.length} Habits Logged Today (${habitRate}%)`,
+            desc: `Routine maintenance is underway. Don't forget the wind-down routine and digital shutdown before sleep.`
+          });
+        }
+      }
+
+      // F. Focus Session Momentum
+      const totalFocusMins = Number(rawFocusData.totalMinutes) || 0;
+      if (totalFocusMins > 0) {
+        const totalHrs = (totalFocusMins / 60).toFixed(1);
+        observations.push({
+          type: 'success',
+          icon: '🎯',
+          title: `Deep Work Momentum: ${totalHrs} Hours of Verifiable Focus Logged`,
+          desc: `Completed ${rawFocusData.count || rawFocusData.sessions.length} structured sessions without synthetic estimation. High signal execution.`
+        });
+      }
+
+      // If no risks detected
+      if (observations.length === 0) {
+        observations.push({
+          type: 'success',
+          icon: '✓',
+          title: 'System Fully Balanced: No Critical Execution Risks Detected',
+          desc: 'Attendance is above 75% across all enrolled subjects, daily task capacity is bounded, and recovery slack buffers are intact.'
+        });
+      }
+
+      // Update Header badges
+      badge.textContent = `${observations.length} active signal${observations.length === 1 ? '' : 's'}`;
+      if (attendanceShortages.length > 0) {
+        systemBadge.className = 'badge badge-danger';
+        systemBadge.textContent = 'System Status: Attendance Risk';
+      } else if (observations.some(o => o.type === 'warning')) {
+        systemBadge.className = 'badge badge-warning';
+        systemBadge.textContent = 'System Status: Attention Recommended';
+      } else {
+        systemBadge.className = 'badge badge-success';
+        systemBadge.textContent = 'System Status: Balanced & On Track';
+      }
+
+      // Render observations HTML
+      container.innerHTML = observations.map(obs => `
+        <div class="observation-item ${obs.type}">
+          <div class="observation-icon">${obs.icon}</div>
+          <div class="observation-content">
+            <div class="observation-title">${obs.title}</div>
+            <div class="observation-desc">${obs.desc}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // 3. Module Progress Bars
+    function renderModuleProgress() {
+      // 1. Web Dev
+      const webDevCourse = rawCoursesData.find(c => c.slug === 'web-dev');
+      if (webDevCourse) {
+        const completed = webDevCourse.completedLectures || 0;
+        const total = webDevCourse.totalLectures || 1;
+        const pct = Math.round((completed / total) * 100);
+        const fill = document.getElementById('trackWebDevFill');
+        if (fill) fill.style.width = `${pct}%`;
+        document.getElementById('trackWebDevPercent').textContent = `${pct}%`;
+        document.getElementById('trackWebDevLectures').textContent = `${completed} / ${total} Lectures Completed`;
+        document.getElementById('trackWebDevTime').textContent = `${formatMinutes(webDevCourse.completedMinutes || 0)} invested · ${formatMinutes(Math.max(0, (webDevCourse.totalMinutes || 0) - (webDevCourse.completedMinutes || 0)))} remaining`;
+      } else {
+        // Fallback or unseeded
+        document.getElementById('trackWebDevFill').style.width = '0%';
+        document.getElementById('trackWebDevPercent').textContent = '0%';
+        document.getElementById('trackWebDevLectures').textContent = '0 / 63 Lectures Completed';
+      }
+
+      // 2. DSA 136
+      const dsaCourse = rawCoursesData.find(c => c.slug === 'dsa');
+      if (dsaCourse) {
+        const completed = dsaCourse.completedLectures || 0;
+        const total = dsaCourse.totalLectures || 136;
+        const pct = Math.round((completed / total) * 100);
+        const fill = document.getElementById('trackDsaFill');
+        if (fill) fill.style.width = `${pct}%`;
+        document.getElementById('trackDsaPercent').textContent = `${pct}%`;
+        document.getElementById('trackDsaLectures').textContent = `${completed} / ${total} Topics Solved`;
+        document.getElementById('trackDsaTime').textContent = `${formatMinutes(dsaCourse.completedMinutes || 0)} problem solving time logged`;
+      } else {
+        document.getElementById('trackDsaFill').style.width = '0%';
+        document.getElementById('trackDsaPercent').textContent = '0%';
+        document.getElementById('trackDsaLectures').textContent = '0 / 136 Topics Solved';
+      }
+
+      // 3. Oratory 13-Week Program
+      const totalWeeks = 13;
+      const completedWeeks = rawOratoryWeeks.filter(w => w.isCompleted).length;
+      const oratoryPct = Math.round((completedWeeks / totalWeeks) * 100);
+      const oratoryFill = document.getElementById('trackOratoryFill');
+      if (oratoryFill) oratoryFill.style.width = `${oratoryPct}%`;
+      document.getElementById('trackOratoryPercent').textContent = `${oratoryPct}%`;
+      document.getElementById('trackOratoryWeeks').textContent = `${completedWeeks} / ${totalWeeks} Weekly Modules Mastered`;
+      document.getElementById('trackOratoryDrills').textContent = completedWeeks > 0 ? `${completedWeeks} weekly speech drill sessions completed` : 'Start Week 1: Speech Diagnostics & Baseline';
+
+      // 4. Savings & Reward
+      const savingsObj = rawSavingsData?.savings || { targetAmount: 4000, currentAmount: 0 };
+      const currentSaved = (savingsObj.contributions || []).reduce((sum, c) => sum + (c.amount || 0), savingsObj.currentAmount || 0);
+      const targetAmount = savingsObj.targetAmount || 4000;
+      const savingsPct = Math.min(100, Math.round((currentSaved / targetAmount) * 100));
+      const savingsFill = document.getElementById('trackSavingsFill');
+      if (savingsFill) savingsFill.style.width = `${savingsPct}%`;
+      document.getElementById('trackSavingsPercent').textContent = `${savingsPct}%`;
+      document.getElementById('trackSavingsAmount').textContent = `₹${currentSaved.toLocaleString('en-IN')} / ₹${targetAmount.toLocaleString('en-IN')} saved`;
+      const rem = Math.max(0, targetAmount - currentSaved);
+      document.getElementById('trackSavingsRemaining').textContent = rem > 0 ? `₹${rem.toLocaleString('en-IN')} remaining to fund milestone` : 'Target celebration fund fully achieved! 🎉';
+    }
+
+    // 4. Focus Time Distribution
+    function renderFocusDistribution() {
+      const timeFilter = document.getElementById('timeRangeFilter')?.value || 'all';
+      let sessions = rawFocusData.sessions || [];
+
+      // Filter by time if needed
+      if (timeFilter !== 'all') {
+        const now = new Date();
+        const cutoff = new Date();
+        if (timeFilter === 'week') {
+          cutoff.setDate(now.getDate() - 7);
+        } else if (timeFilter === 'month') {
+          cutoff.setDate(now.getDate() - 30);
+        }
+        sessions = sessions.filter(s => new Date(s.createdAt || s.startTime) >= cutoff);
+      }
+
+      const categoryMap = {};
+      let totalMins = 0;
+
+      sessions.forEach(s => {
+        const cat = (s.category || 'general').toLowerCase();
+        const mins = Number(s.actualMinutes) || 0;
+        if (!categoryMap[cat]) {
+          categoryMap[cat] = { category: cat, minutes: 0, sessionsCount: 0 };
+        }
+        categoryMap[cat].minutes += mins;
+        categoryMap[cat].sessionsCount += 1;
+        totalMins += mins;
+      });
+
+      const totalHoursEl = document.getElementById('distributionTotalHours');
+      if (totalHoursEl) {
+        totalHoursEl.textContent = `${(totalMins / 60).toFixed(1)} Hours Logged (${sessions.length} sessions)`;
+      }
+
+      const barContainer = document.getElementById('focusDistributionBar');
+      const legendContainer = document.getElementById('focusLegendContainer');
+      const tbody = document.getElementById('distributionTbody');
+
+      const cats = Object.values(categoryMap).sort((a, b) => b.minutes - a.minutes);
+
+      if (cats.length === 0 || totalMins === 0) {
+        barContainer.innerHTML = '<div style="width: 100%; height: 100%; background-color: var(--color-border); display: flex; align-items: center; justify-content: center; font-size: 0.6875rem; color: var(--color-subtle);">No focus sessions recorded in selected timeframe</div>';
+        legendContainer.innerHTML = '';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--color-muted); padding: var(--space-5);">No completed focus sessions found for this horizon.</td></tr>';
+        return;
+      }
+
+      // Render Proportional Segments
+      barContainer.innerHTML = cats.map(c => {
+        const share = Math.round((c.minutes / totalMins) * 100);
+        const color = CATEGORY_COLORS[c.category] || CATEGORY_COLORS['general'];
+        return `
+          <div class="distribution-segment" style="width: ${share}%; background-color: ${color};" data-tooltip="${c.category.toUpperCase()}: ${c.minutes}m (${share}%)"></div>
+        `;
+      }).join('');
+
+      // Render Legend
+      legendContainer.innerHTML = cats.map(c => {
+        const color = CATEGORY_COLORS[c.category] || CATEGORY_COLORS['general'];
+        const share = Math.round((c.minutes / totalMins) * 100);
+        return `
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: ${color};"></div>
+            <span style="font-weight: 600; text-transform: capitalize;">${c.category}</span>
+            <span class="text-subtle text-xs">(${share}%)</span>
+          </div>
+        `;
+      }).join('');
+
+      // Render Table
+      tbody.innerHTML = cats.map(c => {
+        const share = Math.round((c.minutes / totalMins) * 100);
+        const color = CATEGORY_COLORS[c.category] || CATEGORY_COLORS['general'];
+        return `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: var(--space-2);">
+                <div style="width: 8px; height: 8px; border-radius: var(--radius-sm); background-color: ${color};"></div>
+                <strong style="text-transform: capitalize;">${c.category}</strong>
+              </div>
+            </td>
+            <td>${c.sessionsCount}</td>
+            <td>${c.minutes} min</td>
+            <td style="font-weight: 600; color: var(--color-ink);">${formatMinutes(c.minutes)}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: var(--space-2);">
+                <div class="progress-bar" style="width: 60px; height: 6px;">
+                  <div class="progress-fill" style="width: ${share}%; background-color: ${color};"></div>
+                </div>
+                <span>${share}%</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 5. Academic Attendance Health Matrix
+    function renderAttendanceMatrix() {
+      const tbody = document.getElementById('attendanceTbody');
+      if (rawSubjectsData.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" style="text-align: center; color: var(--color-muted); padding: var(--space-6);">
+              No subjects added yet. Add your academic curriculum in the <a href="/pages/academics.html" style="color: var(--color-primary); font-weight: 600;">Academic Command Centre</a>.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = rawSubjectsData.map(sub => {
+        const st = sub.theoryStatus || {};
+        const pct = st.currentPercent !== undefined ? st.currentPercent : 100;
+        const target = st.targetPercent || 75;
+        const isShortage = pct < 75;
+        const isCritical = pct < 65;
+
+        let badgeClass = 'badge-attendance-safe';
+        let statusLabel = 'Safe Standing';
+        if (isCritical) {
+          badgeClass = 'badge-attendance-shortage';
+          statusLabel = 'Critical Shortage';
+        } else if (isShortage) {
+          badgeClass = 'badge-attendance-warning';
+          statusLabel = 'Shortage Risk';
+        }
+
+        // Actionable rule
+        let ruleHtml = '';
+        if (isShortage) {
+          const needed = st.classesNeededToTarget || Math.ceil((0.75 * (sub.totalTheorySessions || 1) - (sub.attendedTheorySessions || 0)) / 0.25);
+          ruleHtml = `<span style="color: var(--color-danger); font-weight: 700;">⚠ Must attend next ${Math.max(1, needed)} consecutive class(es)</span> to reach 75%`;
+        } else {
+          const safeBunks = st.safeBunksAllowed !== undefined ? st.safeBunksAllowed : 0;
+          if (safeBunks > 0) {
+            ruleHtml = `<span style="color: var(--color-success); font-weight: 600;">✓ Can safely miss ${safeBunks} class(es)</span> without dropping below 75%`;
+          } else {
+            ruleHtml = `<span style="color: var(--color-muted); font-weight: 600;">At minimum boundary</span> · Zero safe absences remaining`;
+          }
+        }
+
+        return `
+          <tr style="${isShortage ? 'background-color: #FEF2F2;' : ''}">
+            <td>
+              <div style="font-weight: 700; color: var(--color-ink);">${sub.name}</div>
+              <div class="text-subtle text-xs">${sub.code} ${sub.faculty ? `· Prof. ${sub.faculty}` : ''}</div>
+            </td>
+            <td>
+              <span class="badge badge-neutral" style="text-transform: capitalize;">${sub.type || 'Theory'}</span>
+            </td>
+            <td>
+              <strong>${sub.attendedTheorySessions || 0}</strong> / ${sub.totalTheorySessions || 0}
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: var(--space-2);">
+                <strong style="font-size: 1rem; color: ${isShortage ? 'var(--color-danger)' : 'var(--color-ink)'};">${pct}%</strong>
+                <div class="progress-bar" style="width: 50px; height: 6px;">
+                  <div class="progress-fill ${isShortage ? 'accent' : 'success'}" style="width: ${Math.min(100, pct)}%; background-color: ${isShortage ? 'var(--color-danger)' : 'var(--color-success)'};"></div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge ${badgeClass}">${statusLabel}</span>
+            </td>
+            <td style="font-size: 0.8125rem;">
+              ${ruleHtml}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 6. Capacity & Slack Recovery Review
+    function renderCapacityAndSlack() {
+      // Capacity
+      const targetMins = rawPlannerData?.targetCapacityMinutes || 330;
+      const allocatedMins = rawPlannerData?.dailyPlan?.allocatedMinutes || 0;
+      const dayType = rawPlannerData?.dayType || 'weekday';
+
+      document.getElementById('capacityDayTypeBadge').textContent = dayType.toUpperCase();
+      document.getElementById('capacityTargetVal').textContent = formatMinutes(targetMins);
+      document.getElementById('capacityAllocatedVal').textContent = formatMinutes(allocatedMins);
+
+      const capPct = Math.min(100, Math.round((allocatedMins / targetMins) * 100));
+      const capBar = document.getElementById('capacityProgressBar');
+      if (capBar) {
+        capBar.style.width = `${capPct}%`;
+        if (allocatedMins > targetMins) {
+          capBar.style.backgroundColor = 'var(--color-danger)';
+        } else {
+          capBar.style.backgroundColor = 'var(--color-ink)';
+        }
+      }
+
+      const capText = document.getElementById('capacityStatusText');
+      if (allocatedMins > targetMins) {
+        capText.innerHTML = `<strong style="color: var(--color-danger);">Over capacity by ${formatMinutes(allocatedMins - targetMins)}.</strong> The adaptive planner recommends shedding or deferring low-priority tasks.`;
+      } else {
+        const rem = targetMins - allocatedMins;
+        capText.textContent = `Within safe boundaries: ${formatMinutes(rem)} available capacity buffer remaining today.`;
+      }
+
+      // Slack Days
+      const allowance = rawSlackData?.allowance || 4;
+      const used = rawSlackData?.usedCount || 0;
+      const remaining = Math.max(0, allowance - used);
+      const slackPct = Math.round((remaining / allowance) * 100);
+
+      document.getElementById('slackDaysAllowanceVal').textContent = `${allowance} Days / Month`;
+      document.getElementById('slackDaysRemainingVal').textContent = remaining;
+      document.getElementById('slackDaysStatusBadge').textContent = `${remaining} / ${allowance} Available`;
+      if (remaining === 0) {
+        document.getElementById('slackDaysStatusBadge').className = 'badge badge-danger';
+      } else if (remaining === 1) {
+        document.getElementById('slackDaysStatusBadge').className = 'badge badge-warning';
+      } else {
+        document.getElementById('slackDaysStatusBadge').className = 'badge badge-success';
+      }
+
+      const slackBar = document.getElementById('slackDaysProgressBar');
+      if (slackBar) {
+        slackBar.style.width = `${slackPct}%`;
+        slackBar.style.backgroundColor = remaining === 0 ? 'var(--color-danger)' : remaining === 1 ? 'var(--color-warning)' : 'var(--color-success)';
+      }
+    }
+
+    init();
+  </script>
+</body>
+</html>

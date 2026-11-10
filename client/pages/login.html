@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <style>
+    body {
+      background-color: var(--color-bg-base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: var(--space-4);
+    }
+    .auth-container {
+      width: 100%;
+      max-width: 420px;
+    }
+    .auth-card {
+      background-color: var(--color-bg-paper);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-8);
+      box-shadow: var(--shadow-md);
+    }
+    .auth-header {
+      text-align: center;
+      margin-bottom: var(--space-6);
+    }
+    .auth-monogram {
+      width: 48px;
+      height: 48px;
+      background-color: var(--color-ink);
+      color: var(--color-primary);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin: 0 auto var(--space-3);
+    }
+    .auth-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: var(--space-6);
+    }
+    .auth-tab {
+      flex: 1;
+      text-align: center;
+      padding: var(--space-3);
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--color-muted);
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+    .auth-tab.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-monogram">S</div>
+        <h1>SARTHI</h1>
+        <p class="text-subtle">Personal Execution & Student Operating System</p>
+      </div>
+
+      <div class="auth-tabs">
+        <div class="auth-tab active" id="tabLogin">Sign In</div>
+        <div class="auth-tab" id="tabRegister">Create Account</div>
+      </div>
+
+      <div id="authAlert" class="alert alert-danger" style="display: none;"></div>
+
+      <form id="authForm">
+        <div class="form-group" id="nameGroup" style="display: none;">
+          <label class="form-label" for="nameInput">Full Name</label>
+          <input type="text" id="nameInput" class="form-input" placeholder="e.g. Mayank Supadhye">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="emailInput">Email Address</label>
+          <input type="email" id="emailInput" class="form-input" placeholder="student@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="passwordInput">Password</label>
+          <input type="password" id="passwordInput" class="form-input" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: var(--space-2);" id="submitBtn">
+          Sign In
+        </button>
+      </form>
+
+      <div style="margin-top: var(--space-6); text-align: center;">
+        <p class="text-subtle text-sm">
+          A missed day must never automatically invalidate the next day.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { api } from '/assets/js/api.js';
+
+    let isRegisterMode = false;
+
+    const tabLogin = document.getElementById('tabLogin');
+    const tabRegister = document.getElementById('tabRegister');
+    const nameGroup = document.getElementById('nameGroup');
+    const nameInput = document.getElementById('nameInput');
+    const emailInput = document.getElementById('emailInput');
+    const passwordInput = document.getElementById('passwordInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const authAlert = document.getElementById('authAlert');
+
+    tabLogin.addEventListener('click', () => {
+      isRegisterMode = false;
+      tabLogin.classList.add('active');
+      tabRegister.classList.remove('active');
+      nameGroup.style.display = 'none';
+      submitBtn.textContent = 'Sign In';
+      authAlert.style.display = 'none';
+    });
+
+    tabRegister.addEventListener('click', () => {
+      isRegisterMode = true;
+      tabRegister.classList.add('active');
+      tabLogin.classList.remove('active');
+      nameGroup.style.display = 'flex';
+      submitBtn.textContent = 'Create Account & Seed Tracks';
+      authAlert.style.display = 'none';
+    });
+
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      authAlert.style.display = 'none';
+      submitBtn.disabled = true;
+
+      try {
+        const email = emailInput.value.trim();
+        const password = passwordInput.value;
+
+        if (isRegisterMode) {
+          const name = nameInput.value.trim() || 'Student';
+          submitBtn.textContent = 'Creating Account & Seeding Courses...';
+          const res = await api.post('/auth/register', { name, email, password });
+          if (res.success && res.token) {
+            localStorage.setItem('sarthi_token', res.token);
+            localStorage.setItem('sarthi_user', JSON.stringify(res.user));
+            window.location.href = '/pages/dashboard.html';
+          }
+        } else {
+          submitBtn.textContent = 'Signing In...';
+          const res = await api.post('/auth/login', { email, password });
+          if (res.success && res.token) {
+            localStorage.setItem('sarthi_token', res.token);
+            localStorage.setItem('sarthi_user', JSON.stringify(res.user));
+            window.location.href = '/pages/dashboard.html';
+          }
+        }
+      } catch (err) {
+        authAlert.textContent = err.message || 'Authentication failed. Please check credentials.';
+        authAlert.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = isRegisterMode ? 'Create Account & Seed Tracks' : 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>C++ DSA Tracker — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <style>
+    .cluster-card {
+      background-color: var(--color-bg-paper);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      margin-bottom: var(--space-4);
+      overflow: hidden;
+    }
+    .cluster-header {
+      padding: var(--space-4) var(--space-5);
+      background-color: var(--color-bg-base);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--color-border);
+    }
+    .cluster-header:hover {
+      background-color: var(--color-bg-subtle);
+    }
+    .dsa-lecture-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-3) var(--space-5);
+      border-bottom: 1px solid var(--color-border);
+      font-size: 0.875rem;
+    }
+    .dsa-lecture-row:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">C++ Data Structures & Algorithms</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Progress Summary -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <h2 style="font-size: 1.25rem;">Apna College — 136 Lectures Roadmap</h2>
+              <p class="text-subtle text-sm">Theory + Independent Code + LeetCode Problem Solving</p>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 1.5rem; font-weight: 800; color: var(--color-primary);" id="dsaProgressVal">0 / 136</div>
+              <div class="text-subtle text-xs" id="dsaTimeRemaining">-</div>
+            </div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill accent" id="dsaProgressBar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Clusters Container -->
+        <div id="clustersContainer">
+          <p class="text-muted text-sm">Loading DSA curriculum...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { formatMinutes } from '/assets/js/utils.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    let course = null;
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('dsa');
+      await loadCourse();
+    }
+
+    async function loadCourse() {
+      try {
+        const res = await api.get('/courses/dsa');
+        if (!res.success) return;
+        course = res.course;
+
+        const percent = Math.round((course.completedLectures / (course.totalLectures || 1)) * 100);
+        document.getElementById('dsaProgressVal').textContent = `${course.completedLectures} / ${course.totalLectures} (${percent}%)`;
+        document.getElementById('dsaProgressBar').style.width = `${percent}%`;
+
+        const remMin = Math.max(0, course.totalMinutes - course.completedMinutes);
+        document.getElementById('dsaTimeRemaining').textContent = `${formatMinutes(course.completedMinutes)} completed · ${formatMinutes(remMin)} remaining`;
+
+        renderClusters(course.sections);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function renderClusters(clusters) {
+      const container = document.getElementById('clustersContainer');
+      if (!clusters || clusters.length === 0) {
+        container.innerHTML = '<p class="text-muted text-sm">No clusters found.</p>';
+        return;
+      }
+
+      container.innerHTML = clusters.map((c, idx) => {
+        const done = c.lectures.filter(l => l.isWatched && l.isCodeDone).length;
+        const total = c.lectures.length;
+        const isOpen = idx < 3; // Open first 3 by default
+
+        return `
+          <div class="cluster-card">
+            <div class="cluster-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
+              <div>
+                <strong style="font-size: 0.9375rem;">${c.title}</strong>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--space-3);">
+                <span class="badge ${done === total && total > 0 ? 'badge-success' : 'badge-neutral'}">
+                  ${done} / ${total} solved
+                </span>
+                <span class="text-subtle text-xs">▼</span>
+              </div>
+            </div>
+            <div class="cluster-body" style="display: ${isOpen ? 'block' : 'none'};">
+              ${c.lectures.map(l => `
+                <div class="dsa-lecture-row">
+                  <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <input type="checkbox" class="dsa-chk" data-id="${l._id}" ${l.isWatched && l.isCodeDone ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
+                    <div>
+                      <div style="font-weight: 500; ${l.isWatched && l.isCodeDone ? 'text-decoration: line-through; opacity: 0.6;' : ''}">
+                        Lec ${l.lectureNumber}: ${l.title}
+                      </div>
+                      <div class="text-subtle text-xs">
+                        Video: ${l.videoDurationMinutes}m · Est Practice: ${l.totalEffortMinutes || Math.round(l.videoDurationMinutes * 1.5)}m
+                      </div>
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: var(--space-3);">
+                    <select class="form-select confidence-select" data-id="${l._id}" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; width: 100px;">
+                      <option value="1" ${l.confidence === 1 ? 'selected' : ''}>★ Needs Rev</option>
+                      <option value="2" ${l.confidence === 2 ? 'selected' : ''}>★★ Developing</option>
+                      <option value="3" ${l.confidence === 3 ? 'selected' : ''}>★★★ Decent</option>
+                      <option value="4" ${l.confidence === 4 ? 'selected' : ''}>★★★★ Solid</option>
+                      <option value="5" ${l.confidence === 5 ? 'selected' : ''}>★★★★★ Mastered</option>
+                    </select>
+                    <a href="/pages/focus.html?courseSlug=dsa&title=${encodeURIComponent('DSA Lec ' + l.lectureNumber + ': ' + l.title)}" class="btn btn-primary btn-sm">
+                      Solve
+                    </a>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.querySelectorAll('.dsa-chk').forEach(chk => {
+        chk.addEventListener('change', async (e) => {
+          const lecId = e.target.dataset.id;
+          const checked = e.target.checked;
+          try {
+            await api.put(`/courses/dsa/lecture/${lecId}`, {
+              isWatched: checked,
+              isCodeDone: checked
+            });
+            showToast(checked ? 'Lecture problem coded & mastered!' : 'Marked pending');
+            await loadCourse();
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+      });
+
+      container.querySelectorAll('.confidence-select').forEach(sel => {
+        sel.addEventListener('change', async (e) => {
+          const lecId = e.target.dataset.id;
+          const confidence = e.target.value;
+          try {
+            await api.put(`/courses/dsa/lecture/${lecId}`, { confidence });
+            showToast('Confidence updated');
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

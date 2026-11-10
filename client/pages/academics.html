@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academics & Attendance — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <style>
+    .subject-card {
+      background-color: var(--color-bg-paper);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-5);
+      margin-bottom: var(--space-4);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+    .subject-card.danger {
+      border-left: 4px solid var(--color-danger);
+    }
+    .subject-card.safe {
+      border-left: 4px solid var(--color-success);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Academic Command Centre</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+          <button id="addSubjectBtn" class="btn btn-outline btn-sm">+ Add Subject</button>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Exam Mode Toggle Card -->
+        <div class="card" style="margin-bottom: var(--space-6); background-color: var(--color-bg-subtle);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <div style="font-weight: 700; font-size: 1.125rem;">Exam Mode</div>
+              <p class="text-subtle text-sm">
+                Prioritise academic study blocks and revision without deleting or corrupting your technical/fitness tracks.
+              </p>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <span id="examModeStatusBadge" class="badge badge-neutral">Mode: Inactive</span>
+              <button id="toggleExamModeBtn" class="btn btn-primary btn-sm">Activate Exam Mode</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendance Overview Grid -->
+        <h3 style="margin-bottom: var(--space-4);">Subject-Wise Attendance & Risk Forecast</h3>
+        <div id="subjectsList">
+          <p class="text-muted text-sm">Loading subjects...</p>
+        </div>
+
+        <!-- Assignments & Examinations Grid -->
+        <div class="grid-2" style="margin-top: var(--space-8);">
+          <!-- Assignments -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Pending Assignments</div>
+              <button id="newAssignmentBtn" class="btn btn-outline btn-sm">+ Add</button>
+            </div>
+            <div id="assignmentsList">
+              <p class="text-muted text-sm">Loading assignments...</p>
+            </div>
+          </div>
+
+          <!-- Exams & Revision -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Upcoming Examinations</div>
+              <button id="newExamBtn" class="btn btn-outline btn-sm">+ Add</button>
+            </div>
+            <div id="examsList">
+              <p class="text-muted text-sm">Loading exams...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Subject Modal -->
+  <div id="subjectModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="card-header">
+        <div class="card-title">Add Academic Subject</div>
+        <button id="closeSubjectModal" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <form id="subjectForm">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Subject Code</label>
+            <input type="text" id="subCode" class="form-input" placeholder="e.g. CS501" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Subject Name</label>
+            <input type="text" id="subName" class="form-input" placeholder="e.g. Operating Systems" required>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select id="subType" class="form-select">
+              <option value="theory">Theory Only</option>
+              <option value="both">Theory + Practical</option>
+              <option value="practical">Practical Only</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Target Attendance (%)</label>
+            <input type="number" id="subTarget" class="form-input" value="75" min="50" max="100">
+          </div>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
+          <button type="button" id="cancelSubjectBtn" class="btn btn-outline">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Subject</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Mark Attendance Modal -->
+  <div id="attendanceModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="card-header">
+        <div class="card-title">Mark Attendance</div>
+        <button id="closeAttendanceModal" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <form id="attendanceForm">
+        <input type="hidden" id="attSubjectId">
+        <div class="form-group">
+          <label class="form-label">Session Type</label>
+          <select id="attType" class="form-select">
+            <option value="theory">Theory Session</option>
+            <option value="practical">Practical Session</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select id="attStatus" class="form-select">
+            <option value="present">Present (Attended)</option>
+            <option value="absent">Absent (Missed)</option>
+            <option value="cancelled">Class Cancelled (No penalty)</option>
+            <option value="exempted">Exempted / Authorized</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" id="attDate" class="form-input" required>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
+          <button type="button" id="cancelAttBtn" class="btn btn-outline">Cancel</button>
+          <button type="submit" class="btn btn-primary">Record Attendance</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { getTodayString } from '/assets/js/utils.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    let examModeActive = false;
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('academics');
+      document.getElementById('attDate').value = getTodayString();
+
+      await loadSubjects();
+      await loadAssignments();
+      await loadExams();
+      await checkExamModeStatus();
+      setupEvents();
+    }
+
+    async function checkExamModeStatus() {
+      try {
+        const res = await api.get('/settings');
+        if (res.success && res.settings) {
+          examModeActive = Boolean(res.settings.examModeEnabled);
+          updateExamModeBanner();
+        }
+      } catch {}
+    }
+
+    function updateExamModeBanner() {
+      const badge = document.getElementById('examModeStatusBadge');
+      const btn = document.getElementById('toggleExamModeBtn');
+      if (examModeActive) {
+        badge.textContent = 'Mode: Active (Academic Focus)';
+        badge.className = 'badge badge-warning';
+        btn.textContent = 'Deactivate Exam Mode';
+        btn.className = 'btn btn-outline btn-sm';
+      } else {
+        badge.textContent = 'Mode: Inactive';
+        badge.className = 'badge badge-neutral';
+        btn.textContent = 'Activate Exam Mode';
+        btn.className = 'btn btn-primary btn-sm';
+      }
+    }
+
+    async function loadSubjects() {
+      try {
+        const res = await api.get('/academic/subjects');
+        if (!res.success) return;
+
+        const container = document.getElementById('subjectsList');
+        if (res.subjects.length === 0) {
+          container.innerHTML = `
+            <div class="card" style="text-align: center; padding: var(--space-6);">
+              <p class="text-muted">No academic subjects added yet.</p>
+              <button id="addFirstSubBtn" class="btn btn-primary btn-sm" style="margin-top: var(--space-3);">+ Add Your First Subject</button>
+            </div>
+          `;
+          document.getElementById('addFirstSubBtn')?.addEventListener('click', () => {
+            document.getElementById('subjectModal').classList.remove('hidden');
+          });
+          return;
+        }
+
+        container.innerHTML = res.subjects.map(s => {
+          const st = s.theoryStatus || {};
+          const isDanger = st.status === 'critical_shortage' || st.status === 'shortage';
+          const pct = st.currentPercent !== undefined ? st.currentPercent : 100;
+
+          return `
+            <div class="subject-card ${isDanger ? 'danger' : 'safe'}">
+              <div>
+                <span class="badge badge-neutral">${s.code}</span>
+                <strong style="font-size: 1.125rem; margin-left: var(--space-2);">${s.name}</strong>
+                <div class="text-subtle text-sm" style="margin-top: 4px;">
+                  Attended: <strong>${s.attendedTheorySessions} / ${s.totalTheorySessions}</strong> sessions · Target: ${s.targetAttendancePercent || 75}%
+                </div>
+                <div class="text-xs" style="margin-top: 4px; color: ${isDanger ? 'var(--color-danger)' : 'var(--color-success)'}; font-weight: 600;">
+                  ${st.summary || ''}
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: var(--space-4);">
+                <div style="text-align: right;">
+                  <div style="font-size: 1.5rem; font-weight: 800; color: ${isDanger ? 'var(--color-danger)' : 'var(--color-ink)'};">${pct}%</div>
+                  <span class="badge ${isDanger ? 'badge-danger' : 'badge-success'}">${isDanger ? 'Shortage' : 'Safe'}</span>
+                </div>
+                <button class="btn btn-outline btn-sm mark-att-btn" data-id="${s._id}">+ Mark Attendance</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        container.querySelectorAll('.mark-att-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.getElementById('attSubjectId').value = btn.dataset.id;
+            document.getElementById('attendanceModal').classList.remove('hidden');
+          });
+        });
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function loadAssignments() {
+      try {
+        const res = await api.get('/academic/assignments');
+        if (!res.success) return;
+        const container = document.getElementById('assignmentsList');
+        if (res.assignments.length === 0) {
+          container.innerHTML = '<p class="text-muted text-sm">No pending assignments.</p>';
+          return;
+        }
+
+        container.innerHTML = res.assignments.map(a => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border);">
+            <div>
+              <div style="font-weight: 600;">${a.title}</div>
+              <div class="text-subtle text-xs">Due: ${a.dueDate} · ${a.subjectId?.name || 'General'}</div>
+            </div>
+            <span class="badge ${a.status === 'submitted' ? 'badge-success' : 'badge-p1'}">${a.status}</span>
+          </div>
+        `).join('');
+      } catch {}
+    }
+
+    async function loadExams() {
+      try {
+        const res = await api.get('/academic/exams');
+        if (!res.success) return;
+        const container = document.getElementById('examsList');
+        if (res.exams.length === 0) {
+          container.innerHTML = '<p class="text-muted text-sm">No examinations scheduled.</p>';
+          return;
+        }
+
+        container.innerHTML = res.exams.map(e => `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border);">
+            <div>
+              <div style="font-weight: 600;">${e.subjectName} (${e.examType})</div>
+              <div class="text-subtle text-xs">Date: ${e.examDate} at ${e.startTime}</div>
+            </div>
+            <span class="badge badge-neutral">Max: ${e.maxMarks}m</span>
+          </div>
+        `).join('');
+      } catch {}
+    }
+
+    function setupEvents() {
+      document.getElementById('toggleExamModeBtn').addEventListener('click', async () => {
+        try {
+          const res = await api.post('/academic/exam-mode', { enabled: !examModeActive });
+          if (res.success) {
+            examModeActive = res.examModeEnabled;
+            updateExamModeBanner();
+            showToast(res.message, 'success');
+          }
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      // Subject modal
+      document.getElementById('addSubjectBtn').addEventListener('click', () => {
+        document.getElementById('subjectModal').classList.remove('hidden');
+      });
+      document.getElementById('closeSubjectModal').addEventListener('click', () => {
+        document.getElementById('subjectModal').classList.add('hidden');
+      });
+      document.getElementById('cancelSubjectBtn').addEventListener('click', () => {
+        document.getElementById('subjectModal').classList.add('hidden');
+      });
+      document.getElementById('subjectForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          await api.post('/academic/subjects', {
+            code: document.getElementById('subCode').value,
+            name: document.getElementById('subName').value,
+            type: document.getElementById('subType').value,
+            targetAttendancePercent: document.getElementById('subTarget').value
+          });
+          showToast('Subject added successfully!', 'success');
+          document.getElementById('subjectModal').classList.add('hidden');
+          document.getElementById('subjectForm').reset();
+          await loadSubjects();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      // Attendance modal
+      document.getElementById('closeAttendanceModal').addEventListener('click', () => {
+        document.getElementById('attendanceModal').classList.add('hidden');
+      });
+      document.getElementById('cancelAttBtn').addEventListener('click', () => {
+        document.getElementById('attendanceModal').classList.add('hidden');
+      });
+      document.getElementById('attendanceForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          await api.post('/academic/attendance', {
+            subjectId: document.getElementById('attSubjectId').value,
+            type: document.getElementById('attType').value,
+            status: document.getElementById('attStatus').value,
+            date: document.getElementById('attDate').value
+          });
+          showToast('Attendance recorded!', 'success');
+          document.getElementById('attendanceModal').classList.add('hidden');
+          await loadSubjects();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Night Routine & Habits — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <style>
+    .habit-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-4) var(--space-5);
+      background-color: var(--color-bg-paper);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      margin-bottom: var(--space-3);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Habits & Night Routine</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Night Routine Card -->
+        <div class="card" style="margin-bottom: var(--space-6); border-left: 4px solid var(--color-ink);">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Night Routine Protocol (22:30–23:40 · 70 Min)</div>
+              <div class="text-subtle text-sm">Wind-down sequence from handwritten schedule before sleep window</div>
+            </div>
+            <span class="badge badge-neutral">Asia/Kolkata</span>
+          </div>
+          <div id="nightRoutineList">
+            <p class="text-muted text-sm">Loading night routine...</p>
+          </div>
+        </div>
+
+        <!-- All Daily Habits Card -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Daily Execution Habits</div>
+            <div class="text-subtle text-sm">Neutral check-in · Progress without guilt mechanics</div>
+          </div>
+          <div id="allHabitsList">
+            <p class="text-muted text-sm">Loading habits...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { getTodayString } from '/assets/js/utils.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('habits');
+      await loadHabits();
+    }
+
+    async function loadHabits() {
+      try {
+        const today = getTodayString();
+        const res = await api.get('/personal/habits', { date: today });
+        if (!res.success) return;
+
+        const nightHabits = res.habits.filter(h => h.category === 'night-routine');
+        const otherHabits = res.habits.filter(h => h.category !== 'night-routine');
+
+        renderHabitsList('nightRoutineList', nightHabits);
+        renderHabitsList('allHabitsList', otherHabits);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function renderHabitsList(containerId, habits) {
+      const container = document.getElementById(containerId);
+      if (!habits || habits.length === 0) {
+        container.innerHTML = '<p class="text-muted text-sm">No habits configured.</p>';
+        return;
+      }
+
+      container.innerHTML = habits.map(h => `
+        <div class="habit-card">
+          <div>
+            <div style="font-weight: 600; font-size: 0.9375rem;">${h.title}</div>
+            <span class="text-subtle text-xs">${h.category} · ${h.frequency}</span>
+          </div>
+          <input type="checkbox" class="habit-toggle" data-id="${h._id}" ${h.isCompletedToday ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer;">
+        </div>
+      `).join('');
+
+      container.querySelectorAll('.habit-toggle').forEach(chk => {
+        chk.addEventListener('change', async (e) => {
+          const habitId = e.target.dataset.id;
+          const completed = e.target.checked;
+          try {
+            await api.post('/personal/habits/checkin', {
+              habitId,
+              date: getTodayString(),
+              completed
+            });
+            showToast(completed ? 'Habit completed!' : 'Habit unchecked');
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

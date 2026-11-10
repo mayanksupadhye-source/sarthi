@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fitness & Weight — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Fitness & Weight Tracking</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+          <button id="logWorkoutBtn" class="btn btn-primary btn-sm">+ Log Gym Session</button>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- 14-Day Weight Progress Card -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <div class="text-xs" style="color: var(--color-primary); font-weight: 800;">WEIGHT PROGRESSION (14-DAY CADENCE)</div>
+              <h2 style="font-size: 1.25rem;">Baseline: 88 kg → Target: 73 kg (15 kg Goal)</h2>
+              <p class="text-subtle text-sm">Consistent physical training over unsustainable crash diets. No calorie counter.</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-4);">
+              <div style="text-align: right;">
+                <div style="font-size: 1.5rem; font-weight: 800;" id="currentWeightVal">88 kg</div>
+                <div class="text-subtle text-xs" id="weightLostVal">0 kg lost · 15 kg to target</div>
+              </div>
+              <button id="recordWeightBtn" class="btn btn-outline btn-sm">+ Log Weight</button>
+            </div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill accent" id="weightProgressBar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="grid-asymmetric">
+          <!-- Recent Workouts -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Gym & Workout Logs</div>
+              <span class="text-subtle text-sm">5:00 PM – 6:30 PM Slot</span>
+            </div>
+            <div id="workoutsList">
+              <p class="text-muted text-sm">Loading workouts...</p>
+            </div>
+          </div>
+
+          <!-- Weight History & Principles -->
+          <div style="display: flex; flex-direction: column; gap: var(--space-6);">
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">14-Day Weight Entries</div>
+              </div>
+              <div id="weightEntriesList">
+                <p class="text-muted text-sm">Loading weight logs...</p>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <div class="card-title">Fitness Principle</div>
+              </div>
+              <p class="text-sm text-subtle" style="line-height: 1.6;">
+                Show up for your 90-minute gym slot from 17:00–18:30. Progress is physical capacity, energy, and strength. Rest days are recorded as deliberate choices, not failures.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Log Weight Modal -->
+  <div id="weightModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="card-header">
+        <div class="card-title">Record 14-Day Weight Check-In</div>
+        <button id="closeWeightModal" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <form id="weightForm">
+        <div class="form-group">
+          <label class="form-label">Weight (kg)</label>
+          <input type="number" id="weightInput" class="form-input" step="0.1" min="40" max="180" placeholder="e.g. 85.5" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" id="weightDate" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Note (Optional)</label>
+          <input type="text" id="weightNote" class="form-input" placeholder="e.g. End of 2nd week, feeling strong">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
+          <button type="button" id="cancelWeightBtn" class="btn btn-outline">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Weight</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Log Workout Modal -->
+  <div id="workoutModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="card-header">
+        <div class="card-title">Log Gym Workout</div>
+        <button id="closeWorkoutModal" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <form id="workoutForm">
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Workout Split</label>
+            <select id="workoutTypeSelect" class="form-select">
+              <option value="push">Push (Chest / Shoulders / Triceps)</option>
+              <option value="pull">Pull (Back / Biceps)</option>
+              <option value="legs">Legs & Core</option>
+              <option value="upper">Upper Body</option>
+              <option value="cardio">Cardio & Stamina</option>
+              <option value="rest">Deliberate Active Rest</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duration (Minutes)</label>
+            <input type="number" id="workoutDuration" class="form-input" value="90" min="15" step="5">
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" id="workoutDate" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Energy Level (1–5)</label>
+            <select id="workoutEnergy" class="form-select">
+              <option value="5">5 — High Energy</option>
+              <option value="4" selected>4 — Good</option>
+              <option value="3">3 — Moderate</option>
+              <option value="2">2 — Low Energy / Gritted through</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Session Notes / Key Lifts</label>
+          <textarea id="workoutNotes" class="form-textarea" placeholder="e.g. Incline DB press 26kg 3x8, Lateral raises, Tricep pushdowns"></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
+          <button type="button" id="cancelWorkoutBtn" class="btn btn-outline">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Workout</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { getTodayString } from '/assets/js/utils.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('fitness');
+
+      document.getElementById('weightDate').value = getTodayString();
+      document.getElementById('workoutDate').value = getTodayString();
+
+      await loadWeight();
+      await loadWorkouts();
+      setupEvents();
+    }
+
+    async function loadWeight() {
+      try {
+        const res = await api.get('/personal/weight');
+        if (!res.success) return;
+
+        document.getElementById('currentWeightVal').textContent = `${res.currentWeightKg} kg`;
+        document.getElementById('weightLostVal').textContent = `${res.lostSoFarKg} kg lost · ${res.remainingToTargetKg} kg to reach 73 kg`;
+        document.getElementById('weightProgressBar').style.width = `${res.progressPercent}%`;
+
+        const container = document.getElementById('weightEntriesList');
+        if (res.logs.length === 0) {
+          container.innerHTML = '<p class="text-muted text-sm">No 14-day check-ins recorded yet.</p>';
+          return;
+        }
+
+        container.innerHTML = res.logs.slice(-6).reverse().map(l => `
+          <div style="display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--color-border);">
+            <span><strong>${l.date}</strong></span>
+            <strong style="color: var(--color-primary);">${l.weightKg} kg</strong>
+          </div>
+        `).join('');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    async function loadWorkouts() {
+      try {
+        const res = await api.get('/personal/fitness');
+        if (!res.success) return;
+
+        const container = document.getElementById('workoutsList');
+        if (res.logs.length === 0) {
+          container.innerHTML = '<p class="text-muted text-sm">No workouts logged yet. Show up at 17:00!</p>';
+          return;
+        }
+
+        container.innerHTML = res.logs.map(w => `
+          <div style="padding: var(--space-3) 0; border-bottom: 1px solid var(--color-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <strong style="text-transform: uppercase; font-size: 0.9375rem;">${w.workoutType} Session</strong>
+                <span class="text-subtle text-xs" style="margin-left: var(--space-2);">${w.date}</span>
+              </div>
+              <span class="badge badge-neutral">${w.durationMinutes} min · Energy: ${w.energyLevel}/5</span>
+            </div>
+            ${w.notes ? `<p class="text-subtle text-sm" style="margin-top: 4px;">${w.notes}</p>` : ''}
+          </div>
+        `).join('');
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function setupEvents() {
+      document.getElementById('recordWeightBtn').addEventListener('click', () => {
+        document.getElementById('weightModal').classList.remove('hidden');
+      });
+      document.getElementById('closeWeightModal').addEventListener('click', () => {
+        document.getElementById('weightModal').classList.add('hidden');
+      });
+      document.getElementById('cancelWeightBtn').addEventListener('click', () => {
+        document.getElementById('weightModal').classList.add('hidden');
+      });
+      document.getElementById('weightForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          await api.post('/personal/weight', {
+            weightKg: document.getElementById('weightInput').value,
+            date: document.getElementById('weightDate').value,
+            notes: document.getElementById('weightNote').value
+          });
+          showToast('14-day weight logged!', 'success');
+          document.getElementById('weightModal').classList.add('hidden');
+          await loadWeight();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      document.getElementById('logWorkoutBtn').addEventListener('click', () => {
+        document.getElementById('workoutModal').classList.remove('hidden');
+      });
+      document.getElementById('closeWorkoutModal').addEventListener('click', () => {
+        document.getElementById('workoutModal').classList.add('hidden');
+      });
+      document.getElementById('cancelWorkoutBtn').addEventListener('click', () => {
+        document.getElementById('workoutModal').classList.add('hidden');
+      });
+      document.getElementById('workoutForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          await api.post('/personal/fitness', {
+            workoutType: document.getElementById('workoutTypeSelect').value,
+            durationMinutes: document.getElementById('workoutDuration').value,
+            date: document.getElementById('workoutDate').value,
+            energyLevel: document.getElementById('workoutEnergy').value,
+            notes: document.getElementById('workoutNotes').value
+          });
+          showToast('Workout logged!', 'success');
+          document.getElementById('workoutModal').classList.add('hidden');
+          document.getElementById('workoutForm').reset();
+          await loadWorkouts();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

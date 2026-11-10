@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tasks & Backlog — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Tasks & Bounded Backlog</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+          <button id="newTaskBtn" class="btn btn-primary btn-sm">+ Create Task</button>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <!-- Filter Tabs -->
+        <div class="tab-group">
+          <button class="tab-btn active" data-filter="all">All Tasks</button>
+          <button class="tab-btn" data-filter="today">Today's Scheduled</button>
+          <button class="tab-btn" data-filter="backlog">Unscheduled Backlog</button>
+          <button class="tab-btn" data-filter="p1">P1 Essential</button>
+          <button class="tab-btn" data-filter="completed">Completed</button>
+        </div>
+
+        <div style="display: flex; gap: var(--space-4); margin-bottom: var(--space-6); flex-wrap: wrap;">
+          <input type="text" id="searchInput" class="form-input" placeholder="Search tasks by title..." style="max-width: 320px;">
+          <select id="categorySelect" class="form-select" style="max-width: 200px;">
+            <option value="">All Categories</option>
+            <option value="dsa">DSA & C++</option>
+            <option value="webdev">Web Development</option>
+            <option value="academic">Academic & College</option>
+            <option value="oratory">Oratory</option>
+            <option value="fitness">Gym & Fitness</option>
+            <option value="reading">Business Reading</option>
+            <option value="general">General</option>
+          </select>
+        </div>
+
+        <!-- Task Table Card -->
+        <div class="card">
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th style="width: 40px;">Status</th>
+                  <th>Task Title</th>
+                  <th>Priority</th>
+                  <th>Effort (Est / Rem)</th>
+                  <th>Scheduled Date</th>
+                  <th>Deadline</th>
+                  <th>Category</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="tasksTbody">
+                <tr><td colspan="8" style="text-align: center;">Loading tasks...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create / Edit Task Modal -->
+  <div id="taskModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <div class="card-header">
+        <div class="card-title" id="taskModalTitle">Create Task</div>
+        <button id="closeTaskModal" class="btn btn-outline btn-sm">✕</button>
+      </div>
+      <form id="taskForm">
+        <input type="hidden" id="editTaskId">
+        <div class="form-group">
+          <label class="form-label">Title</label>
+          <input type="text" id="formTitle" class="form-input" placeholder="Task description..." required>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select id="formPriority" class="form-select">
+              <option value="P1">P1 — Essential</option>
+              <option value="P2" selected>P2 — Important</option>
+              <option value="P3">P3 — Optional</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estimated Effort (Min)</label>
+            <input type="number" id="formEffort" class="form-input" value="45" min="5" step="5" required>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="formCategory" class="form-select">
+              <option value="dsa">DSA & Problem Solving</option>
+              <option value="webdev">Web Development</option>
+              <option value="academic">Academic & College</option>
+              <option value="oratory">Oratory & Speech</option>
+              <option value="fitness">Gym & Fitness</option>
+              <option value="reading">Business Reading</option>
+              <option value="general" selected>General</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Scheduled Date</label>
+            <input type="date" id="formDate" class="form-input">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Hard Deadline (Optional)</label>
+          <input type="date" id="formDeadline" class="form-input">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
+          <button type="button" id="cancelTaskBtn" class="btn btn-outline">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="saveTaskBtn">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { formatMinutes, getPriorityBadge, getTodayString } from '/assets/js/utils.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    let allTasks = [];
+    let activeFilter = 'all';
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('tasks');
+      await loadTasks();
+      setupEvents();
+    }
+
+    async function loadTasks() {
+      try {
+        const res = await api.get('/tasks');
+        if (res.success) {
+          allTasks = res.tasks || [];
+          applyFiltersAndRender();
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
+    function applyFiltersAndRender() {
+      const q = document.getElementById('searchInput').value.toLowerCase().trim();
+      const cat = document.getElementById('categorySelect').value;
+      const today = getTodayString();
+
+      let filtered = allTasks.filter(t => {
+        if (q && !t.title.toLowerCase().includes(q)) return false;
+        if (cat && t.category !== cat) return false;
+
+        if (activeFilter === 'today') return t.scheduledDate === today && t.status !== 'completed';
+        if (activeFilter === 'backlog') return (!t.scheduledDate || t.isDeferred) && t.status !== 'completed';
+        if (activeFilter === 'p1') return t.priority === 'P1' && t.status !== 'completed';
+        if (activeFilter === 'completed') return t.status === 'completed';
+
+        return true;
+      });
+
+      renderTable(filtered);
+    }
+
+    function renderTable(tasks) {
+      const tbody = document.getElementById('tasksTbody');
+      if (tasks.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--color-muted); padding: var(--space-6);">No matching tasks found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = tasks.map(t => {
+        const isDone = t.status === 'completed';
+        return `
+          <tr style="${isDone ? 'opacity: 0.6;' : ''}">
+            <td>
+              <input type="checkbox" ${isDone ? 'checked disabled' : ''} data-id="${t._id}" class="toggle-done" style="cursor: pointer;">
+            </td>
+            <td style="font-weight: 600; ${isDone ? 'text-decoration: line-through;' : ''}">
+              ${t.title}
+              ${t.isDeferred ? '<span class="badge badge-warning" style="margin-left: 6px;">Deferred</span>' : ''}
+            </td>
+            <td>${getPriorityBadge(t.priority)}</td>
+            <td>${formatMinutes(t.estimatedMinutes)} / <strong style="color: var(--color-primary);">${formatMinutes(t.remainingMinutes)}</strong></td>
+            <td>${t.scheduledDate || '<span class="text-subtle">Backlog</span>'}</td>
+            <td>${t.deadline || '-'}</td>
+            <td><span class="badge badge-neutral">${t.category}</span></td>
+            <td style="text-align: right;">
+              ${!isDone ? `
+                <a href="/pages/focus.html?taskId=${t._id}&title=${encodeURIComponent(t.title)}" class="btn btn-primary btn-sm">Focus</a>
+                <button class="btn btn-outline btn-sm defer-btn" data-id="${t._id}" title="Defer to backlog">Defer</button>
+              ` : ''}
+              <button class="btn btn-outline btn-sm delete-btn" data-id="${t._id}" title="Delete">🗑</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('.toggle-done').forEach(chk => {
+        chk.addEventListener('change', async (e) => {
+          const id = e.target.dataset.id;
+          try {
+            await api.post(`/tasks/${id}/complete`, {});
+            showToast('Task marked complete!', 'success');
+            await loadTasks();
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+      });
+
+      tbody.querySelectorAll('.defer-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.target.dataset.id;
+          try {
+            await api.post(`/tasks/${id}/defer`, { reason: 'Moved to backlog from tasks view' });
+            showToast('Task moved to backlog without penalty.', 'info');
+            await loadTasks();
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+      });
+
+      tbody.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const id = e.target.dataset.id;
+          if (!confirm('Are you sure you want to delete this task?')) return;
+          try {
+            await api.delete(`/tasks/${id}`);
+            showToast('Task deleted');
+            await loadTasks();
+          } catch (err) {
+            showToast(err.message, 'error');
+          }
+        });
+      });
+    }
+
+    function setupEvents() {
+      // Filter tabs
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeFilter = btn.dataset.filter;
+          applyFiltersAndRender();
+        });
+      });
+
+      document.getElementById('searchInput').addEventListener('input', applyFiltersAndRender);
+      document.getElementById('categorySelect').addEventListener('change', applyFiltersAndRender);
+
+      // Modal open/close
+      document.getElementById('newTaskBtn').addEventListener('click', () => {
+        document.getElementById('taskForm').reset();
+        document.getElementById('editTaskId').value = '';
+        document.getElementById('formDate').value = getTodayString();
+        document.getElementById('taskModalTitle').textContent = 'Create Task';
+        document.getElementById('taskModal').classList.remove('hidden');
+      });
+
+      document.getElementById('closeTaskModal').addEventListener('click', () => {
+        document.getElementById('taskModal').classList.add('hidden');
+      });
+      document.getElementById('cancelTaskBtn').addEventListener('click', () => {
+        document.getElementById('taskModal').classList.add('hidden');
+      });
+
+      document.getElementById('taskForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        try {
+          const title = document.getElementById('formTitle').value.trim();
+          const priority = document.getElementById('formPriority').value;
+          const estimatedMinutes = document.getElementById('formEffort').value;
+          const category = document.getElementById('formCategory').value;
+          const scheduledDate = document.getElementById('formDate').value || null;
+          const deadline = document.getElementById('formDeadline').value || null;
+
+          await api.post('/tasks', {
+            title,
+            priority,
+            estimatedMinutes,
+            category,
+            scheduledDate,
+            deadline
+          });
+
+          showToast('Task created successfully!', 'success');
+          document.getElementById('taskModal').classList.add('hidden');
+          await loadTasks();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>

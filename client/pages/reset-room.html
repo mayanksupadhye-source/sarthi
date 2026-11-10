@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reset Room — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="stylesheet" href="/assets/css/variables.css">
+  <link rel="stylesheet" href="/assets/css/reset.css">
+  <link rel="stylesheet" href="/assets/css/typography.css">
+  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="stylesheet" href="/assets/css/layout.css">
+  <style>
+    .reset-container {
+      max-width: 680px;
+      margin: var(--space-4) auto;
+    }
+    .reset-card {
+      background-color: var(--color-bg-paper);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      padding: var(--space-8);
+      box-shadow: var(--shadow-sm);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">The Reset Room</div>
+        </div>
+        <div class="topbar-right">
+          <div id="topbarFocusWidget"></div>
+        </div>
+      </header>
+
+      <div class="page-container">
+        <div class="reset-container">
+          <div class="reset-card">
+            <div class="text-xs" style="color: var(--color-primary); font-weight: 800; letter-spacing: 0.1em; margin-bottom: var(--space-2);">
+              GROUNDING WORKFLOW
+            </div>
+            <h1 style="font-size: 1.5rem; margin-bottom: var(--space-2);">Pause. Regroup. Take the Next Step.</h1>
+            <p class="text-subtle text-sm" style="line-height: 1.6; margin-bottom: var(--space-6);">
+              When plans collapse, the mind exaggerates the damage and creates an intimidating mental backlog. A missed day does not destroy your future. Answer these three neutral questions to ground yourself.
+            </p>
+
+            <form id="resetForm">
+              <div class="form-group">
+                <label class="form-label">1. What actually happened? (Neutral fact without judgment)</label>
+                <textarea id="resetFact" class="form-textarea" placeholder="e.g. Travel fatigue, unexpected college assignment submission, or missed morning session." required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">2. What is still intact? (Reality check)</label>
+                <textarea id="resetIntact" class="form-textarea" placeholder="e.g. My fundamental skills, past completed lectures, my health, and today's evening study block." required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">3. What is the single next manageable action for the next 45 minutes?</label>
+                <input type="text" id="resetNextAction" class="form-input" placeholder="e.g. Solve 1 C++ LeetCode problem or complete 1 WebDev lesson" required>
+              </div>
+
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-6);">
+                <a href="/pages/dashboard.html" class="btn btn-outline">Back to Today</a>
+                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">
+                  Save Reflection & Begin Focus
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '/assets/js/auth.js';
+    import { renderLayout } from '/assets/js/nav.js';
+    import { api } from '/assets/js/api.js';
+    import { getTodayString } from '/assets/js/utils.js';
+    import { showToast } from '/assets/js/toast.js';
+
+    async function init() {
+      const user = await checkAuth();
+      if (!user) return;
+      renderLayout('reset-room');
+
+      document.getElementById('resetForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fact = document.getElementById('resetFact').value;
+        const intact = document.getElementById('resetIntact').value;
+        const nextAction = document.getElementById('resetNextAction').value;
+
+        const content = `[Disruption Reality]:\n${fact}\n\n[What is Intact]:\n${intact}\n\n[Next Manageable Action]:\n${nextAction}`;
+
+        try {
+          await api.post('/personal/notes', {
+            title: `Reset Room Reflection — ${new Date().toLocaleDateString()}`,
+            type: 'reset-room',
+            tags: ['reset-room', 'recovery', 'grounding'],
+            content,
+            nextSingleAction: nextAction
+          });
+
+          // Also schedule the next action as a task for today
+          await api.post('/tasks', {
+            title: nextAction,
+            priority: 'P1',
+            estimatedMinutes: 45,
+            scheduledDate: getTodayString()
+          });
+
+          showToast('Reset saved. Starting focus session...', 'success');
+          setTimeout(() => {
+            window.location.href = `/pages/focus.html?title=${encodeURIComponent(nextAction)}`;
+          }, 600);
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+    }
+
+    init();
+  </script>
+</body>
+</html>
