@@ -1,11 +1,16 @@
 import { api } from './api.js';
 
+function navigateToLogin() {
+  if (!window.location.pathname.endsWith('login.html')) {
+    const target = window.location.pathname.includes('/pages/') ? 'login.html' : 'pages/login.html';
+    window.location.href = target;
+  }
+}
+
 export async function checkAuth() {
   const token = localStorage.getItem('sarthi_token');
   if (!token) {
-    if (!window.location.pathname.includes('login.html')) {
-      window.location.href = '/pages/login.html';
-    }
+    navigateToLogin();
     return null;
   }
 
@@ -18,9 +23,7 @@ export async function checkAuth() {
   } catch (err) {
     localStorage.removeItem('sarthi_token');
     localStorage.removeItem('sarthi_user');
-    if (!window.location.pathname.includes('login.html')) {
-      window.location.href = '/pages/login.html';
-    }
+    navigateToLogin();
     return null;
   }
 }
@@ -40,6 +43,6 @@ export async function logoutUser() {
   } finally {
     localStorage.removeItem('sarthi_token');
     localStorage.removeItem('sarthi_user');
-    window.location.href = '/pages/login.html';
+    navigateToLogin();
   }
 }

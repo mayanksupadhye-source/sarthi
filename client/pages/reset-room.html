@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Reset Room — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="/assets/css/variables.css">
-  <link rel="stylesheet" href="/assets/css/reset.css">
-  <link rel="stylesheet" href="/assets/css/typography.css">
-  <link rel="stylesheet" href="/assets/css/components.css">
-  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/typography.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
   <style>
     .reset-container {
       max-width: 680px;
@@ -65,7 +65,7 @@
               </div>
 
               <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-6);">
-                <a href="/pages/dashboard.html" class="btn btn-outline">Back to Today</a>
+                <a href="dashboard.html" class="btn btn-outline">Back to Today</a>
                 <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">
                   Save Reflection & Begin Focus
                 </button>
@@ -78,11 +78,11 @@
   </div>
 
   <script type="module">
-    import { checkAuth } from '/assets/js/auth.js';
-    import { renderLayout } from '/assets/js/nav.js';
-    import { api } from '/assets/js/api.js';
-    import { getTodayString } from '/assets/js/utils.js';
-    import { showToast } from '/assets/js/toast.js';
+    import { checkAuth } from '../assets/js/auth.js';
+    import { renderLayout } from '../assets/js/nav.js';
+    import { api } from '../assets/js/api.js';
+    import { getTodayString } from '../assets/js/utils.js';
+    import { showToast } from '../assets/js/toast.js';
 
     async function init() {
       const user = await checkAuth();
@@ -116,7 +116,7 @@
 
           showToast('Reset saved. Starting focus session...', 'success');
           setTimeout(() => {
-            window.location.href = `/pages/focus.html?title=${encodeURIComponent(nextAction)}`;
+            window.location.href = `focus.html?title=${encodeURIComponent(nextAction)}`;
           }, 600);
         } catch (err) {
           showToast(err.message, 'error');

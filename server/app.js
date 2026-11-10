@@ -32,6 +32,7 @@ app.use(cookieParser());
 
 // Serve static frontend files from client/
 app.use(express.static(CLIENT_DIR));
+app.use('/client', express.static(CLIENT_DIR));
 
 // Mount core API
 app.use('/api', apiRouter);

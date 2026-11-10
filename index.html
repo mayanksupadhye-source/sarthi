@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SARTHI (सारथी) — Personal Execution & Student Operating System</title>
+  <link rel="icon" type="image/svg+xml" href="client/favicon.svg">
+  <script>
+    // Intelligent redirect for Live Server (port 5500) and static hosting
+    const token = localStorage.getItem('sarthi_token');
+    const target = token ? 'client/pages/dashboard.html' : 'client/pages/login.html';
+    window.location.replace(target);
+  </script>
+</head>
+<body style="background: #0B132B; color: #FFF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
+  <div style="text-align: center;">
+    <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem; letter-spacing: 0.05em;">SARTHI (सारथी)</h1>
+    <p style="color: #6B7280; font-size: 0.875rem;">Redirecting to application...</p>
+  </div>
+</body>
+</html>

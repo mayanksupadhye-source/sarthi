@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Today — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="/assets/css/variables.css">
-  <link rel="stylesheet" href="/assets/css/reset.css">
-  <link rel="stylesheet" href="/assets/css/typography.css">
-  <link rel="stylesheet" href="/assets/css/components.css">
-  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/typography.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
   <style>
     .hero-banner {
       background-color: var(--color-ink);
@@ -140,7 +140,7 @@
           <div>
             <strong>Disrupted schedule detected:</strong> <span id="disruptedCount">0</span> uncompleted task(s) from past dates need reconciliation.
           </div>
-          <a href="/pages/planner.html" class="btn btn-secondary btn-sm" style="margin-left: var(--space-4);">
+          <a href="planner.html" class="btn btn-secondary btn-sm" style="margin-left: var(--space-4);">
             🧠 Review Replan Proposal
           </a>
         </div>
@@ -173,7 +173,7 @@
                   <div class="text-subtle text-sm">Prioritised execution list</div>
                 </div>
                 <div style="display: flex; gap: var(--space-2);">
-                  <a href="/pages/planner.html" class="btn btn-outline btn-sm">Adapt Plan</a>
+                  <a href="planner.html" class="btn btn-outline btn-sm">Adapt Plan</a>
                 </div>
               </div>
 
@@ -200,7 +200,7 @@
             <div class="card">
               <div class="card-header">
                 <div class="card-title">Daily Habits</div>
-                <a href="/pages/habits.html" class="text-xs" style="color: var(--color-primary);">View All →</a>
+                <a href="habits.html" class="text-xs" style="color: var(--color-primary);">View All →</a>
               </div>
               <div id="quickHabitsList">
                 <p class="text-muted text-sm">Loading habits...</p>
@@ -218,7 +218,7 @@
                   <div style="font-size: 1.25rem; font-weight: 800;" id="slackDaysVal">- / 4</div>
                   <div class="text-subtle text-sm">Slack Days Available</div>
                 </div>
-                <a href="/pages/planner.html" class="btn btn-outline btn-sm">Manage</a>
+                <a href="planner.html" class="btn btn-outline btn-sm">Manage</a>
               </div>
             </div>
           </div>
@@ -308,11 +308,11 @@
   </div>
 
   <script type="module">
-    import { checkAuth } from '/assets/js/auth.js';
-    import { renderLayout } from '/assets/js/nav.js';
-    import { api } from '/assets/js/api.js';
-    import { formatMinutes, formatTodayDate, getPriorityBadge, getTodayString } from '/assets/js/utils.js';
-    import { showToast } from '/assets/js/toast.js';
+    import { checkAuth } from '../assets/js/auth.js';
+    import { renderLayout } from '../assets/js/nav.js';
+    import { api } from '../assets/js/api.js';
+    import { formatMinutes, formatTodayDate, getPriorityBadge, getTodayString } from '../assets/js/utils.js';
+    import { showToast } from '../assets/js/toast.js';
 
     let currentDayData = null;
 
@@ -392,7 +392,7 @@
         document.getElementById('nextActionMeta').textContent = `${formatMinutes(next.remainingMinutes || next.estimatedMinutes)} remaining · Category: ${next.category}`;
         
         document.getElementById('startNextActionBtn').onclick = () => {
-          window.location.href = `/pages/focus.html?taskId=${next._id}&title=${encodeURIComponent(next.title)}`;
+          window.location.href = `focus.html?taskId=${next._id}&title=${encodeURIComponent(next.title)}`;
         };
       } else {
         document.getElementById('nextActionBox').style.display = 'none';
@@ -418,7 +418,7 @@
             <div class="task-actions">
               ${!isDone ? `
                 <button class="btn btn-outline btn-sm partial-btn" data-id="${t._id}">Log Headway</button>
-                <a href="/pages/focus.html?taskId=${t._id}&title=${encodeURIComponent(t.title)}" class="btn btn-primary btn-sm">Focus</a>
+                <a href="focus.html?taskId=${t._id}&title=${encodeURIComponent(t.title)}" class="btn btn-primary btn-sm">Focus</a>
               ` : '<span class="badge badge-success">Done</span>'}
             </div>
           </div>

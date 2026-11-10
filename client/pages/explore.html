@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Exploration Lab — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="/assets/css/variables.css">
-  <link rel="stylesheet" href="/assets/css/reset.css">
-  <link rel="stylesheet" href="/assets/css/typography.css">
-  <link rel="stylesheet" href="/assets/css/components.css">
-  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/typography.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
   <style>
     .explore-banner {
       background-color: var(--color-ink);
@@ -212,7 +212,7 @@
           <div class="card" style="padding: var(--space-4);">
             <div class="text-subtle text-xs" style="font-weight: 700; text-transform: uppercase;">Quick Focus Action</div>
             <div style="margin-top: var(--space-2);">
-              <a href="/pages/focus.html?title=Exploration%20Lab%20Sprint" class="btn btn-outline btn-sm" style="width: 100%; font-weight: 700;">
+              <a href="focus.html?title=Exploration%20Lab%20Sprint" class="btn btn-outline btn-sm" style="width: 100%; font-weight: 700;">
                 🎯 Start Deep Focus
               </a>
             </div>
@@ -303,10 +303,10 @@
   </div>
 
   <script type="module">
-    import { checkAuth } from '/assets/js/auth.js';
-    import { renderLayout } from '/assets/js/nav.js';
-    import { api } from '/assets/js/api.js';
-    import { showToast } from '/assets/js/toast.js';
+    import { checkAuth } from '../assets/js/auth.js';
+    import { renderLayout } from '../assets/js/nav.js';
+    import { api } from '../assets/js/api.js';
+    import { showToast } from '../assets/js/toast.js';
 
     const STORAGE_KEY = 'sarthi_exploration_lab_v1';
     const NOTES_STORAGE_KEY = 'sarthi_exploration_notes_v1';
@@ -465,7 +465,7 @@
             </label>
             <div style="display: flex; align-items: center; gap: var(--space-2);">
               <span class="text-subtle text-xs" style="font-variant-numeric: tabular-nums;">${lec.videoDurationMinutes || 45}m</span>
-              <a href="/pages/focus.html?title=${encodeURIComponent(track.title + ' — ' + lec.title)}" 
+              <a href="focus.html?title=${encodeURIComponent(track.title + ' — ' + lec.title)}" 
                  class="topic-focus-btn" 
                  title="Focus sprint on this topic">
                 🎯 Focus
@@ -506,7 +506,7 @@
 
             <!-- Footer actions -->
             <div class="track-footer">
-              <a href="/pages/focus.html?title=${encodeURIComponent(track.title + ' Focus Sprint')}" 
+              <a href="focus.html?title=${encodeURIComponent(track.title + ' Focus Sprint')}" 
                  class="btn btn-outline btn-sm" 
                  style="font-weight: 600;">
                 ▶ Start Focus Session

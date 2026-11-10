@@ -4,12 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Analytics & Insights — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="/assets/css/variables.css">
-  <link rel="stylesheet" href="/assets/css/reset.css">
-  <link rel="stylesheet" href="/assets/css/typography.css">
-  <link rel="stylesheet" href="/assets/css/components.css">
-  <link rel="stylesheet" href="/assets/css/layout.css">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/typography.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
   <style>
     /* Metric Cards */
     .metric-card {
@@ -360,7 +360,7 @@
                   <span>🌐</span>
                   <span>Web Development Course</span>
                 </div>
-                <a href="/pages/webdev.html" class="btn btn-outline btn-sm">View Syllabus →</a>
+                <a href="webdev.html" class="btn btn-outline btn-sm">View Syllabus →</a>
               </div>
               <div class="progress-bar">
                 <div class="progress-fill accent" id="trackWebDevFill" style="width: 0%;"></div>
@@ -379,7 +379,7 @@
                   <span>💻</span>
                   <span>C++ DSA Mastery (136)</span>
                 </div>
-                <a href="/pages/dsa.html" class="btn btn-outline btn-sm">View Curriculum →</a>
+                <a href="dsa.html" class="btn btn-outline btn-sm">View Curriculum →</a>
               </div>
               <div class="progress-bar">
                 <div class="progress-fill" id="trackDsaFill" style="width: 0%;"></div>
@@ -398,7 +398,7 @@
                   <span>🎙</span>
                   <span>Oratory Mastery (13-Week)</span>
                 </div>
-                <a href="/pages/oratory.html" class="btn btn-outline btn-sm">Session Log →</a>
+                <a href="oratory.html" class="btn btn-outline btn-sm">Session Log →</a>
               </div>
               <div class="progress-bar">
                 <div class="progress-fill accent" id="trackOratoryFill" style="width: 0%;"></div>
@@ -417,7 +417,7 @@
                   <span>🏔</span>
                   <span>Mountain Trekking & Birthday Fund</span>
                 </div>
-                <a href="/pages/rewards.html" class="btn btn-outline btn-sm">Fund Details →</a>
+                <a href="rewards.html" class="btn btn-outline btn-sm">Fund Details →</a>
               </div>
               <div class="progress-bar">
                 <div class="progress-fill success" id="trackSavingsFill" style="width: 0%;"></div>
@@ -443,7 +443,7 @@
                 <strong style="font-size: 1rem; color: var(--color-ink);" id="distributionTotalHours">0.0 Hours Logged</strong>
                 <p class="text-subtle text-sm">Visual partition of tracked concentration blocks</p>
               </div>
-              <a href="/pages/focus.html" class="btn btn-outline btn-sm">Open Focus Timer ⏱</a>
+              <a href="focus.html" class="btn btn-outline btn-sm">Open Focus Timer ⏱</a>
             </div>
 
             <!-- Multi-segment proportional bar -->
@@ -482,7 +482,7 @@
             <span>Academic Attendance Health Matrix</span>
             <div style="display: flex; align-items: center; gap: var(--space-3);">
               <span class="badge badge-neutral text-xs">Mandatory Cutoff: 75%</span>
-              <a href="/pages/academics.html" class="btn btn-outline btn-sm">Mark Roll Call 🎓</a>
+              <a href="academics.html" class="btn btn-outline btn-sm">Mark Roll Call 🎓</a>
             </div>
           </div>
           <div class="card" style="padding: 0; overflow: hidden;">
@@ -512,7 +512,7 @@
         <div style="margin-bottom: var(--space-8);">
           <div class="section-headline">
             <span>Workload Capacity & Recovery Buffer</span>
-            <a href="/pages/planner.html" class="btn btn-outline btn-sm">Adaptive Planner 🧠</a>
+            <a href="planner.html" class="btn btn-outline btn-sm">Adaptive Planner 🧠</a>
           </div>
           <div class="grid-2">
             <!-- Today's Execution Capacity Card -->
@@ -570,11 +570,11 @@
   </div>
 
   <script type="module">
-    import { checkAuth } from '/assets/js/auth.js';
-    import { renderLayout } from '/assets/js/nav.js';
-    import { api } from '/assets/js/api.js';
-    import { showToast } from '/assets/js/toast.js';
-    import { formatMinutes } from '/assets/js/utils.js';
+    import { checkAuth } from '../assets/js/auth.js';
+    import { renderLayout } from '../assets/js/nav.js';
+    import { api } from '../assets/js/api.js';
+    import { showToast } from '../assets/js/toast.js';
+    import { formatMinutes } from '../assets/js/utils.js';
 
     // State
     let rawFocusData = { sessions: [], totalMinutes: 0, count: 0 };
@@ -1093,7 +1093,7 @@
         tbody.innerHTML = `
           <tr>
             <td colspan="6" style="text-align: center; color: var(--color-muted); padding: var(--space-6);">
-              No subjects added yet. Add your academic curriculum in the <a href="/pages/academics.html" style="color: var(--color-primary); font-weight: 600;">Academic Command Centre</a>.
+              No subjects added yet. Add your academic curriculum in the <a href="academics.html" style="color: var(--color-primary); font-weight: 600;">Academic Command Centre</a>.
             </td>
           </tr>
         `;

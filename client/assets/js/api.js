@@ -2,8 +2,29 @@
  * SARTHI — Unified API Client
  */
 
+/**
+ * SARTHI — Unified API Client
+ * Compatible with Express server (port 5000), VS Code Live Server (port 5500), and static deployments.
+ */
+
+// Auto-detect API base URL when running via VS Code Live Server or external frontend dev server
+function getApiBaseUrl() {
+  if (typeof window === 'undefined') return '';
+  const port = window.location.port;
+  // If port is 5500 (Live Server) or anything other than 5000 / empty (production 80/443)
+  if (port && port !== '5000' && window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+    if (port !== '5000') {
+      return 'http://localhost:5000';
+    }
+  }
+  return '';
+}
+
 export async function apiRequest(endpoint, options = {}) {
-  const url = endpoint.startsWith('/api') ? endpoint : `/api${endpoint}`;
+  const base = getApiBaseUrl();
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  const path = cleanEndpoint.startsWith('/api') ? cleanEndpoint : `/api${cleanEndpoint}`;
+  const url = `${base}${path}`;
   
   const headers = {
     'Content-Type': 'application/json',
@@ -29,7 +50,10 @@ export async function apiRequest(endpoint, options = {}) {
       if (response.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/register')) {
         localStorage.removeItem('sarthi_token');
         localStorage.removeItem('sarthi_user');
-        window.location.href = '/pages/login.html';
+        if (!window.location.pathname.endsWith('login.html')) {
+          const target = window.location.pathname.includes('/pages/') ? 'login.html' : 'pages/login.html';
+          window.location.href = target;
+        }
         return;
       }
       throw new Error(data.error || `HTTP error ${response.status}`);

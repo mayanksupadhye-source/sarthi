@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign In — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-  <link rel="stylesheet" href="/assets/css/variables.css">
-  <link rel="stylesheet" href="/assets/css/reset.css">
-  <link rel="stylesheet" href="/assets/css/typography.css">
-  <link rel="stylesheet" href="/assets/css/components.css">
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/typography.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
   <style>
     body {
       background-color: var(--color-bg-base);
@@ -113,7 +113,7 @@
   </div>
 
   <script type="module">
-    import { api } from '/assets/js/api.js';
+    import { api } from '../assets/js/api.js';
 
     let isRegisterMode = false;
 
@@ -160,7 +160,7 @@
           if (res.success && res.token) {
             localStorage.setItem('sarthi_token', res.token);
             localStorage.setItem('sarthi_user', JSON.stringify(res.user));
-            window.location.href = '/pages/dashboard.html';
+            window.location.href = 'dashboard.html';
           }
         } else {
           submitBtn.textContent = 'Signing In...';
@@ -168,7 +168,7 @@
           if (res.success && res.token) {
             localStorage.setItem('sarthi_token', res.token);
             localStorage.setItem('sarthi_user', JSON.stringify(res.user));
-            window.location.href = '/pages/dashboard.html';
+            window.location.href = 'dashboard.html';
           }
         }
       } catch (err) {
