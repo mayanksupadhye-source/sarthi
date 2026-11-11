@@ -1,63 +1,104 @@
+/* ==========================================================================
+   SARTHI — Typography System (Display Geometric + Editorial Humanist Sans)
+   ========================================================================== */
+
+body {
+  font-family: var(--font-body);
+  color: var(--text-ink);
+  background-color: var(--bg-canvas);
+  font-size: var(--type-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 h1, h2, h3, h4, h5, h6 {
-  color: var(--color-ink);
-  font-family: var(--font-sans);
+  color: var(--text-ink);
+  font-family: var(--font-display);
   font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  margin-top: 0;
 }
 
 h1 {
-  font-size: 1.875rem; /* 30px */
+  font-size: var(--type-display-lg);
 }
 
 h2 {
-  font-size: 1.5rem;   /* 24px */
+  font-size: 1.625rem;
 }
 
 h3 {
-  font-size: 1.25rem;  /* 20px */
+  font-size: var(--type-title);
 }
 
 h4 {
-  font-size: 1.125rem; /* 18px */
+  font-size: 1.0625rem;
 }
 
-.text-editorial {
-  font-family: var(--font-serif);
-  font-weight: 400;
+p {
+  max-width: 72ch;
+  margin-top: 0;
+  margin-bottom: var(--space-4);
 }
 
+/* Big Display Numerals (Signature Numbers) */
+.text-display-xl {
+  font-family: var(--font-display);
+  font-size: var(--type-display-xl);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+}
+
+.text-display-lg {
+  font-family: var(--font-display);
+  font-size: var(--type-display-lg);
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Tabular Numerals (Timers, Clocks, Percentages, Counters) */
 .text-num {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.01em;
 }
 
+.text-editorial {
+  font-family: var(--font-display);
+  font-weight: 500;
+}
+
 .text-lead {
-  font-size: 1.125rem;
-  color: var(--color-muted);
+  font-size: 1.0625rem;
+  color: var(--text-muted);
   line-height: 1.6;
 }
 
 .text-muted {
-  color: var(--color-muted);
+  color: var(--text-muted);
 }
 
 .text-subtle {
-  color: var(--color-subtle);
-  font-size: 0.875rem;
+  color: var(--text-subtle);
+  font-size: var(--type-caption);
 }
 
 .text-sm {
-  font-size: 0.875rem;
+  font-size: var(--type-caption);
 }
 
 .text-xs {
-  font-size: 0.75rem;
-  letter-spacing: 0.02em;
+  font-size: var(--type-small);
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .font-mono {
   font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
 }

@@ -1,0 +1,1435 @@
+{
+  "_readme": "Seed message library for the Copy Engine. Tokens in {braces} are filled from real data. 'conditions' are evaluated server-side before a message is eligible.",
+  "version": 1,
+  "messages": [
+    {
+      "text": "One thing first: {firstTask} at {time}. Nothing else needs your attention yet.",
+      "contexts": [
+        "fresh"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "flood_by_big_plan"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 6,
+      "maxPerWeek": 2,
+      "id": "msg_001",
+      "weight": 1.0
+    },
+    {
+      "text": "Your next block is {blockName} at {time}. That is the whole plan for now.",
+      "contexts": [
+        "fresh"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "flood_by_big_plan"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 6,
+      "maxPerWeek": 2,
+      "id": "msg_002",
+      "weight": 1.0
+    },
+    {
+      "text": "Today only needs {minutesTotal} minutes of essential work. Start with {firstTask}.",
+      "contexts": [
+        "fresh"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "flood_by_big_plan"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 6,
+      "maxPerWeek": 2,
+      "id": "msg_003",
+      "weight": 1.0
+    },
+    {
+      "text": "Small and clear beats big and vague. Open {firstTask}.",
+      "contexts": [
+        "fresh"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "flood_by_big_plan"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 6,
+      "maxPerWeek": 2,
+      "id": "msg_004",
+      "weight": 1.0
+    },
+    {
+      "text": "{blockName} starts at {time}. Phone away, task open.",
+      "contexts": [
+        "fresh"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "flood_by_big_plan"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 6,
+      "maxPerWeek": 2,
+      "id": "msg_005",
+      "weight": 1.0
+    },
+    {
+      "text": "The long plan is parked. Today is {firstTask}.",
+      "contexts": [
+        "fresh"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "flood_by_big_plan"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 6,
+      "maxPerWeek": 2,
+      "id": "msg_006",
+      "weight": 1.0
+    },
+    {
+      "text": "Ten minutes in and the block gets easier. Begin with {firstTask}.",
+      "contexts": [
+        "fresh"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "flood_by_big_plan"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 6,
+      "maxPerWeek": 2,
+      "id": "msg_007",
+      "weight": 1.0
+    },
+    {
+      "text": "Timer is running. Nothing else to do right now.",
+      "contexts": [
+        "in_flow"
+      ],
+      "tone": "quiet",
+      "patternTags": [],
+      "surfaces": [
+        "focus"
+      ],
+      "cooldownDays": 10,
+      "maxPerWeek": 1,
+      "id": "msg_008",
+      "weight": 1.0
+    },
+    {
+      "text": "Stay on {taskTitle}.",
+      "contexts": [
+        "in_flow"
+      ],
+      "tone": "quiet",
+      "patternTags": [],
+      "surfaces": [
+        "focus"
+      ],
+      "cooldownDays": 10,
+      "maxPerWeek": 1,
+      "id": "msg_009",
+      "weight": 1.0
+    },
+    {
+      "text": "Essentials for this block are done. Take the break you planned.",
+      "contexts": [
+        "on_track"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "today"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_010",
+      "weight": 1.0
+    },
+    {
+      "text": "On pace. Next block: {blockName} at {time}.",
+      "contexts": [
+        "on_track"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "today"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_011",
+      "weight": 1.0
+    },
+    {
+      "text": "{done} of {total} essentials done. Keep this block clean.",
+      "contexts": [
+        "on_track"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "today"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_012",
+      "weight": 1.0
+    },
+    {
+      "text": "{blockName} began {minutesLate} min ago. {minutesLeft} min are still yours.",
+      "contexts": [
+        "late_start"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "late_start_abandons_block"
+      ],
+      "surfaces": [
+        "today",
+        "reminder",
+        "focus"
+      ],
+      "cooldownDays": 4,
+      "maxPerWeek": 3,
+      "id": "msg_013",
+      "weight": 1.0
+    },
+    {
+      "text": "Start the smallest slice: {sliceTitle}. {minutesLeft} min is enough.",
+      "contexts": [
+        "late_start"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "late_start_abandons_block"
+      ],
+      "surfaces": [
+        "today",
+        "reminder",
+        "focus"
+      ],
+      "cooldownDays": 4,
+      "maxPerWeek": 3,
+      "id": "msg_014",
+      "weight": 1.0
+    },
+    {
+      "text": "The block is not gone. {minutesLeft} min left, one slice: {sliceTitle}.",
+      "contexts": [
+        "late_start"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "late_start_abandons_block"
+      ],
+      "surfaces": [
+        "today",
+        "reminder",
+        "focus"
+      ],
+      "cooldownDays": 4,
+      "maxPerWeek": 3,
+      "id": "msg_015",
+      "weight": 1.0
+    },
+    {
+      "text": "Open {sliceTitle} and set a 10-minute timer. That is the whole ask.",
+      "contexts": [
+        "late_start"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "late_start_abandons_block"
+      ],
+      "surfaces": [
+        "today",
+        "reminder",
+        "focus"
+      ],
+      "cooldownDays": 4,
+      "maxPerWeek": 3,
+      "id": "msg_016",
+      "weight": 1.0
+    },
+    {
+      "text": "A late start still counts. Begin with {sliceTitle}.",
+      "contexts": [
+        "late_start"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "late_start_abandons_block"
+      ],
+      "surfaces": [
+        "today",
+        "reminder",
+        "focus"
+      ],
+      "cooldownDays": 4,
+      "maxPerWeek": 3,
+      "id": "msg_017",
+      "weight": 1.0
+    },
+    {
+      "text": "{done} done today. That progress is banked. Next slice: {sliceTitle}.",
+      "contexts": [
+        "partial"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "partial_day_dumped"
+      ],
+      "surfaces": [
+        "today",
+        "close_day"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_018",
+      "weight": 1.0
+    },
+    {
+      "text": "You did {minutesDone} min of real work today. Pick the next small piece.",
+      "contexts": [
+        "partial"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "partial_day_dumped"
+      ],
+      "surfaces": [
+        "today",
+        "close_day"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_019",
+      "weight": 1.0
+    },
+    {
+      "text": "Some of it is done and it stays done. Next: {sliceTitle}.",
+      "contexts": [
+        "partial"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "partial_day_dumped"
+      ],
+      "surfaces": [
+        "today",
+        "close_day"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_020",
+      "weight": 1.0
+    },
+    {
+      "text": "The unfinished part shrinks into tomorrow's plan once you approve it.",
+      "contexts": [
+        "partial"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "partial_day_dumped"
+      ],
+      "surfaces": [
+        "today",
+        "close_day"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_021",
+      "weight": 1.0
+    },
+    {
+      "text": "A disrupted day needs a re-plan, not a restart. Review the proposal.",
+      "contexts": [
+        "disrupted"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "missed_day_collapse"
+      ],
+      "surfaces": [
+        "today",
+        "planner"
+      ],
+      "cooldownDays": 4,
+      "maxPerWeek": 3,
+      "id": "msg_022",
+      "weight": 1.0
+    },
+    {
+      "text": "The day changed. The plan can change with it. Here is a fit for the time you have.",
+      "contexts": [
+        "disrupted"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "missed_day_collapse"
+      ],
+      "surfaces": [
+        "today",
+        "planner"
+      ],
+      "cooldownDays": 4,
+      "maxPerWeek": 3,
+      "id": "msg_023",
+      "weight": 1.0
+    },
+    {
+      "text": "Pick one essential task and start it. The re-plan can wait ten minutes.",
+      "contexts": [
+        "disrupted"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "missed_day_collapse"
+      ],
+      "surfaces": [
+        "today",
+        "planner"
+      ],
+      "cooldownDays": 4,
+      "maxPerWeek": 3,
+      "id": "msg_024",
+      "weight": 1.0
+    },
+    {
+      "text": "You have {slackLeft} slack days left this month. Using one is a normal move.",
+      "contexts": [
+        "disrupted"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "missed_day_collapse"
+      ],
+      "surfaces": [
+        "today",
+        "planner"
+      ],
+      "cooldownDays": 4,
+      "maxPerWeek": 3,
+      "id": "msg_025",
+      "weight": 1.0
+    },
+    {
+      "text": "Real numbers: {backlogMinutes} min of essential work, {freeHours} h free this week. It fits.",
+      "contexts": [
+        "disrupted"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "missed_day_collapse",
+        "guilt_spiral"
+      ],
+      "surfaces": [
+        "today",
+        "planner",
+        "reset_room"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "conditions": [
+        "backlog_fits_capacity"
+      ],
+      "id": "msg_026",
+      "weight": 1.0
+    },
+    {
+      "text": "Minimum day on. Essentials only, shorter blocks, nothing counted against you.",
+      "contexts": [
+        "low_energy"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "low_energy_gym_skip"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_027",
+      "weight": 1.0
+    },
+    {
+      "text": "Low energy today. One small essential is plenty.",
+      "contexts": [
+        "low_energy"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "low_energy_gym_skip"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_028",
+      "weight": 1.0
+    },
+    {
+      "text": "Gym swapped for a light walk, or rest. Your call.",
+      "contexts": [
+        "low_energy"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "low_energy_gym_skip"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_029",
+      "weight": 1.0
+    },
+    {
+      "text": "Optional items are tucked away. They are paused, not owed.",
+      "contexts": [
+        "low_energy"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "low_energy_gym_skip"
+      ],
+      "surfaces": [
+        "today",
+        "reminder"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 3,
+      "id": "msg_030",
+      "weight": 1.0
+    },
+    {
+      "text": "Rest day recorded. Streak intact.",
+      "contexts": [
+        "rest_approved"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "today",
+        "close_day"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 2,
+      "id": "msg_031",
+      "weight": 1.0
+    },
+    {
+      "text": "Recovering on purpose is part of the plan. See you tomorrow.",
+      "contexts": [
+        "rest_approved"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "today",
+        "close_day"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 2,
+      "id": "msg_032",
+      "weight": 1.0
+    },
+    {
+      "text": "Tomorrow's first task is already chosen: {firstTask}.",
+      "contexts": [
+        "rest_approved"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "today",
+        "close_day"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 2,
+      "id": "msg_033",
+      "weight": 1.0
+    },
+    {
+      "text": "Exam mode is on. Study and revision come first. Everything else is paused, not dropped.",
+      "contexts": [
+        "exam_mode"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "today",
+        "academics"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 2,
+      "id": "msg_034",
+      "weight": 1.0
+    },
+    {
+      "text": "Next paper: {examName} in {daysToExam} days. Today's revision slice: {sliceTitle}.",
+      "contexts": [
+        "exam_mode"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "today",
+        "academics"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 2,
+      "id": "msg_035",
+      "weight": 1.0
+    },
+    {
+      "text": "Hackathon, DSA and web work resume automatically on {examEnd}.",
+      "contexts": [
+        "exam_mode"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "today",
+        "academics"
+      ],
+      "cooldownDays": 5,
+      "maxPerWeek": 2,
+      "id": "msg_036",
+      "weight": 1.0
+    },
+    {
+      "text": "Welcome back. No restart date needed. Start with {firstTask}, ten minutes.",
+      "contexts": [
+        "returning"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "missed_day_collapse",
+        "restart_postponement"
+      ],
+      "surfaces": [
+        "return_screen",
+        "today"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_037",
+      "weight": 1.0
+    },
+    {
+      "text": "Start today, not Monday. {firstTask} is ready.",
+      "contexts": [
+        "returning"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "missed_day_collapse",
+        "restart_postponement"
+      ],
+      "surfaces": [
+        "return_screen",
+        "today"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_038",
+      "weight": 1.0
+    },
+    {
+      "text": "One task, ten minutes. That is the whole comeback.",
+      "contexts": [
+        "returning"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "missed_day_collapse",
+        "restart_postponement"
+      ],
+      "surfaces": [
+        "return_screen",
+        "today"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_039",
+      "weight": 1.0
+    },
+    {
+      "text": "Show up now. The plan will adjust around you.",
+      "contexts": [
+        "returning"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "missed_day_collapse",
+        "restart_postponement"
+      ],
+      "surfaces": [
+        "return_screen",
+        "today"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_040",
+      "weight": 1.0
+    },
+    {
+      "text": "Real backlog: {backlogMinutes} min of essential work. That is smaller than it feels.",
+      "contexts": [
+        "returning"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "flood_by_big_plan",
+        "guilt_spiral"
+      ],
+      "surfaces": [
+        "return_screen",
+        "reset_room"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "conditions": [
+        "backlog_small"
+      ],
+      "id": "msg_041",
+      "weight": 1.0
+    },
+    {
+      "text": "Day 1. Every long run starts here.",
+      "contexts": [
+        "streak_day1"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 2,
+      "maxPerWeek": 3,
+      "id": "msg_042",
+      "weight": 1.0
+    },
+    {
+      "text": "Day 1. The fire is lit.",
+      "contexts": [
+        "streak_day1"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 2,
+      "maxPerWeek": 3,
+      "id": "msg_043",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. Keep the spark alive with one essential task.",
+      "contexts": [
+        "streak_spark"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_044",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. Small fire, real fire.",
+      "contexts": [
+        "streak_spark"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_045",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. Steady burn.",
+      "contexts": [
+        "streak_steady"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_046",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. This is becoming routine.",
+      "contexts": [
+        "streak_steady"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_047",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. This is a real streak.",
+      "contexts": [
+        "streak_strong"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_048",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. {toBest} days to your best of {best}.",
+      "contexts": [
+        "streak_strong"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_049",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. Protect the next focus block.",
+      "contexts": [
+        "streak_roaring"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_050",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. {toBest} days to your record of {best}.",
+      "contexts": [
+        "streak_roaring"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_051",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. A month-scale run. Keep the blocks clean.",
+      "contexts": [
+        "streak_blaze"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_052",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. You are well past two weeks of showing up.",
+      "contexts": [
+        "streak_blaze"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_053",
+      "weight": 1.0
+    },
+    {
+      "text": "Previous run banked: {lastRun} days. New fire, day {streak}.",
+      "contexts": [
+        "streak_banked"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_054",
+      "weight": 1.0
+    },
+    {
+      "text": "That {lastRun}-day run is on the record. Day {streak} starts now.",
+      "contexts": [
+        "streak_banked"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_055",
+      "weight": 1.0
+    },
+    {
+      "text": "Day {streak}. Reward cycle check: open the vault.",
+      "contexts": [
+        "milestone"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open",
+        "today"
+      ],
+      "cooldownDays": 14,
+      "maxPerWeek": 1,
+      "id": "msg_056",
+      "weight": 1.0
+    },
+    {
+      "text": "Day 7. Seven show-ups in a row.",
+      "contexts": [
+        "milestone"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open",
+        "today"
+      ],
+      "cooldownDays": 14,
+      "maxPerWeek": 1,
+      "id": "msg_057",
+      "weight": 1.0
+    },
+    {
+      "text": "Day 14. Two weeks of showing up. The vault has an update.",
+      "contexts": [
+        "milestone"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open",
+        "today"
+      ],
+      "cooldownDays": 14,
+      "maxPerWeek": 1,
+      "id": "msg_058",
+      "weight": 1.0
+    },
+    {
+      "text": "Day 30. Thirty days of showing up.",
+      "contexts": [
+        "milestone"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open",
+        "today"
+      ],
+      "cooldownDays": 14,
+      "maxPerWeek": 1,
+      "id": "msg_059",
+      "weight": 1.0
+    },
+    {
+      "text": "You passed your previous best of {best}. New record: {streak} days.",
+      "contexts": [
+        "milestone_record"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "streak_open",
+        "today"
+      ],
+      "cooldownDays": 30,
+      "maxPerWeek": 1,
+      "id": "msg_060",
+      "weight": 1.0
+    },
+    {
+      "text": "Cycle complete: {showUps} show-ups, {p1Rate}% essentials. {rewardName} unlocked.",
+      "contexts": [
+        "reward_unlock"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "rewards",
+        "today"
+      ],
+      "cooldownDays": 7,
+      "maxPerWeek": 2,
+      "id": "msg_061",
+      "weight": 1.0
+    },
+    {
+      "text": "Unlocked: {rewardName}. Plan it for Sunday night.",
+      "contexts": [
+        "reward_unlock"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "rewards",
+        "today"
+      ],
+      "cooldownDays": 7,
+      "maxPerWeek": 2,
+      "id": "msg_062",
+      "weight": 1.0
+    },
+    {
+      "text": "Criteria met. {rewardName} is yours. Put it on the calendar.",
+      "contexts": [
+        "reward_unlock"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "rewards",
+        "today"
+      ],
+      "cooldownDays": 7,
+      "maxPerWeek": 2,
+      "id": "msg_063",
+      "weight": 1.0
+    },
+    {
+      "text": "Next reward: {rewardName}. {criteriaLeft} criteria to go.",
+      "contexts": [
+        "reward_progress"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "today",
+        "rewards"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_064",
+      "weight": 1.0
+    },
+    {
+      "text": "{rewardName} is {percent}% unlocked.",
+      "contexts": [
+        "reward_progress"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "today",
+        "rewards"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_065",
+      "weight": 1.0
+    },
+    {
+      "text": "Round over. Capture the lesson while it is fresh.",
+      "contexts": [
+        "hackathon_eliminated"
+      ],
+      "tone": "direct",
+      "patternTags": [],
+      "surfaces": [
+        "hackathons"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 7,
+      "id": "msg_066",
+      "weight": 1.0
+    },
+    {
+      "text": "Result noted. Write what worked and what to change. Two minutes.",
+      "contexts": [
+        "hackathon_eliminated"
+      ],
+      "tone": "direct",
+      "patternTags": [],
+      "surfaces": [
+        "hackathons"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 7,
+      "id": "msg_067",
+      "weight": 1.0
+    },
+    {
+      "text": "Draft the LinkedIn post while the details are fresh.",
+      "contexts": [
+        "hackathon_eliminated"
+      ],
+      "tone": "direct",
+      "patternTags": [],
+      "surfaces": [
+        "hackathons"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 7,
+      "id": "msg_068",
+      "weight": 1.0
+    },
+    {
+      "text": "Result: {result}. Add it to the Evidence Locker and draft the LinkedIn post.",
+      "contexts": [
+        "hackathon_won"
+      ],
+      "tone": "warm",
+      "patternTags": [],
+      "surfaces": [
+        "hackathons"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 7,
+      "id": "msg_069",
+      "weight": 1.0
+    },
+    {
+      "text": "This is {blockName} time. Hackathon budget left this week: {hackHoursLeft} h. Switch anyway?",
+      "contexts": [
+        "block_guard"
+      ],
+      "tone": "direct",
+      "patternTags": [
+        "hackathon_hijacks_study"
+      ],
+      "surfaces": [
+        "block_guard",
+        "hackathons"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 7,
+      "id": "msg_070",
+      "weight": 1.0
+    },
+    {
+      "text": "Hackathon work has its own slot. {blockName} is on the clock now.",
+      "contexts": [
+        "block_guard"
+      ],
+      "tone": "direct",
+      "patternTags": [
+        "hackathon_hijacks_study"
+      ],
+      "surfaces": [
+        "block_guard",
+        "hackathons"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 7,
+      "id": "msg_071",
+      "weight": 1.0
+    },
+    {
+      "text": "Tick what happened. Partial counts. Tomorrow starts with one task.",
+      "contexts": [
+        "close_day"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "close_day"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_072",
+      "weight": 1.0
+    },
+    {
+      "text": "Tomorrow's first task: {firstTask} at {time}. Locked in.",
+      "contexts": [
+        "close_day"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "close_day"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_073",
+      "weight": 1.0
+    },
+    {
+      "text": "Essentials today: {done} of {total}. The rest rolls on its own.",
+      "contexts": [
+        "close_day"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "close_day"
+      ],
+      "cooldownDays": 3,
+      "maxPerWeek": 3,
+      "id": "msg_074",
+      "weight": 1.0
+    },
+    {
+      "text": "{blockName} in 10 min: {taskTitle} (about {minutes} min).",
+      "contexts": [
+        "reminder"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "reminder"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_075",
+      "weight": 1.0
+    },
+    {
+      "text": "Morning. First task: {taskTitle} at {time}.",
+      "contexts": [
+        "reminder"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "reminder"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_076",
+      "weight": 1.0
+    },
+    {
+      "text": "Evening close-out: 60 seconds to set tomorrow.",
+      "contexts": [
+        "reminder"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "reminder"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_077",
+      "weight": 1.0
+    },
+    {
+      "text": "Hackathon: {stageName} due in {timeLeft}. Next deliverable: {deliverable}.",
+      "contexts": [
+        "reminder"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "reminder"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_078",
+      "weight": 1.0
+    },
+    {
+      "text": "Gym at {time}. Low energy? Tap to swap for a walk or rest.",
+      "contexts": [
+        "reminder"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "reminder"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_079",
+      "weight": 1.0
+    },
+    {
+      "text": "Nothing scheduled. Add one task and keep it small.",
+      "contexts": [
+        "empty"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "empty_state"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_080",
+      "weight": 1.0
+    },
+    {
+      "text": "No entries yet. Write one line to begin.",
+      "contexts": [
+        "empty"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "empty_state"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_081",
+      "weight": 1.0
+    },
+    {
+      "text": "No hackathons added. Add the next deadline and its rounds.",
+      "contexts": [
+        "empty"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "empty_state"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_082",
+      "weight": 1.0
+    },
+    {
+      "text": "No evidence yet. Add one real thing you have done.",
+      "contexts": [
+        "empty"
+      ],
+      "tone": "calm",
+      "patternTags": [],
+      "surfaces": [
+        "empty_state"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_083",
+      "weight": 1.0
+    },
+    {
+      "text": "Facts first. What actually happened, and what is a prediction?",
+      "contexts": [
+        "spiral_breaker"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "guilt_spiral",
+        "flood_by_big_plan"
+      ],
+      "surfaces": [
+        "reset_room"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_084",
+      "weight": 1.0
+    },
+    {
+      "text": "Here are the real numbers. Compare them to the story in your head.",
+      "contexts": [
+        "spiral_breaker"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "guilt_spiral",
+        "flood_by_big_plan"
+      ],
+      "surfaces": [
+        "reset_room"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_085",
+      "weight": 1.0
+    },
+    {
+      "text": "Pick one next action. Ten minutes. Start the timer.",
+      "contexts": [
+        "spiral_breaker"
+      ],
+      "tone": "calm",
+      "patternTags": [
+        "guilt_spiral",
+        "flood_by_big_plan"
+      ],
+      "surfaces": [
+        "reset_room"
+      ],
+      "cooldownDays": 0,
+      "maxPerWeek": 14,
+      "id": "msg_086",
+      "weight": 1.0
+    }
+  ]
+}

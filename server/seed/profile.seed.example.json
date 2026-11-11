@@ -1,0 +1,129 @@
+{
+  "_readme": "Example seed data for the personalisation layer. Copy to profile.seed.json to customise.",
+  "version": 1,
+  "challenge": {
+    "start": "2026-11-16",
+    "lastPlannedDay": "2027-04-25",
+    "milestoneDate": "2027-04-26",
+    "milestoneLabel": "20th milestone",
+    "timezone": "Asia/Kolkata"
+  },
+  "patterns": [
+    {
+      "id": "flood_by_big_plan",
+      "description": "Seeing a long plan floods focus. Show only the single immediate next action.",
+      "signals": ["opens planner long before opening Today"],
+      "interventions": ["horizon_fog", "today_one_next_action", "never_show_total_backlog"]
+    },
+    {
+      "id": "missed_day_collapse",
+      "description": "Disrupted days trigger postponement. Offer calm return protocol.",
+      "signals": ["gap >= 1 day without check-in"],
+      "interventions": ["return_protocol", "bounded_catch_up", "slack_day_option"]
+    },
+    {
+      "id": "late_start_abandons_block",
+      "description": "Starting late leads to abandoning whole block. Frame remaining time positively.",
+      "signals": ["block start passed without focus session"],
+      "interventions": ["block_rescue", "minimum_viable_slice", "remaining_minutes_framing"]
+    }
+  ],
+  "strengths": [
+    "High focus when the next action is specific",
+    "Strong communication and presentation skills",
+    "Fast execution under clear constraints"
+  ],
+  "evidence": [
+    {
+      "title": "Consistent execution sprint",
+      "period": "Previous semester",
+      "note": "Maintained daily study and attendance discipline over multiple weeks.",
+      "tags": ["consistency", "learning"]
+    }
+  ],
+  "streakRecords": [
+    {
+      "label": "Previous personal best",
+      "days": 30,
+      "period": "2025",
+      "source": "self-reported"
+    }
+  ],
+  "voice": {
+    "persona": "A calm, capable friend. Direct and specific. Never a drill sergeant, never a therapist.",
+    "maxVisibleMessages": 1,
+    "maxMessagesPerDay": 3,
+    "maxWords": 18,
+    "quietHours": {
+      "start": "23:30",
+      "end": "05:00"
+    },
+    "language": "English",
+    "allowUserAddedQuotes": true,
+    "forbiddenPhrases": [
+      "you failed",
+      "failed again",
+      "even if you fail",
+      "failure is fine",
+      "it's okay to fail",
+      "wasted",
+      "wasting your time",
+      "days behind",
+      "behind schedule",
+      "lazy",
+      "no excuses"
+    ],
+    "forbiddenTopicsForAutoMessages": [
+      "family bereavement or hardship",
+      "parents' suffering",
+      "past depression",
+      "relationships or partner",
+      "financial hardship of family",
+      "any appeal to guilt or obligation"
+    ],
+    "toneRules": [
+      "Name one specific task or number.",
+      "Frame lateness or disruption as time that is still available.",
+      "Never describe optional tasks as missed, failed or owed.",
+      "State real numbers only; never invent or round up."
+    ]
+  },
+  "why": "",
+  "streakRules": {
+    "showUpRequires": "check-in AND at least one P1 action, OR an approved rest/low-energy day",
+    "optionalTasksAffectStreak": false,
+    "slackDayProtectsStreak": true,
+    "tiers": {
+      "spark": [1, 2],
+      "steady": [3, 6],
+      "strong": [7, 13],
+      "roaring": [14, 29],
+      "blaze": [30, null]
+    },
+    "milestones": [3, 7, 14, 21, 30, 36, 50, 75, 100]
+  },
+  "rewardPrefs": {
+    "interests": ["Movies", "Outings with friends", "Mountain trekking"],
+    "cycleLengthDays": [14, 21],
+    "preferredSlot": "Sunday night",
+    "finalReward": {
+      "label": "Mountain trek",
+      "savingsTargetINR": 4000,
+      "monthlyContributionINR": 800
+    }
+  },
+  "blockGuardRules": {
+    "protectedBlocks": ["DSA", "Web Development", "Study Session I", "Study Session II"],
+    "behaviour": "Prompt (not block) when hackathon work starts inside a protected block."
+  },
+  "hackathonRules": {
+    "defaultStages": ["PPT round", "Video / demo round", "Final offline round"],
+    "weeklyHackathonBudgetHours": 6
+  },
+  "fitness": {
+    "startWeightKg": 88,
+    "targetWeightKg": 73,
+    "checkInEveryDays": 14,
+    "noSugarChallenge": true
+  }
+}

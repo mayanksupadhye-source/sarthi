@@ -1,9 +1,48 @@
 import { getCurrentUser, logoutUser } from './auth.js';
 import { api } from './api.js';
-import { formatMinutes } from './utils.js';
 
+// Global application identity configuration (never hardcoded in templates)
+export const APP_CONFIG = {
+  name: 'SARTHI',
+  tagline: 'Student OS · सारथी',
+  version: '2.0.0'
+};
+
+/**
+ * Returns custom-drawn SVG Flame markup with tier-based glow and color.
+ * Tiers: spark (1-2), steady (3-6), strong (7-13), roaring (14-29), blaze (30+)
+ */
+export function getFlameSvg(tier = 'steady', width = 22, height = 26) {
+  let primaryColor = '#FF5722';
+  let innerColor = '#FFD54F';
+
+  if (tier === 'blaze') {
+    primaryColor = '#FF7043';
+    innerColor = '#FFEE58';
+  } else if (tier === 'spark') {
+    primaryColor = '#F4511E';
+    innerColor = '#FFB74D';
+  }
+
+  return `
+    <svg class="flame-svg flame-${tier}" width="${width}" height="${height}" viewBox="0 0 24 30" fill="none" aria-hidden="true">
+      <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="${primaryColor}"/>
+      <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="${innerColor}"/>
+    </svg>
+  `;
+}
+
+/**
+ * Renders the responsive application shell:
+ * - Desktop side rail with grouped, purposeful hierarchy
+ * - Topbar with persistent streak flame, active timer, theme switcher
+ * - Mobile bottom bar with 5 primary touch destinations (>= 44px)
+ */
 export function renderLayout(activePageKey = 'dashboard') {
   const user = getCurrentUser() || { name: 'Student', email: 'user@sarthi.app' };
+
+  // Initialise active theme
+  initTheme();
 
   // 1. Sidebar HTML
   const sidebarHtml = `
@@ -11,8 +50,8 @@ export function renderLayout(activePageKey = 'dashboard') {
       <div class="sidebar-brand">
         <div class="brand-monogram">S</div>
         <div class="brand-text">
-          <span class="brand-title">SARTHI</span>
-          <span class="brand-tagline">Student OS · सारथी</span>
+          <span class="brand-title">${APP_CONFIG.name}</span>
+          <span class="brand-tagline">${APP_CONFIG.tagline}</span>
         </div>
       </div>
 
@@ -47,13 +86,13 @@ export function renderLayout(activePageKey = 'dashboard') {
           <div class="nav-section-label">Learning Tracks</div>
           <ul class="nav-list">
             <li class="nav-item ${activePageKey === 'webdev' ? 'active' : ''}">
-              <a href="webdev.html"><span>🌐</span> Web Development</a>
+              <a href="webdev.html"><span style="color: var(--accent-web);">🌐</span> Web Development</a>
             </li>
             <li class="nav-item ${activePageKey === 'dsa' ? 'active' : ''}">
-              <a href="dsa.html"><span>💻</span> C++ DSA (136)</a>
+              <a href="dsa.html"><span style="color: var(--accent-dsa);">💻</span> C++ DSA (136)</a>
             </li>
             <li class="nav-item ${activePageKey === 'oratory' ? 'active' : ''}">
-              <a href="oratory.html"><span>🎙</span> Oratory (13 Wks)</a>
+              <a href="oratory.html"><span style="color: var(--accent-oratory);">🎙</span> Oratory (13 Wks)</a>
             </li>
             <li class="nav-item ${activePageKey === 'explore' ? 'active' : ''}">
               <a href="explore.html"><span>🔬</span> Exploration Lab</a>
@@ -66,26 +105,29 @@ export function renderLayout(activePageKey = 'dashboard') {
           <div class="nav-section-label">Academics & Projects</div>
           <ul class="nav-list">
             <li class="nav-item ${activePageKey === 'academics' ? 'active' : ''}">
-              <a href="academics.html"><span>🎓</span> Attendance & Exams</a>
+              <a href="academics.html"><span style="color: var(--accent-academic);">🎓</span> Attendance & Exams</a>
             </li>
             <li class="nav-item ${activePageKey === 'hackathons' ? 'active' : ''}">
-              <a href="hackathons.html"><span>🚀</span> Hackathon Hub</a>
+              <a href="hackathons.html"><span style="color: var(--accent-hackathon);">🚀</span> Hackathon Hub</a>
             </li>
           </ul>
         </div>
 
-        <!-- Well-being & Review -->
+        <!-- Routines & Identity -->
         <div>
           <div class="nav-section-label">Routines & Mindset</div>
           <ul class="nav-list">
             <li class="nav-item ${activePageKey === 'fitness' ? 'active' : ''}">
-              <a href="fitness.html"><span>💪</span> Gym & Weight (88→73)</a>
+              <a href="fitness.html"><span style="color: var(--accent-fitness);">💪</span> Gym & Weight (88→73)</a>
             </li>
             <li class="nav-item ${activePageKey === 'habits' ? 'active' : ''}">
               <a href="habits.html"><span>🌙</span> Night Routine & Habits</a>
             </li>
             <li class="nav-item ${activePageKey === 'journal' ? 'active' : ''}">
               <a href="journal.html"><span>📓</span> Journal & Notes</a>
+            </li>
+            <li class="nav-item ${activePageKey === 'evidence' ? 'active' : ''}">
+              <a href="evidence.html"><span style="color: var(--accent-ember);">🧾</span> Evidence Locker</a>
             </li>
             <li class="nav-item ${activePageKey === 'reset-room' ? 'active' : ''}">
               <a href="reset-room.html"><span>🌿</span> Reset Room</a>
@@ -97,7 +139,7 @@ export function renderLayout(activePageKey = 'dashboard') {
               <a href="sharemarket.html"><span>📈</span> Share Market</a>
             </li>
             <li class="nav-item ${activePageKey === 'rewards' ? 'active' : ''}">
-              <a href="rewards.html"><span>🏔</span> Savings & Rewards</a>
+              <a href="rewards.html"><span style="color: var(--accent-rewards);">🏔</span> Savings & Rewards</a>
             </li>
           </ul>
         </div>
@@ -110,7 +152,10 @@ export function renderLayout(activePageKey = 'dashboard') {
               <a href="analytics.html"><span>📊</span> Analytics</a>
             </li>
             <li class="nav-item ${activePageKey === 'settings' ? 'active' : ''}">
-              <a href="settings.html"><span>⚙</span> Settings & Backup</a>
+              <a href="settings.html"><span>⚙</span> Settings & Voice</a>
+            </li>
+            <li class="nav-item ${activePageKey === 'styleguide' ? 'active' : ''}">
+              <a href="styleguide.html"><span>🎨</span> Style Guide</a>
             </li>
           </ul>
         </div>
@@ -126,10 +171,37 @@ export function renderLayout(activePageKey = 'dashboard') {
     </aside>
   `;
 
-  // Insert sidebar
+  // 2. Mobile Bottom Navigation (5 Key Touch Destinations)
+  const bottomBarHtml = `
+    <nav class="app-bottom-bar" aria-label="Mobile Navigation">
+      <a href="dashboard.html" class="bottom-bar-item ${activePageKey === 'dashboard' ? 'active' : ''}">
+        <span class="icon">⚡</span>
+        <span>Today</span>
+      </a>
+      <a href="tasks.html" class="bottom-bar-item ${activePageKey === 'tasks' ? 'active' : ''}">
+        <span class="icon">📋</span>
+        <span>Tasks</span>
+      </a>
+      <a href="focus.html" class="bottom-bar-item ${activePageKey === 'focus' ? 'active' : ''}">
+        <span class="icon">🎯</span>
+        <span>Focus</span>
+      </a>
+      <a href="hackathons.html" class="bottom-bar-item ${activePageKey === 'hackathons' ? 'active' : ''}">
+        <span class="icon">🚀</span>
+        <span>Hacks</span>
+      </a>
+      <button class="bottom-bar-item mobile-menu-btn" style="background:transparent; border:none; cursor:pointer;" aria-label="Open Full Menu">
+        <span class="icon">☰</span>
+        <span>More</span>
+      </button>
+    </nav>
+  `;
+
+  // Insert sidebar and bottom bar
   const layoutContainer = document.querySelector('.app-layout');
   if (layoutContainer) {
     layoutContainer.insertAdjacentHTML('afterbegin', sidebarHtml);
+    layoutContainer.insertAdjacentHTML('beforeend', bottomBarHtml);
 
     // Logout listener
     document.getElementById('logoutBtn')?.addEventListener('click', (e) => {
@@ -137,16 +209,65 @@ export function renderLayout(activePageKey = 'dashboard') {
       logoutUser();
     });
 
-    // Mobile menu toggle listener
-    document.querySelector('.mobile-menu-btn')?.addEventListener('click', () => {
-      document.getElementById('appSidebar')?.classList.toggle('open');
+    // Mobile menu toggle listeners (topbar button and bottom bar "More")
+    document.querySelectorAll('.mobile-menu-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('appSidebar')?.classList.toggle('open');
+      });
     });
   }
 
-  // Live Focus Session Banner / Indicator in topbar
+  // Setup topbar flame and live focus widget
+  initTopbarFlame();
   initLiveFocusBar();
 }
 
+/**
+ * Initializes the persistent streak flame in the topbar header
+ */
+async function initTopbarFlame() {
+  const topbarRight = document.querySelector('.topbar-right');
+  if (!topbarRight) return;
+
+  // Check if flame container already exists
+  let flameContainer = document.getElementById('topbarFlameContainer');
+  if (!flameContainer) {
+    flameContainer = document.createElement('div');
+    flameContainer.id = 'topbarFlameContainer';
+    flameContainer.style.display = 'inline-flex';
+    flameContainer.style.alignItems = 'center';
+    topbarRight.insertBefore(flameContainer, topbarRight.firstChild);
+  }
+
+  try {
+    const res = await api.get('/planner/today');
+    const streak = res.streak || 1;
+    let tier = 'spark';
+    if (streak >= 30) tier = 'blaze';
+    else if (streak >= 14) tier = 'roaring';
+    else if (streak >= 7) tier = 'strong';
+    else if (streak >= 3) tier = 'steady';
+
+    flameContainer.innerHTML = `
+      <a href="dashboard.html#streak" class="flame-wrapper" title="Current streak: ${streak} days (${tier})" style="text-decoration: none; color: inherit;">
+        ${getFlameSvg(tier, 22, 26)}
+        <span class="text-num" style="font-family: var(--font-display); font-weight: 800; font-size: 0.9375rem; color: var(--accent-ember);">${streak}</span>
+      </a>
+    `;
+  } catch {
+    // Offline / guest fallback: render spark
+    flameContainer.innerHTML = `
+      <div class="flame-wrapper" title="Streak Flame">
+        ${getFlameSvg('spark', 22, 26)}
+        <span class="text-num" style="font-family: var(--font-display); font-weight: 800; font-size: 0.9375rem; color: var(--accent-ember);">1</span>
+      </div>
+    `;
+  }
+}
+
+/**
+ * Live Focus Session Indicator in topbar
+ */
 async function initLiveFocusBar() {
   try {
     const res = await api.get('/focus/active');
@@ -167,11 +288,34 @@ async function initLiveFocusBar() {
     } else {
       container.innerHTML = `
         <a href="focus.html" class="btn btn-outline btn-sm">
-          <span>⏱ Start Focus</span>
+          <span>⏱ Focus</span>
         </a>
       `;
     }
-  } catch (err) {
+  } catch {
     // Silent ignore for guest / offline
+  }
+}
+
+/**
+ * Initializes and manages theme state
+ */
+function initTheme() {
+  const saved = localStorage.getItem('sarthi_theme');
+  if (saved === 'daylight') {
+    document.documentElement.setAttribute('data-theme', 'daylight');
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+  }
+}
+
+export function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme');
+  if (current === 'daylight') {
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('sarthi_theme', 'night');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'daylight');
+    localStorage.setItem('sarthi_theme', 'daylight');
   }
 }

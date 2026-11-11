@@ -70,6 +70,9 @@ web_modules/
 .env.*
 !.env.example
 
+# Privacy: User Profile Seeds
+server/seed/profile.seed.json
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache

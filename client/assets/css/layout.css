@@ -273,6 +273,7 @@
 
   .page-container {
     padding: var(--space-4);
+    padding-bottom: 88px; /* Offset for persistent mobile bottom navigation bar */
   }
 
   .grid-2, .grid-4 {

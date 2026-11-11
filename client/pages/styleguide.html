@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design System & Style Guide — SARTHI (सारथी)</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="stylesheet" href="../assets/css/variables.css">
+  <link rel="stylesheet" href="../assets/css/reset.css">
+  <link rel="stylesheet" href="../assets/css/typography.css">
+  <link rel="stylesheet" href="../assets/css/components.css">
+  <link rel="stylesheet" href="../assets/css/layout.css">
+  <style>
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+    .swatch-item {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-sm);
+      padding: var(--space-3);
+    }
+    .swatch-color {
+      height: 48px;
+      border-radius: var(--radius-xs);
+      margin-bottom: var(--space-2);
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .component-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-4);
+      margin-bottom: var(--space-5);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+          <div class="page-headline">Design System · Night Workshop</div>
+        </div>
+        <div class="topbar-right">
+          <button id="themeToggleBtn" class="btn btn-outline btn-sm">☀ Switch to Daylight Theme</button>
+          <a href="dashboard.html" class="btn btn-primary btn-sm">← Back to Today</a>
+        </div>
+      </header>
+
+      <div class="page-container" style="max-width: 1040px; margin: 0 auto; padding-bottom: var(--space-12);">
+        
+        <!-- Philosophy Header -->
+        <div class="card" style="margin-bottom: var(--space-6); border-left: 4px solid var(--accent-ember);">
+          <div class="text-xs" style="color: var(--accent-ember); margin-bottom: var(--space-1);">SARTHI DESIGN SYSTEM 2.0</div>
+          <h2>The Night Workshop Aesthetic</h2>
+          <p class="text-lead" style="margin-bottom: 0;">
+            A calm, confident, cinematic command centre built for high-focus execution. Layered obsidian solids, warm linen text, and a living ember pilot light. Zero linear gradient washes, zero generic glassmorphism.
+          </p>
+        </div>
+
+        <!-- 1. Palette Swatches -->
+        <h3 style="margin-bottom: var(--space-3);">1. Palette & Surface Tokens</h3>
+        <div class="swatch-grid">
+          <div class="swatch-item">
+            <div class="swatch-color" style="background: var(--bg-canvas);"></div>
+            <div style="font-weight: 700; font-size: 0.8125rem;">Canvas</div>
+            <div class="text-subtle text-xs">#080D1A</div>
+          </div>
+          <div class="swatch-item">
+            <div class="swatch-color" style="background: var(--bg-surface);"></div>
+            <div style="font-weight: 700; font-size: 0.8125rem;">Surface</div>
+            <div class="text-subtle text-xs">#10182B</div>
+          </div>
+          <div class="swatch-item">
+            <div class="swatch-color" style="background: var(--bg-elevated);"></div>
+            <div style="font-weight: 700; font-size: 0.8125rem;">Elevated</div>
+            <div class="text-subtle text-xs">#16223B</div>
+          </div>
+          <div class="swatch-item">
+            <div class="swatch-color" style="background: var(--accent-ember);"></div>
+            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--accent-ember);">Ember Accent</div>
+            <div class="text-subtle text-xs">#FF5722</div>
+          </div>
+          <div class="swatch-item">
+            <div class="swatch-color" style="background: var(--accent-web);"></div>
+            <div style="font-weight: 700; font-size: 0.8125rem;">WebDev</div>
+            <div class="text-subtle text-xs">#2563EB</div>
+          </div>
+          <div class="swatch-item">
+            <div class="swatch-color" style="background: var(--accent-dsa);"></div>
+            <div style="font-weight: 700; font-size: 0.8125rem;">DSA 136</div>
+            <div class="text-subtle text-xs">#0D9488</div>
+          </div>
+          <div class="swatch-item">
+            <div class="swatch-color" style="background: var(--accent-oratory);"></div>
+            <div style="font-weight: 700; font-size: 0.8125rem;">Oratory</div>
+            <div class="text-subtle text-xs">#D97706</div>
+          </div>
+          <div class="swatch-item">
+            <div class="swatch-color" style="background: var(--accent-fitness);"></div>
+            <div style="font-weight: 700; font-size: 0.8125rem;">Fitness</div>
+            <div class="text-subtle text-xs">#059669</div>
+          </div>
+        </div>
+
+        <!-- 2. Typography & Big Numerals -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);">2. Typography & Signature Numerals</h3>
+          <div style="display: flex; gap: var(--space-8); align-items: baseline; flex-wrap: wrap; margin-bottom: var(--space-4);">
+            <div>
+              <div class="text-subtle text-xs">STREAK COUNT (DISPLAY XL)</div>
+              <div class="text-display-xl" style="color: var(--accent-ember);">36</div>
+            </div>
+            <div>
+              <div class="text-subtle text-xs">TIMER COUNTDOWN (DISPLAY LG)</div>
+              <div class="text-display-lg">02:45:00</div>
+            </div>
+            <div>
+              <div class="text-subtle text-xs">ATTENDANCE METRIC</div>
+              <div class="text-display-lg" style="color: var(--color-success);">84.6%</div>
+            </div>
+          </div>
+          <p>
+            Body line length is strictly constrained under 75 characters for fatigue-free reading across journals and long lecture syllabi. Tabular numerals (<code>font-variant-numeric: tabular-nums</code>) eliminate jitter across countdown clocks and percentage displays.
+          </p>
+        </div>
+
+        <!-- 3. Streak Flame Tiers -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);">3. The Streak Flame Tiers (SVG Engine)</h3>
+          <p class="text-subtle text-sm">Custom-drawn SVG layered flame that responds to verified show-up runs. No stock emojis.</p>
+          <div class="component-row" style="gap: var(--space-8);">
+            <div style="text-align: center;">
+              <div class="flame-spark" style="display: inline-block;">
+                <svg width="32" height="38" viewBox="0 0 24 30" fill="none">
+                  <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="#FF5722"/>
+                  <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="#FFD54F"/>
+                </svg>
+              </div>
+              <div class="text-xs" style="margin-top: var(--space-2);">Spark (Day 1-2)</div>
+            </div>
+
+            <div style="text-align: center;">
+              <div class="flame-steady" style="display: inline-block;">
+                <svg width="36" height="42" viewBox="0 0 24 30" fill="none">
+                  <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="#FF5722"/>
+                  <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="#FFD54F"/>
+                </svg>
+              </div>
+              <div class="text-xs" style="margin-top: var(--space-2);">Steady (3-6)</div>
+            </div>
+
+            <div style="text-align: center;">
+              <div class="flame-strong" style="display: inline-block;">
+                <svg width="40" height="46" viewBox="0 0 24 30" fill="none">
+                  <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="#FF5722"/>
+                  <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="#FFD54F"/>
+                </svg>
+              </div>
+              <div class="text-xs" style="margin-top: var(--space-2);">Strong (7-13)</div>
+            </div>
+
+            <div style="text-align: center;">
+              <div class="flame-roaring" style="display: inline-block;">
+                <svg width="44" height="50" viewBox="0 0 24 30" fill="none">
+                  <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="#FF5722"/>
+                  <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="#FFD54F"/>
+                </svg>
+              </div>
+              <div class="text-xs" style="margin-top: var(--space-2); color: var(--accent-ember);">Roaring (14-29)</div>
+            </div>
+
+            <div style="text-align: center;">
+              <div class="flame-blaze" style="display: inline-block;">
+                <svg width="48" height="54" viewBox="0 0 24 30" fill="none">
+                  <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="#FF7043"/>
+                  <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="#FFEE58"/>
+                </svg>
+              </div>
+              <div class="text-xs" style="margin-top: var(--space-2); color: #FF7043;">Blaze (30+)</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. Interactive Controls & Buttons -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);">4. Buttons & Interactive States</h3>
+          <div class="component-row">
+            <button class="btn btn-primary">Primary Action</button>
+            <button class="btn btn-secondary">Secondary Panel</button>
+            <button class="btn btn-outline">Outline Action</button>
+            <button class="btn btn-ghost">Ghost Action</button>
+            <button class="btn btn-danger">Destructive</button>
+            <button class="btn btn-primary btn-sm">Small Button</button>
+            <button class="btn btn-primary" disabled>Disabled State</button>
+          </div>
+          <p class="text-subtle text-sm">Every button guarantees a minimum 44×44px interactive hitbox on mobile and high-contrast visible focus rings on keyboard tab.</p>
+        </div>
+
+        <!-- 5. Badges & Conic Progress -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);">5. Badges, Priority Signals & Conic Rings</h3>
+          <div class="component-row">
+            <span class="badge badge-p1">P1 Essential</span>
+            <span class="badge badge-p2">P2 Core</span>
+            <span class="badge badge-p3">P3 Optional</span>
+            <span class="badge badge-success">Banked</span>
+            <span class="badge badge-warning">Slack Shield</span>
+            <span class="badge badge-ember">Pilot Active</span>
+          </div>
+
+          <div class="component-row" style="margin-top: var(--space-4); gap: var(--space-6);">
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="progress-ring" style="--percent: 75;">
+                <span class="progress-ring-text">75%</span>
+              </div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.875rem;">WebDev Section 4</div>
+                <div class="text-subtle text-xs">Conic Gradient Ring</div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: var(--space-3);">
+              <div class="progress-ring" style="--percent: 42; background: conic-gradient(var(--accent-dsa) 42%, var(--border-hairline) 0deg);">
+                <span class="progress-ring-text">42%</span>
+              </div>
+              <div>
+                <div style="font-weight: 700; font-size: 0.875rem;">DSA Binary Search</div>
+                <div class="text-subtle text-xs">Module Accent Ring</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6. Emotional Layer: Block Rescue Bar -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);">6. Emotional Intelligence: Block Rescue Bar</h3>
+          <div class="block-rescue-bar">
+            <div>
+              <div style="font-weight: 700; font-size: 0.9375rem; color: var(--text-ink);">
+                ⚡ Web Development block began 8 minutes ago
+              </div>
+              <div class="text-subtle text-sm">
+                52 minutes are still yours. Start the smallest slice.
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm">Start 10-Min Slice</button>
+          </div>
+        </div>
+
+        <!-- 7. Year-View Heat Strip -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-2);">7. Challenge Heat Strip (Nov 16, 2026 – Apr 25, 2027)</h3>
+          <p class="text-subtle text-sm" style="margin-bottom: var(--space-4);">True historical representation of show-ups, slack shields, and intentional rest.</p>
+          <div class="heat-strip" id="heatStripDemo"></div>
+          <div style="display: flex; gap: var(--space-4); margin-top: var(--space-3); font-size: 0.75rem; color: var(--text-subtle);">
+            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 10px; height: 10px; background: var(--accent-ember);"></div> Show-up</div>
+            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 10px; height: 10px; background: var(--color-warning);"></div> Slack Shield</div>
+            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 10px; height: 10px; background: #38BDF8;"></div> Rest Approved</div>
+            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 10px; height: 10px; background: #17243B;"></div> Future / Pending</div>
+          </div>
+        </div>
+
+        <!-- 8. Single Next Action Spotlight -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);">8. Single Next Action Spotlight (Today Screen)</h3>
+          <div class="card-spotlight">
+            <div class="spotlight-eyebrow">
+              <span class="spotlight-badge">● NOW ACTIVE · 45 MIN SLICE</span>
+              <span class="badge badge-p1">P1 Essential</span>
+            </div>
+            <div class="spotlight-title">C++ DSA 136 — Implement Graph BFS & Cycle Detection</div>
+            <div class="spotlight-meta">
+              <span>⏱ Estimated: 45 min</span>
+              <span>📚 Topic: Graphs (Cluster 7)</span>
+              <span>🎯 Target: 2 Problems Solved</span>
+            </div>
+            <div class="spotlight-actions">
+              <a href="focus.html" class="btn btn-primary">Start Focus Session (45m)</a>
+              <button class="btn btn-secondary">Break into 10m Micro-Slice</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9. Evidence Locker ("Receipts") -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-2);">9. Evidence Locker ("Receipts")</h3>
+          <p class="text-subtle text-sm" style="margin-bottom: var(--space-4);">Immutable proof of what has already been proven under pressure.</p>
+          <div class="evidence-grid" style="margin-top: 0;">
+            <div class="receipt-card">
+              <div>
+                <div class="receipt-card-header">
+                  <span class="receipt-tag streak">36-Day Streak</span>
+                  <span class="receipt-verified-stamp">✓ Verified Record</span>
+                </div>
+                <div class="receipt-title">The Longest Consistent Run</div>
+                <div class="receipt-metric">36 DAYS</div>
+                <div class="receipt-quote">"Consistent, quiet momentum without skipping, proving that showing up daily is an established ability."</div>
+              </div>
+              <div class="receipt-footer">
+                <span>Personal Best</span>
+                <span>Verified Historical Run</span>
+              </div>
+            </div>
+
+            <div class="receipt-card">
+              <div>
+                <div class="receipt-card-header">
+                  <span class="receipt-tag hackathon">Hackathon Lead</span>
+                  <span class="receipt-verified-stamp">✓ Verified Win</span>
+                </div>
+                <div class="receipt-title">36-Hour Hackathon Championship</div>
+                <div class="receipt-metric">1st PLACE</div>
+                <div class="receipt-quote">"Led a 4-person team under 36-hour deadline pressure, coordinated live pitch demo, and shipped working product."</div>
+              </div>
+              <div class="receipt-footer">
+                <span>Team Leadership</span>
+                <span>Inter-College Tech Fest</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10. Hackathon Command Centre Components -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);">10. Hackathon Command Centre</h3>
+          <div class="thermometer-strip">
+            <div class="thermometer-header">
+              <div>
+                <span class="text-xs" style="color: var(--accent-hackathon); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Smart India Hackathon · Finale Sprint</span>
+                <div style="font-weight: 700; font-size: 1.125rem; color: var(--text-ink);">Deadline Thermometer</div>
+              </div>
+              <div class="thermometer-countdown">14h 22m LEFT</div>
+            </div>
+            <div class="thermometer-track">
+              <div class="thermometer-bar" style="width: 65%;"></div>
+            </div>
+            <div class="thermometer-milestones">
+              <span>Ideation Locked (T+0)</span>
+              <span>Code Freeze (T-4h)</span>
+              <span>Final Pitch (T-0)</span>
+            </div>
+          </div>
+
+          <div class="block-guard-banner">
+            <div>
+              <strong style="color: var(--color-danger);">⚠️ Block Guard Active:</strong>
+              <span style="font-size: 0.875rem; color: var(--text-ink); margin-left: 6px;">You have Web Dev & DSA scheduled for 6:00 PM. Don't compromise core coursework for unassigned hackathon tasks.</span>
+            </div>
+            <button class="btn btn-secondary btn-sm">Protect Schedule</button>
+          </div>
+        </div>
+
+        <!-- 11. Reward Vault & Summit Trek -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);">11. Reward Vault & Summit Trek</h3>
+          <div class="summit-trek-card milestone-active">
+            <div class="trek-header">
+              <div>
+                <span class="text-xs" style="color: var(--accent-rewards); font-weight: 700; text-transform: uppercase;">Kedarkantha Summit Expedition</span>
+                <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-ink);">The Mountain Trek Fund</div>
+              </div>
+              <div class="trek-elevation-metric">₹4,000 <span style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">/ ₹15,000</span></div>
+            </div>
+            <div class="progress-bar" style="height: 10px; margin-bottom: var(--space-3);">
+              <div class="progress-fill" style="width: 27%; background-color: var(--accent-rewards);"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; color: var(--text-muted);">
+              <span>Base Camp: ₹0</span>
+              <span>Current Savings: ₹4,000 (Base unlocked)</span>
+              <span>Summit: ₹15,000</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script type="module">
+    import { checkAuth } from '../assets/js/auth.js';
+    import { renderLayout } from '../assets/js/nav.js';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      checkAuth();
+      renderLayout('settings');
+
+      // Theme toggle demo
+      const themeBtn = document.getElementById('themeToggleBtn');
+      themeBtn?.addEventListener('click', () => {
+        const isDaylight = document.documentElement.getAttribute('data-theme') === 'daylight';
+        if (isDaylight) {
+          document.documentElement.removeAttribute('data-theme');
+          themeBtn.textContent = '☀ Switch to Daylight Theme';
+        } else {
+          document.documentElement.setAttribute('data-theme', 'daylight');
+          themeBtn.textContent = '🌙 Switch to Night Workshop';
+        }
+      });
+
+      // Generate demo heat strip
+      const strip = document.getElementById('heatStripDemo');
+      if (strip) {
+        let html = '';
+        for (let i = 0; i < 90; i++) {
+          let cls = 'heat-tile';
+          if (i < 20) cls += ' show-up';
+          else if (i === 20) cls += ' slack-shield';
+          else if (i === 21) cls += ' rest-day';
+          else if (i < 36) cls += ' show-up';
+          html += `<div class="${cls}" title="Day ${i + 1}"></div>`;
+        }
+        strip.innerHTML = html;
+      }
+    });
+  </script>
+</body>
+</html>

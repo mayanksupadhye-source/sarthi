@@ -10,11 +10,12 @@ import hackathonRoutes from './hackathonRoutes.js';
 import personalRoutes from './personalRoutes.js';
 import settingsRoutes from './settingsRoutes.js';
 import insightsRoutes from './insightsRoutes.js';
-import { getDBStatus } from '../config/db.js';
+import emotionalRoutes from './emotionalRoutes.js';
+import { getDBStatus, requireDB } from '../config/db.js';
 
 const router = express.Router();
 
-// Health check endpoint
+// Health check endpoint (always reachable, reports real DB connectivity status)
 router.get('/health', (req, res) => {
   res.json({
     status: 'ok',
@@ -24,6 +25,10 @@ router.get('/health', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Guard: Require active database connection for all data-dependent routes
+// Prevents 10000ms Mongoose buffering timeout; returns immediate HTTP 503 instead
+router.use(requireDB);
 
 router.use('/auth', authRoutes);
 router.use('/tasks', taskRoutes);
@@ -37,5 +42,6 @@ router.use('/hackathons', hackathonRoutes);
 router.use('/personal', personalRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/insights', insightsRoutes);
+router.use('/emotional', emotionalRoutes);
 
 export default router;
