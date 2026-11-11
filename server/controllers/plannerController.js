@@ -4,12 +4,7 @@ import { SlackDayLog } from '../models/SlackDayLog.js';
 import { ScheduleTemplate } from '../models/ScheduleTemplate.js';
 import { Setting } from '../models/Setting.js';
 import { PlannerEngine } from '../services/plannerEngine.js';
-
-function getTodayString() {
-  const now = new Date();
-  // Format YYYY-MM-DD
-  return now.toISOString().split('T')[0];
-}
+import { getTodayString } from '../utils/timeFormat.js';
 
 function getMonthKey(dateStr) {
   return dateStr.slice(0, 7); // "YYYY-MM"

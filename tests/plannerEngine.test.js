@@ -181,4 +181,36 @@ describe('SARTHI Planner Engine — Capacity & Recovery Rules', () => {
     assert.equal(distributionPlan[1].targetDate, '2026-11-20');
   });
 
+  it('9. User Replan Customization: Moving tasks between accepted and deferred updates allocations accurately', () => {
+    const task1 = { _id: 't-1', title: 'Task 1', priority: 'P2', estimatedMinutes: 60 };
+    const task2 = { _id: 't-2', title: 'Task 2', priority: 'P2', estimatedMinutes: 90 };
+    const task3 = { _id: 't-3', title: 'Task 3', priority: 'P3', estimatedMinutes: 45 };
+
+    const proposal = PlannerEngine.generateReplanProposal({
+      targetDate: '2026-11-17',
+      dailyCapacityMinutes: 160,
+      existingScheduledTasks: [],
+      missedOrUnfinishedTasks: [task1, task2, task3]
+    });
+
+    // Initially task1 (60) + task2 (90) = 150 <= 160 (accepted), task3 (45) deferred
+    assert.equal(proposal.acceptedTasks.length, 2);
+    assert.equal(proposal.deferredTasks.length, 1);
+    assert.equal(proposal.allocatedMinutes, 150);
+
+    // Simulate user editing: move task2 (90m) to deferred, move task3 (45m) to accepted
+    const idx2 = proposal.acceptedTasks.findIndex(t => t._id === 't-2');
+    const [movedToDeferred] = proposal.acceptedTasks.splice(idx2, 1);
+    proposal.deferredTasks.push(movedToDeferred);
+
+    const idx3 = proposal.deferredTasks.findIndex(t => t._id === 't-3');
+    const [movedToAccepted] = proposal.deferredTasks.splice(idx3, 1);
+    proposal.acceptedTasks.push(movedToAccepted);
+
+    // Recalculate allocation
+    const newAllocated = proposal.acceptedTasks.reduce((sum, t) => sum + (t.remainingMinutes || t.estimatedMinutes), 0);
+    assert.equal(newAllocated, 60 + 45, 'New allocation must be 105 min');
+    assert.ok(newAllocated <= proposal.capacityMinutes, 'User custom plan fits within capacity');
+  });
+
 });

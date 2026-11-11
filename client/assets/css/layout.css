@@ -97,12 +97,14 @@
   color: var(--text-muted);
   font-size: 0.875rem;
   font-weight: 500;
-  transition: all var(--transition-fast);
+  position: relative;
+  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 .nav-item a:hover {
   background-color: var(--bg-subtle);
   color: var(--text-ink);
+  transform: translateX(3px);
 }
 
 .nav-item.active a {
@@ -110,6 +112,7 @@
   color: var(--accent-blue);
   font-weight: 700;
   border-left: 3px solid var(--accent-blue);
+  box-shadow: inset 1px 0 0 var(--accent-blue);
 }
 
 .sidebar-footer {
@@ -162,7 +165,9 @@
 
 /* Topbar Header */
 .app-topbar {
-  background-color: var(--bg-surface);
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-hairline);
   padding: var(--space-3) var(--space-8);
   display: flex;
@@ -171,6 +176,12 @@
   position: sticky;
   top: 0;
   z-index: 90;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
+  transition: box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+[data-theme="dark"] .app-topbar {
+  background-color: rgba(16, 24, 43, 0.92);
 }
 
 .topbar-left {
@@ -183,6 +194,7 @@
   display: none;
   font-size: 1.25rem;
   color: var(--text-ink);
+  cursor: pointer;
 }
 
 .page-headline {
@@ -219,13 +231,53 @@
   background-color: var(--accent-blue);
   border-color: var(--accent-blue);
   color: #FFFFFF;
-  box-shadow: 0 1px 3px rgba(29, 78, 216, 0.25);
+  box-shadow: 0 0 12px rgba(29, 78, 216, 0.35);
+  animation: timer-pulse 2s ease-in-out infinite alternate;
 }
 
 .timer-pill.paused {
   background-color: var(--accent-amber);
   border-color: var(--accent-amber);
   color: #FFFFFF;
+}
+
+@keyframes timer-pulse {
+  0% {
+    box-shadow: 0 0 4px rgba(29, 78, 216, 0.25);
+  }
+  100% {
+    box-shadow: 0 0 14px rgba(29, 78, 216, 0.55);
+  }
+}
+
+/* Page Wave Backdrop (Subtle ambient fluid depth behind content) */
+.page-wave-backdrop {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 260px;
+  height: 120px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.45;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .page-wave-backdrop {
+    left: 0;
+    bottom: 56px;
+    height: 80px;
+  }
+}
+
+.app-main {
+  position: relative;
+}
+
+.page-container {
+  position: relative;
+  z-index: 1;
 }
 
 /* Page Content Container */

@@ -20,18 +20,24 @@
       border: 1px solid var(--color-border);
       border-radius: var(--radius-sm);
       margin-bottom: var(--space-2);
+      transition: all var(--transition-fast);
+    }
+    .block-card:hover {
+      transform: translateX(3px);
+      box-shadow: var(--shadow-sm);
+      border-color: #94A3B8;
     }
     .block-card.study {
-      border-left: 4px solid var(--color-primary);
+      border-left: 4px solid var(--accent-blue);
     }
     .block-card.college {
-      border-left: 4px solid var(--color-ink);
+      border-left: 4px solid var(--text-ink);
     }
     .block-card.gym {
-      border-left: 4px solid #16A34A;
+      border-left: 4px solid var(--accent-green);
     }
     .block-card.rest {
-      border-left: 4px solid #4B5563;
+      border-left: 4px solid #64748B;
       background-color: var(--color-bg-base);
     }
   </style>

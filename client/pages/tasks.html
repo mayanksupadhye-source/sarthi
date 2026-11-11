@@ -26,6 +26,35 @@
       </header>
 
       <div class="page-container">
+        <!-- Hero Header with Dynamic Surge Wave -->
+        <div class="card card-hero-wave wave-motif-surge" style="margin-bottom: var(--space-6);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
+            <div>
+              <span class="badge badge-primary" style="margin-bottom: var(--space-2);">BOUNDED EXECUTION</span>
+              <h2 style="font-size: 1.35rem; color: var(--text-ink); margin-bottom: var(--space-1);">Task Ledger & Protected Capacity</h2>
+              <p class="text-subtle text-sm" style="margin: 0;">Prioritise what moves the needle today. Unscheduled items stay safely in backlog without cognitive drag.</p>
+            </div>
+            <div style="display: flex; gap: var(--space-6); text-align: right;">
+              <div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--text-ink);" id="totalTaskCount">0</div>
+                <div class="text-subtle text-xs">Total Tracked</div>
+              </div>
+              <div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-blue);" id="scheduledTaskCount">0</div>
+                <div class="text-subtle text-xs">Today's Focus</div>
+              </div>
+            </div>
+          </div>
+          <div class="sarthi-wave-container" aria-hidden="true">
+            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,60 C200,20 400,90 600,40 C800,95 1000,30 1200,65 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.07)"></path>
+            </svg>
+            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,75 C250,35 500,80 750,50 C1000,25 1100,75 1200,60 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
+            </svg>
+          </div>
+        </div>
+
         <!-- Filter Tabs -->
         <div class="tab-group">
           <button class="tab-btn active" data-filter="all">All Tasks</button>
@@ -184,8 +213,28 @@
 
     function renderTable(tasks) {
       const tbody = document.getElementById('tasksTbody');
+      
+      // Update header metrics
+      const totalCount = allTasks.filter(t => t.status !== 'completed').length;
+      const todayStr = getTodayString();
+      const scheduledCount = allTasks.filter(t => t.scheduledDate === todayStr && t.status !== 'completed').length;
+      document.getElementById('totalTaskCount').textContent = totalCount;
+      document.getElementById('scheduledTaskCount').textContent = scheduledCount;
+
       if (tasks.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--color-muted); padding: var(--space-6);">No matching tasks found.</td></tr>';
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="padding: 0;">
+              <div class="wave-empty-state" style="border: none; border-radius: 0;">
+                <svg class="wave-empty-svg" viewBox="0 0 380 48" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M0,24 Q95,8 190,24 T380,24" fill="none" stroke="rgba(29, 78, 216, 0.28)" stroke-width="2" stroke-linecap="round"></path>
+                  <path d="M0,32 Q95,44 190,32 T380,32" fill="none" stroke="rgba(5, 150, 105, 0.22)" stroke-width="2" stroke-linecap="round"></path>
+                </svg>
+                <p class="text-muted text-sm" style="margin-bottom: var(--space-3); font-weight: 500;">No tasks match this filter. The horizon is clear.</p>
+              </div>
+            </td>
+          </tr>
+        `;
         return;
       }
 

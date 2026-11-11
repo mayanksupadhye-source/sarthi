@@ -152,10 +152,16 @@
 
       if (filtered.length === 0) {
         container.innerHTML = `
-          <div class="card" style="text-align: center; padding: var(--space-8);">
-            <p class="text-muted">No entries found.</p>
+          <div class="wave-empty-state">
+            <svg class="wave-empty-svg" viewBox="0 0 380 48" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0,24 Q95,8 190,24 T380,24" fill="none" stroke="rgba(29, 78, 216, 0.28)" stroke-width="2" stroke-linecap="round"></path>
+              <path d="M0,32 Q95,44 190,32 T380,32" fill="none" stroke="rgba(5, 150, 105, 0.22)" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+            <p class="text-muted text-sm" style="margin-bottom: var(--space-3); font-weight: 500;">Clear journal page. Capture your thoughts or reflections.</p>
+            <button id="emptyNewNoteBtn" class="btn btn-outline btn-sm">+ New Journal Entry</button>
           </div>
         `;
+        document.getElementById('emptyNewNoteBtn')?.addEventListener('click', openNoteModal);
         return;
       }
 

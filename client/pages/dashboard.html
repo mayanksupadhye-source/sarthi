@@ -12,18 +12,26 @@
   <link rel="stylesheet" href="../assets/css/layout.css">
   <style>
     .hero-banner {
-      background-color: var(--color-ink);
-      color: #FFFFFF;
+      position: relative;
+      background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+      border: 1px solid var(--border-hairline);
+      border-left: 4px solid var(--accent-blue);
+      color: var(--text-ink);
       border-radius: var(--radius-md);
       padding: var(--space-6) var(--space-8);
-      margin-bottom: var(--space-8);
+      margin-bottom: var(--space-6);
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .hero-banner > * {
+      position: relative;
+      z-index: 2;
     }
     .hero-date {
-      color: var(--color-primary);
+      color: var(--accent-blue);
       font-weight: 700;
       text-transform: uppercase;
       font-size: 0.8125rem;
@@ -36,11 +44,11 @@
     .capacity-value {
       font-size: 1.5rem;
       font-weight: 800;
-      color: #FFFFFF;
+      color: var(--text-ink);
     }
     .capacity-label {
       font-size: 0.75rem;
-      color: #9CA3AF;
+      color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
@@ -121,17 +129,25 @@
         <div class="hero-banner">
           <div>
             <div class="hero-date" id="heroDateLabel">TODAY</div>
-            <h1 style="color: #FFFFFF; font-size: 1.5rem; margin-bottom: var(--space-2);" id="heroGreeting">Focus on the Next Action</h1>
-            <p style="color: #D1D5DB; font-size: 0.875rem;" id="heroSubtext">
+            <h1 style="color: var(--text-ink); font-size: 1.5rem; margin-bottom: var(--space-2);" id="heroGreeting">Focus on the Next Action</h1>
+            <p style="color: var(--text-muted); font-size: 0.875rem;" id="heroSubtext">
               1 committed action beats 10 hypothetical intentions.
             </p>
           </div>
           <div class="capacity-gauge">
             <div class="capacity-value" id="capacityVal">0m / 330m</div>
             <div class="capacity-label">Daily Capacity Booked</div>
-            <div class="progress-bar" style="width: 140px; margin-top: var(--space-2); background: rgba(255,255,255,0.2);">
-              <div class="progress-fill accent" id="capacityBar" style="width: 0%;"></div>
+            <div class="progress-bar" style="width: 140px; margin-top: var(--space-2); background: rgba(148, 163, 184, 0.25);">
+              <div class="progress-fill" id="capacityBar" style="width: 0%; background: var(--accent-blue);"></div>
             </div>
+          </div>
+          <div class="sarthi-wave-container" aria-hidden="true">
+            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,45 C200,95 400,10 600,55 C800,100 1000,20 1200,60 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.07)"></path>
+            </svg>
+            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,70 C250,20 500,85 750,45 C1000,15 1100,75 1200,50 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
+            </svg>
           </div>
         </div>
 
@@ -176,6 +192,9 @@
                   <a href="planner.html" class="btn btn-outline btn-sm">Adapt Plan</a>
                 </div>
               </div>
+
+              <!-- Signature Moment 1: Daily Plan Completion Wave Crest -->
+              <div id="completionBanner" style="display: none; margin-bottom: var(--space-4);"></div>
 
               <div id="tasksList">
                 <p class="text-muted text-sm" style="padding: var(--space-4) 0;">Loading tasks...</p>
@@ -370,10 +389,20 @@
 
     function renderTasks(tasks) {
       const container = document.getElementById('tasksList');
+      const completionBanner = document.getElementById('completionBanner');
+
       if (tasks.length === 0) {
+        if (completionBanner) {
+          completionBanner.style.display = 'none';
+          completionBanner.innerHTML = '';
+        }
         container.innerHTML = `
-          <div style="text-align: center; padding: var(--space-8) 0;">
-            <p class="text-muted" style="margin-bottom: var(--space-3);">No tasks scheduled for today yet.</p>
+          <div class="wave-empty-state">
+            <svg class="wave-empty-svg" viewBox="0 0 380 48" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M0,24 Q95,8 190,24 T380,24" fill="none" stroke="rgba(29, 78, 216, 0.28)" stroke-width="2" stroke-linecap="round"></path>
+              <path d="M0,32 Q95,44 190,32 T380,32" fill="none" stroke="rgba(5, 150, 105, 0.22)" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+            <p class="text-muted text-sm" style="margin-bottom: var(--space-3); font-weight: 500;">Clear horizon. No tasks scheduled for today yet.</p>
             <button id="addFirstTaskBtn" class="btn btn-outline btn-sm">+ Add Your First Task</button>
           </div>
         `;
@@ -384,6 +413,37 @@
 
       // Identify single next action: First uncompleted P1, or first uncompleted task
       const pendingTasks = tasks.filter(t => t.status !== 'completed');
+
+      // Signature Moment 1: Daily Plan Completion Wave Crest
+      if (tasks.length > 0 && pendingTasks.length === 0) {
+        if (completionBanner) {
+          completionBanner.style.display = 'block';
+          completionBanner.innerHTML = `
+            <div class="wave-completion-crest">
+              <div style="position: relative; z-index: 2; max-width: 82%;">
+                <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1);">
+                  <span class="badge badge-success">Daily Target Reached</span>
+                  <span class="text-xs" style="color: var(--accent-green); font-weight: 700;">100% EXECUTED</span>
+                </div>
+                <h3 style="font-size: 1.125rem; font-weight: 700; color: #064E3B; margin-bottom: var(--space-1);">
+                  Day's planned execution complete. The horizon is clear.
+                </h3>
+                <p class="text-subtle text-sm" style="color: #047857; margin: 0;">
+                  All scheduled commitments have been honored. Rest or engage in creative exploration without cognitive baggage.
+                </p>
+              </div>
+              <svg class="crest-svg" viewBox="0 0 320 120" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M0,80 Q80,20 160,60 T320,40 L320,120 L0,120 Z" fill="rgba(5, 150, 105, 0.16)"></path>
+                <path d="M0,95 Q100,45 200,80 T320,65 L320,120 L0,120 Z" fill="rgba(29, 78, 216, 0.09)"></path>
+              </svg>
+            </div>
+          `;
+        }
+      } else if (completionBanner) {
+        completionBanner.style.display = 'none';
+        completionBanner.innerHTML = '';
+      }
+
       if (pendingTasks.length > 0) {
         const next = pendingTasks.find(t => t.priority === 'P1') || pendingTasks[0];
         document.getElementById('nextActionBox').style.display = 'block';

@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
-import { formatTime12, formatTimeRange } from '../server/utils/timeFormat.js';
+import { formatTime12, formatTimeRange, getTodayString } from '../server/utils/timeFormat.js';
 
 describe('SARTHI Time Formatting Engine — 12-Hour Conversion', () => {
   it('1. Correctly formats Midnight as 12:00 AM', () => {
@@ -34,7 +34,7 @@ describe('SARTHI Time Formatting Engine — 12-Hour Conversion', () => {
     assert.strictEqual(formatTime12('12:00 PM'), '12:00 PM');
   });
 
-  it('5. Correctly formats clean time ranges with en-dash', () => {
+  it('5. Correctly formats clean time ranges with en-dash, including midnight crossovers', () => {
     assert.strictEqual(formatTimeRange('05:00', '07:30'), '5:00 AM – 7:30 AM');
     assert.strictEqual(formatTimeRange('14:30', '16:00'), '2:30 PM – 4:00 PM');
     assert.strictEqual(formatTimeRange('17:00', '18:30'), '5:00 PM – 6:30 PM');
@@ -46,5 +46,17 @@ describe('SARTHI Time Formatting Engine — 12-Hour Conversion', () => {
     assert.strictEqual(formatTime12(null), '');
     assert.strictEqual(formatTime12(undefined), '');
     assert.strictEqual(formatTimeRange('', ''), '');
+  });
+
+  it('7. Converts ISO Date objects using target timezone', () => {
+    // 2026-11-11T14:30:00Z in UTC is 8:00 PM IST (UTC+5:30)
+    const testDate = new Date('2026-11-11T14:30:00Z');
+    const istTime = formatTime12(testDate, 'Asia/Kolkata');
+    assert.strictEqual(istTime, '8:00 PM');
+  });
+
+  it('8. getTodayString returns a valid YYYY-MM-DD string for configured timezone', () => {
+    const todayStr = getTodayString('Asia/Kolkata');
+    assert.match(todayStr, /^\d{4}-\d{2}-\d{2}$/);
   });
 });

@@ -39,16 +39,22 @@
 
       <div class="page-container">
         <div class="reset-container">
-          <div class="reset-card">
-            <div class="text-xs" style="color: var(--color-primary); font-weight: 800; letter-spacing: 0.1em; margin-bottom: var(--space-2);">
+          <div class="reset-card card-hero-wave wave-motif-calm" style="position: relative;">
+            <div class="text-xs" style="color: var(--accent-blue); font-weight: 800; letter-spacing: 0.1em; margin-bottom: var(--space-2);">
               GROUNDING WORKFLOW
             </div>
-            <h1 style="font-size: 1.5rem; margin-bottom: var(--space-2);">Pause. Regroup. Take the Next Step.</h1>
-            <p class="text-subtle text-sm" style="line-height: 1.6; margin-bottom: var(--space-6);">
+            <h1 style="font-size: 1.5rem; margin-bottom: var(--space-2); color: var(--text-ink);">Pause. Regroup. Take the Next Step.</h1>
+            <p class="text-subtle text-sm" style="line-height: 1.6; margin-bottom: var(--space-4);">
               When plans collapse, the mind exaggerates the damage and creates an intimidating mental backlog. A missed day does not destroy your future. Answer these three neutral questions to ground yourself.
             </p>
 
-            <form id="resetForm">
+            <!-- Mindfulness Breathing Rhythm Guide -->
+            <div class="breathing-wave-guide" aria-label="4-7-8 Breathing Guide">
+              <span style="font-size: 0.75rem; font-weight: 700; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 0.08em;">Breathe</span>
+              <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Inhale • Hold • Release</span>
+            </div>
+
+            <form id="resetForm" style="position: relative; z-index: 2;">
               <div class="form-group">
                 <label class="form-label">1. What actually happened? (Neutral fact without judgment)</label>
                 <textarea id="resetFact" class="form-textarea" placeholder="e.g. Travel fatigue, unexpected college assignment submission, or missed morning session." required></textarea>
@@ -71,6 +77,14 @@
                 </button>
               </div>
             </form>
+            <div class="sarthi-wave-container" aria-hidden="true">
+              <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,75 C350,55 700,95 1050,70 L1200,75 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.05)"></path>
+              </svg>
+              <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,85 C250,50 600,100 950,65 L1200,80 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.04)"></path>
+              </svg>
+            </div>
           </div>
         </div>
       </div>

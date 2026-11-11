@@ -13,13 +13,19 @@
   <style>
     /* Savings Hero Card */
     .savings-hero {
-      background-color: var(--color-bg-paper);
+      position: relative;
+      background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
       padding: var(--space-6);
       margin-bottom: var(--space-8);
-      border-left: 5px solid var(--color-primary);
+      border-left: 5px solid var(--accent-rewards);
       box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+    .savings-hero > * {
+      position: relative;
+      z-index: 2;
     }
 
     .savings-hero-header {
@@ -342,6 +348,14 @@
               💡 <strong>Guilt-Free Celebration Fund:</strong> Small deliberate deposits from personal savings and smart trade-offs fund the mountain trek on your 20th birthday.
             </div>
             <div class="text-sm font-semibold" id="contributionCountText">0 contributions recorded</div>
+          </div>
+          <div class="sarthi-wave-container wave-motif-summit" aria-hidden="true">
+            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,90 Q400,80 700,40 T1200,20 L1200,120 L0,120 Z" fill="rgba(180, 83, 9, 0.08)"></path>
+            </svg>
+            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,105 Q350,75 750,55 T1200,35 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
+            </svg>
           </div>
         </section>
 

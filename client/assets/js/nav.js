@@ -215,6 +215,22 @@ export function renderLayout(activePageKey = 'dashboard') {
         document.getElementById('appSidebar')?.classList.toggle('open');
       });
     });
+
+    // Ambient Page Wave Backdrop
+    const appMain = document.querySelector('.app-main');
+    if (appMain && !document.querySelector('.page-wave-backdrop')) {
+      const waveBackdrop = `
+        <div class="page-wave-backdrop" aria-hidden="true">
+          <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,50 C250,90 500,20 750,65 C1000,110 1100,30 1200,60 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.04)"></path>
+          </svg>
+          <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+            <path d="M0,65 C200,30 400,85 700,45 C950,15 1100,70 1200,55 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.03)"></path>
+          </svg>
+        </div>
+      `;
+      appMain.insertAdjacentHTML('beforeend', waveBackdrop);
+    }
   }
 
   // Setup topbar flame and live focus widget

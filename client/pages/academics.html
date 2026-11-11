@@ -46,12 +46,13 @@
       </header>
 
       <div class="page-container">
-        <!-- Exam Mode Toggle Card -->
-        <div class="card" style="margin-bottom: var(--space-6); background-color: var(--color-bg-subtle);">
+        <!-- Exam Mode Toggle Card with Logic Wave -->
+        <div class="card card-hero-wave wave-motif-logic" style="margin-bottom: var(--space-6);">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
             <div>
-              <div style="font-weight: 700; font-size: 1.125rem;">Exam Mode</div>
-              <p class="text-subtle text-sm">
+              <span class="badge badge-primary" style="margin-bottom: var(--space-2);">ACADEMIC BUFFER</span>
+              <h2 style="font-size: 1.25rem; margin-bottom: var(--space-1);">Exam Mode & Attendance Guard</h2>
+              <p class="text-subtle text-sm" style="margin: 0; max-width: 620px;">
                 Prioritise academic study blocks and revision without deleting or corrupting your technical/fitness tracks.
               </p>
             </div>
@@ -59,6 +60,14 @@
               <span id="examModeStatusBadge" class="badge badge-neutral">Mode: Inactive</span>
               <button id="toggleExamModeBtn" class="btn btn-primary btn-sm">Activate Exam Mode</button>
             </div>
+          </div>
+          <div class="sarthi-wave-container" aria-hidden="true">
+            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,120 L0,120 Z" fill="rgba(79, 70, 229, 0.07)"></path>
+            </svg>
+            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,70 Q200,40 400,70 T800,70 T1200,70 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
+            </svg>
           </div>
         </div>
 
@@ -258,9 +267,12 @@
                 </div>
               </div>
               <div style="display: flex; align-items: center; gap: var(--space-4);">
-                <div style="text-align: right;">
-                  <div style="font-size: 1.5rem; font-weight: 800; color: ${isDanger ? 'var(--color-danger)' : 'var(--color-ink)'};">${pct}%</div>
-                  <span class="badge ${isDanger ? 'badge-danger' : 'badge-success'}">${isDanger ? 'Shortage' : 'Safe'}</span>
+                <div style="text-align: right; min-width: 110px;">
+                  <div style="font-size: 1.5rem; font-weight: 800; color: ${isDanger ? 'var(--color-danger)' : 'var(--accent-green)'};">${pct}%</div>
+                  <div class="wave-water-gauge" style="width: 100px; margin: 4px 0 2px auto;">
+                    <div class="wave-water-fill ${isDanger ? 'danger' : 'safe'}" style="width: ${Math.min(100, pct)}%;"></div>
+                  </div>
+                  <span class="badge ${isDanger ? 'badge-danger' : 'badge-success'}" style="margin-top: 2px;">${isDanger ? 'Shortage' : 'Safe'}</span>
                 </div>
                 <button class="btn btn-outline btn-sm mark-att-btn" data-id="${s._id}">+ Mark Attendance</button>
               </div>

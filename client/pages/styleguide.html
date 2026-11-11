@@ -382,6 +382,139 @@
           </div>
         </div>
 
+        <!-- 12. Signature Wave Forms & Expressive Motion -->
+        <div class="card" style="margin-bottom: var(--space-6);">
+          <div class="card-header">
+            <div>
+              <h3>12. Signature Wave Forms & Expressive Motion</h3>
+              <p class="text-subtle text-sm">Atmospheric fluid motion representing daily rhythm and flow state. Honors <code>prefers-reduced-motion</code>.</p>
+            </div>
+          </div>
+
+          <!-- Hero Wave Demo -->
+          <div style="margin-bottom: var(--space-6);">
+            <div class="form-label" style="margin-bottom: var(--space-2);">A. Hero Wave Surface (.card-hero-wave)</div>
+            <div class="card-hero-wave" style="min-height: 140px; display: flex; flex-direction: column; justify-content: center;">
+              <span class="badge badge-primary" style="align-self: flex-start; margin-bottom: var(--space-2);">FLOW STATE SURFACE</span>
+              <h4 style="font-size: 1.25rem; color: var(--text-ink); margin-bottom: var(--space-1);">Atmospheric Rhythm</h4>
+              <p class="text-subtle text-sm" style="margin: 0; max-width: 600px;">Multi-layer SVG waves drift gently in Blueprint Blue and Botanical Green tints, establishing calm depth without visual noise.</p>
+              <div class="sarthi-wave-container" aria-hidden="true">
+                <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                  <path d="M0,45 C200,95 400,10 600,55 C800,100 1000,20 1200,60 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.08)"></path>
+                </svg>
+                <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                  <path d="M0,70 C250,20 500,85 750,45 C1000,15 1100,75 1200,50 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.06)"></path>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Empty State Demo -->
+          <div style="margin-bottom: var(--space-6);">
+            <div class="form-label" style="margin-bottom: var(--space-2);">B. Clear Horizon Empty State (.wave-empty-state)</div>
+            <div class="wave-empty-state">
+              <svg class="wave-empty-svg" viewBox="0 0 380 48" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M0,24 Q95,8 190,24 T380,24" fill="none" stroke="rgba(29, 78, 216, 0.28)" stroke-width="2" stroke-linecap="round"></path>
+                <path d="M0,32 Q95,44 190,32 T380,32" fill="none" stroke="rgba(5, 150, 105, 0.22)" stroke-width="2" stroke-linecap="round"></path>
+              </svg>
+              <p class="text-muted text-sm" style="margin-bottom: var(--space-3); font-weight: 500;">Clear horizon. No obligations or pending deadlines.</p>
+              <button class="btn btn-outline btn-sm">+ Schedule New Block</button>
+            </div>
+          </div>
+
+          <!-- Signature Moment 1 Demo -->
+          <div style="margin-bottom: var(--space-6);">
+            <div class="form-label" style="margin-bottom: var(--space-2);">C. Signature Moment 1: Daily Plan Completion Wave Crest (.wave-completion-crest)</div>
+            <div class="wave-completion-crest">
+              <div style="position: relative; z-index: 2; max-width: 82%;">
+                <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1);">
+                  <span class="badge badge-success">Daily Target Reached</span>
+                  <span class="text-xs" style="color: var(--accent-green); font-weight: 700;">100% EXECUTED</span>
+                </div>
+                <h3 style="font-size: 1.125rem; font-weight: 700; color: #064E3B; margin-bottom: var(--space-1);">
+                  Day's planned execution complete. The horizon is clear.
+                </h3>
+                <p class="text-subtle text-sm" style="color: #047857; margin: 0;">
+                  All scheduled commitments have been honored. Rest or engage in creative exploration without cognitive baggage.
+                </p>
+              </div>
+              <svg class="crest-svg" viewBox="0 0 320 120" preserveAspectRatio="none" aria-hidden="true">
+                <path d="M0,80 Q80,20 160,60 T320,40 L320,120 L0,120 Z" fill="rgba(5, 150, 105, 0.16)"></path>
+                <path d="M0,95 Q100,45 200,80 T320,65 L320,120 L0,120 Z" fill="rgba(29, 78, 216, 0.09)"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Signature Moment 2 Demo -->
+          <div style="margin-bottom: var(--space-6);">
+            <div class="form-label" style="margin-bottom: var(--space-2);">D. Signature Moment 2: Focus Session Completion Ripple (.focus-completion-ripple)</div>
+            <div style="text-align: center; padding: var(--space-8); background: var(--bg-surface); border: 1px solid var(--border-hairline); border-radius: var(--radius-sm);">
+              <div class="focus-completion-ripple-wrapper" style="margin-bottom: var(--space-4);">
+                <div style="font-size: 3rem; font-weight: 800; color: var(--text-ink); font-variant-numeric: tabular-nums;">25:00</div>
+                <div id="demoRippleContainer" style="display: none;"></div>
+              </div>
+              <div>
+                <button id="triggerRippleDemoBtn" class="btn btn-success btn-sm">▶ Test Focus Completion Ripple</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Wave Divider Demo -->
+          <div style="margin-bottom: var(--space-6);">
+            <div class="form-label" style="margin-bottom: var(--space-2);">E. Section Wave Divider (.wave-divider)</div>
+            <div class="wave-divider" aria-hidden="true">
+              <svg viewBox="0 0 1200 24" preserveAspectRatio="none">
+                <path d="M0,0 Q300,24 600,12 T1200,0 L1200,24 L0,24 Z" fill="rgba(29, 78, 216, 0.08)"></path>
+                <path d="M0,8 Q400,24 800,16 T1200,8 L1200,24 L0,24 Z" fill="rgba(5, 150, 105, 0.05)"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Interactive Water Level Gauge Demo -->
+          <div style="margin-bottom: var(--space-6);">
+            <div class="form-label" style="margin-bottom: var(--space-2);">F. Water Level Wave Gauge (.wave-water-gauge)</div>
+            <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 4px;">
+                  <span>Safe Attendance Level (Theory: 86%)</span>
+                  <span class="badge badge-success">Safe</span>
+                </div>
+                <div class="wave-water-gauge">
+                  <div class="wave-water-fill safe" style="width: 86%;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 4px;">
+                  <span>Near-Threshold Warning (76% vs 75% Target)</span>
+                  <span class="badge badge-warning">Caution</span>
+                </div>
+                <div class="wave-water-gauge">
+                  <div class="wave-water-fill warning" style="width: 76%;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 4px;">
+                  <span>Critical Shortage (62% — 5 consecutive sessions needed)</span>
+                  <span class="badge badge-danger">Shortage</span>
+                </div>
+                <div class="wave-water-gauge">
+                  <div class="wave-water-fill danger" style="width: 62%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Shimmering Skeleton Loading Waves Demo -->
+          <div>
+            <div class="form-label" style="margin-bottom: var(--space-2);">G. Shimmering Skeleton Wave (.skeleton-wave)</div>
+            <div style="display: flex; flex-direction: column; gap: var(--space-2); max-width: 480px;">
+              <div class="skeleton-wave" style="width: 65%; height: 22px;"></div>
+              <div class="skeleton-wave" style="width: 100%; height: 16px;"></div>
+              <div class="skeleton-wave" style="width: 80%; height: 16px;"></div>
+            </div>
+          </div>
+        </div>
+
       </div>
     </main>
   </div>
@@ -421,6 +554,21 @@
         }
         strip.innerHTML = html;
       }
+      // Demo ripple button
+      const rippleBtn = document.getElementById('triggerRippleDemoBtn');
+      rippleBtn?.addEventListener('click', () => {
+        const container = document.getElementById('demoRippleContainer');
+        if (!container) return;
+        container.style.display = 'block';
+        container.innerHTML = `
+          <div class="focus-completion-ripple"></div>
+          <div class="focus-completion-ripple delayed"></div>
+        `;
+        setTimeout(() => {
+          container.style.display = 'none';
+          container.innerHTML = '';
+        }, 2200);
+      });
     });
   </script>
 </body>

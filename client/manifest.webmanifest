@@ -2,10 +2,10 @@
   "name": "SARTHI — Personal Execution & Student Operating System",
   "short_name": "SARTHI",
   "description": "An adaptive personal execution and student operating system to coordinate academics, learning, and daily execution.",
-  "start_url": "/dashboard.html",
+  "start_url": "pages/dashboard.html",
   "display": "standalone",
-  "background_color": "#0B132B",
-  "theme_color": "#0B132B",
+  "background_color": "#F8FAFC",
+  "theme_color": "#1D4ED8",
   "icons": [
     {
       "src": "/favicon.svg",

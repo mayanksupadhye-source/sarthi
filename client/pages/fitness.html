@@ -26,24 +26,32 @@
       </header>
 
       <div class="page-container">
-        <!-- 14-Day Weight Progress Card -->
-        <div class="card" style="margin-bottom: var(--space-6);">
+        <!-- 14-Day Weight Progress Card with Calm Grounding Wave -->
+        <div class="card card-hero-wave wave-motif-calm" style="margin-bottom: var(--space-6); border-left: 4px solid var(--accent-green);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-4);">
             <div>
-              <div class="text-xs" style="color: var(--color-primary); font-weight: 800;">WEIGHT PROGRESSION (14-DAY CADENCE)</div>
+              <span class="badge badge-success" style="margin-bottom: var(--space-2);">PHYSICAL CADENCE</span>
               <h2 style="font-size: 1.25rem;">Baseline: 88 kg → Target: 73 kg (15 kg Goal)</h2>
               <p class="text-subtle text-sm">Consistent physical training over unsustainable crash diets. No calorie counter.</p>
             </div>
             <div style="display: flex; align-items: center; gap: var(--space-4);">
               <div style="text-align: right;">
-                <div style="font-size: 1.5rem; font-weight: 800;" id="currentWeightVal">88 kg</div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: var(--accent-green);" id="currentWeightVal">88 kg</div>
                 <div class="text-subtle text-xs" id="weightLostVal">0 kg lost · 15 kg to target</div>
               </div>
               <button id="recordWeightBtn" class="btn btn-outline btn-sm">+ Log Weight</button>
             </div>
           </div>
           <div class="progress-bar">
-            <div class="progress-fill accent" id="weightProgressBar" style="width: 0%;"></div>
+            <div class="progress-fill" id="weightProgressBar" style="width: 0%; background: var(--accent-green);"></div>
+          </div>
+          <div class="sarthi-wave-container" aria-hidden="true">
+            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,70 C250,20 500,85 750,45 C1000,15 1100,75 1200,50 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.08)"></path>
+            </svg>
+            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,85 C350,55 700,95 1050,70 L1200,75 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.04)"></path>
+            </svg>
           </div>
         </div>
 

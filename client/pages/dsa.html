@@ -17,6 +17,12 @@
       border-radius: var(--radius-md);
       margin-bottom: var(--space-4);
       overflow: hidden;
+      transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
+    }
+    .cluster-card:hover {
+      border-color: #94A3B8;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
     }
     .cluster-header {
       padding: var(--space-4) var(--space-5);
@@ -26,6 +32,7 @@
       align-items: center;
       justify-content: space-between;
       border-bottom: 1px solid var(--color-border);
+      transition: background-color var(--transition-fast);
     }
     .cluster-header:hover {
       background-color: var(--color-bg-subtle);
@@ -37,6 +44,10 @@
       padding: var(--space-3) var(--space-5);
       border-bottom: 1px solid var(--color-border);
       font-size: 0.875rem;
+      transition: background-color var(--transition-fast);
+    }
+    .dsa-lecture-row:hover {
+      background-color: rgba(241, 245, 249, 0.6);
     }
     .dsa-lecture-row:last-child {
       border-bottom: none;
@@ -57,20 +68,29 @@
       </header>
 
       <div class="page-container">
-        <!-- Progress Summary -->
-        <div class="card" style="margin-bottom: var(--space-6);">
+        <!-- Progress Summary with Harmonic Logic Wave -->
+        <div class="card card-hero-wave wave-motif-logic" style="margin-bottom: var(--space-6);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-4);">
             <div>
+              <span class="badge badge-primary" style="margin-bottom: var(--space-2); background: rgba(13, 148, 136, 0.12); color: #0D9488;">ALGORITHMIC MASTERY</span>
               <h2 style="font-size: 1.25rem;">Apna College — 136 Lectures Roadmap</h2>
               <p class="text-subtle text-sm">Theory + Independent Code + LeetCode Problem Solving</p>
             </div>
             <div style="text-align: right;">
-              <div style="font-size: 1.5rem; font-weight: 800; color: var(--color-primary);" id="dsaProgressVal">0 / 136</div>
+              <div style="font-size: 1.5rem; font-weight: 800; color: #0D9488;" id="dsaProgressVal">0 / 136</div>
               <div class="text-subtle text-xs" id="dsaTimeRemaining">-</div>
             </div>
           </div>
           <div class="progress-bar">
-            <div class="progress-fill accent" id="dsaProgressBar" style="width: 0%;"></div>
+            <div class="progress-fill" id="dsaProgressBar" style="width: 0%; background: #0D9488;"></div>
+          </div>
+          <div class="sarthi-wave-container" aria-hidden="true">
+            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,120 L0,120 Z" fill="rgba(13, 148, 136, 0.07)"></path>
+            </svg>
+            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+              <path d="M0,70 Q200,40 400,70 T800,70 T1200,70 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
+            </svg>
           </div>
         </div>
 

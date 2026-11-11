@@ -17,17 +17,23 @@
       justify-content: center;
       min-height: 100vh;
       padding: var(--space-4);
+      position: relative;
+      overflow: hidden;
     }
     .auth-container {
       width: 100%;
       max-width: 420px;
+      position: relative;
+      z-index: 2;
+      animation: sarthi-item-enter 350ms cubic-bezier(0.16, 1, 0.3, 1) backwards;
     }
     .auth-card {
       background-color: var(--color-bg-paper);
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
       padding: var(--space-8);
-      box-shadow: var(--shadow-md);
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+      transition: transform var(--transition-normal);
     }
     .auth-header {
       text-align: center;
@@ -36,8 +42,8 @@
     .auth-monogram {
       width: 48px;
       height: 48px;
-      background-color: var(--color-ink);
-      color: var(--color-primary);
+      background-color: var(--accent-blue-deep);
+      color: #FFFFFF;
       border-radius: var(--radius-sm);
       display: flex;
       align-items: center;
@@ -45,6 +51,7 @@
       font-size: 1.5rem;
       font-weight: 800;
       margin: 0 auto var(--space-3);
+      box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
     }
     .auth-tabs {
       display: flex;
@@ -60,10 +67,23 @@
       color: var(--color-muted);
       border-bottom: 2px solid transparent;
       cursor: pointer;
+      transition: all var(--transition-fast);
     }
     .auth-tab.active {
-      color: var(--color-primary);
-      border-bottom-color: var(--color-primary);
+      color: var(--accent-blue);
+      border-bottom-color: var(--accent-blue);
+      background-color: var(--accent-blue-subtle);
+    }
+    .login-wave-bg {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 180px;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      opacity: 0.6;
     }
   </style>
 </head>
@@ -179,5 +199,13 @@
       }
     });
   </script>
+  <div class="login-wave-bg" aria-hidden="true">
+    <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path d="M0,45 C200,95 400,10 600,55 C800,100 1000,20 1200,60 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.08)"></path>
+    </svg>
+    <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
+      <path d="M0,70 C250,20 500,85 750,45 C1000,15 1100,75 1200,50 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
+    </svg>
+  </div>
 </body>
 </html>

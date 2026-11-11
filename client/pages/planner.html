@@ -107,6 +107,14 @@
             <div id="reasonsList"></div>
           </div>
 
+          <!-- Interactive Replan Helper -->
+          <div class="alert alert-info" style="margin-bottom: var(--space-4); display: flex; align-items: center; justify-content: space-between;">
+            <div>
+              <strong>Interactive Review:</strong> Review the engine's allocation below. You can freely adjust the plan by moving tasks between <em>Scheduled</em> and <em>Deferred</em> before applying.
+            </div>
+            <span class="badge badge-primary">User-Editable</span>
+          </div>
+
           <!-- Before vs After Columns -->
           <div class="grid-2" style="margin-bottom: var(--space-6);">
             <!-- Accepted Column -->
@@ -257,6 +265,37 @@
       });
     }
 
+    function moveTaskToDeferred(taskId) {
+      if (!currentProposal) return;
+      const idx = currentProposal.acceptedTasks.findIndex(t => (t._id || t.id) === taskId);
+      if (idx !== -1) {
+        const [task] = currentProposal.acceptedTasks.splice(idx, 1);
+        task.deferReason = 'Manually deferred by user';
+        currentProposal.deferredTasks.push(task);
+        recalculateProposal();
+        renderProposal(currentProposal);
+      }
+    }
+
+    function moveTaskToAccepted(taskId) {
+      if (!currentProposal) return;
+      const idx = currentProposal.deferredTasks.findIndex(t => (t._id || t.id) === taskId);
+      if (idx !== -1) {
+        const [task] = currentProposal.deferredTasks.splice(idx, 1);
+        delete task.deferReason;
+        currentProposal.acceptedTasks.push(task);
+        recalculateProposal();
+        renderProposal(currentProposal);
+      }
+    }
+
+    function recalculateProposal() {
+      if (!currentProposal) return;
+      const totalAllocated = currentProposal.acceptedTasks.reduce((sum, t) => sum + (t.remainingMinutes || t.estimatedMinutes), 0);
+      currentProposal.allocatedMinutes = totalAllocated;
+      currentProposal.isOverloaded = totalAllocated > currentProposal.capacityMinutes;
+    }
+
     function renderProposal(proposal) {
       document.getElementById('proposalBox').style.display = 'block';
       document.getElementById('proposalTargetDate').textContent = `Target: ${proposal.targetDate} ${proposal.isSlackDay ? '(Slack Day)' : ''}`;
@@ -264,7 +303,7 @@
       
       const statusText = document.getElementById('proposalStatusText');
       if (proposal.isOverloaded) {
-        statusText.textContent = 'Exceeds standard capacity (using catch-up buffer)';
+        statusText.textContent = `Exceeds safe daily target by ${formatMinutes(proposal.allocatedMinutes - proposal.capacityMinutes)}`;
         statusText.style.color = 'var(--color-warning)';
       } else {
         statusText.textContent = 'Fits comfortably within available study hours';
@@ -293,36 +332,65 @@
         reasonsList.innerHTML = '<p class="text-subtle text-sm">All tasks scheduled according to standard timetable.</p>';
       }
 
-      // Accepted Tasks
+      // Accepted Tasks (Interactive)
       document.getElementById('acceptedCountBadge').textContent = `${proposal.acceptedTasks.length} tasks`;
       const acceptedContainer = document.getElementById('acceptedTasksList');
       if (proposal.acceptedTasks.length === 0) {
-        acceptedContainer.innerHTML = '<p class="text-subtle text-sm">No tasks allocated for this slot.</p>';
+        acceptedContainer.innerHTML = '<p class="text-subtle text-sm" style="padding: var(--space-2);">No tasks allocated for this slot. Click "← Schedule" on deferred tasks to add.</p>';
       } else {
-        acceptedContainer.innerHTML = proposal.acceptedTasks.map(t => `
-          <div style="background: var(--color-bg-paper); padding: var(--space-3); border-radius: var(--radius-sm); border-left: 3px solid var(--color-ink);">
-            <div style="font-weight: 600; font-size: 0.875rem;">${t.title}</div>
-            <div class="text-subtle text-xs" style="margin-top: 2px;">
-              ${getPriorityBadge(t.priority)} · ${formatMinutes(t.remainingMinutes || t.estimatedMinutes)}
+        acceptedContainer.innerHTML = proposal.acceptedTasks.map(t => {
+          const id = t._id || t.id;
+          return `
+            <div style="background: var(--color-bg-paper); padding: var(--space-3); border-radius: var(--radius-sm); border-left: 3px solid var(--accent-blue); display: flex; justify-content: space-between; align-items: center; gap: var(--space-2);">
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 600; font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
+                <div class="text-subtle text-xs" style="margin-top: 2px;">
+                  ${getPriorityBadge(t.priority)} · ${formatMinutes(t.remainingMinutes || t.estimatedMinutes)}
+                  ${t.category ? `· <span style="text-transform: capitalize;">${t.category}</span>` : ''}
+                </div>
+              </div>
+              <button class="btn btn-outline move-defer-btn" data-id="${id}" style="min-height: 32px; padding: 0.25rem 0.625rem; font-size: 0.75rem;" title="Defer task to protect capacity">
+                Defer →
+              </button>
             </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
+
+        acceptedContainer.querySelectorAll('.move-defer-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            moveTaskToDeferred(e.currentTarget.dataset.id);
+          });
+        });
       }
 
-      // Deferred Tasks
+      // Deferred Tasks (Interactive)
       document.getElementById('deferredCountBadge').textContent = `${proposal.deferredTasks.length} tasks`;
       const deferredContainer = document.getElementById('deferredTasksList');
       if (proposal.deferredTasks.length === 0) {
-        deferredContainer.innerHTML = '<p class="text-subtle text-sm">No tasks needed deferral.</p>';
+        deferredContainer.innerHTML = '<p class="text-subtle text-sm" style="padding: var(--space-2);">No tasks needed deferral. All tasks fit capacity.</p>';
       } else {
-        deferredContainer.innerHTML = proposal.deferredTasks.map(t => `
-          <div style="background: var(--color-bg-paper); padding: var(--space-3); border-radius: var(--radius-sm); border-left: 3px solid var(--color-muted); opacity: 0.85;">
-            <div style="font-weight: 600; font-size: 0.875rem;">${t.title}</div>
-            <div class="text-subtle text-xs" style="margin-top: 2px; color: var(--color-warning);">
-              ${t.deferReason || 'Deferred to prevent overload'} · (${formatMinutes(t.remainingMinutes || t.estimatedMinutes)})
+        deferredContainer.innerHTML = proposal.deferredTasks.map(t => {
+          const id = t._id || t.id;
+          return `
+            <div style="background: var(--color-bg-paper); padding: var(--space-3); border-radius: var(--radius-sm); border-left: 3px solid var(--color-muted); display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); opacity: 0.9;">
+              <button class="btn btn-outline move-accept-btn" data-id="${id}" style="min-height: 32px; padding: 0.25rem 0.625rem; font-size: 0.75rem;" title="Add back to scheduled execution">
+                ← Schedule
+              </button>
+              <div style="flex: 1; min-width: 0; text-align: right;">
+                <div style="font-weight: 600; font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${t.title}</div>
+                <div class="text-subtle text-xs" style="margin-top: 2px; color: var(--color-warning);">
+                  ${t.deferReason || 'Deferred to prevent overload'} · (${formatMinutes(t.remainingMinutes || t.estimatedMinutes)})
+                </div>
+              </div>
             </div>
-          </div>
-        `).join('');
+          `;
+        }).join('');
+
+        deferredContainer.querySelectorAll('.move-accept-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            moveTaskToAccepted(e.currentTarget.dataset.id);
+          });
+        });
       }
     }
 

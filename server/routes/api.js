@@ -17,11 +17,22 @@ const router = express.Router();
 
 // Health check endpoint (always reachable, reports real DB connectivity status)
 router.get('/health', (req, res) => {
+  const dbStatus = getDBStatus();
   res.json({
-    status: 'ok',
-    app: 'SARTHI',
-    version: '1.0.0',
-    database: getDBStatus(),
+    status: dbStatus.connected ? 'healthy' : 'degraded',
+    api: {
+      ready: true,
+      service: 'SARTHI Personal Execution & Student OS',
+      uptimeSeconds: Math.floor(process.uptime()),
+      environment: config.nodeEnv,
+      timezone: config.timezone
+    },
+    database: {
+      connected: dbStatus.connected,
+      readyState: dbStatus.readyState,
+      host: dbStatus.host,
+      name: dbStatus.name
+    },
     timestamp: new Date().toISOString()
   });
 });

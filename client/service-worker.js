@@ -1,4 +1,14 @@
-const CACHE_NAME = 'sarthi-v1.0';
+/**
+ * SARTHI — PWA Service Worker (App Shell Cache)
+ * Version: 2.1.0
+ * 
+ * Scope & Limitations:
+ * - Caches static application shell assets (CSS, JS, icons) for fast repeat loads.
+ * - API requests (/api/*) and data mutations (POST, PUT, DELETE) always bypass the cache
+ *   and require active connectivity. Offline mutation queueing is not supported.
+ */
+
+const CACHE_NAME = 'sarthi-shell-v2.1';
 const STATIC_ASSETS = [
   '/',
   '/favicon.svg',
@@ -17,7 +27,16 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then(async (cache) => {
+      // Safe asset caching with individual fallbacks
+      for (const asset of STATIC_ASSETS) {
+        try {
+          await cache.add(asset);
+        } catch (err) {
+          console.warn(`[SARTHI ServiceWorker] Could not pre-cache asset: ${asset}`, err.message);
+        }
+      }
+    })
   );
   self.skipWaiting();
 });
@@ -34,6 +53,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Only intercept static GET requests; never cache API calls
   if (event.request.method !== 'GET' || event.request.url.includes('/api/')) {
     return;
   }

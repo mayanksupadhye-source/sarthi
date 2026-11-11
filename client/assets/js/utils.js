@@ -22,11 +22,21 @@ export function formatTodayDate() {
 }
 
 /**
- * Returns ISO date string for today (YYYY-MM-DD)
+ * Returns ISO date string for today (YYYY-MM-DD) strictly aligned to the configured timezone.
+ * Uses en-CA format to eliminate midnight UTC boundary shifts.
  */
-export function getTodayString() {
-  const now = new Date();
-  return now.toISOString().split('T')[0];
+export function getTodayString(tz = 'Asia/Kolkata') {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: tz,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    });
+    return formatter.format(new Date());
+  } catch {
+    return new Date().toISOString().split('T')[0];
+  }
 }
 
 /**
@@ -37,9 +47,10 @@ export function getTodayString() {
  * Noon (12:00)     -> 12:00 PM
  * 
  * @param {string|Date} timeVal 
+ * @param {string} [tz='Asia/Kolkata']
  * @returns {string} e.g. "2:30 PM", "5:00 AM"
  */
-export function formatTime12(timeVal) {
+export function formatTime12(timeVal, tz = 'Asia/Kolkata') {
   if (timeVal === null || timeVal === undefined || timeVal === '') return '';
 
   if (typeof timeVal === 'string') {
@@ -68,12 +79,22 @@ export function formatTime12(timeVal) {
   // Convert Date object or ISO timestamp string
   const d = timeVal instanceof Date ? timeVal : new Date(timeVal);
   if (!isNaN(d.getTime())) {
-    let hours = d.getHours();
-    const minutes = String(d.getMinutes()).padStart(2, '0');
-    const period = hours >= 12 ? 'PM' : 'AM';
-    hours = hours % 12;
-    if (hours === 0) hours = 12;
-    return `${hours}:${minutes} ${period}`;
+    try {
+      const formatter = new Intl.DateTimeFormat('en-US', {
+        timeZone: tz,
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+      return formatter.format(d);
+    } catch {
+      let hours = d.getHours();
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      const period = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      if (hours === 0) hours = 12;
+      return `${hours}:${minutes} ${period}`;
+    }
   }
 
   return String(timeVal);
@@ -83,11 +104,11 @@ export function formatTime12(timeVal) {
  * Formats a start and end time pair into a clean 12-hour range string.
  * Example: ("14:30", "16:00") -> "2:30 PM – 4:00 PM"
  */
-export function formatTimeRange(startTime, endTime) {
+export function formatTimeRange(startTime, endTime, tz = 'Asia/Kolkata') {
   if (!startTime && !endTime) return '';
-  if (!endTime) return formatTime12(startTime);
-  if (!startTime) return formatTime12(endTime);
-  return `${formatTime12(startTime)} – ${formatTime12(endTime)}`;
+  if (!endTime) return formatTime12(startTime, tz);
+  if (!startTime) return formatTime12(endTime, tz);
+  return `${formatTime12(startTime, tz)} – ${formatTime12(endTime, tz)}`;
 }
 
 /**

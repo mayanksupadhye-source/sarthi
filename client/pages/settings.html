@@ -525,7 +525,7 @@
                   <span>🔌</span> System Integration Diagnostics
                 </div>
                 <div class="section-header-desc">
-                  Real-time status check for external sync APIs and background services. Honest reporting: no fake green checkmarks.
+                  Real-time status check for external sync APIs and background services. External sync is scaffolding-only: core planner, timetable, and study metrics run completely and reliably on SARTHI's internal database.
                 </div>
               </div>
               <button id="refreshDiagBtn" class="btn btn-outline btn-sm">↻ Re-check Status</button>
@@ -750,35 +750,35 @@
 
         const { googleCalendar, webPush } = res.integrations;
 
-        // Google Calendar Diagnostics (honest reporting)
+        // Google Calendar Diagnostics (honest scaffolding reporting)
         if (googleCalendar && googleCalendar.configured) {
           googleCard.className = 'diag-card configured';
-          googleBadge.className = 'badge badge-success';
-          googleBadge.textContent = 'Configured & Ready';
-          googleMsg.textContent = googleCalendar.message || 'OAuth client credentials configured.';
-          googleGuide.innerHTML = googleCalendar.authUrl 
+          googleBadge.className = 'badge badge-primary';
+          googleBadge.textContent = 'Scaffolding Configured';
+          googleMsg.textContent = googleCalendar.message || 'OAuth client credentials configured in environment.';
+          googleGuide.innerHTML = (googleCalendar.authUrl 
             ? `Auth URL available: <a href="${googleCalendar.authUrl}" style="color: var(--color-primary); text-decoration: underline;">Connect Google Calendar</a>`
-            : `Client ID and Secret detected in server environment.`;
+            : `Client ID and Secret detected in server environment.`) + `<br><small class="text-muted" style="display:block; margin-top: 4px;">Status: Scaffolding only — local database is the source of truth for all schedule blocks.</small>`;
         } else {
           googleCard.className = 'diag-card unconfigured';
-          googleBadge.className = 'badge badge-warning';
-          googleBadge.textContent = 'Credentials Not Configured';
-          googleMsg.textContent = googleCalendar?.message || 'Optional integration. To enable, configure GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in server .env.';
-          googleGuide.innerHTML = `Environment required: <br>GOOGLE_CLIENT_ID=&lt;your_oauth_id&gt;<br>GOOGLE_CLIENT_SECRET=&lt;your_oauth_secret&gt;`;
+          googleBadge.className = 'badge badge-neutral';
+          googleBadge.textContent = 'Scaffolding Unconfigured';
+          googleMsg.textContent = googleCalendar?.message || 'Optional scaffolding. To configure, set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in server .env.';
+          googleGuide.innerHTML = `Environment required: <br>GOOGLE_CLIENT_ID=&lt;your_oauth_id&gt;<br>GOOGLE_CLIENT_SECRET=&lt;your_oauth_secret&gt;<br><small class="text-muted">Core SARTHI schedule functions without this integration.</small>`;
         }
 
-        // Web Push Diagnostics (honest reporting)
+        // Web Push Diagnostics (honest scaffolding reporting)
         if (webPush && webPush.configured) {
           pushCard.className = 'diag-card configured';
-          pushBadge.className = 'badge badge-success';
-          pushBadge.textContent = 'Configured & Active';
+          pushBadge.className = 'badge badge-primary';
+          pushBadge.textContent = 'Scaffolding Configured';
           pushMsg.textContent = webPush.message || 'VAPID keys configured for browser notifications.';
-          pushGuide.innerHTML = `VAPID Public Key: <span style="word-break: break-all;">${webPush.publicKey || 'Key present'}</span>`;
+          pushGuide.innerHTML = `VAPID Public Key: <span style="word-break: break-all;">${webPush.publicKey || 'Key present'}</span><br><small class="text-muted" style="display:block; margin-top: 4px;">Status: Scaffolding only — in-app execution toasts provide active alerts.</small>`;
         } else {
           pushCard.className = 'diag-card unconfigured';
-          pushBadge.className = 'badge badge-warning';
-          pushBadge.textContent = 'Credentials Not Configured';
-          pushMsg.textContent = webPush?.message || 'Optional push notifications. Add VAPID keys to server .env to enable web push.';
+          pushBadge.className = 'badge badge-neutral';
+          pushBadge.textContent = 'Scaffolding Unconfigured';
+          pushMsg.textContent = webPush?.message || 'Optional push notifications scaffolding. Add VAPID keys to server .env to test browser push.';
           pushGuide.innerHTML = `Generate with:<br>npx web-push generate-vapid-keys<br>Then add VAPID_PUBLIC_KEY & VAPID_PRIVATE_KEY to .env`;
         }
       } catch (err) {

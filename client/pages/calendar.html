@@ -92,9 +92,15 @@
         <div class="card" style="margin-bottom: var(--space-6);">
           <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
             <div>
-              <div style="font-weight: 700;">Google Calendar Integration</div>
-              <div class="text-subtle text-sm" id="calendarIntegrationStatus">
-                Checking integration status...
+              <div style="display: flex; align-items: center; gap: var(--space-2);">
+                <div style="font-weight: 700;">Google Calendar Integration</div>
+                <span class="badge badge-neutral" style="font-size: 0.75rem;">Scaffolding Mode</span>
+              </div>
+              <div class="text-subtle text-sm" id="calendarIntegrationStatus" style="margin-top: 2px;">
+                Scaffolding Mode — All events recorded locally in SARTHI.
+              </div>
+              <div class="text-xs text-muted" style="margin-top: 2px;">
+                Core schedules, academic exams, and study blocks run directly on SARTHI's internal database without external dependency.
               </div>
             </div>
             <a href="settings.html" class="btn btn-outline btn-sm">Configure Credentials in Settings</a>
@@ -157,9 +163,13 @@
         const res = await api.get('/settings/integrations/status');
         if (res.success && res.integrations.googleCalendar) {
           const g = res.integrations.googleCalendar;
-          document.getElementById('calendarIntegrationStatus').textContent = g.message;
+          document.getElementById('calendarIntegrationStatus').textContent = g.configured
+            ? 'OAuth credentials detected (Scaffolding mode: local event storage active, external calendar sync is simulated).'
+            : (g.message || 'Scaffolding Mode — All events recorded locally in SARTHI.');
         }
-      } catch {}
+      } catch {
+        document.getElementById('calendarIntegrationStatus').textContent = 'Scaffolding Mode — All events recorded locally in SARTHI.';
+      }
     }
 
     async function loadEvents() {
