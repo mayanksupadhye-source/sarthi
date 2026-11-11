@@ -6,8 +6,8 @@
 /* Sidebar */
 .app-sidebar {
   width: 260px;
-  background-color: var(--color-bg-sidebar);
-  color: #F8F9FA;
+  background-color: var(--bg-surface);
+  color: var(--text-ink);
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -15,7 +15,7 @@
   bottom: 0;
   left: 0;
   z-index: 100;
-  border-right: 1px solid var(--color-border-dark);
+  border-right: 1px solid var(--border-hairline);
   overflow-y: auto;
 }
 
@@ -24,13 +24,13 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid var(--border-hairline);
 }
 
 .brand-monogram {
   width: 36px;
   height: 36px;
-  background-color: var(--color-primary);
+  background-color: var(--accent-blue-deep);
   color: #FFFFFF;
   border-radius: var(--radius-sm);
   display: flex;
@@ -39,6 +39,7 @@
   font-weight: 800;
   font-size: 1.125rem;
   letter-spacing: -0.05em;
+  box-shadow: 0 1px 3px rgba(30, 64, 175, 0.25);
 }
 
 .brand-text {
@@ -47,18 +48,20 @@
 }
 
 .brand-title {
+  font-family: var(--font-display);
   font-size: 1.125rem;
   font-weight: 800;
   letter-spacing: 0.05em;
-  color: #FFFFFF;
+  color: var(--text-ink);
   line-height: 1.1;
 }
 
 .brand-tagline {
   font-size: 0.7rem;
-  color: #9CA3AF;
+  color: var(--text-subtle);
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  font-weight: 600;
 }
 
 .sidebar-nav {
@@ -74,7 +77,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #6B7280;
+  color: var(--text-subtle);
   padding: 0 var(--space-3);
   margin-bottom: var(--space-2);
 }
@@ -91,29 +94,31 @@
   gap: var(--space-3);
   padding: 0.5rem 0.75rem;
   border-radius: var(--radius-sm);
-  color: #D1D5DB;
+  color: var(--text-muted);
   font-size: 0.875rem;
   font-weight: 500;
   transition: all var(--transition-fast);
 }
 
 .nav-item a:hover {
-  background-color: rgba(255, 255, 255, 0.06);
-  color: #FFFFFF;
+  background-color: var(--bg-subtle);
+  color: var(--text-ink);
 }
 
 .nav-item.active a {
-  background-color: var(--color-primary);
-  color: #FFFFFF;
+  background-color: var(--accent-blue-subtle);
+  color: var(--accent-blue);
   font-weight: 700;
+  border-left: 3px solid var(--accent-blue);
 }
 
 .sidebar-footer {
   padding: var(--space-4) var(--space-5);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--border-hairline);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: var(--bg-surface);
 }
 
 .user-pill {
@@ -126,8 +131,9 @@
   width: 28px;
   height: 28px;
   border-radius: var(--radius-pill);
-  background-color: var(--color-slate-dark);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background-color: var(--accent-blue-subtle);
+  border: 1px solid var(--border-hairline);
+  color: var(--accent-blue);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,7 +144,7 @@
 .user-name {
   font-size: 0.8125rem;
   font-weight: 600;
-  color: #E5E7EB;
+  color: var(--text-ink);
   max-width: 140px;
   white-space: nowrap;
   overflow: hidden;
@@ -156,8 +162,8 @@
 
 /* Topbar Header */
 .app-topbar {
-  background-color: var(--color-bg-paper);
-  border-bottom: 1px solid var(--color-border);
+  background-color: var(--bg-surface);
+  border-bottom: 1px solid var(--border-hairline);
   padding: var(--space-3) var(--space-8);
   display: flex;
   align-items: center;
@@ -176,13 +182,15 @@
 .mobile-menu-btn {
   display: none;
   font-size: 1.25rem;
-  color: var(--color-ink);
+  color: var(--text-ink);
 }
 
 .page-headline {
+  font-family: var(--font-display);
   font-size: 1.25rem;
   font-weight: 800;
-  color: var(--color-ink);
+  color: var(--text-ink);
+  letter-spacing: -0.015em;
 }
 
 .topbar-right {
@@ -196,20 +204,27 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  background-color: var(--color-ink);
-  color: #FFFFFF;
+  background-color: var(--bg-subtle);
+  color: var(--text-ink);
+  border: 1px solid var(--border-hairline);
   padding: 0.35rem 0.75rem;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
   font-size: 0.8125rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  transition: all var(--transition-fast);
 }
 
 .timer-pill.running {
-  background-color: var(--color-primary);
+  background-color: var(--accent-blue);
+  border-color: var(--accent-blue);
+  color: #FFFFFF;
+  box-shadow: 0 1px 3px rgba(29, 78, 216, 0.25);
 }
 
 .timer-pill.paused {
-  background-color: var(--color-warning);
+  background-color: var(--accent-amber);
+  border-color: var(--accent-amber);
   color: #FFFFFF;
 }
 

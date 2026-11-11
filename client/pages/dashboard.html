@@ -311,7 +311,7 @@
     import { checkAuth } from '../assets/js/auth.js';
     import { renderLayout } from '../assets/js/nav.js';
     import { api } from '../assets/js/api.js';
-    import { formatMinutes, formatTodayDate, getPriorityBadge, getTodayString } from '../assets/js/utils.js';
+    import { formatMinutes, formatTodayDate, getPriorityBadge, getTodayString, formatTime12, formatTimeRange } from '../assets/js/utils.js';
     import { showToast } from '../assets/js/toast.js';
 
     let currentDayData = null;
@@ -460,7 +460,7 @@
       container.innerHTML = blocks.map(b => `
         <div class="timetable-item ${b.category === 'study' ? 'study' : ''} ${b.isProtected ? 'protected' : ''}">
           <div>
-            <span style="font-weight: 600;">${b.startTime}–${b.endTime}</span>
+            <span style="font-weight: 600;">${formatTimeRange(b.startTime, b.endTime)}</span>
             <span style="margin-left: var(--space-2); color: var(--color-ink);">${b.label}</span>
           </div>
           <span class="text-subtle text-xs">${b.durationMinutes}m</span>

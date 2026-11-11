@@ -331,13 +331,17 @@
 
               <div class="grid-3" style="margin-top: var(--space-2);">
                 <div class="form-group">
-                  <label class="form-label" for="sleepWindowStart">Sleep Window Start</label>
+                  <label class="form-label" for="sleepWindowStart">
+                    Sleep Window Start <span id="sleepStartFormatted" class="badge badge-neutral" style="margin-left: 6px;">11:40 PM</span>
+                  </label>
                   <input type="time" id="sleepWindowStart" class="form-input" value="23:40">
                   <span class="text-xs text-subtle">Fixed night routine anchor.</span>
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label" for="sleepWindowEnd">Wake-up Anchor Time</label>
+                  <label class="form-label" for="sleepWindowEnd">
+                    Wake-up Anchor Time <span id="sleepEndFormatted" class="badge badge-neutral" style="margin-left: 6px;">5:00 AM</span>
+                  </label>
                   <input type="time" id="sleepWindowEnd" class="form-input" value="05:00">
                   <span class="text-xs text-subtle">Start of morning cycle.</span>
                 </div>
@@ -399,7 +403,7 @@
                   <span class="target-stat-val" id="dispDeltaWeight" style="color: var(--color-primary);">15.0 kg</span>
                 </div>
                 <div style="flex: 1; min-width: 200px;">
-                  <span class="text-xs text-subtle">Tracked on a strict 14-day weigh-in cadence with daily 17:00–18:30 gym execution.</span>
+                  <span class="text-xs text-subtle">Tracked on a strict 14-day weigh-in cadence with daily 5:00 PM – 6:30 PM gym execution.</span>
                 </div>
               </div>
 
@@ -571,6 +575,7 @@
     import { renderLayout } from '../assets/js/nav.js';
     import { api } from '../assets/js/api.js';
     import { showToast } from '../assets/js/toast.js';
+    import { formatTime12 } from '../assets/js/utils.js';
 
     let currentSettings = null;
 
@@ -644,6 +649,16 @@
 
       const sleepEnd = document.getElementById('sleepWindowEnd');
       if (sleepEnd && s.sleepWindowEnd) sleepEnd.value = s.sleepWindowEnd;
+
+      const updateSleepBadges = () => {
+        const startBadge = document.getElementById('sleepStartFormatted');
+        const endBadge = document.getElementById('sleepEndFormatted');
+        if (startBadge && sleepStart) startBadge.textContent = formatTime12(sleepStart.value);
+        if (endBadge && sleepEnd) endBadge.textContent = formatTime12(sleepEnd.value);
+      };
+      updateSleepBadges();
+      sleepStart?.addEventListener('input', updateSleepBadges);
+      sleepEnd?.addEventListener('input', updateSleepBadges);
 
       const sleepMins = document.getElementById('protectedSleepMinutes');
       if (sleepMins && s.protectedSleepMinutes !== undefined) sleepMins.value = s.protectedSleepMinutes;

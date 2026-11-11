@@ -56,7 +56,10 @@ app.get('/', (req, res) => {
 // Centralized error handler
 app.use((err, req, res, next) => {
   const statusCode = err.status || err.statusCode || 500;
-  console.error(`[SARTHI Error] [${req.method} ${req.url}]:`, err.message);
+  const RED = '\x1b[31m';
+  const BOLD = '\x1b[1m';
+  const RESET = '\x1b[0m';
+  console.error(`${BOLD}${RED}[SARTHI Error]${RESET} [${req.method} ${req.url}]:`, err.message);
 
   res.status(statusCode).json({
     success: false,

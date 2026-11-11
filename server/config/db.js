@@ -2,6 +2,13 @@ import mongoose from 'mongoose';
 import dns from 'node:dns';
 import { config } from './env.js';
 
+const CYAN = '\x1b[36m';
+const GREEN = '\x1b[32m';
+const YELLOW = '\x1b[33m';
+const RED = '\x1b[31m';
+const BOLD = '\x1b[1m';
+const RESET = '\x1b[0m';
+
 // Fix for Windows / ISP DNS querySrv ECONNREFUSED on mongodb+srv://
 try {
   dns.setServers(['8.8.8.8', '1.1.1.1', '8.8.4.4']);
@@ -63,7 +70,7 @@ export async function connectDB() {
   const inspection = inspectMongoUri(config.mongodbUri);
 
   if (inspection.hasAngleBrackets) {
-    console.error(`\n[SARTHI CONFIG ERROR] MONGODB_URI contains literal '<' or '>' angle brackets!`);
+    console.error(`\n${BOLD}${RED}[SARTHI CONFIG ERROR]${RESET} MONGODB_URI contains literal '<' or '>' angle brackets!`);
     console.error(`  - Sanitized URI: ${inspection.sanitizedUri}`);
     console.error(`  - Detected Username: ${inspection.username}`);
     console.error(`  - In MongoDB Atlas, '<username>' and '<password>' are template placeholders.`);
@@ -77,12 +84,12 @@ export async function connectDB() {
       serverSelectionTimeoutMS: 4000
     });
     isConnected = true;
-    console.log(`[SARTHI] MongoDB Connected: ${conn.connection.host} (DB: ${conn.connection.name})`);
+    console.log(`${BOLD}${CYAN}[SARTHI]${RESET} ${GREEN}MongoDB Connected:${RESET} ${conn.connection.host} (DB: ${conn.connection.name})`);
     return conn.connection;
   } catch (err) {
     isConnected = false;
-    console.warn(`[SARTHI] MongoDB Connection warning: ${err.message}`);
-    console.warn(`[SARTHI] Database-dependent endpoints will return HTTP 503 until connection succeeds.`);
+    console.warn(`${BOLD}${YELLOW}[SARTHI]${RESET} ${YELLOW}MongoDB Connection warning:${RESET} ${err.message}`);
+    console.warn(`${BOLD}${YELLOW}[SARTHI]${RESET} Ensure MongoDB is running locally on mongodb://127.0.0.1:27017/sarthi or configure MONGODB_URI in .env with your MongoDB Atlas connection string.`);
     return null;
   }
 }

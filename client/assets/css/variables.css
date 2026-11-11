@@ -1,61 +1,75 @@
 :root {
   /* ==========================================================================
-     SARTHI — Visual Identity Tokens ("Night Workshop" Default Theme)
-     Depth via layered solid surfaces, architectural hairline borders, and living light.
-     Strictly NO linear gradient page washes or generic glassmorphism.
+     SARTHI — Visual Identity Tokens (Polished Light Theme — Default)
+     Clean surfaces, architectural hairline borders, blueprint blue & botanical green accents.
+     Subtle, intentional gradients only where functional.
      ========================================================================== */
 
-  /* Surface & Canvas Layering */
-  --bg-canvas: #080D1A;           /* Deep Night Obsidian */
-  --bg-surface: #10182B;          /* Standard Container Slate */
-  --bg-elevated: #16223B;         /* Elevated Interactive Panel / Modal */
-  --bg-subtle: #0D1424;           /* Recessed Utility Surface */
-  --bg-input: #0B1120;            /* Recessed Form Field Background */
+  /* Surface & Canvas Layering (Light, Crisp, High Contrast) */
+  --bg-canvas: #F8FAFC;           /* Slate 50 — Clean student execution canvas */
+  --bg-surface: #FFFFFF;          /* Pure White — Standard containers, cards */
+  --bg-elevated: #FFFFFF;         /* Pure White — Modals, popovers, dropdowns */
+  --bg-subtle: #F1F5F9;           /* Slate 100 — Recessed tracks, table headers */
+  --bg-input: #FFFFFF;            /* Pure White — Form field surface */
 
-  /* Hairline Structural Borders */
-  --border-hairline: #1D2A45;     /* Structural Grid Boundary (1px solid) */
-  --border-subtle: #18233A;       /* Subtle separator */
-  --border-focus: #FF5722;        /* High-visibility active focus ring */
+  /* Hairline Structural Borders (Architectural & Precise) */
+  --border-hairline: #E2E8F0;     /* Slate 200 — Structural 1px boundary */
+  --border-subtle: #F1F5F9;       /* Slate 100 — Minor dividers */
+  --border-focus: #1D4ED8;        /* Royal Blue — Accessible focus ring */
 
-  /* Typography Colors (High Contrast >= 7:1 for body) */
-  --text-ink: #EDE8DF;            /* Warm Linen / Parchment Primary */
-  --text-muted: #9BA7B9;          /* Secondary descriptive prose */
-  --text-subtle: #637287;         /* Inactive metadata & timestamps */
+  /* High-Contrast Typography (WCAG AAA >= 7:1 for body) */
+  --text-ink: #0F172A;            /* Slate 900 — Deep legible ink (14.5:1 ratio) */
+  --text-muted: #475569;          /* Slate 600 — Secondary descriptive prose (6.2:1 ratio) */
+  --text-subtle: #64748B;         /* Slate 500 — Inactive metadata & timestamps (4.6:1 ratio) */
   --text-on-accent: #FFFFFF;      /* Text overlaid on solid accent buttons */
 
-  /* Signature Signal: The Pilot Light (Ember) */
-  --accent-ember: #FF5722;        /* Hot Ember Accent */
-  --accent-ember-hover: #F44336;  /* Focused / Active Ember */
-  --accent-ember-glow: rgba(255, 87, 34, 0.22); /* Functional radial glow */
-  --accent-ember-subtle: rgba(255, 87, 34, 0.12); /* Subtle pill highlight */
+  /* Primary Accent: Blueprint Blue (Steady Execution & Focus) */
+  --accent-blue: #1D4ED8;         /* Blue 700 — Primary interactive accent */
+  --accent-blue-deep: #1E40AF;    /* Blue 800 — Brand headers & key buttons */
+  --accent-blue-hover: #1E40AF;   /* Hover state */
+  --accent-blue-subtle: rgba(29, 78, 216, 0.08); /* Active pill / subtle highlight */
 
-  /* Per-Module Identity Signals */
+  /* Secondary Accent: Botanical Green (Health, Vitality, Completed Habits) */
+  --accent-green: #059669;        /* Emerald 600 — Positive progress & vitality */
+  --accent-green-hover: #047857;  /* Emerald 700 */
+  --accent-green-subtle: rgba(5, 150, 105, 0.08); /* Success tint */
+
+  /* Signature Pilot Light & Streaks: Warm Solar Amber */
+  --accent-amber: #D97706;        /* Amber 600 — Streak flame & milestone alert */
+  --accent-amber-hover: #B45309;  /* Amber 700 */
+  --accent-amber-subtle: rgba(217, 119, 6, 0.10);
+  --accent-ember: #D97706;        /* Flame accent mapped to warm solar amber */
+  --accent-ember-hover: #B45309;
+  --accent-ember-glow: rgba(217, 119, 6, 0.20);
+  --accent-ember-subtle: rgba(217, 119, 6, 0.10);
+
+  /* Per-Module Identity Signals (Harmonized with Blue & Green System) */
   --accent-web: #2563EB;          /* Web Development (Cobalt Blueprint) */
   --accent-dsa: #0D9488;          /* C++ DSA 136 (Teal Logic) */
-  --accent-oratory: #D97706;      /* Oratory Program (Amber Resonance) */
-  --accent-academic: #6366F1;     /* Academics & Exams (Indigo Scholar) */
-  --accent-hackathon: #EA580C;    /* Hackathon Hub (Sprint Ember) */
+  --accent-oratory: #B45309;      /* Oratory Program (Amber Resonance) */
+  --accent-academic: #4F46E5;     /* Academics & Exams (Indigo Scholar) */
+  --accent-hackathon: #C2410C;    /* Hackathon Hub (Sprint Ochre) */
   --accent-fitness: #059669;      /* Gym & Weight (Emerald Vitality) */
-  --accent-rewards: #CA8A04;      /* Trek & Rewards (Ochre Summit) */
+  --accent-rewards: #B45309;      /* Trek & Rewards (Golden Summit) */
   --accent-reset: #475569;        /* Reset Room (Slate Grounding) */
 
-  /* Priority Status Signals (Calm & Non-Shaming) */
-  --color-p1: #EF4444;            /* Essential Priority */
-  --color-p1-bg: rgba(239, 68, 68, 0.12);
-  --color-p2: #F59E0B;            /* Core Target */
-  --color-p2-bg: rgba(245, 158, 11, 0.12);
-  --color-p3: #64748B;            /* Optional / If Energy Allows */
-  --color-p3-bg: rgba(100, 116, 139, 0.12);
+  /* Priority Status Signals (Calm, Clear, Non-Shaming) */
+  --color-p1: #DC2626;            /* Essential Priority (Red 600) */
+  --color-p1-bg: rgba(220, 38, 38, 0.08);
+  --color-p2: #D97706;            /* Core Target (Amber 600) */
+  --color-p2-bg: rgba(217, 119, 6, 0.08);
+  --color-p3: #64748B;            /* Optional / If Energy Allows (Slate 500) */
+  --color-p3-bg: rgba(100, 116, 139, 0.08);
 
   /* Semantic State Signals */
-  --color-success: #10B981;
-  --color-success-bg: rgba(16, 185, 129, 0.12);
-  --color-warning: #F59E0B;
-  --color-warning-bg: rgba(245, 158, 11, 0.12);
-  --color-danger: #EF4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.12);
-  --color-info: #3B82F6;
-  --color-info-bg: rgba(59, 130, 246, 0.12);
+  --color-success: #059669;
+  --color-success-bg: rgba(5, 150, 105, 0.08);
+  --color-warning: #D97706;
+  --color-warning-bg: rgba(217, 119, 6, 0.08);
+  --color-danger: #DC2626;
+  --color-danger-bg: rgba(220, 38, 38, 0.08);
+  --color-info: #1D4ED8;
+  --color-info-bg: rgba(29, 78, 216, 0.08);
 
   /* Typography Stacks (Self-hosted ready with Devanagari fallbacks) */
   --font-display: "Syne", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -88,18 +102,18 @@
   --radius-lg: 8px;               /* Bounded dialogs */
   --radius-full: 9999px;          /* Rings & pills */
 
-  /* Crisp Shadows (Restrained, architectural depth) */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.45), 0 2px 4px -1px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -2px rgba(0, 0, 0, 0.35);
+  /* Crisp Shadows (Refined, architectural depth for light backgrounds) */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
 
   /* Transitions */
   --transition-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 220ms cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Legacy variable mappings to maintain backward compatibility */
-  --color-ink: var(--bg-surface);
-  --color-slate-dark: var(--bg-elevated);
+  /* Legacy variable mappings for 100% backward compatibility */
+  --color-ink: var(--text-ink);
+  --color-slate-dark: #F1F5F9;
   --color-charcoal: var(--text-ink);
   --color-muted: var(--text-muted);
   --color-subtle: var(--text-subtle);
@@ -107,39 +121,56 @@
   --color-border-dark: var(--border-hairline);
   --color-bg-base: var(--bg-canvas);
   --color-bg-paper: var(--bg-surface);
-  --color-bg-sidebar: var(--bg-canvas);
+  --color-bg-sidebar: var(--bg-surface);
   --color-bg-subtle: var(--bg-subtle);
-  --color-primary: var(--accent-ember);
-  --color-primary-hover: var(--accent-ember-hover);
-  --color-primary-light: var(--accent-ember-subtle);
-  --color-primary-text: var(--accent-ember);
+  --color-primary: var(--accent-blue);
+  --color-primary-hover: var(--accent-blue-hover);
+  --color-primary-light: var(--accent-blue-subtle);
+  --color-primary-text: var(--accent-blue);
 }
 
 /* ==========================================================================
-   Daylight Theme (Considered Warm Daylight Palette — Not Mechanical Invert)
+   Optional Night Theme (Available via toggle for night work)
    ========================================================================== */
-[data-theme="daylight"] {
-  --bg-canvas: #F4F5F7;
-  --bg-surface: #FFFFFF;
-  --bg-elevated: #F8FAFC;
-  --bg-subtle: #EEF2F6;
-  --bg-input: #FFFFFF;
+[data-theme="dark"],
+[data-theme="night"] {
+  --bg-canvas: #080D1A;
+  --bg-surface: #10182B;
+  --bg-elevated: #16223B;
+  --bg-subtle: #0D1424;
+  --bg-input: #0B1120;
 
-  --border-hairline: #DCE3EC;
-  --border-subtle: #E2E8F0;
-  --border-focus: #EA580C;
+  --border-hairline: #1D2A45;
+  --border-subtle: #18233A;
+  --border-focus: #3B82F6;
 
-  --text-ink: #0F172A;
-  --text-muted: #475569;
-  --text-subtle: #64748B;
+  --text-ink: #EDE8DF;
+  --text-muted: #9BA7B9;
+  --text-subtle: #637287;
   --text-on-accent: #FFFFFF;
 
-  --accent-ember: #EA580C;
-  --accent-ember-hover: #C2410C;
-  --accent-ember-glow: rgba(234, 88, 12, 0.15);
-  --accent-ember-subtle: rgba(234, 88, 12, 0.10);
+  --accent-blue: #3B82F6;
+  --accent-blue-deep: #2563EB;
+  --accent-blue-hover: #60A5FA;
+  --accent-blue-subtle: rgba(59, 130, 246, 0.12);
 
-  --color-ink: var(--bg-surface);
+  --accent-green: #10B981;
+  --accent-green-hover: #059669;
+  --accent-green-subtle: rgba(16, 185, 129, 0.12);
+
+  --accent-amber: #F59E0B;
+  --accent-amber-hover: #D97706;
+  --accent-amber-subtle: rgba(245, 158, 11, 0.12);
+  --accent-ember: #FF5722;
+  --accent-ember-hover: #F44336;
+  --accent-ember-glow: rgba(255, 87, 34, 0.22);
+  --accent-ember-subtle: rgba(255, 87, 34, 0.12);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.45), 0 2px 4px -1px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -2px rgba(0, 0, 0, 0.35);
+
+  --color-ink: var(--text-ink);
   --color-slate-dark: var(--bg-elevated);
   --color-charcoal: var(--text-ink);
   --color-muted: var(--text-muted);
@@ -148,10 +179,10 @@
   --color-border-dark: var(--border-hairline);
   --color-bg-base: var(--bg-canvas);
   --color-bg-paper: var(--bg-surface);
-  --color-bg-sidebar: #E2E8F0;
+  --color-bg-sidebar: var(--bg-surface);
   --color-bg-subtle: var(--bg-subtle);
-  --color-primary: var(--accent-ember);
-  --color-primary-hover: var(--accent-ember-hover);
-  --color-primary-light: var(--accent-ember-subtle);
-  --color-primary-text: var(--accent-ember);
+  --color-primary: var(--accent-blue);
+  --color-primary-hover: var(--accent-blue-hover);
+  --color-primary-light: var(--accent-blue-subtle);
+  --color-primary-text: var(--accent-blue);
 }

@@ -121,7 +121,7 @@
     import { checkAuth } from '../assets/js/auth.js';
     import { renderLayout } from '../assets/js/nav.js';
     import { api } from '../assets/js/api.js';
-    import { formatMinutes } from '../assets/js/utils.js';
+    import { formatMinutes, formatTime12, formatTimeRange } from '../assets/js/utils.js';
     import { showToast } from '../assets/js/toast.js';
 
     let currentDayType = 'weekday';
@@ -153,7 +153,7 @@
         container.innerHTML = t.blocks.map(b => `
           <div class="block-card ${b.category}">
             <div>
-              <div style="font-weight: 700; font-size: 0.9375rem;">${b.startTime} – ${b.endTime}</div>
+              <div style="font-weight: 700; font-size: 0.9375rem;">${formatTimeRange(b.startTime, b.endTime)}</div>
               <div style="color: var(--color-ink); font-size: 0.875rem;">${b.label}</div>
             </div>
             <div style="text-align: right;">
@@ -190,11 +190,14 @@
         let html = '';
 
         if (res.conflicts && res.conflicts.length > 0) {
-          html += res.conflicts.map(c => `
+          html += res.conflicts.map(c => {
+            const formatSlot = (slot) => slot && slot.includes('-') ? formatTimeRange(...slot.split('-')) : formatTime12(slot);
+            return `
             <div class="alert alert-danger">
-              <strong>Time Overlap Detected:</strong> ${c.message} (${c.time1} vs ${c.time2})
+              <strong>Time Overlap Detected:</strong> ${c.message} (${formatSlot(c.time1)} vs ${formatSlot(c.time2)})
             </div>
-          `).join('');
+            `;
+          }).join('');
         }
 
         if (res.warnings && res.warnings.length > 0) {

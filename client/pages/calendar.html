@@ -129,7 +129,7 @@
     import { checkAuth } from '../assets/js/auth.js';
     import { renderLayout } from '../assets/js/nav.js';
     import { api } from '../assets/js/api.js';
-    import { getTodayString } from '../assets/js/utils.js';
+    import { getTodayString, formatTime12 } from '../assets/js/utils.js';
     import { showToast } from '../assets/js/toast.js';
 
     let currentYear = 2026;
@@ -233,7 +233,8 @@
 
         let eventsHtml = '';
         dayExams.forEach(e => {
-          eventsHtml += `<div class="cal-event-pill exam">🎓 ${e.subjectName} (${e.examType})</div>`;
+          const timeStr = e.startTime ? ` @ ${formatTime12(e.startTime)}` : '';
+          eventsHtml += `<div class="cal-event-pill exam">🎓 ${e.subjectName} (${e.examType})${timeStr}</div>`;
         });
         dayTasks.slice(0, 3).forEach(t => {
           const p1Class = t.priority === 'P1' ? 'p1' : '';

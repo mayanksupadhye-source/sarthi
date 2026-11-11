@@ -16,7 +16,7 @@
 }
 
 .card:hover {
-  border-color: #2B3B5C;
+  border-color: #CBD5E1;
 }
 
 .card-header {
@@ -88,22 +88,31 @@
 }
 
 .btn-primary {
-  background-color: var(--accent-ember);
+  background-color: var(--accent-blue);
   color: var(--text-on-accent);
-  box-shadow: 0 1px 3px rgba(255, 87, 34, 0.3);
+  box-shadow: 0 1px 3px rgba(29, 78, 216, 0.25);
 }
 .btn-primary:hover {
-  background-color: var(--accent-ember-hover);
+  background-color: var(--accent-blue-hover);
+}
+
+.btn-success {
+  background-color: var(--accent-green);
+  color: var(--text-on-accent);
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.25);
+}
+.btn-success:hover {
+  background-color: var(--accent-green-hover);
 }
 
 .btn-secondary {
-  background-color: var(--bg-elevated);
+  background-color: var(--bg-surface);
   border-color: var(--border-hairline);
   color: var(--text-ink);
 }
 .btn-secondary:hover {
-  background-color: #1F2D4D;
-  border-color: #2E416B;
+  background-color: var(--bg-subtle);
+  border-color: #CBD5E1;
 }
 
 .btn-outline {
@@ -112,8 +121,8 @@
   color: var(--text-ink);
 }
 .btn-outline:hover {
-  background-color: var(--bg-elevated);
-  border-color: var(--text-muted);
+  background-color: var(--bg-subtle);
+  border-color: #CBD5E1;
 }
 
 .btn-danger {
@@ -233,7 +242,7 @@
   font-family: var(--font-body);
   font-size: 0.9375rem;
   background-color: var(--bg-input);
-  border: 1px solid var(--border-hairline);
+  border: 1px solid #CBD5E1;
   border-radius: var(--radius-sm);
   color: var(--text-ink);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -242,7 +251,7 @@
 .form-input:focus, .form-select:focus, .form-textarea:focus {
   outline: none;
   border-color: var(--border-focus);
-  box-shadow: 0 0 0 1px var(--border-focus);
+  box-shadow: 0 0 0 3px var(--accent-blue-subtle);
 }
 
 .form-textarea {
@@ -289,7 +298,7 @@
 }
 
 .table tr:hover td {
-  background-color: rgba(22, 34, 59, 0.4);
+  background-color: rgba(241, 245, 249, 0.7);
 }
 
 /* --------------------------------------------------------------------------
@@ -305,13 +314,13 @@
 
 .progress-fill {
   height: 100%;
-  background-color: var(--accent-ember);
+  background-color: var(--accent-blue);
   border-radius: var(--radius-full);
   transition: width var(--transition-normal);
 }
 
 .progress-fill.success {
-  background-color: var(--color-success);
+  background-color: var(--accent-green);
 }
 
 .progress-fill.web { background-color: var(--accent-web); }
@@ -326,7 +335,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: conic-gradient(var(--accent-ember) calc(var(--percent, 0) * 1%), var(--border-hairline) 0deg);
+  background: conic-gradient(var(--accent-blue) calc(var(--percent, 0) * 1%), var(--border-hairline) 0deg);
   position: relative;
 }
 .progress-ring::before {
@@ -376,8 +385,8 @@
 /* Block Rescue Bar */
 .block-rescue-bar {
   background-color: var(--bg-surface);
-  border: 1px solid var(--accent-ember);
-  border-left: 4px solid var(--accent-ember);
+  border: 1px solid var(--accent-blue);
+  border-left: 4px solid var(--accent-blue);
   border-radius: var(--radius-sm);
   padding: var(--space-4);
   display: flex;
@@ -385,7 +394,16 @@
   justify-content: space-between;
   gap: var(--space-4);
   margin-bottom: var(--space-5);
-  box-shadow: 0 0 15px var(--accent-ember-glow);
+  box-shadow: 0 2px 8px rgba(29, 78, 216, 0.06);
+}
+
+/* Hero Surface (Subtle, intentional Blueprint-to-Botanical gradient) */
+.card-hero {
+  background: linear-gradient(135deg, rgba(29, 78, 216, 0.04) 0%, rgba(5, 150, 105, 0.04) 100%);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: var(--space-6);
+  position: relative;
 }
 
 /* Horizon Fog (Tuck away future days on Today view) */
@@ -425,17 +443,17 @@
   width: 11px;
   height: 11px;
   border-radius: 1px;
-  background-color: #17243B;
+  background-color: #E2E8F0;
   transition: transform 100ms ease;
 }
 .heat-tile:hover {
   transform: scale(1.35);
   z-index: 10;
 }
-.heat-tile.show-up { background-color: var(--accent-ember); }
+.heat-tile.show-up { background-color: var(--accent-amber); }
 .heat-tile.slack-shield { background-color: var(--color-warning); }
-.heat-tile.low-energy { background-color: #64748B; }
-.heat-tile.rest-day { background-color: #38BDF8; }
+.heat-tile.low-energy { background-color: #94A3B8; }
+.heat-tile.rest-day { background-color: var(--accent-blue); }
 
 /* --------------------------------------------------------------------------
    Modal Dialogs & Sheets
@@ -446,7 +464,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(8, 13, 26, 0.78);
+  background-color: rgba(15, 23, 42, 0.45);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -650,11 +668,11 @@
    -------------------------------------------------------------------------- */
 .card-spotlight {
   background-color: var(--bg-surface);
-  border: 1px solid var(--accent-ember);
-  border-left: 5px solid var(--accent-ember);
+  border: 1px solid var(--accent-blue);
+  border-left: 5px solid var(--accent-blue);
   border-radius: var(--radius-md);
   padding: var(--space-6);
-  box-shadow: 0 4px 20px var(--accent-ember-subtle);
+  box-shadow: 0 4px 14px rgba(29, 78, 216, 0.08);
   position: relative;
   overflow: hidden;
 }
@@ -674,7 +692,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--accent-ember);
+  color: var(--accent-blue);
 }
 
 .spotlight-title {

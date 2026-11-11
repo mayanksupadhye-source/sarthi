@@ -126,7 +126,7 @@
     import { checkAuth } from '../assets/js/auth.js';
     import { renderLayout } from '../assets/js/nav.js';
     import { api } from '../assets/js/api.js';
-    import { formatMinutes } from '../assets/js/utils.js';
+    import { formatMinutes, formatTime12 } from '../assets/js/utils.js';
     import { showToast } from '../assets/js/toast.js';
 
     let activeSession = null;
@@ -326,7 +326,7 @@
             <td style="font-weight: 600;">${s.title}</td>
             <td><strong style="color: var(--color-primary);">${s.actualMinutes}m</strong></td>
             <td>${s.targetMinutes}m</td>
-            <td class="text-subtle text-xs">${new Date(s.createdAt).toLocaleDateString()} ${new Date(s.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+            <td class="text-subtle text-xs">${new Date(s.createdAt).toLocaleDateString()} ${formatTime12(s.createdAt)}</td>
           </tr>
         `).join('');
       } catch (err) {}

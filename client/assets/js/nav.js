@@ -299,23 +299,24 @@ async function initLiveFocusBar() {
 
 /**
  * Initializes and manages theme state
+ * Defaults to the polished light theme with blueprint blue & botanical green accents.
  */
 function initTheme() {
   const saved = localStorage.getItem('sarthi_theme');
-  if (saved === 'daylight') {
-    document.documentElement.setAttribute('data-theme', 'daylight');
+  if (saved === 'dark' || saved === 'night') {
+    document.documentElement.setAttribute('data-theme', 'dark');
   } else {
     document.documentElement.removeAttribute('data-theme');
   }
 }
 
 export function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
-  if (current === 'daylight') {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (isDark) {
     document.documentElement.removeAttribute('data-theme');
-    localStorage.setItem('sarthi_theme', 'night');
+    localStorage.setItem('sarthi_theme', 'light');
   } else {
-    document.documentElement.setAttribute('data-theme', 'daylight');
-    localStorage.setItem('sarthi_theme', 'daylight');
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('sarthi_theme', 'dark');
   }
 }

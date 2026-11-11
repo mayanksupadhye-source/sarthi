@@ -574,7 +574,7 @@
     import { renderLayout } from '../assets/js/nav.js';
     import { api } from '../assets/js/api.js';
     import { showToast } from '../assets/js/toast.js';
-    import { formatMinutes } from '../assets/js/utils.js';
+    import { formatMinutes, formatTime12 } from '../assets/js/utils.js';
 
     // State
     let rawFocusData = { sessions: [], totalMinutes: 0, count: 0 };
@@ -625,7 +625,7 @@
     async function fetchAllData() {
       const lastSyncEl = document.getElementById('lastSyncTime');
       if (lastSyncEl) {
-        lastSyncEl.textContent = `Updated ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+        lastSyncEl.textContent = `Updated ${formatTime12(new Date())}`;
       }
 
       const results = await Promise.allSettled([
