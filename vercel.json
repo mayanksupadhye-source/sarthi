@@ -1,0 +1,93 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://<RENDER_API_URL>/api/$1"
+    },
+    {
+      "source": "/",
+      "destination": "/client/index.html"
+    },
+    {
+      "source": "/client/(.*)",
+      "destination": "/client/$1"
+    },
+    {
+      "source": "/pages/(.*)",
+      "destination": "/client/pages/$1"
+    },
+    {
+      "source": "/assets/(.*)",
+      "destination": "/client/assets/$1"
+    },
+    {
+      "source": "/service-worker.js",
+      "destination": "/client/service-worker.js"
+    },
+    {
+      "source": "/sw.js",
+      "destination": "/client/service-worker.js"
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "destination": "/client/manifest.webmanifest"
+    },
+    {
+      "source": "/favicon.svg",
+      "destination": "/client/favicon.svg"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https: http:; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;"
+        }
+      ]
+    },
+    {
+      "source": "/(.*)service-worker.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
