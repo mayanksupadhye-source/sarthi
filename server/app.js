@@ -14,15 +14,57 @@ const CLIENT_DIR = path.resolve(__dirname, '../client');
 
 export const app = express();
 
-// Security middleware (relaxed CSP for local scripts/styles)
+// Trust reverse proxy (Render, Cloudflare, Vercel) for secure cookies and accurate client IP
+app.set('trust proxy', 1);
+
+// Lightweight liveness probe for deployment infrastructure
+app.get('/healthz', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    uptime: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Security middleware
 app.use(helmet({
   contentSecurityPolicy: false,
   crossOriginEmbedderPolicy: false
 }));
 
+// CORS Allowlist Configuration
+const allowedOrigins = [
+  'https://localhost',
+  'capacitor://localhost'
+];
+
+if (config.clientOrigin) {
+  // Normalize client origin without trailing slash
+  allowedOrigins.push(config.clientOrigin.replace(/\/$/, ''));
+}
+
 app.use(cors({
-  origin: true,
-  credentials: true
+  origin: (origin, callback) => {
+    // Allow non-browser requests (mobile app native fetch, curl, health checks)
+    if (!origin) return callback(null, true);
+
+    const normalized = origin.replace(/\/$/, '');
+    if (allowedOrigins.includes(normalized)) {
+      return callback(null, true);
+    }
+
+    // In development mode, allow localhost and local loopback origins
+    if (config.nodeEnv !== 'production') {
+      if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
+        return callback(null, true);
+      }
+    }
+
+    return callback(null, false);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 app.use(compression());

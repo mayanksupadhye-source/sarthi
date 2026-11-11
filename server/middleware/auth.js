@@ -22,12 +22,20 @@ export function authenticate(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, config.jwtSecret);
+    if (decoded.type === 'refresh') {
+      return res.status(401).json({
+        success: false,
+        error: 'Refresh tokens cannot be used as access tokens. Please use the refresh endpoint.'
+      });
+    }
     req.user = decoded;
     next();
   } catch (err) {
+    const isExpired = err.name === 'TokenExpiredError';
     return res.status(401).json({
       success: false,
-      error: 'Invalid or expired session. Please sign in again.'
+      code: isExpired ? 'TOKEN_EXPIRED' : 'TOKEN_INVALID',
+      error: isExpired ? 'Session expired. Please refresh your session or sign in again.' : 'Invalid session token. Please sign in again.'
     });
   }
 }

@@ -11,9 +11,20 @@ import personalRoutes from './personalRoutes.js';
 import settingsRoutes from './settingsRoutes.js';
 import insightsRoutes from './insightsRoutes.js';
 import emotionalRoutes from './emotionalRoutes.js';
+import reminderRoutes from './reminderRoutes.js';
 import { getDBStatus, requireDB } from '../config/db.js';
+import { config } from '../config/env.js';
 
 const router = express.Router();
+
+// Render / Load balancer liveness probe (does not depend on DB)
+router.get('/healthz', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    uptime: Math.floor(process.uptime()),
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Health check endpoint (always reachable, reports real DB connectivity status)
 router.get('/health', (req, res) => {
@@ -54,5 +65,6 @@ router.use('/personal', personalRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/insights', insightsRoutes);
 router.use('/emotional', emotionalRoutes);
+router.use('/reminders', reminderRoutes);
 
 export default router;
