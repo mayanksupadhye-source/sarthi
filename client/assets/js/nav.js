@@ -271,6 +271,18 @@ async function initTopbarFlame() {
     topbarRight.insertBefore(flameContainer, topbarRight.firstChild);
   }
 
+  let continuityCard = document.getElementById('topbarContinuityCard');
+  if (!continuityCard) {
+    topbarRight.insertAdjacentHTML('beforeend', `
+      <a id="topbarContinuityCard" class="continuity-card" href="dashboard.html" aria-label="Open today's plan and keep your momentum">
+        <span class="continuity-orbit" aria-hidden="true"><span>✦</span></span>
+        <span class="continuity-copy"><strong>Keep showing up</strong><small>One step at a time</small></span>
+        <span class="continuity-meter" aria-hidden="true"><i></i></span>
+      </a>
+    `);
+    continuityCard = document.getElementById('topbarContinuityCard');
+  }
+
   try {
     const res = await api.get('/planner/today');
     const streak = res.streak || 1;
@@ -286,6 +298,20 @@ async function initTopbarFlame() {
         <span class="text-num" style="font-family: var(--font-display); font-weight: 800; font-size: 0.9375rem; color: var(--accent-ember);">${streak}</span>
       </a>
     `;
+    const tasks = Array.isArray(res.scheduledTasks) ? res.scheduledTasks : [];
+    const done = tasks.filter(task => task.status === 'completed').length;
+    const progress = tasks.length ? Math.round(done / tasks.length * 100) : 0;
+    continuityCard?.classList.toggle('is-complete', tasks.length > 0 && done === tasks.length);
+    continuityCard?.style.setProperty('--continuity-progress', `${progress}%`);
+    if (continuityCard) {
+      continuityCard.querySelector('strong').textContent = tasks.length && done === tasks.length
+        ? 'You showed up today' : 'Keep showing up';
+      continuityCard.querySelector('small').textContent = tasks.length
+        ? `${done} of ${tasks.length} planned actions complete` : 'One step at a time';
+      continuityCard.setAttribute('aria-label', tasks.length
+        ? `${done} of ${tasks.length} planned actions complete. Open today’s plan.`
+        : 'Open today’s plan and take one small step.');
+    }
   } catch {
     // Offline / guest fallback: render spark
     flameContainer.innerHTML = `
@@ -294,6 +320,7 @@ async function initTopbarFlame() {
         <span class="text-num" style="font-family: var(--font-display); font-weight: 800; font-size: 0.9375rem; color: var(--accent-ember);">1</span>
       </div>
     `;
+    continuityCard?.querySelector('small')?.replaceChildren(document.createTextNode('One step at a time'));
   }
 }
 
