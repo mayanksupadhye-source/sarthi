@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f8f4ef">
+  <title>Quietly, with care</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
+    :root{color-scheme:light;--ink:#302b39;--muted:#827985;--rose:#d97983;--plum:#745a83;--line:#eee6e5;--paper:#fffdfb;--bg:#f8f4ef}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#f1e5ec 0,transparent 38rem),radial-gradient(ellipse at 0% 55%,#f4e9dc 0,transparent 35rem),var(--bg);color:var(--ink);font:15px/1.65 'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+    body:before,body:after{content:"";position:fixed;z-index:-1;width:24rem;height:24rem;border:1px solid #dfccd9;border-radius:50%;opacity:.36;animation:orbit 34s linear infinite;top:8%;right:-12rem}body:after{width:32rem;height:32rem;top:auto;bottom:-19rem;left:-15rem;animation-direction:reverse}
+    @keyframes orbit{to{transform:rotate(360deg)}}@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes breathe{50%{transform:scale(1.04);box-shadow:0 0 70px #dda9bf55}}@keyframes shimmer{to{background-position:200% center}}
+    .wrap{width:min(1080px,calc(100% - 36px));margin:auto;padding:32px 0 80px}.topline{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase}.mark{display:flex;align-items:center;gap:10px}.mark i{width:9px;height:9px;background:var(--rose);border-radius:50%;box-shadow:0 0 0 6px #d9798318}.privacy{border:1px solid #e9dfe5;border-radius:99px;padding:6px 12px;letter-spacing:.03em;text-transform:none}
+    header{padding:80px 0 48px;max-width:760px;animation:rise .8s both}.eyebrow{color:var(--plum);font-size:.77rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase}h1,h2,h3,p{margin-top:0}h1,h2,h3{font-family:'Playfair Display',Georgia,serif;font-weight:500}h1{font-size:clamp(3rem,8vw,6.5rem);line-height:1.03;letter-spacing:-.045em;margin:18px 0 22px}h1 span{background:linear-gradient(100deg,#af657d,#82638c,#c8897d,#af657d);background-size:200% auto;color:transparent;background-clip:text;animation:shimmer 9s linear infinite}.intro{font-size:1.08rem;color:#716875;max-width:600px}.panel{background:#fffdfbe8;border:1px solid #fff;border-radius:24px;box-shadow:0 18px 65px #5745520d;padding:clamp(22px,4vw,38px);backdrop-filter:blur(10px)}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}.section-label{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plum);font-weight:700;margin-bottom:8px}.current{position:relative;overflow:hidden;animation:rise .8s .1s both}.current:after{content:"";position:absolute;width:210px;height:210px;border-radius:50%;right:-68px;top:-68px;background:radial-gradient(circle,#f1d8e3aa,transparent 70%);animation:breathe 7s ease-in-out infinite}.phase-title{font:500 clamp(1.7rem,4vw,2.6rem)/1.15 'Playfair Display',Georgia,serif;margin:7px 0 10px}.phase-copy{color:#746d78;max-width:520px}.count{display:flex;align-items:baseline;gap:9px;margin-top:26px}.count strong{font:500 3.7rem/.9 'Playfair Display',Georgia,serif;color:#af657d}.count span{color:var(--muted)}.chip{display:inline-flex;border-radius:99px;background:#f8edf0;color:#956071;padding:6px 11px;font-size:.77rem;font-weight:600;margin-top:8px}
+    .controls{animation:rise .8s .2s both}.controls h2,.calendar h2,.phases h2,.care h2{font-size:1.55rem;margin-bottom:8px}.controls p{font-size:.86rem;color:var(--muted)}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.field{display:grid;gap:6px;color:#77707a;font-size:.78rem}.field input{width:100%;font:inherit;font-size:.92rem;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;outline:none}.field input:focus{border-color:#bd8b9c;box-shadow:0 0 0 3px #d979831b}.save-note{font-size:.75rem;color:#8a7580;margin:14px 0 0!important}.calendar,.phases,.care{margin-top:20px;animation:rise .8s .3s both}.cal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}.legend{display:flex;flex-wrap:wrap;gap:12px;color:#827985;font-size:.74rem}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--dot)}.week,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}.week{margin-top:22px;color:#a59ca6;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}.days{margin-top:7px}.day{min-height:54px;display:grid;place-items:center;border-radius:13px;color:#69616e;position:relative;font-size:.84rem}.day.empty{visibility:hidden}.day.period{background:#f8e6e8;color:#a25366}.day.fertile{background:#f3eaf4;color:#795e83}.day.ovulation{background:#ead8ef;color:#694977;font-weight:700;box-shadow:inset 0 0 0 1px #d7c0df}.day.today{outline:2px solid #d69aa3;outline-offset:1px;font-weight:700}.cal-foot{font-size:.77rem;color:#8a818b;margin:16px 0 0}.phase-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}.phase-card{border:1px solid var(--line);border-radius:17px;padding:18px 16px;background:#fff;transition:transform .25s,box-shadow .25s}.phase-card:hover{transform:translateY(-5px);box-shadow:0 12px 25px #57455212}.phase-card .dot{width:10px;height:10px;border-radius:50%;background:var(--color);box-shadow:0 0 0 5px color-mix(in srgb,var(--color) 12%,transparent)}.phase-card h3{font-size:1.23rem;margin:13px 0 5px}.phase-card .dates{color:var(--plum);font-size:.72rem;font-weight:700;letter-spacing:.04em}.phase-card p{font-size:.81rem;color:#77707a;margin:9px 0 0}.care-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.care-item{padding:18px;border-radius:16px;background:#faf6f3}.care-item b{font-size:.85rem}.care-item p{margin:7px 0 0;font-size:.83rem;color:#77707a}.footer{margin:26px auto 0;max-width:740px;text-align:center;color:#8a818b;font-size:.76rem}.footer strong{color:#6e6370}.reduced *,.reduced *:before,.reduced *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
+    @media(max-width:760px){.wrap{width:min(100% - 24px,600px);padding-top:20px}header{padding:60px 0 34px}.grid{grid-template-columns:1fr}.phase-grid{grid-template-columns:repeat(2,1fr)}.care-grid{grid-template-columns:1fr}.day{min-height:44px}.cal-head{display:block}.legend{margin-top:14px}}@media(max-width:390px){.phase-grid{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.day{min-height:39px;font-size:.76rem}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="topline"><div class="mark"><i></i><span>A little more understanding</span></div><span class="privacy">A quiet personal guide</span></div>
+    <header><div class="eyebrow">Care, with curiosity</div><h1>Show up with<br><span>a little more care.</span></h1><p class="intro">A gentle, private guide to the days around her cycle: what may be happening, what could help, and how to be a steady person beside her.</p></header>
+    <section class="grid" aria-label="Cycle overview">
+      <article class="panel current"><div class="section-label">Today · <span id="todayLabel"></span></div><div class="phase-title" id="currentPhase">Loading your guide…</div><p class="phase-copy" id="phaseSummary"></p><span class="chip" id="phaseDates"></span><div class="count"><strong id="cycleDay">—</strong><span id="cycleCountLabel">cycle day</span></div></article>
+      <article class="panel controls"><div class="section-label">Make the estimate hers</div><h2>Cycle notes</h2><p>Only the dates you enter here are used. They stay in this browser on this device.</p><div class="fields"><label class="field">Last period began<input id="lastStart" type="date"></label><label class="field">Typical cycle length<input id="cycleLength" type="number" min="21" max="35" value="28"></label><label class="field">Typical period length<input id="periodLength" type="number" min="2" max="10" value="5"></label></div><p class="save-note">Saved locally · no account sync · no reminders or notifications</p></article>
+    </section>
+    <section class="panel calendar" aria-label="Estimated cycle calendar"><div class="cal-head"><div><div class="section-label">A soft look ahead</div><h2 id="monthTitle">Cycle calendar</h2></div><div class="legend"><span style="--dot:#d97983">Period estimate</span><span style="--dot:#ac8db4">Fertile window estimate</span><span style="--dot:#795e83">Ovulation estimate</span></div></div><div class="week"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div class="days" id="calendarDays"></div><p class="cal-foot">Calendar shading is a prediction from the average you entered. Cycles naturally vary; ovulation and fertile days cannot be confirmed by a calendar alone.</p></section>
+    <section class="panel phases"><div class="section-label">The rhythm, in four parts</div><h2>What may be going on</h2><p class="phase-copy">The dates below shift when you change the cycle notes. Body signs and feelings are personal; she may not experience these in the same way.</p><div class="phase-grid" id="phaseCards"></div></section>
+    <section class="panel care"><div class="section-label">Your part is simple</div><h2>Be kind, ask, and listen.</h2><div class="care-grid"><div class="care-item"><b>Ask what would help</b><p>Try: “Would you like comfort, practical help, a distraction, or some space?” Let her answer lead.</p></div><div class="care-item"><b>Stay steady</b><p>If she is frustrated, listen without taking it personally. Speak gently, avoid arguing about her feelings, and take a pause if either of you needs one.</p></div><div class="care-item"><b>Offer, don’t assume</b><p>Water, a warm pack, food, or help with a task may be welcome. Ask first; everyone’s preferences are different.</p></div></div></section>
+    <p class="footer"><strong>Just a thoughtful estimate, not medical advice.</strong> A typical cycle can vary and calendar predictions are not contraception. If her symptoms are severe, changing, or worrying to her, encourage her to talk with a qualified clinician.</p>
+  </main>
+  <script>
+    (() => {
+      const KEY = 'sarthi_quiet_cycle_notes_v1';
+      const $ = id => document.getElementById(id);
+      const localIso = date => { const d = new Date(date); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+      const parse = value => { const [y,m,d] = value.split('-').map(Number); return new Date(y,m-1,d,12); };
+      const add = (date, days) => { const d = new Date(date); d.setDate(d.getDate()+days); return d; };
+      const diff = (a,b) => Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate())-Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000);
+      const short = d => d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
+      const long = d => d.toLocaleDateString(undefined,{month:'long',year:'numeric'});
+      const today = new Date(); today.setHours(12,0,0,0);
+      let saved = {}; try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch {}
+      $('lastStart').value = saved.lastStart || '2026-10-23';
+      $('cycleLength').value = saved.cycleLength || 28;
+      $('periodLength').value = saved.periodLength || 5;
+      $('todayLabel').textContent = today.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+      function render(){
+        const start = parse($('lastStart').value || '2026-10-23');
+        const cycle = Math.max(21,Math.min(35,Number($('cycleLength').value)||28));
+        const period = Math.max(2,Math.min(10,Number($('periodLength').value)||5));
+        const daysSince = diff(start,today);
+        const cycleDay = ((daysSince % cycle)+cycle)%cycle+1;
+        const cycleStart = add(today,1-cycleDay);
+        const nextStart = add(cycleStart,cycle);
+        const ovDay = Math.max(period+2,Math.min(cycle-1,cycle-14));
+        const ovStart = Math.max(period+1,ovDay-2);
+        const ovEnd = Math.min(cycle-1,ovDay+1);
+        const phases = [
+          {key:'period',name:'Menstrual phase',range:()=>[1,period],color:'#d97983',desc:'The uterine lining sheds. Bleeding and cramps can happen; energy and mood vary person to person.',care:'Offer comfort and practical help; ask before suggesting anything.'},
+          {key:'follicular',name:'Follicular phase',range:()=>[period+1,ovStart-1],color:'#87a99d',desc:'A new follicle matures. Some people notice energy or mood lifting, while others notice little change.',care:'Enjoy her company as usual. There is no special mood you should expect.'},
+          {key:'ovulation',name:'Ovulation window',range:()=>[ovStart,ovEnd],color:'#795e83',desc:'Ovulation may occur around this part of the cycle. Timing can shift, and a calendar cannot confirm it.',care:'Keep plans and affection guided by what she says she wants.'},
+          {key:'luteal',name:'Luteal phase',range:()=>[ovEnd+1,cycle],color:'#c99570',desc:'After ovulation, hormones change as the body moves toward the next period. Some notice PMS symptoms; many do not.',care:'Be patient, check in kindly, and don’t label her feelings as “just hormones.”'}
+        ];
+        const ranges = phases.map(phase=>({ ...phase, days:phase.range() }));
+        const active = ranges.find(phase=>cycleDay>=phase.days[0]&&cycleDay<=phase.days[1]) || ranges[0];
+        $('currentPhase').textContent=active.name;
+        $('phaseSummary').textContent=active.desc;
+        $('phaseDates').textContent=`Estimated days ${active.days[0]}–${active.days[1]} of this cycle`;
+        $('cycleDay').textContent=String(cycleDay).padStart(2,'0');
+        $('cycleCountLabel').textContent=`of an estimated ${cycle}-day cycle`;
+        $('phaseCards').innerHTML=ranges.map(phase=>{const [a,b]=phase.days;const from=add(cycleStart,a-1),to=add(cycleStart,b-1);return `<article class="phase-card" style="--color:${phase.color}"><div class="dot"></div><h3>${phase.name}</h3><div class="dates">${short(from)}${a===b?'':` — ${short(to)}`}</div><p>${phase.desc}</p><p><strong>A kind approach:</strong> ${phase.care}</p></article>`}).join('');
+        const monthStart = new Date(today.getFullYear(),today.getMonth(),1,12);
+        const monthDays = new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
+        $('monthTitle').textContent=long(monthStart);
+        const marks = new Map();
+        for(let offset=-cycle;offset<monthDays+cycle;offset++){
+          const date=add(monthStart,offset); const fromStart=diff(cycleStart,date);
+          const dayIn=((fromStart%cycle)+cycle)%cycle+1;
+          if(dayIn<=period) marks.set(date.getDate(),'period');
+          else if(dayIn>=Math.max(period+1,ovDay-5)&&dayIn<=Math.min(cycle,ovDay+1)) marks.set(date.getDate(),'fertile');
+          if(dayIn===ovDay) marks.set(date.getDate(),'ovulation');
+        }
+        let html='';for(let i=0;i<monthStart.getDay();i++)html+='<span class="day empty"></span>';
+        for(let n=1;n<=monthDays;n++){const date=new Date(today.getFullYear(),today.getMonth(),n,12);const klass=marks.get(n)||'';html+=`<span class="day ${klass} ${localIso(date)===localIso(today)?'today':''}" title="${klass?klass+' estimate · ':''}${date.toLocaleDateString(undefined,{month:'long',day:'numeric'})}">${n}</span>`}
+        $('calendarDays').innerHTML=html;
+        try{localStorage.setItem(KEY,JSON.stringify({lastStart:$('lastStart').value,cycleLength:cycle,periodLength:period}))}catch{}
+      }
+      ['lastStart','cycleLength','periodLength'].forEach(id=>$(id).addEventListener('input',render));
+      if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('reduced');
+      render();
+    })();
+  </script>
+</body>
+</html>

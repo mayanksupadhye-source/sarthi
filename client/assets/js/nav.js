@@ -216,6 +216,22 @@ export function renderLayout(activePageKey = 'dashboard') {
       });
     });
 
+    // A quiet, four-click shortcut from Style Guide to the private cycle guide.
+    // It is intentionally absent from both navigation menus.
+    const styleGuideLink = document.querySelector('.nav-item a[href="styleguide.html"]');
+    let styleGuideClicks = 0;
+    let styleGuideClickTimer;
+    styleGuideLink?.addEventListener('click', (event) => {
+      event.preventDefault();
+      styleGuideClicks += 1;
+      clearTimeout(styleGuideClickTimer);
+      if (styleGuideClicks === 4) {
+        window.location.href = 'Guide.html';
+        return;
+      }
+      styleGuideClickTimer = setTimeout(() => { styleGuideClicks = 0; }, 1800);
+    });
+
     // Ambient Page Wave Backdrop
     const appMain = document.querySelector('.app-main');
     if (appMain && !document.querySelector('.page-wave-backdrop')) {
