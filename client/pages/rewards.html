@@ -1,806 +1,954 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Savings & Rewards — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <style>
-    /* Savings Hero Card */
-    .savings-hero {
-      position: relative;
-      background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-6);
-      margin-bottom: var(--space-8);
-      border-left: 5px solid var(--accent-rewards);
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-    }
-    .savings-hero > * {
-      position: relative;
-      z-index: 2;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Savings & Rewards — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      /* Savings Hero Card */
+      .savings-hero {
+        position: relative;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-6);
+        margin-bottom: var(--space-8);
+        border-left: 5px solid var(--accent-rewards);
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+      }
+      .savings-hero > * {
+        position: relative;
+        z-index: 2;
+      }
 
-    .savings-hero-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: var(--space-4);
-      margin-bottom: var(--space-6);
-      flex-wrap: wrap;
-    }
+      .savings-hero-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
+        flex-wrap: wrap;
+      }
 
-    .savings-goal-title-wrap {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-    }
+      .savings-goal-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+      }
 
-    .savings-goal-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: var(--radius-md);
-      background-color: var(--color-primary-light);
-      color: var(--color-primary-text);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      flex-shrink: 0;
-    }
+      .savings-goal-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        background-color: var(--color-primary-light);
+        color: var(--color-primary-text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+      }
 
-    .savings-goal-title {
-      font-size: 1.35rem;
-      font-weight: 800;
-      color: var(--color-ink);
-      line-height: 1.2;
-    }
+      .savings-goal-title {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: var(--color-ink);
+        line-height: 1.2;
+      }
 
-    .savings-metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-4);
-      margin-bottom: var(--space-6);
-    }
-
-    @media (max-width: 840px) {
       .savings-metrics-grid {
-        grid-template-columns: repeat(2, 1fr);
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
       }
-    }
 
-    .savings-metric-card {
-      background-color: var(--color-bg-subtle);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      padding: var(--space-4);
-    }
-
-    .savings-metric-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--color-muted);
-      margin-bottom: var(--space-1);
-    }
-
-    .savings-metric-value {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--color-ink);
-      line-height: 1.1;
-    }
-
-    .savings-metric-value.highlight {
-      color: var(--color-primary);
-    }
-
-    .savings-metric-value.success {
-      color: var(--color-success);
-    }
-
-    .progress-section {
-      margin-bottom: var(--space-4);
-    }
-
-    .progress-label-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--color-charcoal);
-      margin-bottom: var(--space-2);
-    }
-
-    .savings-progress-bar {
-      height: 14px;
-      background-color: var(--color-border);
-      border-radius: var(--radius-pill);
-      overflow: hidden;
-      position: relative;
-    }
-
-    .savings-progress-fill {
-      height: 100%;
-      background-color: var(--color-primary);
-      border-radius: var(--radius-pill);
-      transition: width var(--transition-normal);
-    }
-
-    .savings-progress-fill.complete {
-      background-color: var(--color-success);
-    }
-
-    .savings-hero-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-4);
-      flex-wrap: wrap;
-      padding-top: var(--space-4);
-      border-top: 1px solid var(--color-border);
-    }
-
-    /* Reward Cards Grid */
-    .reward-card {
-      background-color: var(--color-bg-paper);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-5);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: transform var(--transition-fast), border-color var(--transition-fast);
-      position: relative;
-    }
-
-    .reward-card:hover {
-      border-color: var(--color-muted);
-    }
-
-    .reward-card.unlocked {
-      border-top: 3px solid var(--color-success);
-    }
-
-    .reward-card.locked {
-      border-top: 3px solid var(--color-border-dark);
-      opacity: 0.95;
-    }
-
-    .reward-header {
-      display: flex;
-      align-items: flex-start;
-      gap: var(--space-3);
-      margin-bottom: var(--space-3);
-    }
-
-    .reward-icon {
-      font-size: 1.75rem;
-      line-height: 1;
-      width: 40px;
-      height: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: var(--color-bg-subtle);
-      border-radius: var(--radius-sm);
-      flex-shrink: 0;
-    }
-
-    .reward-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--color-ink);
-      line-height: 1.3;
-    }
-
-    .reward-desc {
-      font-size: 0.8125rem;
-      color: var(--color-muted);
-      line-height: 1.4;
-      margin-bottom: var(--space-4);
-      flex-grow: 1;
-    }
-
-    .reward-unlock-rule {
-      background-color: var(--color-bg-subtle);
-      border: 1px dashed var(--color-border);
-      border-radius: var(--radius-sm);
-      padding: var(--space-3);
-      font-size: 0.75rem;
-      color: var(--color-charcoal);
-      margin-bottom: var(--space-4);
-    }
-
-    .reward-unlock-rule strong {
-      display: block;
-      color: var(--color-ink);
-      margin-bottom: 2px;
-      text-transform: uppercase;
-      font-size: 0.6875rem;
-      letter-spacing: 0.05em;
-    }
-
-    .reward-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: var(--space-3);
-      border-top: 1px solid var(--color-border);
-    }
-
-    .reward-cost {
-      font-size: 0.875rem;
-      font-weight: 700;
-      color: var(--color-ink);
-    }
-
-    /* Empty state helper */
-    .empty-state {
-      text-align: center;
-      padding: var(--space-10) var(--space-6);
-      background-color: var(--color-bg-paper);
-      border: 1px dashed var(--color-border);
-      border-radius: var(--radius-md);
-    }
-
-    .empty-state-icon {
-      font-size: 2.5rem;
-      margin-bottom: var(--space-2);
-    }
-
-    .empty-state-title {
-      font-weight: 700;
-      font-size: 1rem;
-      color: var(--color-ink);
-      margin-bottom: var(--space-1);
-    }
-
-    .empty-state-text {
-      font-size: 0.875rem;
-      color: var(--color-muted);
-      max-width: 400px;
-      margin: 0 auto var(--space-4) auto;
-    }
-
-    .source-badge {
-      display: inline-block;
-      padding: 0.15rem 0.5rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      border-radius: var(--radius-sm);
-      background-color: var(--color-bg-subtle);
-      color: var(--color-charcoal);
-      border: 1px solid var(--color-border);
-    }
-  </style>
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">Savings Goal & Reward Catalog</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-          <button id="openContributionModalBtn" class="btn btn-primary btn-sm">+ Add Contribution</button>
-        </div>
-      </header>
-
-      <div class="page-container">
-        <!-- 1. Main Savings Goal Hero Card -->
-        <section class="savings-hero" id="savingsHeroSection">
-          <div class="savings-hero-header">
-            <div class="savings-goal-title-wrap">
-              <div class="savings-goal-icon">🏔</div>
-              <div>
-                <span class="badge badge-p2" style="margin-bottom: var(--space-1);">Primary Target · 20th Birthday Celebration</span>
-                <div class="savings-goal-title" id="goalTitleDisplay">Mountain Trekking / 20th Birthday Celebration</div>
-              </div>
-            </div>
-            <button id="heroAddContributionBtn" class="btn btn-primary btn-sm">+ Add Contribution</button>
-          </div>
-
-          <!-- Quick Metrics -->
-          <div class="savings-metrics-grid">
-            <div class="savings-metric-card">
-              <div class="savings-metric-label">Target Goal</div>
-              <div class="savings-metric-value" id="targetAmountDisplay">₹4,000</div>
-            </div>
-            <div class="savings-metric-card">
-              <div class="savings-metric-label">Total Saved</div>
-              <div class="savings-metric-value highlight" id="totalSavedDisplay">₹0</div>
-            </div>
-            <div class="savings-metric-card">
-              <div class="savings-metric-label">Remaining to Save</div>
-              <div class="savings-metric-value" id="remainingAmountDisplay">₹4,000</div>
-            </div>
-            <div class="savings-metric-card">
-              <div class="savings-metric-label">Progress</div>
-              <div class="savings-metric-value success" id="progressPercentDisplay">0%</div>
-            </div>
-          </div>
-
-          <!-- Progress Bar -->
-          <div class="progress-section">
-            <div class="progress-label-bar">
-              <span id="progressSummaryText">Saved ₹0 of ₹4,000 target</span>
-              <span id="progressPercentText">0% Complete</span>
-            </div>
-            <div class="savings-progress-bar">
-              <div class="savings-progress-fill" id="savingsProgressFill" style="width: 0%;"></div>
-            </div>
-          </div>
-
-          <div class="savings-hero-footer">
-            <div class="text-subtle text-sm">
-              💡 <strong>Guilt-Free Celebration Fund:</strong> Small deliberate deposits from personal savings and smart trade-offs fund the mountain trek on your 20th birthday.
-            </div>
-            <div class="text-sm font-semibold" id="contributionCountText">0 contributions recorded</div>
-          </div>
-          <div class="sarthi-wave-container wave-motif-summit" aria-hidden="true">
-            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,90 Q400,80 700,40 T1200,20 L1200,120 L0,120 Z" fill="rgba(180, 83, 9, 0.08)"></path>
-            </svg>
-            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,105 Q350,75 750,55 T1200,35 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
-            </svg>
-          </div>
-        </section>
-
-        <!-- 2. Contribution History Section -->
-        <section style="margin-bottom: var(--space-8);">
-          <div class="card">
-            <div class="card-header">
-              <div>
-                <div class="card-title">Savings Contribution History</div>
-                <div class="text-subtle text-sm">Every recorded deposit towards the primary trekking goal</div>
-              </div>
-              <button id="historyAddContributionBtn" class="btn btn-outline btn-sm">+ Log Deposit</button>
-            </div>
-
-            <div id="contributionsContainer">
-              <p class="text-muted text-sm">Loading contributions...</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- 3. Reward Catalog Grid Section -->
-        <section style="margin-bottom: var(--space-8);">
-          <div style="margin-bottom: var(--space-4);">
-            <div class="card-title" style="font-size: 1.25rem;">Reward Catalog & Unlock Criteria</div>
-            <div class="text-subtle text-sm">
-              Pre-committed intrinsic rewards earned strictly through execution consistency and academic discipline.
-            </div>
-          </div>
-
-          <div id="rewardsContainer">
-            <p class="text-muted text-sm">Loading reward catalog...</p>
-          </div>
-        </section>
-      </div>
-    </main>
-  </div>
-
-  <!-- 4. Add Contribution Modal -->
-  <div id="contributionModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal-box">
-      <div class="card-header">
-        <div class="card-title" id="modalTitle">Record Savings Contribution</div>
-        <button id="closeContributionModal" class="btn btn-outline btn-sm" aria-label="Close modal">✕</button>
-      </div>
-
-      <form id="contributionForm">
-        <div class="form-group">
-          <label class="form-label" for="contribAmount">Contribution Amount (₹) *</label>
-          <input 
-            type="number" 
-            id="contribAmount" 
-            class="form-input" 
-            min="1" 
-            step="1" 
-            placeholder="e.g. 500" 
-            required 
-            autofocus
-          >
-          <div class="text-subtle text-xs" style="margin-top: 4px;">Enter the amount saved from allowances, side work, or spending trade-offs.</div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="contribDate">Deposit Date *</label>
-          <input type="date" id="contribDate" class="form-input" required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="contribSource">Funding Source</label>
-          <select id="contribSource" class="form-select">
-            <option value="personal-savings">Personal Savings</option>
-            <option value="pocket-money">Pocket Money / Allowance</option>
-            <option value="freelance">Freelance / Project Side Gig</option>
-            <option value="gift-prize">Gift / Academic Prize</option>
-            <option value="expense-tradeoff">Daily Expense Trade-off</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="contribNote">Note / Context (Optional)</label>
-          <input 
-            type="text" 
-            id="contribNote" 
-            class="form-input" 
-            placeholder="e.g. Cut down outside coffee, saved weekly pocket money"
-            maxlength="140"
-          >
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-6);">
-          <button type="button" id="cancelContributionBtn" class="btn btn-outline">Cancel</button>
-          <button type="submit" id="saveContributionBtn" class="btn btn-primary">Save Contribution</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { showToast } from '../assets/js/toast.js';
-    import { getTodayString } from '../assets/js/utils.js';
-
-    // State
-    let currentSavings = null;
-    let currentRewards = [];
-
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-
-      renderLayout('rewards');
-      setupModalListeners();
-      await loadRewardsAndSavings();
-    }
-
-    async function loadRewardsAndSavings() {
-      try {
-        const res = await api.get('/personal/rewards-savings');
-        if (!res || !res.success) {
-          showToast('Failed to load rewards and savings data', 'error');
-          return;
+      @media (max-width: 840px) {
+        .savings-metrics-grid {
+          grid-template-columns: repeat(2, 1fr);
         }
-
-        currentSavings = res.savings || {};
-        currentRewards = Array.isArray(res.rewards) ? res.rewards : [];
-
-        renderHeroCard(currentSavings);
-        renderContributionsTable(currentSavings.contributions || []);
-        renderRewardsGrid(currentRewards);
-      } catch (err) {
-        console.error('Error loading rewards & savings:', err);
-        showToast(err.message || 'Error loading savings and rewards', 'error');
-      }
-    }
-
-    function renderHeroCard(savings) {
-      const target = Number(savings.targetAmount) || 4000;
-      const contributions = Array.isArray(savings.contributions) ? savings.contributions : [];
-      
-      // Calculate total saved
-      const totalSaved = savings.totalSaved !== undefined 
-        ? Number(savings.totalSaved) 
-        : contributions.reduce((acc, c) => acc + (Number(c.amount) || 0), 0);
-
-      const remaining = savings.remainingAmount !== undefined
-        ? Number(savings.remainingAmount)
-        : Math.max(0, target - totalSaved);
-
-      const percent = savings.progressPercent !== undefined
-        ? Number(savings.progressPercent)
-        : (target > 0 ? Math.min(100, Math.round((totalSaved / target) * 100)) : 100);
-
-      // Update Hero Elements
-      const goalTitle = savings.goalTitle || 'Mountain Trekking / 20th Birthday Celebration (₹4,000)';
-      document.getElementById('goalTitleDisplay').textContent = goalTitle;
-      document.getElementById('targetAmountDisplay').textContent = `₹${target.toLocaleString('en-IN')}`;
-      document.getElementById('totalSavedDisplay').textContent = `₹${totalSaved.toLocaleString('en-IN')}`;
-      document.getElementById('remainingAmountDisplay').textContent = `₹${remaining.toLocaleString('en-IN')}`;
-      document.getElementById('progressPercentDisplay').textContent = `${percent}%`;
-
-      document.getElementById('progressSummaryText').textContent = `Saved ₹${totalSaved.toLocaleString('en-IN')} of ₹${target.toLocaleString('en-IN')} target`;
-      document.getElementById('progressPercentText').textContent = `${percent}% Complete`;
-
-      const fillBar = document.getElementById('savingsProgressFill');
-      fillBar.style.width = `${percent}%`;
-      if (percent >= 100) {
-        fillBar.classList.add('complete');
-      } else {
-        fillBar.classList.remove('complete');
       }
 
-      document.getElementById('contributionCountText').textContent = `${contributions.length} deposit${contributions.length === 1 ? '' : 's'} recorded`;
-    }
+      .savings-metric-card {
+        background-color: var(--color-bg-subtle);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: var(--space-4);
+      }
 
-    function formatSourceLabel(source) {
-      if (!source) return 'Personal Savings';
-      const map = {
-        'personal-savings': 'Personal Savings',
-        'pocket-money': 'Pocket Money',
-        'freelance': 'Side Gig / Freelance',
-        'gift-prize': 'Gift / Prize',
-        'expense-tradeoff': 'Expense Trade-off',
-        'other': 'Other'
-      };
-      return map[source] || source;
-    }
+      .savings-metric-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-muted);
+        margin-bottom: var(--space-1);
+      }
 
-    function formatDateDisplay(dateStr) {
-      if (!dateStr) return '—';
-      try {
-        const parts = dateStr.split('-');
-        if (parts.length === 3) {
-          const d = new Date(parts[0], parts[1] - 1, parts[2]);
-          return new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }).format(d);
+      .savings-metric-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--color-ink);
+        line-height: 1.1;
+      }
+
+      .savings-metric-value.highlight {
+        color: var(--color-primary);
+      }
+
+      .savings-metric-value.success {
+        color: var(--color-success);
+      }
+
+      .progress-section {
+        margin-bottom: var(--space-4);
+      }
+
+      .progress-label-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: var(--color-charcoal);
+        margin-bottom: var(--space-2);
+      }
+
+      .savings-progress-bar {
+        height: 14px;
+        background-color: var(--color-border);
+        border-radius: var(--radius-pill);
+        overflow: hidden;
+        position: relative;
+      }
+
+      .savings-progress-fill {
+        height: 100%;
+        background-color: var(--color-primary);
+        border-radius: var(--radius-pill);
+        transition: width var(--transition-normal);
+      }
+
+      .savings-progress-fill.complete {
+        background-color: var(--color-success);
+      }
+
+      .savings-hero-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--color-border);
+      }
+
+      /* Reward Cards Grid */
+      .reward-card {
+        background-color: var(--color-bg-paper);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-5);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition:
+          transform var(--transition-fast),
+          border-color var(--transition-fast);
+        position: relative;
+      }
+
+      .reward-card:hover {
+        border-color: var(--color-muted);
+      }
+
+      .reward-card.unlocked {
+        border-top: 3px solid var(--color-success);
+      }
+
+      .reward-card.locked {
+        border-top: 3px solid var(--color-border-dark);
+        opacity: 0.95;
+      }
+
+      .reward-header {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-3);
+        margin-bottom: var(--space-3);
+      }
+
+      .reward-icon {
+        font-size: 1.75rem;
+        line-height: 1;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-bg-subtle);
+        border-radius: var(--radius-sm);
+        flex-shrink: 0;
+      }
+
+      .reward-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--color-ink);
+        line-height: 1.3;
+      }
+
+      .reward-desc {
+        font-size: 0.8125rem;
+        color: var(--color-muted);
+        line-height: 1.4;
+        margin-bottom: var(--space-4);
+        flex-grow: 1;
+      }
+
+      .reward-unlock-rule {
+        background-color: var(--color-bg-subtle);
+        border: 1px dashed var(--color-border);
+        border-radius: var(--radius-sm);
+        padding: var(--space-3);
+        font-size: 0.75rem;
+        color: var(--color-charcoal);
+        margin-bottom: var(--space-4);
+      }
+
+      .reward-unlock-rule strong {
+        display: block;
+        color: var(--color-ink);
+        margin-bottom: 2px;
+        text-transform: uppercase;
+        font-size: 0.6875rem;
+        letter-spacing: 0.05em;
+      }
+
+      .reward-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--color-border);
+      }
+
+      .reward-cost {
+        font-size: 0.875rem;
+        font-weight: 700;
+        color: var(--color-ink);
+      }
+
+      /* Empty state helper */
+      .empty-state {
+        text-align: center;
+        padding: var(--space-10) var(--space-6);
+        background-color: var(--color-bg-paper);
+        border: 1px dashed var(--color-border);
+        border-radius: var(--radius-md);
+      }
+
+      .empty-state-icon {
+        font-size: 2.5rem;
+        margin-bottom: var(--space-2);
+      }
+
+      .empty-state-title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: var(--color-ink);
+        margin-bottom: var(--space-1);
+      }
+
+      .empty-state-text {
+        font-size: 0.875rem;
+        color: var(--color-muted);
+        max-width: 400px;
+        margin: 0 auto var(--space-4) auto;
+      }
+
+      .source-badge {
+        display: inline-block;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: var(--radius-sm);
+        background-color: var(--color-bg-subtle);
+        color: var(--color-charcoal);
+        border: 1px solid var(--color-border);
+      }
+      .deposit-form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-3);
+      }
+      .reward-celebration {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        background: rgba(15, 23, 42, 0.58);
+      }
+      .reward-celebration[hidden] {
+        display: none;
+      }
+      .reward-celebration-card {
+        position: relative;
+        overflow: hidden;
+        width: min(100%, 460px);
+        padding: 2rem;
+        border-radius: var(--radius-md);
+        background: var(--color-bg-paper);
+        box-shadow: var(--shadow-lg);
+        text-align: center;
+        animation: reward-pop 0.35s ease-out both;
+      }
+      .reward-confetti {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image:
+          radial-gradient(circle, #f59e0b 0 3px, transparent 4px),
+          radial-gradient(circle, #10b981 0 3px, transparent 4px),
+          radial-gradient(circle, #6366f1 0 3px, transparent 4px);
+        background-size:
+          67px 83px,
+          91px 71px,
+          113px 97px;
+        animation: reward-confetti-fall 1.7s ease-out both;
+        opacity: 0.6;
+      }
+      @keyframes reward-pop {
+        from {
+          opacity: 0;
+          transform: translateY(12px) scale(0.97);
         }
-        return dateStr;
-      } catch (e) {
-        return dateStr;
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
       }
-    }
-
-    function renderContributionsTable(contributions) {
-      const container = document.getElementById('contributionsContainer');
-      if (!container) return;
-
-      if (!contributions || contributions.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">🪙</div>
-            <div class="empty-state-title">No Contributions Yet</div>
-            <div class="empty-state-text">
-              Start building your ₹4,000 mountain trekking fund by logging your first deposit.
-            </div>
-            <button id="emptyAddContributionBtn" class="btn btn-primary btn-sm">+ Log First Deposit</button>
+      @keyframes reward-confetti-fall {
+        from {
+          background-position:
+            0 -80px,
+            20px -110px,
+            30px -60px;
+        }
+        to {
+          background-position:
+            0 220px,
+            20px 260px,
+            30px 200px;
+        }
+      }
+      @media (max-width: 560px) {
+        .deposit-form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .reward-celebration-card,
+        .reward-confetti {
+          animation: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Savings Goal & Reward Catalog</div>
           </div>
-        `;
-        document.getElementById('emptyAddContributionBtn')?.addEventListener('click', openModal);
-        return;
-      }
-
-      // Sort newest first
-      const sorted = [...contributions].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-
-      const rowsHtml = sorted.map(c => `
-        <tr>
-          <td style="font-weight: 600; white-space: nowrap;">${formatDateDisplay(c.date)}</td>
-          <td style="font-weight: 700; color: var(--color-success); white-space: nowrap;">+₹${(Number(c.amount) || 0).toLocaleString('en-IN')}</td>
-          <td><span class="source-badge">${formatSourceLabel(c.source)}</span></td>
-          <td class="text-subtle text-sm">${c.note ? escapeHtml(c.note) : '<span style="opacity:0.5;">—</span>'}</td>
-        </tr>
-      `).join('');
-
-      container.innerHTML = `
-        <div class="table-container">
-          <table class="table" style="width: 100%;">
-            <thead>
-              <tr>
-                <th style="width: 160px;">Date</th>
-                <th style="width: 140px;">Amount</th>
-                <th style="width: 180px;">Source</th>
-                <th>Note / Context</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${rowsHtml}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
-
-    function getRewardIcon(r) {
-      if (r.icon) return r.icon;
-      switch (r.category) {
-        case 'trekking': return '🏔';
-        case 'movie': return '🎬';
-        case 'friends': return '☕';
-        case 'entertainment': return '🎮';
-        case 'treat': return '🍕';
-        default: return '🎁';
-      }
-    }
-
-    function getRewardCost(r) {
-      if (r.costINR !== undefined && r.costINR !== null) {
-        return r.costINR === 0 ? 'Free' : `₹${Number(r.costINR).toLocaleString('en-IN')}`;
-      }
-      if (r.cost !== undefined && r.cost !== null) {
-        return `₹${Number(r.cost).toLocaleString('en-IN')}`;
-      }
-      // Fallbacks by category
-      if (r.category === 'trekking') return '₹4,000';
-      if (r.category === 'movie') return '₹350';
-      if (r.category === 'friends') return '₹500';
-      return 'Guilt-Free';
-    }
-
-    function renderRewardsGrid(rewards) {
-      const container = document.getElementById('rewardsContainer');
-      if (!container) return;
-
-      if (!rewards || rewards.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-state-icon">🏆</div>
-            <div class="empty-state-title">No Rewards in Catalog</div>
-            <div class="empty-state-text">
-              Rewards are tied to your study milestones, focus sessions, and savings targets.
-            </div>
+          <div class="topbar-right">
+            <div id="topbarFocusWidget"></div>
+            <button
+              id="openContributionModalBtn"
+              class="btn btn-primary btn-sm"
+            >
+              + Add Deposit
+            </button>
           </div>
-        `;
-        return;
-      }
+        </header>
 
-      const cardsHtml = rewards.map(r => {
-        const icon = getRewardIcon(r);
-        const costStr = getRewardCost(r);
-        const unlockRule = r.unlockRule || r.unlockCriteria || 'Reach weekly execution goals';
-        const isUnlocked = Boolean(r.isUnlocked);
-        const statusBadge = isUnlocked
-          ? '<span class="badge badge-success">✓ Unlocked</span>'
-          : '<span class="badge badge-p3">🔒 Locked</span>';
-
-        return `
-          <div class="reward-card ${isUnlocked ? 'unlocked' : 'locked'}">
-            <div>
-              <div class="reward-header">
-                <div class="reward-icon">${icon}</div>
-                <div style="flex: 1; min-width: 0;">
-                  <div class="reward-title">${escapeHtml(r.title || 'Untitled Reward')}</div>
-                  <span class="badge badge-neutral text-xs" style="margin-top: 2px;">${r.category || 'Milestone'}</span>
+        <div class="page-container">
+          <!-- 1. Main Savings Goal Hero Card -->
+          <section class="savings-hero" id="savingsHeroSection">
+            <div class="savings-hero-header">
+              <div class="savings-goal-title-wrap">
+                <div class="savings-goal-icon">🏔</div>
+                <div>
+                  <span
+                    class="badge badge-p2"
+                    style="margin-bottom: var(--space-1)"
+                    >Primary Target · 20th Birthday Celebration</span
+                  >
+                  <div class="savings-goal-title" id="goalTitleDisplay">
+                    Mountain Trekking / 20th Birthday Celebration
+                  </div>
                 </div>
               </div>
+              <button
+                id="heroAddContributionBtn"
+                class="btn btn-primary btn-sm"
+              >
+                + Add Contribution
+              </button>
+            </div>
 
-              <div class="reward-desc">
-                ${escapeHtml(r.description || 'Intrinsic celebration unlocked through consistent study and discipline.')}
+            <!-- Quick Metrics -->
+            <div class="savings-metrics-grid">
+              <div class="savings-metric-card">
+                <div class="savings-metric-label">Savings Goal</div>
+                <div class="savings-metric-value" id="targetAmountDisplay">
+                  &#8377;5,000
+                </div>
               </div>
-
-              <div class="reward-unlock-rule">
-                <strong>Unlock Criteria</strong>
-                ${escapeHtml(unlockRule)}
+              <div class="savings-metric-card">
+                <div class="savings-metric-label">Current Savings</div>
+                <div
+                  class="savings-metric-value highlight"
+                  id="totalSavedDisplay"
+                >
+                  &#8377;0
+                </div>
+              </div>
+              <div class="savings-metric-card">
+                <div class="savings-metric-label">Remaining to Save</div>
+                <div class="savings-metric-value" id="remainingAmountDisplay">
+                  &#8377;5,000
+                </div>
+              </div>
+              <div class="savings-metric-card">
+                <div class="savings-metric-label">Progress</div>
+                <div
+                  class="savings-metric-value success"
+                  id="progressPercentDisplay"
+                >
+                  0%
+                </div>
               </div>
             </div>
 
-            <div class="reward-footer">
-              <span class="reward-cost">${costStr}</span>
-              ${statusBadge}
+            <!-- Progress Bar -->
+            <div class="progress-section">
+              <div class="progress-label-bar">
+                <span id="progressSummaryText"
+                  >Current Savings: &#8377;0 of &#8377;5,000</span
+                >
+                <span id="progressPercentText">0% Complete</span>
+              </div>
+              <div class="savings-progress-bar">
+                <div
+                  class="savings-progress-fill"
+                  id="savingsProgressFill"
+                  style="width: 0%"
+                ></div>
+              </div>
+            </div>
+
+            <div class="savings-hero-footer">
+              <div class="text-subtle text-sm">
+                💡 <strong>Guilt-Free Celebration Fund:</strong> Small
+                deliberate deposits from personal savings and smart trade-offs
+                fund the mountain trek on your 20th birthday.
+              </div>
+              <div class="text-sm font-semibold" id="contributionCountText">
+                0 contributions recorded
+              </div>
+            </div>
+            <div
+              class="sarthi-wave-container wave-motif-summit"
+              aria-hidden="true"
+            >
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-1"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,90 Q400,80 700,40 T1200,20 L1200,120 L0,120 Z"
+                  fill="rgba(180, 83, 9, 0.08)"
+                ></path>
+              </svg>
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-2"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,105 Q350,75 750,55 T1200,35 L1200,120 L0,120 Z"
+                  fill="rgba(5, 150, 105, 0.05)"
+                ></path>
+              </svg>
+            </div>
+          </section>
+
+          <!-- 2. Contribution History Section -->
+          <section style="margin-bottom: var(--space-8)">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Savings Contribution History</div>
+                  <div class="text-subtle text-sm">
+                    Every recorded deposit towards the primary trekking goal
+                  </div>
+                </div>
+                <button
+                  id="historyAddContributionBtn"
+                  class="btn btn-outline btn-sm"
+                >
+                  + Log Deposit
+                </button>
+              </div>
+
+              <div id="contributionsContainer">
+                <p class="text-muted text-sm">Loading contributions...</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- 3. Reward Catalog Grid Section -->
+          <section style="margin-bottom: var(--space-8)">
+            <div style="margin-bottom: var(--space-4)">
+              <div class="card-title" style="font-size: 1.25rem">
+                Reward Catalog & Unlock Criteria
+              </div>
+              <div class="text-subtle text-sm">
+                Pre-committed intrinsic rewards earned strictly through
+                execution consistency and academic discipline.
+              </div>
+            </div>
+
+            <div id="rewardsContainer">
+              <p class="text-muted text-sm">Loading reward catalog...</p>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- 4. Add Contribution Modal -->
+    <div
+      id="contributionModal"
+      class="modal-backdrop hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
+      <div class="modal-box">
+        <div class="card-header">
+          <div class="card-title" id="modalTitle">
+            Record Piggy-Bank Deposit
+          </div>
+          <button
+            id="closeContributionModal"
+            class="btn btn-outline btn-sm"
+            aria-label="Close modal"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form id="contributionForm">
+          <div class="deposit-form-grid">
+            <div class="form-group">
+              <label class="form-label" for="depositSerial"
+                >Deposit number</label
+              ><input
+                type="text"
+                id="depositSerial"
+                class="form-input"
+                value="#1"
+                readonly
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="contribDate">Deposit date *</label
+              ><input
+                type="date"
+                id="contribDate"
+                class="form-input"
+                required
+              />
             </div>
           </div>
-        `;
-      }).join('');
+          <div class="form-group">
+            <label class="form-label" for="contribNote">Deposit message</label
+            ><input
+              type="text"
+              id="contribNote"
+              class="form-input"
+              placeholder="e.g. First monthly savings"
+              maxlength="50"
+            />
+            <div
+              class="text-subtle text-xs"
+              id="depositMessageCount"
+              aria-live="polite"
+            >
+              0/50
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="contribAmount"
+              >Deposit amount (&#8377;) *</label
+            ><input
+              type="number"
+              id="contribAmount"
+              class="form-input"
+              min="0.01"
+              step="0.01"
+              placeholder="e.g. 500"
+              required
+              autofocus
+            />
+            <div class="text-subtle text-xs">
+              Money physically added to your piggy bank.
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-6);
+            "
+          >
+            <button
+              type="button"
+              id="cancelContributionBtn"
+              class="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              id="saveContributionBtn"
+              class="btn btn-primary"
+            >
+              Save Deposit
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
-      container.innerHTML = `
-        <div class="grid-3">
-          ${cardsHtml}
+    <div
+      class="reward-celebration"
+      id="rewardCelebration"
+      hidden
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="celebrationTitle"
+    >
+      <div class="reward-celebration-card">
+        <div class="reward-confetti" aria-hidden="true"></div>
+        <div style="position: relative">
+          <div style="font-size: 2.5rem" aria-hidden="true">&#127881;</div>
+          <h2 id="celebrationTitle">Reward unlocked!</h2>
+          <p id="celebrationMessage" class="text-subtle"></p>
+          <button
+            type="button"
+            class="btn btn-primary"
+            id="closeRewardCelebration"
+          >
+            Wonderful
+          </button>
         </div>
-      `;
-    }
+      </div>
+    </div>
 
-    function openModal() {
-      const modal = document.getElementById('contributionModal');
-      const dateInput = document.getElementById('contribDate');
-      const amountInput = document.getElementById('contribAmount');
-      
-      // Default to today
-      if (dateInput && !dateInput.value) {
-        dateInput.value = getTodayString();
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import { renderLayout } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { showToast } from "../assets/js/toast.js";
+      import { getTodayString } from "../assets/js/utils.js";
+      let currentSavings = null;
+      let activeSubmissionKey = null;
+      const money = (value) =>
+        "₹" +
+        Number(value || 0).toLocaleString("en-IN", {
+          maximumFractionDigits: 2,
+        });
+      const escapeHtml = (value) =>
+        String(value ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#039;",
+            })[c],
+        );
+      function dateDisplay(value) {
+        const key = String(value || "").slice(0, 10);
+        const m = key.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        return m ? m[3] + "/" + m[2] + "/" + m[1] : "—";
       }
-
-      modal.classList.remove('hidden');
-      setTimeout(() => amountInput?.focus(), 50);
-    }
-
-    function closeModal() {
-      const modal = document.getElementById('contributionModal');
-      modal.classList.add('hidden');
-      document.getElementById('contributionForm')?.reset();
-      const dateInput = document.getElementById('contribDate');
-      if (dateInput) dateInput.value = getTodayString();
-    }
-
-    function setupModalListeners() {
-      // Trigger buttons
-      document.getElementById('openContributionModalBtn')?.addEventListener('click', openModal);
-      document.getElementById('heroAddContributionBtn')?.addEventListener('click', openModal);
-      document.getElementById('historyAddContributionBtn')?.addEventListener('click', openModal);
-
-      // Close buttons
-      document.getElementById('closeContributionModal')?.addEventListener('click', closeModal);
-      document.getElementById('cancelContributionBtn')?.addEventListener('click', closeModal);
-
-      // Backdrop click
-      const modal = document.getElementById('contributionModal');
-      modal?.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-      });
-
-      // Escape key
-      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modal?.classList.contains('hidden')) {
-          closeModal();
+      async function init() {
+        const user = await checkAuth();
+        if (!user) return;
+        renderLayout("rewards");
+        setupListeners();
+        await loadRewardsAndSavings();
+      }
+      async function loadRewardsAndSavings() {
+        try {
+          const res = await api.get("/personal/rewards-savings");
+          if (!res?.success)
+            throw new Error("Failed to load savings and rewards.");
+          currentSavings = res.savings || {};
+          const deposits = Array.isArray(currentSavings.deposits)
+            ? currentSavings.deposits
+            : [];
+          renderHeroCard(currentSavings, deposits);
+          renderContributionsTable(deposits);
+          renderRewardsGrid(res.rewards || [], res.executionProgress);
+          const newly = (res.newlyUnlockedRewards || []).filter((reward) =>
+            ["trekking", "friends"].includes(reward.category),
+          );
+          if (newly.length) showRewardCelebration(newly[0]);
+        } catch (error) {
+          console.error("Savings/rewards load failed:", error);
+          showToast(
+            error.message || "Unable to load savings and rewards.",
+            "error",
+          );
         }
-      });
-
-      // Form submit
-      const form = document.getElementById('contributionForm');
-      const saveBtn = document.getElementById('saveContributionBtn');
-
-      form?.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const amountVal = document.getElementById('contribAmount')?.value;
-        const dateVal = document.getElementById('contribDate')?.value || getTodayString();
-        const sourceVal = document.getElementById('contribSource')?.value || 'personal-savings';
-        const noteVal = document.getElementById('contribNote')?.value?.trim() || '';
-
-        const amount = Number(amountVal);
-        if (!amount || amount <= 0) {
-          showToast('Please enter a valid contribution amount greater than 0.', 'error');
+      }
+      function renderHeroCard(savings, deposits) {
+        const target = Number(savings.targetAmount) || 5000,
+          total = Number(savings.totalSaved) || 0,
+          remaining = Math.max(0, target - total),
+          percent = Math.min(100, Math.round((total / target) * 100));
+        document.getElementById("goalTitleDisplay").textContent =
+          "Mountain Trekking Expedition";
+        document.getElementById("targetAmountDisplay").textContent =
+          money(target);
+        document.getElementById("totalSavedDisplay").textContent = money(total);
+        document.getElementById("remainingAmountDisplay").textContent =
+          money(remaining);
+        document.getElementById("progressPercentDisplay").textContent =
+          percent + "%";
+        document.getElementById("progressSummaryText").textContent =
+          "Current Savings: " + money(total) + " of " + money(target);
+        document.getElementById("progressPercentText").textContent =
+          percent + "% Complete";
+        const bar = document.getElementById("savingsProgressFill");
+        bar.style.width = percent + "%";
+        bar.classList.toggle("complete", percent >= 100);
+        document.getElementById("contributionCountText").textContent =
+          deposits.length +
+          " deposit" +
+          (deposits.length === 1 ? "" : "s") +
+          " recorded";
+        const footer = document.querySelector(
+          ".savings-hero-footer .text-subtle",
+        );
+        if (footer)
+          footer.innerHTML =
+            "<strong>Mountain Trekking Expedition:</strong> Add each physical deposit to the ledger, then remember to add your saved money to your piggy bank!";
+      }
+      function renderContributionsTable(deposits) {
+        const container = document.getElementById("contributionsContainer");
+        if (!deposits.length) {
+          container.innerHTML =
+            '<div class="empty-state"><div class="empty-state-icon">🐷</div><div class="empty-state-title">No deposits yet</div><div class="empty-state-text">Record money when you add it to your piggy bank. Your ledger starts at deposit #1.</div><button id="emptyAddContributionBtn" class="btn btn-primary btn-sm">+ Log First Deposit</button></div>';
+          document
+            .getElementById("emptyAddContributionBtn")
+            ?.addEventListener("click", openModal);
           return;
         }
-
-        try {
-          saveBtn.disabled = true;
-          saveBtn.textContent = 'Saving...';
-
-          const res = await api.post('/personal/savings/contribute', {
-            amount,
-            date: dateVal,
-            source: sourceVal,
-            note: noteVal
+        const rows = [...deposits]
+          .sort((a, b) => Number(b.serialNumber) - Number(a.serialNumber))
+          .map(
+            (item) =>
+              `<tr><td><strong>#${Number(item.serialNumber)}</strong></td><td style="white-space:nowrap">${dateDisplay(item.dateKey || item.date)}</td><td>${escapeHtml(item.message || "—")}</td><td style="font-weight:700;color:var(--color-success);white-space:nowrap">${money(item.amount)}</td></tr>`,
+          )
+          .join("");
+        container.innerHTML = `<div class="text-subtle text-sm" id="mostRecentDeposit" style="padding:0 var(--space-4) var(--space-3)"></div><div class="table-container"><table class="table" style="width:100%"><thead><tr><th>Deposit #</th><th>Date</th><th>Message</th><th>Amount</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+        const latest = deposits[0];
+        const recent = document.getElementById("mostRecentDeposit");
+        if (latest)
+          recent.textContent = `Most recent deposit: #${latest.serialNumber} · ${dateDisplay(latest.dateKey || latest.date)} · ${money(latest.amount)}`;
+      }
+      function getRewardIcon(reward) {
+        if (reward.icon) return reward.icon;
+        return (
+          { trekking: "🏔️", movie: "🎬", friends: "☕" }[reward.category] ||
+          "🎁"
+        );
+      }
+      function rewardCost(reward) {
+        return reward.category === "trekking"
+          ? "₹5,000 savings goal"
+          : "₹0 — FREE";
+      }
+      function criteria(reward) {
+        if (reward.category === "movie")
+          return "Complete a 14-day consecutive execution streak and complete at least 85% of planned tasks on five calendar days within that challenge.";
+        if (reward.category === "friends")
+          return "Reach 85.5 kg or below from the 90 kg starting baseline, recorded in Gym & Weight.";
+        if (reward.category === "trekking")
+          return "Reach ₹5,000 in confirmed savings deposits.";
+        return (
+          reward.unlockRule ||
+          reward.unlockCriteria ||
+          "Complete this reward’s saved milestone."
+        );
+      }
+      function renderRewardsGrid(rewards, executionProgress = {}) {
+        const container = document.getElementById("rewardsContainer"),
+          desired = ["movie", "friends", "trekking"];
+        const ordered = [...rewards].sort(
+          (a, b) => desired.indexOf(a.category) - desired.indexOf(b.category),
+        );
+        container.innerHTML = `<div class="grid-3">${ordered
+          .map((reward) => {
+            const unlocked = Boolean(reward.isUnlocked);
+            const movieProgress =
+              reward.category === "movie"
+                ? `<div class="progress-section"><div class="progress-label-bar"><span>${Number(executionProgress.executionStreakDays) || 0} / 14 consecutive execution days</span><span>${Number(executionProgress.highCompletionDays) || 0} / 5 qualifying task days</span></div><div class="savings-progress-bar"><div class="savings-progress-fill" style="width:${Math.min(100, Math.round(((Number(executionProgress.executionStreakDays) || 0) / 14) * 100))}%"></div></div></div>`
+                : "";
+            return `<div class="reward-card ${unlocked ? "unlocked" : "locked"}"><div><div class="reward-header"><div class="reward-icon">${getRewardIcon(reward)}</div><div style="flex:1;min-width:0"><div class="reward-title">${escapeHtml(reward.title)}</div><span class="badge badge-neutral text-xs" style="margin-top:2px">${escapeHtml(reward.category)}</span></div></div><div class="reward-desc">${escapeHtml(reward.description || "")}</div><div class="reward-unlock-rule"><strong>Unlock Criteria</strong>${escapeHtml(criteria(reward))}</div>${movieProgress}</div><div class="reward-footer"><span class="reward-cost">${rewardCost(reward)}</span>${unlocked ? '<span class="badge badge-success">✓ Unlocked</span>' : '<span class="badge badge-p3">🔒 Locked</span>'}</div></div>`;
+          })
+          .join("")}</div>`;
+      }
+      function showRewardCelebration(reward) {
+        const friends = reward.category === "friends";
+        document.getElementById("celebrationTitle").textContent =
+          reward.title + " unlocked!";
+        document.getElementById("celebrationMessage").textContent = friends
+          ? "You did it! Your favorite treat with friends is unlocked. You've earned this moment. Enjoy it on Sunday evening."
+          : "Congratulations! You've completed your ₹5,000 savings goal. Your Mountain Trekking Expedition is unlocked! Your consistent saving made this milestone happen.";
+        document.getElementById("rewardCelebration").hidden = false;
+      }
+      function openModal() {
+        activeSubmissionKey =
+          globalThis.crypto?.randomUUID?.() ||
+          `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        document.getElementById("contribDate").value = getTodayString();
+        document.getElementById("depositSerial").value =
+          "#" + (Number(currentSavings?.nextDepositNumber) || 1);
+        document.getElementById("depositMessageCount").textContent =
+          document.getElementById("contribNote").value.length + " / 50";
+        document.getElementById("contributionModal").classList.remove("hidden");
+        setTimeout(() => document.getElementById("contribAmount").focus(), 50);
+      }
+      function closeModal() {
+        activeSubmissionKey = null;
+        document.getElementById("contributionModal").classList.add("hidden");
+        document.getElementById("contributionForm").reset();
+        document.getElementById("contribDate").value = getTodayString();
+        document.getElementById("depositMessageCount").textContent = "0 / 50";
+      }
+      function setupListeners() {
+        [
+          "openContributionModalBtn",
+          "heroAddContributionBtn",
+          "historyAddContributionBtn",
+        ].forEach((id) =>
+          document.getElementById(id)?.addEventListener("click", openModal),
+        );
+        ["closeContributionModal", "cancelContributionBtn"].forEach((id) =>
+          document.getElementById(id)?.addEventListener("click", closeModal),
+        );
+        const modal = document.getElementById("contributionModal");
+        modal.addEventListener("click", (event) => {
+          if (event.target === modal) closeModal();
+        });
+        document
+          .getElementById("closeRewardCelebration")
+          .addEventListener(
+            "click",
+            () => (document.getElementById("rewardCelebration").hidden = true),
+          );
+        document
+          .getElementById("rewardCelebration")
+          .addEventListener("click", (event) => {
+            if (event.target.id === "rewardCelebration")
+              event.currentTarget.hidden = true;
           });
-
-          if (res && res.success) {
-            showToast(`Recorded deposit of ₹${amount.toLocaleString('en-IN')}!`, 'success');
-            closeModal();
-            // Refresh view
-            await loadRewardsAndSavings();
-          } else {
-            throw new Error(res?.error || 'Failed to save contribution');
+        document
+          .getElementById("contribNote")
+          .addEventListener("input", (event) => {
+            document.getElementById("depositMessageCount").textContent =
+              event.target.value.length + " / 50";
+          });
+        document
+          .getElementById("contributionForm")
+          .addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const button = document.getElementById("saveContributionBtn"),
+              amount = Number(document.getElementById("contribAmount").value),
+              date = document.getElementById("contribDate").value,
+              message = document.getElementById("contribNote").value.trim();
+            if (!Number.isFinite(amount) || amount <= 0) {
+              showToast("Enter a positive deposit amount in rupees.", "error");
+              return;
+            }
+            if (message.length > 50) {
+              showToast(
+                "Deposit message must be 50 characters or fewer.",
+                "error",
+              );
+              return;
+            }
+            button.disabled = true;
+            button.textContent = "Saving…";
+            try {
+              activeSubmissionKey ||=
+                globalThis.crypto?.randomUUID?.() ||
+                `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+              const result = await api.post("/personal/savings/contribute", {
+                amount,
+                date,
+                message,
+                submissionKey: activeSubmissionKey,
+              });
+              if (!result?.success)
+                throw new Error(result?.error || "Deposit could not be saved.");
+              const transition = (result.newlyUnlockedRewards || []).find(
+                (reward) => ["trekking", "friends"].includes(reward.category),
+              );
+              showToast(
+                `Deposit #${result.deposit.serialNumber} saved.`,
+                "success",
+              );
+              closeModal();
+              await loadRewardsAndSavings();
+              if (transition) showRewardCelebration(transition);
+            } catch (error) {
+              showToast(error.message || "Unable to save deposit.", "error");
+            } finally {
+              button.disabled = false;
+              button.textContent = "Save Contribution";
+            }
+          });
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            modal.classList.add("hidden");
+            document.getElementById("rewardCelebration").hidden = true;
           }
-        } catch (err) {
-          console.error('Error recording savings contribution:', err);
-          showToast(err.message || 'Error recording contribution', 'error');
-        } finally {
-          saveBtn.disabled = false;
-          saveBtn.textContent = 'Save Contribution';
-        }
-      });
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    // Launch
-    window.addEventListener('DOMContentLoaded', init);
-  </script>
-</body>
+        });
+      }
+      init();
+    </script>
+  </body>
 </html>
