@@ -1,365 +1,817 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Focus Session — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <style>
-    .timer-display {
-      font-size: 5rem;
-      font-weight: 800;
-      color: var(--color-ink);
-      font-variant-numeric: tabular-nums;
-      line-height: 1;
-      margin: var(--space-6) 0;
-      letter-spacing: -0.04em;
-    }
-    .timer-card {
-      text-align: center;
-      padding: var(--space-12) var(--space-8);
-      max-width: 640px;
-      margin: 0 auto var(--space-8);
-    }
-  </style>
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">Deep Work & Focus Timer</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-        </div>
-      </header>
-
-      <div class="page-container">
-        <!-- Main Timer Card -->
-        <div class="card timer-card card-hero-wave">
-          <div class="text-xs" style="color: var(--accent-blue); font-weight: 800; letter-spacing: 0.1em;" id="sessionStatusBadge">
-            READY TO FOCUS
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Focus Session — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .timer-display {
+        font-size: 5rem;
+        font-weight: 800;
+        color: var(--color-ink);
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+        margin: var(--space-6) 0;
+        letter-spacing: -0.04em;
+      }
+      .timer-card {
+        text-align: center;
+        padding: var(--space-12) var(--space-8);
+        max-width: 640px;
+        margin: 0 auto var(--space-8);
+      }
+      .focus-history-filters,
+      .focus-history-pagination {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+      .focus-history-filters .btn.active {
+        background: var(--accent-blue);
+        border-color: var(--accent-blue);
+        color: #fff;
+      }
+      .focus-history-pagination {
+        justify-content: flex-end;
+        margin-top: var(--space-4);
+      }
+      .focus-history-pagination-label {
+        margin-right: auto;
+      }
+      .focus-reflection-dialog {
+        width: min(480px, calc(100% - 28px));
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-lg);
+        padding: var(--space-6);
+        background: var(--bg-elevated);
+        color: var(--text-ink);
+        box-shadow: var(--shadow-lg);
+      }
+      .focus-reflection-dialog::backdrop {
+        background: rgba(15, 23, 42, 0.48);
+        backdrop-filter: blur(3px);
+      }
+      .focus-reflection-dialog h2 {
+        margin-bottom: var(--space-2);
+      }
+      .focus-reflection-dialog p {
+        color: var(--text-muted);
+        font-size: var(--type-caption);
+      }
+      .reflection-counter {
+        color: var(--text-subtle);
+        font-size: var(--type-small);
+        text-align: right;
+        margin-top: var(--space-1);
+      }
+      .reflection-actions {
+        display: flex;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        margin-top: var(--space-4);
+      }
+      @media (max-width: 640px) {
+        .focus-history-filters {
+          width: 100%;
+        }
+        .focus-history-filters .btn {
+          flex: 1;
+        }
+      }
+      @media (max-width: 640px) {
+        .timer-card {
+          padding: var(--space-7) var(--space-4);
+          margin-bottom: var(--space-5);
+        }
+        .timer-display {
+          font-size: clamp(3.25rem, 16vw, 5rem);
+          margin: var(--space-5) 0;
+        }
+        .reflection-actions {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+        .reflection-actions .btn {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Deep Work & Focus Timer</div>
           </div>
-
-          <h2 id="sessionTitleDisplay" style="font-size: 1.5rem; margin-top: var(--space-2);">
-            No Active Session
-          </h2>
-
-          <div class="focus-completion-ripple-wrapper">
-            <div class="timer-display" id="timerClock">25:00</div>
-            <div id="rippleContainer" style="display: none;"></div>
+          <div class="topbar-right">
+            <div id="topbarFocusWidget"></div>
           </div>
+        </header>
 
-          <div class="sarthi-wave-container" aria-hidden="true">
-            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,50 C250,90 500,20 750,65 C1000,110 1100,30 1200,60 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.05)"></path>
-            </svg>
-            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,65 C200,30 400,85 700,45 C950,15 1100,70 1200,55 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.04)"></path>
-            </svg>
-          </div>
+        <div class="page-container">
+          <!-- Main Timer Card -->
+          <div class="card timer-card card-hero-wave">
+            <div
+              class="text-xs"
+              style="
+                color: var(--accent-blue);
+                font-weight: 800;
+                letter-spacing: 0.1em;
+              "
+              id="sessionStatusBadge"
+            >
+              READY TO FOCUS
+            </div>
 
-          <!-- Controls when inactive -->
-          <div id="inactiveControls" style="display: block;">
-            <div style="max-width: 380px; margin: 0 auto var(--space-6); text-align: left;">
-              <div class="form-group">
-                <label class="form-label">Focus Activity / Task Title</label>
-                <input type="text" id="focusTitleInput" class="form-input" placeholder="e.g. C++ Binary Trees or Chai aur Code DOM" required>
-              </div>
-              <div class="form-group">
-                <label class="form-label">Target Duration (Minutes)</label>
-                <div style="display: flex; gap: var(--space-2);">
-                  <button type="button" class="btn btn-outline btn-sm duration-btn" data-min="25">25m</button>
-                  <button type="button" class="btn btn-outline btn-sm duration-btn" data-min="45">45m</button>
-                  <button type="button" class="btn btn-outline btn-sm duration-btn" data-min="60">60m</button>
-                  <button type="button" class="btn btn-outline btn-sm duration-btn" data-min="90">90m</button>
-                  <input type="number" id="customDurationInput" class="form-input" value="25" min="5" style="width: 80px;">
+            <h2
+              id="sessionTitleDisplay"
+              style="font-size: 1.5rem; margin-top: var(--space-2)"
+            >
+              No Active Session
+            </h2>
+
+            <div class="focus-completion-ripple-wrapper">
+              <div class="timer-display" id="timerClock">25:00</div>
+              <div id="rippleContainer" style="display: none"></div>
+            </div>
+
+            <div class="sarthi-wave-container" aria-hidden="true">
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-1"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,50 C250,90 500,20 750,65 C1000,110 1100,30 1200,60 L1200,120 L0,120 Z"
+                  fill="rgba(29, 78, 216, 0.05)"
+                ></path>
+              </svg>
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-2"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,65 C200,30 400,85 700,45 C950,15 1100,70 1200,55 L1200,120 L0,120 Z"
+                  fill="rgba(5, 150, 105, 0.04)"
+                ></path>
+              </svg>
+            </div>
+
+            <!-- Controls when inactive -->
+            <div id="inactiveControls" style="display: block">
+              <div
+                style="
+                  max-width: 380px;
+                  margin: 0 auto var(--space-6);
+                  text-align: left;
+                "
+              >
+                <div class="form-group">
+                  <label class="form-label">Focus Activity / Task Title</label>
+                  <input
+                    type="text"
+                    id="focusTitleInput"
+                    class="form-input"
+                    placeholder="e.g. C++ Binary Trees or Chai aur Code DOM"
+                    required
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Target Duration (Minutes)</label>
+                  <div style="display: flex; gap: var(--space-2)">
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm duration-btn"
+                      data-min="25"
+                    >
+                      25m
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm duration-btn"
+                      data-min="45"
+                    >
+                      45m
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm duration-btn"
+                      data-min="60"
+                    >
+                      60m
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-outline btn-sm duration-btn"
+                      data-min="90"
+                    >
+                      90m
+                    </button>
+                    <input
+                      type="number"
+                      id="customDurationInput"
+                      class="form-input"
+                      value="25"
+                      min="5"
+                      style="width: 80px"
+                    />
+                  </div>
                 </div>
               </div>
+              <button
+                id="startTimerBtn"
+                class="btn btn-primary"
+                style="padding: 0.75rem 2.5rem; font-size: 1.125rem"
+              >
+                ▶ Begin Focus Session
+              </button>
             </div>
-            <button id="startTimerBtn" class="btn btn-primary" style="padding: 0.75rem 2.5rem; font-size: 1.125rem;">
-              ▶ Begin Focus Session
-            </button>
+
+            <!-- Controls when active or paused -->
+            <div id="activeControls" style="display: none">
+              <div
+                style="
+                  display: flex;
+                  justify-content: center;
+                  gap: var(--space-4);
+                "
+              >
+                <button
+                  id="pauseTimerBtn"
+                  class="btn btn-secondary"
+                  style="padding: 0.625rem 1.75rem"
+                >
+                  ⏸ Pause
+                </button>
+                <button
+                  id="resumeTimerBtn"
+                  class="btn btn-primary"
+                  style="padding: 0.625rem 1.75rem; display: none"
+                >
+                  ▶ Resume
+                </button>
+                <button
+                  id="completeTimerBtn"
+                  class="btn btn-outline"
+                  style="
+                    border-color: var(--color-success);
+                    color: var(--color-success);
+                    font-weight: 700;
+                  "
+                >
+                  ✓ Complete & Log
+                </button>
+                <button
+                  id="cancelTimerBtn"
+                  class="btn btn-outline"
+                  style="color: var(--color-danger)"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
 
-          <!-- Controls when active or paused -->
-          <div id="activeControls" style="display: none;">
-            <div style="display: flex; justify-content: center; gap: var(--space-4);">
-              <button id="pauseTimerBtn" class="btn btn-secondary" style="padding: 0.625rem 1.75rem;">
-                ⏸ Pause
+          <!-- Session History Table -->
+          <div class="card" style="max-width: 900px; margin: 0 auto">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Completed Focus History</div>
+                <div class="text-subtle text-sm" id="historyPeriodLabel">
+                  Last 30 days
+                </div>
+              </div>
+              <div class="text-subtle text-sm" id="totalFocusMinutes">
+                - min total
+              </div>
+            </div>
+            <div
+              class="focus-history-filters"
+              role="group"
+              aria-label="Focus history period"
+            >
+              <button
+                class="btn btn-outline btn-sm"
+                type="button"
+                data-history-period="7d"
+                aria-pressed="false"
+              >
+                Last 7 days
               </button>
-              <button id="resumeTimerBtn" class="btn btn-primary" style="padding: 0.625rem 1.75rem; display: none;">
-                ▶ Resume
+              <button
+                class="btn btn-outline btn-sm active"
+                type="button"
+                data-history-period="30d"
+                aria-pressed="true"
+              >
+                Last 30 days
               </button>
-              <button id="completeTimerBtn" class="btn btn-outline" style="border-color: var(--color-success); color: var(--color-success); font-weight: 700;">
-                ✓ Complete & Log
+              <button
+                class="btn btn-outline btn-sm"
+                type="button"
+                data-history-period="year"
+                aria-pressed="false"
+              >
+                Last year
               </button>
-              <button id="cancelTimerBtn" class="btn btn-outline" style="color: var(--color-danger);">
-                Cancel
+              <button
+                class="btn btn-outline btn-sm"
+                type="button"
+                data-history-period="older"
+                aria-pressed="false"
+              >
+                Older
+              </button>
+            </div>
+            <div class="table-container">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Session Activity</th>
+                    <th>Actual Duration</th>
+                    <th>Target</th>
+                    <th>Completed</th>
+                    <th>Reflection</th>
+                  </tr>
+                </thead>
+                <tbody id="historyTbody">
+                  <tr>
+                    <td colspan="5" style="text-align: center">
+                      Loading history...
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div
+              class="focus-history-pagination"
+              aria-label="Focus history pages"
+            >
+              <span
+                id="historyRangeLabel"
+                class="focus-history-pagination-label text-subtle text-sm"
+                >—</span
+              >
+              <button
+                class="btn btn-outline btn-sm"
+                id="historyPreviousBtn"
+                type="button"
+                disabled
+              >
+                Previous
+              </button>
+              <button
+                class="btn btn-outline btn-sm"
+                id="historyNextBtn"
+                type="button"
+                disabled
+              >
+                Next
               </button>
             </div>
           </div>
         </div>
+      </main>
+    </div>
 
-        <!-- Session History Table -->
-        <div class="card" style="max-width: 800px; margin: 0 auto;">
-          <div class="card-header">
-            <div class="card-title">Recent Completed Focus Sessions</div>
-            <div class="text-subtle text-sm" id="totalFocusMinutes">- min total</div>
-          </div>
-          <div class="table-container">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th>Session Activity</th>
-                  <th>Actual Duration</th>
-                  <th>Target</th>
-                  <th>Date & Time</th>
-                </tr>
-              </thead>
-              <tbody id="historyTbody">
-                <tr><td colspan="4" style="text-align: center;">Loading history...</td></tr>
-              </tbody>
-            </table>
-          </div>
+    <dialog
+      id="reflectionDialog"
+      class="focus-reflection-dialog"
+      aria-labelledby="reflectionDialogTitle"
+    >
+      <form id="reflectionForm">
+        <h2 id="reflectionDialogTitle">Save a quick reflection</h2>
+        <p>
+          Capture one useful thought from this session. You can also log it
+          without a note.
+        </p>
+        <label class="form-label" for="reflectionInput"
+          >Reflection · optional</label
+        >
+        <textarea
+          id="reflectionInput"
+          class="form-input"
+          rows="3"
+          maxlength="100"
+          placeholder="What stood out? (100 characters max)"
+        ></textarea>
+        <div
+          id="reflectionCounter"
+          class="reflection-counter"
+          aria-live="polite"
+        >
+          0/100
         </div>
-      </div>
-    </main>
-  </div>
+        <div class="reflection-actions">
+          <button
+            class="btn btn-outline btn-sm"
+            id="skipReflectionBtn"
+            type="button"
+          >
+            Log without reflection
+          </button>
+          <button
+            class="btn btn-primary btn-sm"
+            id="saveReflectionBtn"
+            type="submit"
+          >
+            Save & complete
+          </button>
+        </div>
+      </form>
+    </dialog>
 
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { formatMinutes, formatTime12 } from '../assets/js/utils.js';
-    import { showToast } from '../assets/js/toast.js';
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import { renderLayout } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { formatMinutes, formatTime12 } from "../assets/js/utils.js";
+      import { showToast } from "../assets/js/toast.js";
 
-    let activeSession = null;
-    let timerInterval = null;
-    let linkedTaskId = null;
+      let activeSession = null;
+      let timerInterval = null;
+      let linkedTaskId = null;
+      let historyPeriod = "30d";
+      let historyPage = 1;
+      const historyLimit = 20;
 
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-      renderLayout('focus');
+      async function init() {
+        const user = await checkAuth();
+        if (!user) return;
+        renderLayout("focus");
 
-      // Check query params if redirected from a specific task or learning track
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('title')) {
-        document.getElementById('focusTitleInput').value = params.get('title');
-      }
-      if (params.get('taskId')) {
-        linkedTaskId = params.get('taskId');
-        if (!params.get('title')) {
-          document.getElementById('focusTitleInput').value = 'Task execution';
+        // Check query params if redirected from a specific task or learning track
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("title")) {
+          document.getElementById("focusTitleInput").value =
+            params.get("title");
         }
-      }
-
-      await checkActiveSession();
-      await loadHistory();
-      setupEvents();
-    }
-
-    async function checkActiveSession() {
-      try {
-        const res = await api.get('/focus/active');
-        if (res.active && res.session) {
-          activeSession = res.session;
-          renderActiveState();
-        } else {
-          renderInactiveState();
-        }
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
-    }
-
-    function renderActiveState() {
-      document.getElementById('inactiveControls').style.display = 'none';
-      document.getElementById('activeControls').style.display = 'block';
-
-      document.getElementById('sessionTitleDisplay').textContent = activeSession.title;
-      const isPaused = activeSession.status === 'paused';
-
-      document.getElementById('sessionStatusBadge').textContent = isPaused ? 'SESSION PAUSED' : 'FOCUS IN PROGRESS';
-      document.getElementById('sessionStatusBadge').style.color = isPaused ? 'var(--color-warning)' : 'var(--color-primary)';
-
-      document.getElementById('pauseTimerBtn').style.display = isPaused ? 'none' : 'inline-flex';
-      document.getElementById('resumeTimerBtn').style.display = isPaused ? 'inline-flex' : 'none';
-
-      startLocalClock();
-    }
-
-    function renderInactiveState() {
-      if (timerInterval) clearInterval(timerInterval);
-      document.getElementById('inactiveControls').style.display = 'block';
-      document.getElementById('activeControls').style.display = 'none';
-      document.getElementById('sessionStatusBadge').textContent = 'READY TO FOCUS';
-      document.getElementById('sessionStatusBadge').style.color = 'var(--color-primary)';
-      document.getElementById('sessionTitleDisplay').textContent = 'No Active Session';
-      document.getElementById('timerClock').textContent = '25:00';
-    }
-
-    function startLocalClock() {
-      if (timerInterval) clearInterval(timerInterval);
-
-      function update() {
-        if (!activeSession) return;
-        const now = new Date();
-        const start = new Date(activeSession.startTime);
-        
-        let totalElapsedMs = now - start;
-        for (const p of (activeSession.pauses || [])) {
-          if (p.pausedAt) {
-            const res = p.resumedAt ? new Date(p.resumedAt) : (activeSession.status === 'paused' ? now : new Date(p.pausedAt));
-            totalElapsedMs -= (res - new Date(p.pausedAt));
+        if (params.get("taskId")) {
+          linkedTaskId = params.get("taskId");
+          if (!params.get("title")) {
+            document.getElementById("focusTitleInput").value = "Task execution";
           }
         }
 
-        const elapsedSec = Math.max(0, Math.floor(totalElapsedMs / 1000));
-        const targetSec = (activeSession.targetMinutes || 25) * 60;
-        const remainingSec = Math.max(0, targetSec - elapsedSec);
-
-        const m = Math.floor(remainingSec / 60);
-        const s = remainingSec % 60;
-        document.getElementById('timerClock').textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        await checkActiveSession();
+        await loadHistory();
+        setupEvents();
       }
 
-      update();
-      if (activeSession.status === 'active') {
-        timerInterval = setInterval(update, 1000);
-      }
-    }
-
-    function setupEvents() {
-      document.querySelectorAll('.duration-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.getElementById('customDurationInput').value = btn.dataset.min;
-        });
-      });
-
-      document.getElementById('startTimerBtn').addEventListener('click', async () => {
-        const title = document.getElementById('focusTitleInput').value.trim() || 'Unassigned Focus Session';
-        const targetMinutes = Number(document.getElementById('customDurationInput').value) || 25;
-
+      async function checkActiveSession() {
         try {
-          const res = await api.post('/focus/start', {
-            title,
-            targetMinutes,
-            taskId: linkedTaskId
+          const res = await api.get("/focus/active");
+          if (res.active && res.session) {
+            activeSession = res.session;
+            renderActiveState();
+          } else {
+            renderInactiveState();
+          }
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      }
+
+      function renderActiveState() {
+        document.getElementById("inactiveControls").style.display = "none";
+        document.getElementById("activeControls").style.display = "block";
+
+        document.getElementById("sessionTitleDisplay").textContent =
+          activeSession.title;
+        const isPaused = activeSession.status === "paused";
+
+        document.getElementById("sessionStatusBadge").textContent = isPaused
+          ? "SESSION PAUSED"
+          : "FOCUS IN PROGRESS";
+        document.getElementById("sessionStatusBadge").style.color = isPaused
+          ? "var(--color-warning)"
+          : "var(--color-primary)";
+
+        document.getElementById("pauseTimerBtn").style.display = isPaused
+          ? "none"
+          : "inline-flex";
+        document.getElementById("resumeTimerBtn").style.display = isPaused
+          ? "inline-flex"
+          : "none";
+
+        startLocalClock();
+      }
+
+      function renderInactiveState() {
+        if (timerInterval) clearInterval(timerInterval);
+        document.getElementById("inactiveControls").style.display = "block";
+        document.getElementById("activeControls").style.display = "none";
+        document.getElementById("sessionStatusBadge").textContent =
+          "READY TO FOCUS";
+        document.getElementById("sessionStatusBadge").style.color =
+          "var(--color-primary)";
+        document.getElementById("sessionTitleDisplay").textContent =
+          "No Active Session";
+        document.getElementById("timerClock").textContent = "25:00";
+      }
+
+      function startLocalClock() {
+        if (timerInterval) clearInterval(timerInterval);
+
+        function update() {
+          if (!activeSession) return;
+          const now = new Date();
+          const start = new Date(activeSession.startTime);
+
+          let totalElapsedMs = now - start;
+          for (const p of activeSession.pauses || []) {
+            if (p.pausedAt) {
+              const res = p.resumedAt
+                ? new Date(p.resumedAt)
+                : activeSession.status === "paused"
+                  ? now
+                  : new Date(p.pausedAt);
+              totalElapsedMs -= res - new Date(p.pausedAt);
+            }
+          }
+
+          const elapsedSec = Math.max(0, Math.floor(totalElapsedMs / 1000));
+          const targetSec = (activeSession.targetMinutes || 25) * 60;
+          const remainingSec = Math.max(0, targetSec - elapsedSec);
+
+          const m = Math.floor(remainingSec / 60);
+          const s = remainingSec % 60;
+          document.getElementById("timerClock").textContent =
+            `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        }
+
+        update();
+        if (activeSession.status === "active") {
+          timerInterval = setInterval(update, 1000);
+        }
+      }
+
+      function setupEvents() {
+        document.querySelectorAll(".duration-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById("customDurationInput").value =
+              btn.dataset.min;
+          });
+        });
+
+        document
+          .getElementById("startTimerBtn")
+          .addEventListener("click", async () => {
+            const title =
+              document.getElementById("focusTitleInput").value.trim() ||
+              "Unassigned Focus Session";
+            const targetMinutes =
+              Number(document.getElementById("customDurationInput").value) ||
+              25;
+
+            try {
+              const res = await api.post("/focus/start", {
+                title,
+                targetMinutes,
+                taskId: linkedTaskId,
+              });
+
+              if (res.success && res.session) {
+                activeSession = res.session;
+                showToast(
+                  "Focus session started! Deep work begins now.",
+                  "success",
+                );
+                renderActiveState();
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
           });
 
-          if (res.success && res.session) {
-            activeSession = res.session;
-            showToast('Focus session started! Deep work begins now.', 'success');
-            renderActiveState();
-          }
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
-      });
+        document
+          .getElementById("pauseTimerBtn")
+          .addEventListener("click", async () => {
+            try {
+              const res = await api.post("/focus/pause", {});
+              if (res.success && res.session) {
+                activeSession = res.session;
+                renderActiveState();
+                showToast("Session paused.");
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
 
-      document.getElementById('pauseTimerBtn').addEventListener('click', async () => {
-        try {
-          const res = await api.post('/focus/pause', {});
-          if (res.success && res.session) {
-            activeSession = res.session;
-            renderActiveState();
-            showToast('Session paused.');
-          }
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
-      });
+        document
+          .getElementById("resumeTimerBtn")
+          .addEventListener("click", async () => {
+            try {
+              const res = await api.post("/focus/resume", {});
+              if (res.success && res.session) {
+                activeSession = res.session;
+                renderActiveState();
+                showToast("Session resumed.");
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
 
-      document.getElementById('resumeTimerBtn').addEventListener('click', async () => {
-        try {
-          const res = await api.post('/focus/resume', {});
-          if (res.success && res.session) {
-            activeSession = res.session;
-            renderActiveState();
-            showToast('Session resumed.');
-          }
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
-      });
-
-      function triggerCompletionRipple() {
-        const container = document.getElementById('rippleContainer');
-        if (!container) return;
-        container.style.display = 'block';
-        container.innerHTML = `
+        function triggerCompletionRipple() {
+          const container = document.getElementById("rippleContainer");
+          if (!container) return;
+          container.style.display = "block";
+          container.innerHTML = `
           <div class="focus-completion-ripple"></div>
           <div class="focus-completion-ripple delayed"></div>
         `;
-        setTimeout(() => {
-          container.style.display = 'none';
-          container.innerHTML = '';
-        }, 2200);
+          setTimeout(() => {
+            container.style.display = "none";
+            container.innerHTML = "";
+          }, 2200);
+        }
+
+        document
+          .getElementById("completeTimerBtn")
+          .addEventListener("click", async () => {
+            document.getElementById("reflectionInput").value = "";
+            document.getElementById("reflectionCounter").textContent = "0/100";
+            document.getElementById("reflectionDialog").showModal();
+            document.getElementById("reflectionInput").focus();
+          });
+
+        document
+          .getElementById("reflectionInput")
+          .addEventListener("input", (event) => {
+            document.getElementById("reflectionCounter").textContent =
+              `${event.target.value.length}/100`;
+          });
+
+        async function completeActiveSession(notes) {
+          const saveButton = document.getElementById("saveReflectionBtn");
+          const skipButton = document.getElementById("skipReflectionBtn");
+          saveButton.disabled = true;
+          skipButton.disabled = true;
+          try {
+            const res = await api.post("/focus/complete", { notes });
+            if (res.success) {
+              document.getElementById("reflectionDialog").close();
+              triggerCompletionRipple();
+              showToast(res.message, "success");
+              activeSession = null;
+              renderInactiveState();
+              await loadHistory();
+            }
+          } catch (err) {
+            showToast(err.message, "error");
+          } finally {
+            saveButton.disabled = false;
+            skipButton.disabled = false;
+          }
+        }
+
+        document
+          .getElementById("reflectionForm")
+          .addEventListener("submit", async (event) => {
+            event.preventDefault();
+            await completeActiveSession(
+              document.getElementById("reflectionInput").value,
+            );
+          });
+        document
+          .getElementById("skipReflectionBtn")
+          .addEventListener("click", () => completeActiveSession(""));
+
+        document.querySelectorAll("[data-history-period]").forEach((button) => {
+          button.addEventListener("click", () => {
+            historyPeriod = button.dataset.historyPeriod;
+            historyPage = 1;
+            document
+              .querySelectorAll("[data-history-period]")
+              .forEach((item) => {
+                const active = item === button;
+                item.classList.toggle("active", active);
+                item.setAttribute("aria-pressed", String(active));
+              });
+            loadHistory();
+          });
+        });
+        document
+          .getElementById("historyPreviousBtn")
+          .addEventListener("click", () => {
+            if (historyPage > 1) {
+              historyPage--;
+              loadHistory();
+            }
+          });
+        document
+          .getElementById("historyNextBtn")
+          .addEventListener("click", () => {
+            historyPage++;
+            loadHistory();
+          });
+
+        document
+          .getElementById("cancelTimerBtn")
+          .addEventListener("click", async () => {
+            if (
+              !confirm(
+                "Cancel this focus session? Elapsed time will not be logged.",
+              )
+            )
+              return;
+            try {
+              await api.post("/focus/cancel", {});
+              activeSession = null;
+              renderInactiveState();
+              showToast("Focus session cancelled.");
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
       }
 
-      document.getElementById('completeTimerBtn').addEventListener('click', async () => {
-        const notes = prompt('Any brief reflection or session note? (Optional)') || '';
+      async function loadHistory() {
         try {
-          const res = await api.post('/focus/complete', { notes });
-          if (res.success) {
-            triggerCompletionRipple();
-            showToast(res.message, 'success');
-            activeSession = null;
-            renderInactiveState();
-            await loadHistory();
+          const res = await api.get("/focus/history", {
+            period: historyPeriod,
+            page: historyPage,
+            limit: historyLimit,
+          });
+          if (!res.success) return;
+
+          document.getElementById("totalFocusMinutes").textContent =
+            `${formatMinutes(res.totalMinutes)} total focus time`;
+          const labels = {
+            "7d": "Last 7 days",
+            "30d": "Last 30 days",
+            year: "Last year",
+            older: "Older than a year",
+          };
+          document.getElementById("historyPeriodLabel").textContent =
+            labels[historyPeriod];
+
+          const tbody = document.getElementById("historyTbody");
+          if (res.sessions.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--color-muted);">No completed sessions in ${labels[historyPeriod].toLowerCase()}.</td></tr>`;
+            updateHistoryPagination(res.pagination);
+            return;
           }
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
-      });
 
-      document.getElementById('cancelTimerBtn').addEventListener('click', async () => {
-        if (!confirm('Cancel this focus session? Elapsed time will not be logged.')) return;
-        try {
-          await api.post('/focus/cancel', {});
-          activeSession = null;
-          renderInactiveState();
-          showToast('Focus session cancelled.');
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
-      });
-    }
-
-    async function loadHistory() {
-      try {
-        const res = await api.get('/focus/history');
-        if (!res.success) return;
-
-        document.getElementById('totalFocusMinutes').textContent = `${formatMinutes(res.totalMinutes)} total focus time`;
-
-        const tbody = document.getElementById('historyTbody');
-        if (res.sessions.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--color-muted);">No focus sessions completed yet.</td></tr>';
-          return;
-        }
-
-        tbody.innerHTML = res.sessions.map(s => `
+          const escapeHtml = (value) =>
+            String(value ?? "").replace(
+              /[&<>"']/g,
+              (char) =>
+                ({
+                  "&": "&amp;",
+                  "<": "&lt;",
+                  ">": "&gt;",
+                  '"': "&quot;",
+                  "'": "&#39;",
+                })[char],
+            );
+          tbody.innerHTML = res.sessions
+            .map((s) => {
+              const completedAt = new Date(s.endTime || s.createdAt);
+              return `
           <tr>
-            <td style="font-weight: 600;">${s.title}</td>
+            <td style="font-weight: 600;">${escapeHtml(s.title)}</td>
             <td><strong style="color: var(--color-primary);">${s.actualMinutes}m</strong></td>
             <td>${s.targetMinutes}m</td>
-            <td class="text-subtle text-xs">${new Date(s.createdAt).toLocaleDateString()} ${formatTime12(s.createdAt)}</td>
+            <td class="text-subtle text-xs">${completedAt.toLocaleDateString()} ${formatTime12(completedAt)}</td>
+            <td>${escapeHtml(s.notes || "—")}</td>
           </tr>
-        `).join('');
-      } catch (err) {}
-    }
+        `;
+            })
+            .join("");
+          updateHistoryPagination(res.pagination);
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      }
 
-    init();
-  </script>
-</body>
+      function updateHistoryPagination(pagination) {
+        if (!pagination) return;
+        document.getElementById("historyRangeLabel").textContent =
+          pagination.total
+            ? `Showing ${pagination.start}–${pagination.end} of ${pagination.total}`
+            : "No sessions";
+        document.getElementById("historyPreviousBtn").disabled =
+          !pagination.hasPrevious;
+        document.getElementById("historyNextBtn").disabled =
+          !pagination.hasNext;
+        historyPage = pagination.page;
+      }
+
+      init();
+    </script>
+  </body>
 </html>
