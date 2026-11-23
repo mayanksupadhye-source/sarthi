@@ -8,6 +8,7 @@ import { Habit } from '../models/Habit.js';
 import { Reward } from '../models/Reward.js';
 import { SavingsEntry } from '../models/SavingsEntry.js';
 import { Setting } from '../models/Setting.js';
+import { removeJournalHistorySchedule } from './journalScheduleMigration.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -264,7 +265,7 @@ export function getDefaultTimetableTemplates(userId) {
     {
       userId,
       dayType: 'saturday',
-      title: 'Saturday Development & History Schedule',
+      title: 'Saturday Development Schedule',
       isDefault: false,
       blocks: [
         { blockId: 'sat-1', label: 'Getting ready', startTime: '05:00', endTime: '05:30', durationMinutes: 30, category: 'routine', isProtected: true },
@@ -272,7 +273,6 @@ export function getDefaultTimetableTemplates(userId) {
         { blockId: 'sat-3', label: 'Daytime commitment / travel / college', startTime: '07:30', endTime: '16:30', durationMinutes: 540, category: 'college', isProtected: true },
         { blockId: 'sat-4', label: 'Web Development Deep Work', startTime: '17:00', endTime: '19:30', durationMinutes: 150, category: 'webdev', isProtected: false },
         { blockId: 'sat-5', label: 'Dinner', startTime: '19:30', endTime: '20:30', durationMinutes: 60, category: 'routine', isProtected: true },
-        { blockId: 'sat-6', label: 'History lecture / study notes', startTime: '20:30', endTime: '22:30', durationMinutes: 120, category: 'study', isProtected: false },
         { blockId: 'sat-7', label: 'Night routine', startTime: '22:30', endTime: '23:40', durationMinutes: 70, category: 'routine', isProtected: true },
         { blockId: 'sat-8', label: 'Protected Sleep Window', startTime: '23:40', endTime: '05:00', durationMinutes: 320, category: 'rest', isProtected: true }
       ]
@@ -308,6 +308,24 @@ export function getDefaultTimetableTemplates(userId) {
         { blockId: 'ex-7', label: 'Formula & Summary Recall IV', startTime: '19:30', endTime: '22:00', durationMinutes: 150, category: 'study', isProtected: true },
         { blockId: 'ex-8', label: 'Sleep & Memory Consolidation', startTime: '22:30', endTime: '06:00', durationMinutes: 450, category: 'rest', isProtected: true }
       ]
+    },
+    {
+      userId,
+      dayType: 'holiday',
+      title: 'Complete Holiday / Preparation Leave Schedule',
+      isDefault: false,
+      blocks: [
+        { blockId: 'hol-1', label: 'Morning Wakeup & Routine', startTime: '06:00', endTime: '07:00', durationMinutes: 60, category: 'routine', isProtected: true },
+        { blockId: 'hol-2', label: 'Deep Focus Session I (Core Learning / DSA)', startTime: '07:00', endTime: '10:00', durationMinutes: 180, category: 'study', isProtected: false },
+        { blockId: 'hol-3', label: 'Breakfast & Rest', startTime: '10:00', endTime: '11:00', durationMinutes: 60, category: 'routine', isProtected: true },
+        { blockId: 'hol-4', label: 'Deep Focus Session II (Web Dev / Projects)', startTime: '11:00', endTime: '14:00', durationMinutes: 180, category: 'webdev', isProtected: false },
+        { blockId: 'hol-5', label: 'Lunch & Power Nap', startTime: '14:00', endTime: '15:30', durationMinutes: 90, category: 'rest', isProtected: true },
+        { blockId: 'hol-6', label: 'Secondary Skills & Problem Solving III', startTime: '15:30', endTime: '17:30', durationMinutes: 120, category: 'study', isProtected: false },
+        { blockId: 'hol-7', label: 'Gym, Outdoor Activity & Dinner', startTime: '17:30', endTime: '20:00', durationMinutes: 150, category: 'gym', isProtected: false },
+        { blockId: 'hol-8', label: 'Review, Reading & Next Day Setup', startTime: '20:00', endTime: '22:30', durationMinutes: 150, category: 'study', isProtected: false },
+        { blockId: 'hol-9', label: 'Night Routine', startTime: '22:30', endTime: '23:40', durationMinutes: 70, category: 'routine', isProtected: true },
+        { blockId: 'hol-10', label: 'Protected Sleep Window', startTime: '23:40', endTime: '06:00', durationMinutes: 380, category: 'rest', isProtected: true }
+      ]
     }
   ];
 }
@@ -323,11 +341,11 @@ export async function seedUserData(userId) {
       await Setting.create({
         userId,
         timezone: 'Asia/Kolkata',
-        startingWeightKg: 88,
+        startingWeightKg: 90,
         targetWeightKg: 73,
-        monthlySlackDayAllowance: 4,
+        monthlySlackDayAllowance: 3,
         dailyMaxWorkMinutes: 480,
-        savingsTargetAmount: 4000
+        savingsTargetAmount: 5000
       });
     }
 
@@ -337,44 +355,21 @@ export async function seedUserData(userId) {
       const templates = getDefaultTimetableTemplates(userId);
       await ScheduleTemplate.insertMany(templates);
     }
+    await removeJournalHistorySchedule(userId);
 
-    // 3. Courses: Web Dev & DSA
-    const webDevData = parseWebDevMarkdown();
-    if (webDevData) {
-      const existingWeb = await Course.findOne({ userId, slug: 'web-dev' });
-      if (!existingWeb) {
-        const c = new Course({ ...webDevData, userId });
-        c.recalculateProgress();
-        await c.save();
-      }
-    }
-
-    const dsaData = parseDSAMarkdown();
-    if (dsaData) {
-      const existingDsa = await Course.findOne({ userId, slug: 'dsa' });
-      if (!existingDsa) {
-        const c = new Course({ ...dsaData, userId });
-        c.recalculateProgress();
-        await c.save();
-      }
-    }
-
-    // 4. Oratory Weeks (1 to 13)
-    const existingOratory = await OratoryWeek.find({ userId });
-    if (existingOratory.length === 0) {
-      const weeks = getOratoryWeeksSeed().map(w => ({ ...w, userId }));
-      await OratoryWeek.insertMany(weeks);
-    }
-
-    // 5. Default Habits
+    // 3. Default Habits (Routines & Night Habits)
     const existingHabits = await Habit.find({ userId });
     if (existingHabits.length === 0) {
       const defaultHabits = [
         { userId, title: 'No phone during night routine', category: 'night-routine', timeOfDay: 'night', frequency: 'daily' },
         { userId, title: 'Learn 5 new English words', category: 'night-routine', timeOfDay: 'night', frequency: 'daily' },
-        { userId, title: '15-min Meditation & Mindful Breathing', category: 'night-routine', timeOfDay: 'night', frequency: 'daily' },
-        { userId, title: 'Business reading (SPIN Selling / Influence)', category: 'learning', timeOfDay: 'night', frequency: 'daily' },
-        { userId, title: '10-min Journal & Daily Reflection', category: 'routine', timeOfDay: 'night', frequency: 'daily' },
+        { userId, title: 'Brush teeth', category: 'night-routine', timeOfDay: 'night', frequency: 'daily' },
+        { userId, title: 'Wash face', category: 'night-routine', timeOfDay: 'night', frequency: 'daily' },
+        { userId, title: 'Apply niacinamide serum', category: 'night-routine', timeOfDay: 'night', frequency: 'daily' },
+        { userId, title: 'Meditation — 15 minutes', category: 'night-routine', timeOfDay: 'night', frequency: 'daily' },
+        { userId, title: 'Five pranayams', category: 'night-routine', timeOfDay: 'night', frequency: 'daily' },
+        { userId, title: 'Book reading — 35 minutes', category: 'night-routine', timeOfDay: 'night', frequency: 'daily' },
+        { userId, title: 'Journaling — 10 minutes', category: 'night-routine', timeOfDay: 'night', frequency: 'daily' },
         { userId, title: 'No-Sugar Challenge check-in', category: 'no-sugar', timeOfDay: 'anytime', frequency: 'daily' }
       ];
       await Habit.insertMany(defaultHabits);
@@ -385,8 +380,8 @@ export async function seedUserData(userId) {
     if (!existingSavings) {
       await SavingsEntry.create({
         userId,
-        goalTitle: 'Mountain Trekking / 20th Birthday Celebration (₹4,000)',
-        targetAmount: 4000,
+        goalTitle: 'Mountain Trekking Expedition Savings Goal (₹5,000)',
+        targetAmount: 5000,
         contributions: []
       });
     }
@@ -394,9 +389,9 @@ export async function seedUserData(userId) {
     const existingRewards = await Reward.find({ userId });
     if (existingRewards.length === 0) {
       const defaultRewards = [
-        { userId, title: 'Marvel Movie Night', description: 'Enjoy a Marvel movie guilt-free after 5 consistent execution days.', category: 'movie', unlockCriteria: '5 days of >=80% planned task completion' },
-        { userId, title: 'Mountain Trekking Expedition', description: 'Celebrate 20th birthday with a mountain trek.', category: 'trekking', unlockCriteria: 'Complete savings goal (₹4,000) and finish 50+ DSA & 100+ WebDev lectures' },
-        { userId, title: 'Favourite Treat with Friends', description: 'Unwind on Sunday evening with friends.', category: 'friends', unlockCriteria: 'Complete Sunday Oratory and weekly academic assignments' }
+        { userId, title: 'Marvel Movie Night', description: 'A free movie night earned through a two-week execution challenge.', category: 'movie', unlockCriteria: '14 consecutive calendar days with actual task completion, plus five planned-task days at 85% or better.', priceINR: 0 },
+        { userId, title: 'Mountain Trekking Expedition', description: 'Celebrate your 20th birthday with a mountain trek.', category: 'trekking', unlockCriteria: 'Reach the ₹5,000 savings goal.', priceINR: 5000, goalAmount: 5000 },
+        { userId, title: 'Favorite Treat with Friends', description: 'Enjoy your favorite treat with friends on Sunday evening.', category: 'friends', unlockCriteria: 'Record a saved weight of 85.5 kg or lower from the 90 kg baseline.', priceINR: 0, unlockWeightKg: 85.5 }
       ];
       await Reward.insertMany(defaultRewards);
     }

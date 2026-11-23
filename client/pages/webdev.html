@@ -1,175 +1,444 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Web Development Tracker — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <style>
-    .section-accordion {
-      background-color: var(--color-bg-paper);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      margin-bottom: var(--space-4);
-      overflow: hidden;
-      transition: all var(--transition-fast);
-      box-shadow: var(--shadow-sm);
-    }
-    .section-card:hover {
-      border-color: #94A3B8;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-    }
-    .section-header {
-      padding: var(--space-4) var(--space-5);
-      background-color: var(--color-bg-base);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--color-border);
-      transition: background-color var(--transition-fast);
-    }
-    .section-header:hover {
-      background-color: var(--color-bg-subtle);
-    }
-    .lecture-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--space-3) var(--space-5);
-      border-bottom: 1px solid var(--color-border);
-      font-size: 0.875rem;
-      transition: background-color var(--transition-fast);
-    }
-    .lecture-item:hover {
-      background-color: rgba(241, 245, 249, 0.6);
-    }
-    .lecture-item:last-child {
-      border-bottom: none;
-    }
-  </style>
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">Web Development — Chai aur Code</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-        </div>
-      </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Development Tracker — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .section-accordion {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-4);
+        overflow: hidden;
+        transition: all var(--transition-fast);
+        box-shadow: var(--shadow-sm);
+      }
+      .section-accordion:hover {
+        border-color: #94a3b8;
+        box-shadow: var(--shadow-md);
+      }
+      .section-header {
+        padding: var(--space-4) var(--space-5);
+        background-color: var(--bg-canvas);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border-hairline);
+        transition: background-color var(--transition-fast);
+      }
+      .section-header:hover {
+        background-color: var(--bg-subtle);
+      }
+      .lecture-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-3) var(--space-5);
+        border-bottom: 1px solid var(--border-hairline);
+        font-size: 0.875rem;
+        transition: background-color var(--transition-fast);
+      }
+      .lecture-item:hover {
+        background-color: var(--bg-subtle);
+      }
+      .lecture-item:last-child {
+        border-bottom: none;
+      }
+      .csv-preview-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8125rem;
+        margin-top: var(--space-3);
+      }
+      .csv-preview-table th,
+      .csv-preview-table td {
+        border: 1px solid var(--border-hairline);
+        padding: var(--space-2) var(--space-3);
+        text-align: left;
+      }
+      .csv-preview-table th {
+        background-color: var(--bg-subtle);
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Web Development — Chai aur Code</div>
+          </div>
+          <div class="topbar-right">
+            <div id="topbarFocusWidget"></div>
+          </div>
+        </header>
 
-      <div class="page-container">
-        <!-- Progress Summary Card with Logic Wave -->
-        <div class="card card-hero-wave wave-motif-logic" style="margin-bottom: var(--space-6);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-4);">
+        <div class="page-container">
+          <!-- Progress Summary Card with Logic Wave -->
+          <div
+            class="card card-hero-wave wave-motif-logic"
+            style="margin-bottom: var(--space-6)"
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: var(--space-4);
+                flex-wrap: wrap;
+                gap: var(--space-4);
+              "
+            >
+              <div>
+                <span
+                  class="badge badge-primary"
+                  style="
+                    margin-bottom: var(--space-2);
+                    background: rgba(37, 99, 235, 0.12);
+                    color: #2563eb;
+                  "
+                  >FULL-STACK BLUEPRINT</span
+                >
+                <h2 style="font-size: 1.25rem">
+                  Chai aur Code — Complete Web Development
+                </h2>
+                <p class="text-subtle text-sm">
+                  36 Sections · 331 Total Lectures · Active Code Practice (1.6×
+                  Multiplier)
+                </p>
+              </div>
+              <div
+                style="display: flex; align-items: center; gap: var(--space-4)"
+              >
+                <div style="text-align: right">
+                  <div
+                    style="font-size: 1.5rem; font-weight: 800; color: #2563eb"
+                    id="courseProgressVal"
+                  >
+                    0 / 331
+                  </div>
+                  <div class="text-subtle text-xs" id="courseTimeRemaining">
+                    -
+                  </div>
+                </div>
+                <button class="btn btn-outline btn-sm" id="btnOpenImportModal">
+                  📥 Import CSV
+                </button>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                id="courseProgressBar"
+                style="width: 0%; background: #2563eb"
+              ></div>
+            </div>
+            <div class="sarthi-wave-container" aria-hidden="true">
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-1"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,120 L0,120 Z"
+                  fill="rgba(37, 99, 235, 0.08)"
+                ></path>
+              </svg>
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-2"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,70 Q200,40 400,70 T800,70 T1200,70 L1200,120 L0,120 Z"
+                  fill="rgba(5, 150, 105, 0.05)"
+                ></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Sections Container -->
+          <div id="sectionsContainer">
+            <p class="text-muted text-sm">Loading course curriculum...</p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Universal CSV Syllabus Importer Modal -->
+    <div class="modal-backdrop hidden" id="importModalBackdrop">
+      <div class="modal-box" style="max-width: 680px; width: 100%">
+        <div
+          class="modal-header"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+          "
+        >
+          <div>
+            <h3 class="modal-title" style="margin: 0; font-size: 1.125rem">
+              Universal Curriculum Importer
+            </h3>
+            <div class="text-subtle text-xs">
+              Import or update course syllabus via CSV spreadsheet
+            </div>
+          </div>
+          <button
+            class="block-btn-icon"
+            id="btnCloseImportModal"
+            style="font-size: 1.25rem"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: var(--space-3)">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              background: var(--bg-subtle);
+              padding: var(--space-3);
+              border-radius: var(--radius-sm);
+            "
+          >
             <div>
-              <span class="badge badge-primary" style="margin-bottom: var(--space-2); background: rgba(37, 99, 235, 0.12); color: #2563EB;">FULL-STACK BLUEPRINT</span>
-              <h2 style="font-size: 1.25rem;">Chai aur Code — Complete Web Development</h2>
-              <p class="text-subtle text-sm">36 Sections · 331 Total Lectures · Active Code Practice (1.6× Multiplier)</p>
+              <div style="font-weight: 600; font-size: 0.875rem">
+                Universal 3-Level CSV Template
+              </div>
+              <div class="text-subtle text-xs">
+                Main Section → Subsection → Sub-subsection → Activities with
+                durations and descriptions
+              </div>
             </div>
-            <div style="text-align: right;">
-              <div style="font-size: 1.5rem; font-weight: 800; color: #2563EB;" id="courseProgressVal">0 / 331</div>
-              <div class="text-subtle text-xs" id="courseTimeRemaining">-</div>
-            </div>
+            <a
+              href="/api/courses/template/csv"
+              download="sarthi_curriculum_template.csv"
+              class="btn btn-outline btn-sm"
+              >Download Template</a
+            >
           </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="courseProgressBar" style="width: 0%; background: #2563EB;"></div>
-          </div>
-          <div class="sarthi-wave-container" aria-hidden="true">
-            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,120 L0,120 Z" fill="rgba(37, 99, 235, 0.08)"></path>
-            </svg>
-            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,70 Q200,40 400,70 T800,70 T1200,70 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
-            </svg>
-          </div>
-        </div>
 
-        <!-- Sections Container -->
-        <div id="sectionsContainer">
-          <p class="text-muted text-sm">Loading course curriculum...</p>
+          <div>
+            <label class="form-label" for="csvFileInput">Upload CSV File</label>
+            <input
+              type="file"
+              id="csvFileInput"
+              accept=".csv"
+              class="form-input"
+              style="padding: var(--space-2)"
+            />
+          </div>
+
+          <div>
+            <label class="form-label" for="csvPasteArea"
+              >Or Paste CSV Content</label
+            >
+            <textarea
+              id="csvPasteArea"
+              class="form-input"
+              rows="5"
+              placeholder="main_section_id,main_section_name,main_section_description,main_section_order,main_section_total_content_minutes,main_section_total_effort_minutes,subsection_id,subsection_name,subsection_description,subsection_order,subsection_total_content_minutes,subsection_total_effort_minutes,sub_subsection_id,sub_subsection_name,sub_subsection_description,sub_subsection_order,sub_subsection_total_content_minutes,sub_subsection_total_effort_minutes,serial_number,activity_name,description,content_duration_minutes,estimated_execution_minutes,activity_type,priority,dependencies,optional_deadline,notes,course_name,activity_multiplier_override&#10;backend,Backend Architecture,Node and Express foundations,1,60,120,routing,Routing & Middleware,Handler chains,1,60,120,,,1,Express Routing Architecture,Setup middleware,60,120,lecture,P1,,,Web Development,"
+            ></textarea>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+            "
+          >
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              id="btnPreviewImport"
+            >
+              Preview Import
+            </button>
+          </div>
+
+          <!-- Preview Area -->
+          <div
+            id="previewResultContainer"
+            style="
+              display: none;
+              border-top: 1px solid var(--border-hairline);
+              padding-top: var(--space-3);
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <div
+                id="previewSummaryText"
+                style="font-weight: 600; font-size: 0.875rem"
+              ></div>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                id="btnCommitImport"
+              >
+                Commit to Syllabus
+              </button>
+            </div>
+            <div
+              id="previewWarnings"
+              style="
+                color: var(--accent-amber);
+                font-size: 0.75rem;
+                margin-top: var(--space-1);
+              "
+            ></div>
+            <div
+              style="
+                max-height: 200px;
+                overflow-y: auto;
+                margin-top: var(--space-2);
+              "
+            >
+              <table class="csv-preview-table" id="previewTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Activity Name</th>
+                    <th>Content (min)</th>
+                    <th>Effort (min)</th>
+                    <th>Type</th>
+                    <th>Priority</th>
+                  </tr>
+                </thead>
+                <tbody id="previewTableBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
-    </main>
-  </div>
+    </div>
 
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { formatMinutes } from '../assets/js/utils.js';
-    import { showToast } from '../assets/js/toast.js';
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import {
+        renderLayout,
+        notifyCourseNavigationChanged,
+      } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { formatMinutes } from "../assets/js/utils.js";
+      import { showToast } from "../assets/js/toast.js";
 
-    let course = null;
+      let course = null;
+      let parsedRecordsToCommit = null;
 
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-      renderLayout('webdev');
-      await loadCourse();
-    }
-
-    async function loadCourse() {
-      try {
-        const res = await api.get('/courses/web-dev');
-        if (!res.success) return;
-        course = res.course;
-
-        // Render Summary
-        const percent = Math.round((course.completedLectures / (course.totalLectures || 1)) * 100);
-        document.getElementById('courseProgressVal').textContent = `${course.completedLectures} / ${course.totalLectures} (${percent}%)`;
-        document.getElementById('courseProgressBar').style.width = `${percent}%`;
-        
-        const remMin = Math.max(0, course.totalMinutes - course.completedMinutes);
-        document.getElementById('courseTimeRemaining').textContent = `${formatMinutes(course.completedMinutes)} completed · ${formatMinutes(remMin)} remaining`;
-
-        renderSections(course.sections);
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
-    }
-
-    function renderSections(sections) {
-      const container = document.getElementById('sectionsContainer');
-      if (!sections || sections.length === 0) {
-        container.innerHTML = '<p class="text-muted text-sm">No sections found.</p>';
+      async function init() {
+        window.location.replace("tracker.html?slug=web-dev");
         return;
+        if (!user) return;
+        renderLayout("webdev");
+        await loadCourse();
+        setupImportEvents();
       }
 
-      container.innerHTML = sections.map((sec, idx) => {
-        const doneLecs = sec.lectures.filter(l => l.isWatched && l.isCodeDone).length;
-        const totalLecs = sec.lectures.length;
-        const isOpen = idx < 4; // Open first 4 sections by default
+      async function loadCourse() {
+        try {
+          const res = await api.get("/courses/web-dev");
+          if (!res.success) return;
+          course = res.course;
 
-        return `
+          // Render Summary
+          const percent = Math.round(
+            (course.completedLectures / (course.totalLectures || 1)) * 100,
+          );
+          document.getElementById("courseProgressVal").textContent =
+            `${course.completedLectures} / ${course.totalLectures} (${percent}%)`;
+          document.getElementById("courseProgressBar").style.width =
+            `${percent}%`;
+
+          const remMin = Math.max(
+            0,
+            course.totalMinutes - course.completedMinutes,
+          );
+          document.getElementById("courseTimeRemaining").textContent =
+            `${formatMinutes(course.completedMinutes)} completed · ${formatMinutes(remMin)} remaining`;
+
+          renderSections(course.sections);
+        } catch (err) {
+          const container = document.getElementById("sectionsContainer");
+          if (container) {
+            container.innerHTML = `
+            <div class="card" style="text-align: center; padding: var(--space-8);">
+              <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: var(--space-2);">No Web Development Syllabus Active Yet</h3>
+              <p class="text-muted text-sm" style="max-width: 480px; margin: 0 auto var(--space-4);">
+                SARTHI runs on user-managed curricula. Click "📥 Import CSV" to upload your syllabus (e.g. Chai aur Code, Full-Stack, or custom tracks).
+              </p>
+              <button class="btn btn-primary btn-sm" id="btnEmptyImportWeb">📥 Import WebDev Syllabus CSV</button>
+            </div>
+          `;
+            document
+              .getElementById("btnEmptyImportWeb")
+              ?.addEventListener("click", () => {
+                document
+                  .getElementById("importModalBackdrop")
+                  ?.classList.remove("hidden");
+              });
+          }
+        }
+      }
+
+      function renderSections(sections) {
+        const container = document.getElementById("sectionsContainer");
+        if (!sections || sections.length === 0) {
+          container.innerHTML =
+            '<p class="text-muted text-sm">No sections found.</p>';
+          return;
+        }
+
+        container.innerHTML = sections
+          .map((sec, idx) => {
+            const doneLecs = sec.lectures.filter(
+              (l) => l.isWatched && l.isCodeDone,
+            ).length;
+            const totalLecs = sec.lectures.length;
+            const isOpen = idx < 4; // Open first 4 sections by default
+
+            return `
           <div class="section-accordion">
             <div class="section-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
               <div>
-                <strong style="font-size: 0.9375rem;">Section ${sec.sectionNumber}: ${sec.title}</strong>
+                <strong style="font-size: 0.9375rem; color: var(--text-ink);">Section ${sec.sectionNumber}: ${sec.title}</strong>
               </div>
               <div style="display: flex; align-items: center; gap: var(--space-3);">
-                <span class="badge ${doneLecs === totalLecs && totalLecs > 0 ? 'badge-success' : 'badge-neutral'}">
+                <span class="badge ${doneLecs === totalLecs && totalLecs > 0 ? "badge-success" : "badge-neutral"}">
                   ${doneLecs} / ${totalLecs} done
                 </span>
                 <span class="text-subtle text-xs">▼</span>
               </div>
             </div>
-            <div class="section-body" style="display: ${isOpen ? 'block' : 'none'};">
-              ${sec.lectures.map(l => `
+            <div class="section-body" style="display: ${isOpen ? "block" : "none"};">
+              ${sec.lectures
+                .map(
+                  (l) => `
                 <div class="lecture-item">
-                  <div style="display: flex; align-items: center; gap: var(--space-3);">
-                    <input type="checkbox" class="lecture-chk" data-id="${l._id}" ${l.isWatched && l.isCodeDone ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
-                    <div>
-                      <div style="font-weight: 500; ${l.isWatched && l.isCodeDone ? 'text-decoration: line-through; opacity: 0.6;' : ''}">
+                  <div style="display: flex; align-items: center; gap: var(--space-3); flex: 1; min-width: 0;">
+                    <input type="checkbox" class="lecture-chk" data-id="${l._id}" ${l.isWatched && l.isCodeDone ? "checked" : ""} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-web);">
+                    <div style="min-width: 0;">
+                      <div style="font-weight: 500; color: var(--text-ink); ${l.isWatched && l.isCodeDone ? "text-decoration: line-through; opacity: 0.6;" : ""}">
                         ${l.lectureNumber}. ${l.title}
                       </div>
                       <div class="text-subtle text-xs">
@@ -177,37 +446,159 @@
                       </div>
                     </div>
                   </div>
-                  <div style="display: flex; gap: var(--space-2);">
-                    <a href="focus.html?courseSlug=web-dev&title=${encodeURIComponent('WebDev Lec ' + l.lectureNumber + ': ' + l.title)}" class="btn btn-outline btn-sm">
+                  <div style="display: flex; gap: var(--space-2); flex-shrink: 0;">
+                    <a href="focus.html?courseSlug=web-dev&title=${encodeURIComponent("WebDev Lec " + l.lectureNumber + ": " + l.title)}" class="btn btn-outline btn-sm">
                       Focus Practice
                     </a>
                   </div>
                 </div>
-              `).join('')}
+              `,
+                )
+                .join("")}
             </div>
           </div>
         `;
-      }).join('');
+          })
+          .join("");
 
-      container.querySelectorAll('.lecture-chk').forEach(chk => {
-        chk.addEventListener('change', async (e) => {
-          const lecId = e.target.dataset.id;
-          const checked = e.target.checked;
-          try {
-            await api.put(`/courses/web-dev/lecture/${lecId}`, {
-              isWatched: checked,
-              isCodeDone: checked
-            });
-            showToast(checked ? 'Lecture marked complete!' : 'Lecture unmarked');
-            await loadCourse();
-          } catch (err) {
-            showToast(err.message, 'error');
-          }
+        container.querySelectorAll(".lecture-chk").forEach((chk) => {
+          chk.addEventListener("change", async (e) => {
+            const lecId = e.target.dataset.id;
+            const checked = e.target.checked;
+            try {
+              await api.put(`/courses/web-dev/lecture/${lecId}`, {
+                isWatched: checked,
+                isCodeDone: checked,
+              });
+              showToast(
+                checked ? "Lecture marked completed!" : "Marked pending",
+              );
+              await loadCourse();
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
         });
-      });
-    }
+      }
 
-    init();
-  </script>
-</body>
+      function setupImportEvents() {
+        const modal = document.getElementById("importModalBackdrop");
+        document
+          .getElementById("btnOpenImportModal")
+          .addEventListener("click", () => {
+            modal.classList.remove("hidden");
+          });
+        document
+          .getElementById("btnCloseImportModal")
+          .addEventListener("click", () => {
+            modal.classList.add("hidden");
+          });
+        modal.addEventListener("click", (e) => {
+          if (e.target.id === "importModalBackdrop")
+            modal.classList.add("hidden");
+        });
+
+        // Handle CSV File Selection
+        document
+          .getElementById("csvFileInput")
+          .addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (evt) => {
+                document.getElementById("csvPasteArea").value =
+                  evt.target.result;
+              };
+              reader.readAsText(file);
+            }
+          });
+
+        // Handle CSV Preview
+        document
+          .getElementById("btnPreviewImport")
+          .addEventListener("click", async () => {
+            const text = document.getElementById("csvPasteArea").value.trim();
+            if (!text) {
+              showToast("Please upload or paste CSV text first.", "error");
+              return;
+            }
+
+            try {
+              const res = await api.post("/courses/import/preview", {
+                csvText: text,
+              });
+              if (!res.success)
+                throw new Error(res.error || "Failed to preview CSV");
+
+              parsedRecordsToCommit = res.records;
+              document.getElementById("previewSummaryText").textContent =
+                `Validated ${res.totalRows} activities.`;
+
+              const warnEl = document.getElementById("previewWarnings");
+              if (res.warnings && res.warnings.length > 0) {
+                warnEl.textContent = res.warnings.slice(0, 3).join(" | ");
+              } else {
+                warnEl.textContent = "";
+              }
+
+              const tbody = document.getElementById("previewTableBody");
+              tbody.innerHTML = res.records
+                .slice(0, 10)
+                .map(
+                  (r) => `
+            <tr>
+              <td>${r.serialNumber}</td>
+              <td>${r.title}</td>
+              <td>${r.contentDurationMinutes}</td>
+              <td>${r.estimatedExecutionMinutes}</td>
+              <td>${r.activityType}</td>
+              <td>${r.priority}</td>
+            </tr>
+          `,
+                )
+                .join("");
+
+              document.getElementById("previewResultContainer").style.display =
+                "block";
+              showToast(
+                `Successfully validated ${res.totalRows} syllabus activities.`,
+                "success",
+              );
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        // Handle CSV Commit
+        document
+          .getElementById("btnCommitImport")
+          .addEventListener("click", async () => {
+            if (!parsedRecordsToCommit || parsedRecordsToCommit.length === 0)
+              return;
+
+            try {
+              const res = await api.post("/courses/import/commit", {
+                courseSlug: "web-dev",
+                courseTitle: "Chai aur Code — Complete Web Development",
+                records: parsedRecordsToCommit,
+              });
+
+              if (res.success) {
+                showToast(
+                  `Committed ${res.totalActivities} activities (${res.createdCount} new, ${res.updatedCount} updated).`,
+                  "success",
+                );
+                modal.classList.add("hidden");
+                await loadCourse();
+                await notifyCourseNavigationChanged();
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+      }
+
+      init();
+    </script>
+  </body>
 </html>
