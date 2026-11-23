@@ -10,7 +10,7 @@ export class AttendanceEngine {
    * Calculate current percentage.
    */
   static calculatePercentage(attended, total) {
-    if (!total || total <= 0) return 100;
+    if (!total || total <= 0) return null;
     return Math.round(((attended || 0) / total) * 100 * 10) / 10;
   }
 
@@ -29,12 +29,13 @@ export class AttendanceEngine {
       return {
         attended: 0,
         total: 0,
-        currentPercent: 100,
+        currentPercent: null,
         targetPercent,
         status: 'on_track',
         classesNeededToTarget: 0,
         safeBunksAllowed: 0,
-        summary: 'No classes conducted yet'
+        recoveryPossible: true,
+        summary: 'No classes conducted yet; percentage is undefined until a session is recorded.'
       };
     }
 
@@ -50,7 +51,7 @@ export class AttendanceEngine {
       // C >= (P*T - 100*A) / (100 - P)
       const denominator = 100 - P;
       const numerator = (P * T) - (100 * A);
-      const needed = denominator > 0 ? Math.ceil(numerator / denominator) : 0;
+      const needed = denominator > 0 ? Math.ceil(numerator / denominator) : null;
       
       const isCritical = currentPercent < (P - 10);
 
@@ -60,9 +61,10 @@ export class AttendanceEngine {
         currentPercent,
         targetPercent: P,
         status: isCritical ? 'critical_shortage' : 'shortage',
-        classesNeededToTarget: Math.max(0, needed),
+        classesNeededToTarget: needed === null ? null : Math.max(0, needed),
         safeBunksAllowed: 0,
-        summary: `Attendance is ${currentPercent}%. Attend the next ${needed} consecutive class(es) to reach ${P}%.`
+        recoveryPossible: needed !== null,
+        summary: needed === null ? `Attendance is ${currentPercent}%. Recovery to a 100% target is impossible while any absence remains.` : `Attendance is ${currentPercent}%. Attend the next ${needed} consecutive class(es) to reach ${P}%.`
       };
     } else {
       // Can safely miss without dropping below P%:
@@ -80,6 +82,7 @@ export class AttendanceEngine {
         status: 'on_track',
         classesNeededToTarget: 0,
         safeBunksAllowed: Math.max(0, safe),
+        recoveryPossible: true,
         summary: `Attendance is ${currentPercent}%. You can safely miss ${safe} class(es) while staying above ${P}%.`
       };
     }
