@@ -1,96 +1,2834 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f8f4ef">
-  <title>Quietly, with care</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap');
-    :root{color-scheme:light;--ink:#302b39;--muted:#827985;--rose:#d97983;--plum:#745a83;--line:#eee6e5;--paper:#fffdfb;--bg:#f8f4ef}
-    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse at 80% 0%,#f1e5ec 0,transparent 38rem),radial-gradient(ellipse at 0% 55%,#f4e9dc 0,transparent 35rem),var(--bg);color:var(--ink);font:15px/1.65 'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
-    body:before,body:after{content:"";position:fixed;z-index:-1;width:24rem;height:24rem;border:1px solid #dfccd9;border-radius:50%;opacity:.36;animation:orbit 34s linear infinite;top:8%;right:-12rem}body:after{width:32rem;height:32rem;top:auto;bottom:-19rem;left:-15rem;animation-direction:reverse}
-    @keyframes orbit{to{transform:rotate(360deg)}}@keyframes rise{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}@keyframes breathe{50%{transform:scale(1.04);box-shadow:0 0 70px #dda9bf55}}@keyframes shimmer{to{background-position:200% center}}
-    .wrap{width:min(1080px,calc(100% - 36px));margin:auto;padding:32px 0 80px}.topline{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase}.mark{display:flex;align-items:center;gap:10px}.mark i{width:9px;height:9px;background:var(--rose);border-radius:50%;box-shadow:0 0 0 6px #d9798318}.privacy{border:1px solid #e9dfe5;border-radius:99px;padding:6px 12px;letter-spacing:.03em;text-transform:none}
-    header{padding:80px 0 48px;max-width:760px;animation:rise .8s both}.eyebrow{color:var(--plum);font-size:.77rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase}h1,h2,h3,p{margin-top:0}h1,h2,h3{font-family:'Playfair Display',Georgia,serif;font-weight:500}h1{font-size:clamp(3rem,8vw,6.5rem);line-height:1.03;letter-spacing:-.045em;margin:18px 0 22px}h1 span{background:linear-gradient(100deg,#af657d,#82638c,#c8897d,#af657d);background-size:200% auto;color:transparent;background-clip:text;animation:shimmer 9s linear infinite}.intro{font-size:1.08rem;color:#716875;max-width:600px}.panel{background:#fffdfbe8;border:1px solid #fff;border-radius:24px;box-shadow:0 18px 65px #5745520d;padding:clamp(22px,4vw,38px);backdrop-filter:blur(10px)}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}.section-label{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--plum);font-weight:700;margin-bottom:8px}.current{position:relative;overflow:hidden;animation:rise .8s .1s both}.current:after{content:"";position:absolute;width:210px;height:210px;border-radius:50%;right:-68px;top:-68px;background:radial-gradient(circle,#f1d8e3aa,transparent 70%);animation:breathe 7s ease-in-out infinite}.phase-title{font:500 clamp(1.7rem,4vw,2.6rem)/1.15 'Playfair Display',Georgia,serif;margin:7px 0 10px}.phase-copy{color:#746d78;max-width:520px}.count{display:flex;align-items:baseline;gap:9px;margin-top:26px}.count strong{font:500 3.7rem/.9 'Playfair Display',Georgia,serif;color:#af657d}.count span{color:var(--muted)}.chip{display:inline-flex;border-radius:99px;background:#f8edf0;color:#956071;padding:6px 11px;font-size:.77rem;font-weight:600;margin-top:8px}
-    .controls{animation:rise .8s .2s both}.controls h2,.calendar h2,.phases h2,.care h2{font-size:1.55rem;margin-bottom:8px}.controls p{font-size:.86rem;color:var(--muted)}.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}.field{display:grid;gap:6px;color:#77707a;font-size:.78rem}.field input{width:100%;font:inherit;font-size:.92rem;color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:11px 12px;background:#fff;outline:none}.field input:focus{border-color:#bd8b9c;box-shadow:0 0 0 3px #d979831b}.save-note{font-size:.75rem;color:#8a7580;margin:14px 0 0!important}.calendar,.phases,.care{margin-top:20px;animation:rise .8s .3s both}.cal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}.legend{display:flex;flex-wrap:wrap;gap:12px;color:#827985;font-size:.74rem}.legend span:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:var(--dot)}.week,.days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}.week{margin-top:22px;color:#a59ca6;font-size:.68rem;text-transform:uppercase;letter-spacing:.08em}.days{margin-top:7px}.day{min-height:54px;display:grid;place-items:center;border-radius:13px;color:#69616e;position:relative;font-size:.84rem}.day.empty{visibility:hidden}.day.period{background:#f8e6e8;color:#a25366}.day.fertile{background:#f3eaf4;color:#795e83}.day.ovulation{background:#ead8ef;color:#694977;font-weight:700;box-shadow:inset 0 0 0 1px #d7c0df}.day.today{outline:2px solid #d69aa3;outline-offset:1px;font-weight:700}.cal-foot{font-size:.77rem;color:#8a818b;margin:16px 0 0}.phase-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px}.phase-card{border:1px solid var(--line);border-radius:17px;padding:18px 16px;background:#fff;transition:transform .25s,box-shadow .25s}.phase-card:hover{transform:translateY(-5px);box-shadow:0 12px 25px #57455212}.phase-card .dot{width:10px;height:10px;border-radius:50%;background:var(--color);box-shadow:0 0 0 5px color-mix(in srgb,var(--color) 12%,transparent)}.phase-card h3{font-size:1.23rem;margin:13px 0 5px}.phase-card .dates{color:var(--plum);font-size:.72rem;font-weight:700;letter-spacing:.04em}.phase-card p{font-size:.81rem;color:#77707a;margin:9px 0 0}.care-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.care-item{padding:18px;border-radius:16px;background:#faf6f3}.care-item b{font-size:.85rem}.care-item p{margin:7px 0 0;font-size:.83rem;color:#77707a}.footer{margin:26px auto 0;max-width:740px;text-align:center;color:#8a818b;font-size:.76rem}.footer strong{color:#6e6370}.reduced *,.reduced *:before,.reduced *:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}
-    @media(max-width:760px){.wrap{width:min(100% - 24px,600px);padding-top:20px}header{padding:60px 0 34px}.grid{grid-template-columns:1fr}.phase-grid{grid-template-columns:repeat(2,1fr)}.care-grid{grid-template-columns:1fr}.day{min-height:44px}.cal-head{display:block}.legend{margin-top:14px}}@media(max-width:390px){.phase-grid{grid-template-columns:1fr}.fields{grid-template-columns:1fr}.day{min-height:39px;font-size:.76rem}}
-  </style>
-</head>
-<body>
-  <main class="wrap">
-    <div class="topline"><div class="mark"><i></i><span>A little more understanding</span></div><span class="privacy">A quiet personal guide</span></div>
-    <header><div class="eyebrow">Care, with curiosity</div><h1>Show up with<br><span>a little more care.</span></h1><p class="intro">A gentle, private guide to the days around her cycle: what may be happening, what could help, and how to be a steady person beside her.</p></header>
-    <section class="grid" aria-label="Cycle overview">
-      <article class="panel current"><div class="section-label">Today · <span id="todayLabel"></span></div><div class="phase-title" id="currentPhase">Loading your guide…</div><p class="phase-copy" id="phaseSummary"></p><span class="chip" id="phaseDates"></span><div class="count"><strong id="cycleDay">—</strong><span id="cycleCountLabel">cycle day</span></div></article>
-      <article class="panel controls"><div class="section-label">Make the estimate hers</div><h2>Cycle notes</h2><p>Only the dates you enter here are used. They stay in this browser on this device.</p><div class="fields"><label class="field">Last period began<input id="lastStart" type="date"></label><label class="field">Typical cycle length<input id="cycleLength" type="number" min="21" max="35" value="28"></label><label class="field">Typical period length<input id="periodLength" type="number" min="2" max="10" value="5"></label></div><p class="save-note">Saved locally · no account sync · no reminders or notifications</p></article>
-    </section>
-    <section class="panel calendar" aria-label="Estimated cycle calendar"><div class="cal-head"><div><div class="section-label">A soft look ahead</div><h2 id="monthTitle">Cycle calendar</h2></div><div class="legend"><span style="--dot:#d97983">Period estimate</span><span style="--dot:#ac8db4">Fertile window estimate</span><span style="--dot:#795e83">Ovulation estimate</span></div></div><div class="week"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div><div class="days" id="calendarDays"></div><p class="cal-foot">Calendar shading is a prediction from the average you entered. Cycles naturally vary; ovulation and fertile days cannot be confirmed by a calendar alone.</p></section>
-    <section class="panel phases"><div class="section-label">The rhythm, in four parts</div><h2>What may be going on</h2><p class="phase-copy">The dates below shift when you change the cycle notes. Body signs and feelings are personal; she may not experience these in the same way.</p><div class="phase-grid" id="phaseCards"></div></section>
-    <section class="panel care"><div class="section-label">Your part is simple</div><h2>Be kind, ask, and listen.</h2><div class="care-grid"><div class="care-item"><b>Ask what would help</b><p>Try: “Would you like comfort, practical help, a distraction, or some space?” Let her answer lead.</p></div><div class="care-item"><b>Stay steady</b><p>If she is frustrated, listen without taking it personally. Speak gently, avoid arguing about her feelings, and take a pause if either of you needs one.</p></div><div class="care-item"><b>Offer, don’t assume</b><p>Water, a warm pack, food, or help with a task may be welcome. Ask first; everyone’s preferences are different.</p></div></div></section>
-    <p class="footer"><strong>Just a thoughtful estimate, not medical advice.</strong> A typical cycle can vary and calendar predictions are not contraception. If her symptoms are severe, changing, or worrying to her, encourage her to talk with a qualified clinician.</p>
-  </main>
-  <script>
-    (() => {
-      const KEY = 'sarthi_quiet_cycle_notes_v1';
-      const $ = id => document.getElementById(id);
-      const localIso = date => { const d = new Date(date); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
-      const parse = value => { const [y,m,d] = value.split('-').map(Number); return new Date(y,m-1,d,12); };
-      const add = (date, days) => { const d = new Date(date); d.setDate(d.getDate()+days); return d; };
-      const diff = (a,b) => Math.round((Date.UTC(b.getFullYear(),b.getMonth(),b.getDate())-Date.UTC(a.getFullYear(),a.getMonth(),a.getDate()))/86400000);
-      const short = d => d.toLocaleDateString(undefined,{month:'short',day:'numeric'});
-      const long = d => d.toLocaleDateString(undefined,{month:'long',year:'numeric'});
-      const today = new Date(); today.setHours(12,0,0,0);
-      let saved = {}; try { saved = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch {}
-      $('lastStart').value = saved.lastStart || '2026-10-23';
-      $('cycleLength').value = saved.cycleLength || 28;
-      $('periodLength').value = saved.periodLength || 5;
-      $('todayLabel').textContent = today.toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
-      function render(){
-        const start = parse($('lastStart').value || '2026-10-23');
-        const cycle = Math.max(21,Math.min(35,Number($('cycleLength').value)||28));
-        const period = Math.max(2,Math.min(10,Number($('periodLength').value)||5));
-        const daysSince = diff(start,today);
-        const cycleDay = ((daysSince % cycle)+cycle)%cycle+1;
-        const cycleStart = add(today,1-cycleDay);
-        const nextStart = add(cycleStart,cycle);
-        const ovDay = Math.max(period+2,Math.min(cycle-1,cycle-14));
-        const ovStart = Math.max(period+1,ovDay-2);
-        const ovEnd = Math.min(cycle-1,ovDay+1);
-        const phases = [
-          {key:'period',name:'Menstrual phase',range:()=>[1,period],color:'#d97983',desc:'The uterine lining sheds. Bleeding and cramps can happen; energy and mood vary person to person.',care:'Offer comfort and practical help; ask before suggesting anything.'},
-          {key:'follicular',name:'Follicular phase',range:()=>[period+1,ovStart-1],color:'#87a99d',desc:'A new follicle matures. Some people notice energy or mood lifting, while others notice little change.',care:'Enjoy her company as usual. There is no special mood you should expect.'},
-          {key:'ovulation',name:'Ovulation window',range:()=>[ovStart,ovEnd],color:'#795e83',desc:'Ovulation may occur around this part of the cycle. Timing can shift, and a calendar cannot confirm it.',care:'Keep plans and affection guided by what she says she wants.'},
-          {key:'luteal',name:'Luteal phase',range:()=>[ovEnd+1,cycle],color:'#c99570',desc:'After ovulation, hormones change as the body moves toward the next period. Some notice PMS symptoms; many do not.',care:'Be patient, check in kindly, and don’t label her feelings as “just hormones.”'}
-        ];
-        const ranges = phases.map(phase=>({ ...phase, days:phase.range() }));
-        const active = ranges.find(phase=>cycleDay>=phase.days[0]&&cycleDay<=phase.days[1]) || ranges[0];
-        $('currentPhase').textContent=active.name;
-        $('phaseSummary').textContent=active.desc;
-        $('phaseDates').textContent=`Estimated days ${active.days[0]}–${active.days[1]} of this cycle`;
-        $('cycleDay').textContent=String(cycleDay).padStart(2,'0');
-        $('cycleCountLabel').textContent=`of an estimated ${cycle}-day cycle`;
-        $('phaseCards').innerHTML=ranges.map(phase=>{const [a,b]=phase.days;const from=add(cycleStart,a-1),to=add(cycleStart,b-1);return `<article class="phase-card" style="--color:${phase.color}"><div class="dot"></div><h3>${phase.name}</h3><div class="dates">${short(from)}${a===b?'':` — ${short(to)}`}</div><p>${phase.desc}</p><p><strong>A kind approach:</strong> ${phase.care}</p></article>`}).join('');
-        const monthStart = new Date(today.getFullYear(),today.getMonth(),1,12);
-        const monthDays = new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
-        $('monthTitle').textContent=long(monthStart);
-        const marks = new Map();
-        for(let offset=-cycle;offset<monthDays+cycle;offset++){
-          const date=add(monthStart,offset); const fromStart=diff(cycleStart,date);
-          const dayIn=((fromStart%cycle)+cycle)%cycle+1;
-          if(dayIn<=period) marks.set(date.getDate(),'period');
-          else if(dayIn>=Math.max(period+1,ovDay-5)&&dayIn<=Math.min(cycle,ovDay+1)) marks.set(date.getDate(),'fertile');
-          if(dayIn===ovDay) marks.set(date.getDate(),'ovulation');
-        }
-        let html='';for(let i=0;i<monthStart.getDay();i++)html+='<span class="day empty"></span>';
-        for(let n=1;n<=monthDays;n++){const date=new Date(today.getFullYear(),today.getMonth(),n,12);const klass=marks.get(n)||'';html+=`<span class="day ${klass} ${localIso(date)===localIso(today)?'today':''}" title="${klass?klass+' estimate · ':''}${date.toLocaleDateString(undefined,{month:'long',day:'numeric'})}">${n}</span>`}
-        $('calendarDays').innerHTML=html;
-        try{localStorage.setItem(KEY,JSON.stringify({lastStart:$('lastStart').value,cycleLength:cycle,periodLength:period}))}catch{}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f7f1eb" />
+    <meta
+      name="description"
+      content="A private, thoughtful cycle companion built around actual dates and personal choice."
+    />
+    <title>A Quiet Cycle Companion</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #302a34;
+        --muted: #776e79;
+        --soft: #9b929c;
+        --paper: #fffdfa;
+        --canvas: #f7f1eb;
+        --line: #eadfe1;
+        --rose: #c97886;
+        --rose-deep: #9b596a;
+        --rose-pale: #f6e7e9;
+        --plum: #796487;
+        --plum-pale: #eee8f1;
+        --sage: #668978;
+        --sage-pale: #e8efe9;
+        --champagne: #bd9660;
+        --shadow: 0 22px 70px #4935460d;
+        --serif: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
+        --sans: "DM Sans", "Avenir Next", Avenir, system-ui, sans-serif;
       }
-      ['lastStart','cycleLength','periodLength'].forEach(id=>$(id).addEventListener('input',render));
-      if(window.matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('reduced');
-      render();
-    })();
-  </script>
-</body>
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        overflow-x: hidden;
+        background:
+          radial-gradient(ellipse at 88% 3%, #e9dce8 0, transparent 38rem),
+          radial-gradient(ellipse at 0 42%, #f1e4dc 0, transparent 32rem),
+          var(--canvas);
+        color: var(--ink);
+        font: 15px/1.65 var(--sans);
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        color: inherit;
+      }
+      a {
+        color: inherit;
+      }
+      .ambient {
+        position: fixed;
+        z-index: -1;
+        pointer-events: none;
+        border: 1px solid #d8c4d3;
+        border-radius: 48% 52% 60% 40%;
+        opacity: 0.38;
+        animation: float-slow 24s ease-in-out infinite alternate;
+      }
+      .ambient.one {
+        width: 370px;
+        height: 430px;
+        top: 12%;
+        right: -280px;
+        transform: rotate(25deg);
+      }
+      .ambient.two {
+        width: 330px;
+        height: 360px;
+        left: -260px;
+        bottom: 5%;
+        animation-delay: -8s;
+        transform: rotate(-20deg);
+      }
+      @keyframes float-slow {
+        to {
+          transform: translate3d(-16px, 22px, 0) rotate(8deg);
+        }
+      }
+      @keyframes reveal {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @keyframes halo {
+        50% {
+          transform: scale(1.08);
+          opacity: 0.72;
+        }
+      }
+      @keyframes ring-pulse {
+        0% {
+          transform: scale(0.84);
+          opacity: 0.55;
+        }
+        80%,
+        100% {
+          transform: scale(1.34);
+          opacity: 0;
+        }
+      }
+      @keyframes rotate-dash {
+        to {
+          stroke-dashoffset: -20;
+        }
+      }
+      @keyframes shimmer {
+        to {
+          background-position: 200% center;
+        }
+      }
+      @keyframes toast-in {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .page {
+        width: min(1120px, calc(100% - 36px));
+        margin: 0 auto;
+        padding: 26px 0 78px;
+      }
+      .masthead {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        color: var(--muted);
+        font-size: 0.73rem;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+      }
+      .brand-mark {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border: 1px solid #d7bac3;
+        border-radius: 50%;
+        color: var(--rose-deep);
+        font: 600 1.1rem var(--serif);
+        box-shadow: 0 0 0 5px #d5aab21a;
+      }
+      .private-pill {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 1px solid var(--line);
+        border-radius: 99px;
+        background: #fff9;
+        padding: 7px 12px;
+        color: var(--muted);
+        letter-spacing: 0.02em;
+        text-transform: none;
+      }
+      .private-pill i {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--sage);
+        box-shadow: 0 0 0 4px var(--sage-pale);
+      }
+      .hero {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        align-items: center;
+        gap: 40px;
+        padding: 76px 0 56px;
+      }
+      .hero-copy {
+        max-width: 680px;
+      }
+      .eyebrow,
+      .section-kicker {
+        color: var(--rose-deep);
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+      }
+      .hero h1 {
+        margin: 14px 0 18px;
+        font: 500 clamp(3.3rem, 8vw, 6.3rem)/0.92 var(--serif);
+        letter-spacing: -0.045em;
+      }
+      .hero h1 span {
+        background: linear-gradient(100deg, #a85e72, #826688, #b68570, #a85e72);
+        background-size: 200% auto;
+        color: transparent;
+        background-clip: text;
+        animation: shimmer 11s linear infinite;
+      }
+      .hero-text {
+        max-width: 560px;
+        color: #706873;
+        font-size: 1rem;
+      }
+      .hero-note {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        margin-top: 24px;
+        color: var(--muted);
+        font-size: 0.77rem;
+      }
+      .hero-note::before {
+        content: "";
+        width: 25px;
+        height: 1px;
+        background: var(--champagne);
+      }
+      .hero-art {
+        position: relative;
+        display: grid;
+        min-height: 250px;
+        place-items: center;
+      }
+      .hero-orbit {
+        position: absolute;
+        width: 225px;
+        height: 225px;
+        border: 1px solid #decbd5;
+        border-radius: 50%;
+        animation: orbit-drift 42s linear infinite;
+      }
+      .hero-orbit::before,
+      .hero-orbit::after {
+        content: "";
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--rose);
+        box-shadow: 0 0 0 6px #d69aa322;
+      }
+      .hero-orbit::before {
+        top: 20px;
+        left: 44px;
+      }
+      .hero-orbit::after {
+        right: 16px;
+        bottom: 48px;
+        width: 5px;
+        height: 5px;
+        background: var(--champagne);
+      }
+      .hero-seal {
+        position: relative;
+        display: grid;
+        width: 136px;
+        height: 136px;
+        place-items: center;
+        border: 1px solid #e6d9dc;
+        border-radius: 50%;
+        background: radial-gradient(circle, #fffdfb 0, #f8eff0 70%, #f3e8ed);
+        box-shadow: 0 15px 60px #78596b18;
+        color: var(--rose-deep);
+        font: 500 3.7rem/0.8 var(--serif);
+        animation: halo 7s ease-in-out infinite;
+      }
+      .hero-seal small {
+        display: block;
+        margin-top: 10px;
+        color: var(--muted);
+        font: 700 0.53rem/1 var(--sans);
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+      .hero-caption {
+        position: absolute;
+        bottom: 4px;
+        color: var(--muted);
+        font: italic 0.84rem var(--serif);
+      }
+      @keyframes orbit-drift {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .notice {
+        display: none;
+        margin: 0 0 22px;
+        border: 1px solid #e7c5c5;
+        border-radius: 14px;
+        background: #fff7f5;
+        padding: 14px 17px;
+        color: #8b4d58;
+        font-size: 0.88rem;
+      }
+      .notice.show {
+        display: block;
+      }
+      .notice.success {
+        border-color: #c5ddce;
+        background: #f4faf5;
+        color: #426d54;
+      }
+      .section {
+        margin-top: 20px;
+      }
+      .panel {
+        border: 1px solid #fff;
+        border-radius: 23px;
+        background: #fffdfbe8;
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+      .section-head {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 22px;
+        margin-bottom: 20px;
+      }
+      .section-head h2 {
+        margin: 5px 0 0;
+        font: 500 clamp(1.7rem, 4vw, 2.35rem)/1.08 var(--serif);
+        letter-spacing: -0.02em;
+      }
+      .section-head p {
+        max-width: 570px;
+        margin: 6px 0 0;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      .cycle-overview {
+        display: grid;
+        grid-template-columns: 1.05fr 0.95fr;
+        gap: 18px;
+      }
+      .cycle-card {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 210px;
+        align-items: center;
+        gap: 18px;
+        min-height: 290px;
+        padding: clamp(22px, 4vw, 36px);
+        overflow: hidden;
+      }
+      .cycle-card::after {
+        position: absolute;
+        z-index: 0;
+        top: -80px;
+        right: -70px;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #efd9df99, transparent 70%);
+        content: "";
+        animation: halo 9s ease-in-out infinite;
+      }
+      .cycle-copy,
+      .cycle-visual {
+        position: relative;
+        z-index: 1;
+      }
+      .cycle-name {
+        margin: 9px 0 8px;
+        font: 500 clamp(1.9rem, 4vw, 2.65rem)/1.02 var(--serif);
+      }
+      .phase-summary {
+        max-width: 460px;
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+      .actual-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 15px;
+        border: 1px solid #ead8dc;
+        border-radius: 99px;
+        background: #fff8;
+        padding: 6px 10px;
+        color: var(--rose-deep);
+        font-size: 0.7rem;
+        font-weight: 700;
+      }
+      .actual-badge::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--rose);
+      }
+      .actual-badge.estimated {
+        border-color: #ddd3e3;
+        color: var(--plum);
+      }
+      .actual-badge.estimated::before {
+        background: var(--plum);
+      }
+      .phase-range {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+      .cycle-visual {
+        display: grid;
+        place-items: center;
+      }
+      .cycle-ring {
+        position: relative;
+        width: 190px;
+        height: 190px;
+        display: grid;
+        place-items: center;
+        border-radius: 50%;
+        background: conic-gradient(
+          from -90deg,
+          #cd8390 0 18%,
+          #82a395 18% 53%,
+          #927ba0 53% 63%,
+          #d2ad7d 63% 100%
+        );
+      }
+      .cycle-ring::before {
+        position: absolute;
+        inset: 7px;
+        border: 1px solid #ffffffaa;
+        border-radius: 50%;
+        background: var(--paper);
+        content: "";
+      }
+      .cycle-ring svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        transform: rotate(-90deg);
+        overflow: visible;
+      }
+      .ring-track,
+      .ring-progress {
+        fill: none;
+        stroke-width: 3;
+      }
+      .ring-track {
+        stroke: #fff9;
+      }
+      .ring-progress {
+        stroke: #fff;
+        stroke-linecap: round;
+        stroke-dasharray: 534;
+        stroke-dashoffset: 534;
+        transition: stroke-dashoffset 1.1s cubic-bezier(0.2, 0.75, 0.2, 1);
+      }
+      .ring-center {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+      }
+      .ring-number {
+        display: block;
+        color: var(--rose-deep);
+        font: 500 3.2rem/0.9 var(--serif);
+        font-variant-numeric: tabular-nums;
+      }
+      .ring-caption {
+        display: block;
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 0.61rem;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+      .cycle-ring::after {
+        position: absolute;
+        inset: -8px;
+        border: 1px solid #d4b1c0;
+        border-radius: 50%;
+        content: "";
+        animation: ring-pulse 4s ease-out infinite;
+      }
+      .cycle-facts {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .fact {
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: #fff9;
+        padding: 12px 13px;
+      }
+      .fact span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.64rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .fact strong {
+        display: block;
+        margin-top: 3px;
+        font: 500 1.15rem var(--serif);
+        font-variant-numeric: tabular-nums;
+      }
+      .settings-card {
+        padding: clamp(22px, 4vw, 32px);
+      }
+      .settings-card h2 {
+        margin: 7px 0 5px;
+        font: 500 1.8rem var(--serif);
+      }
+      .settings-card > p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+      .settings-fields {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 20px;
+      }
+      .field {
+        display: grid;
+        gap: 6px;
+        color: var(--muted);
+        font-size: 0.72rem;
+      }
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        min-height: 43px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        background: #fff;
+        color: var(--ink);
+        padding: 10px 12px;
+        outline: none;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+      .field input:focus,
+      .field select:focus,
+      .field textarea:focus {
+        border-color: #c58b99;
+        box-shadow: 0 0 0 3px #c978861a;
+      }
+      .settings-foot {
+        margin: 12px 0 0 !important;
+        font-size: 0.72rem !important;
+      }
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 43px;
+        border: 1px solid transparent;
+        border-radius: 11px;
+        padding: 9px 15px;
+        background: var(--rose-deep);
+        color: white;
+        font-size: 0.79rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          transform 0.22s,
+          box-shadow 0.22s,
+          background 0.22s;
+      }
+      .button:hover {
+        transform: translateY(-2px);
+        background: #834958;
+        box-shadow: 0 8px 19px #9b596a2b;
+      }
+      .button:active {
+        transform: translateY(0) scale(0.98);
+      }
+      .button.secondary {
+        border-color: var(--line);
+        background: #fff;
+        color: var(--ink);
+      }
+      .button.secondary:hover {
+        border-color: #d2b3bc;
+        background: #fff8f6;
+      }
+      .button.quiet {
+        min-height: 34px;
+        padding: 6px 10px;
+        background: transparent;
+        color: var(--rose-deep);
+      }
+      .button.danger {
+        color: #984b57;
+      }
+      .button:focus-visible,
+      .icon-button:focus-visible {
+        outline: 3px solid #bd8999;
+        outline-offset: 3px;
+      }
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin-top: 17px;
+      }
+      .data-note {
+        margin-top: 15px;
+        color: var(--soft);
+        font-size: 0.7rem;
+      }
+      .timeline {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .timeline-item {
+        position: relative;
+        min-height: 132px;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: #fff9;
+        padding: 18px;
+        overflow: hidden;
+        transition:
+          transform 0.25s,
+          border-color 0.25s,
+          box-shadow 0.25s;
+      }
+      .timeline-item.current {
+        border-color: #cf98a2;
+        background: linear-gradient(145deg, #fffdfb, #fbf0f1);
+        box-shadow: 0 10px 28px #a86c7c12;
+      }
+      .timeline-item:hover {
+        transform: translateY(-3px);
+        border-color: #d5b2bb;
+      }
+      .timeline-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 0.65rem;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .timeline-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--phase-color);
+      }
+      .timeline-item h3 {
+        margin: 13px 0 3px;
+        font: 500 1.35rem var(--serif);
+      }
+      .timeline-item p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 0.75rem;
+      }
+      .calendar-panel,
+      .history-panel,
+      .phase-panel,
+      .mood-panel,
+      .care-panel {
+        padding: clamp(22px, 4vw, 34px);
+      }
+      .calendar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .month-label {
+        min-width: 148px;
+        text-align: center;
+        font: 500 1.2rem var(--serif);
+      }
+      .icon-button {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 50%;
+        background: #fff;
+        color: var(--ink);
+        font-size: 1.1rem;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          transform 0.2s;
+      }
+      .icon-button:hover {
+        transform: scale(1.06);
+        background: var(--rose-pale);
+      }
+      .calendar-wrap {
+        overflow-x: auto;
+      }
+      .weekdays,
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(35px, 1fr));
+        gap: 6px;
+        min-width: 360px;
+        text-align: center;
+      }
+      .weekdays {
+        margin: 18px 0 7px;
+        color: var(--soft);
+        font-size: 0.64rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .calendar-grid {
+        transition:
+          opacity 0.18s,
+          transform 0.18s;
+      }
+      .calendar-grid.changing {
+        opacity: 0.25;
+        transform: translateY(4px);
+      }
+      .calendar-day {
+        position: relative;
+        display: grid;
+        min-height: 54px;
+        place-items: center;
+        border: 1px solid transparent;
+        border-radius: 13px;
+        background: transparent;
+        color: #5e5662;
+        font-size: 0.83rem;
+        cursor: pointer;
+        transition:
+          background 0.2s,
+          border-color 0.2s,
+          transform 0.2s;
+      }
+      .calendar-day:hover {
+        transform: translateY(-2px);
+        border-color: var(--line);
+        background: #fff;
+      }
+      .calendar-day.empty {
+        visibility: hidden;
+      }
+      .calendar-day.today {
+        border-color: var(--rose);
+        font-weight: 800;
+      }
+      .calendar-day.phase-menstrual {
+        background: #faecee;
+      }
+      .calendar-day.phase-follicular {
+        background: #eef4ef;
+      }
+      .calendar-day.phase-ovulation {
+        background: #f0ebf3;
+      }
+      .calendar-day.phase-luteal {
+        background: #f7f0e7;
+      }
+      .calendar-day.predicted {
+        background: repeating-linear-gradient(
+          135deg,
+          #f8e7e9 0 5px,
+          #fffaf9 5px 10px
+        );
+        color: var(--rose-deep);
+      }
+      .calendar-day.actual-start::after {
+        position: absolute;
+        right: 5px;
+        bottom: 5px;
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--rose-deep);
+        content: "";
+      }
+      .calendar-day.selected {
+        box-shadow: inset 0 0 0 2px var(--plum);
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 11px 17px;
+        margin-top: 17px;
+        color: var(--muted);
+        font-size: 0.68rem;
+      }
+      .legend span {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .legend i {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        background: var(--legend);
+      }
+      .legend i.actual-dot {
+        border-radius: 50%;
+        background: var(--rose-deep);
+      }
+      .legend i.predicted-swatch {
+        border: 1px dashed var(--rose-deep);
+        background: repeating-linear-gradient(
+          135deg,
+          #f8e7e9 0 3px,
+          #fffaf9 3px 6px
+        );
+      }
+      .selected-day {
+        margin-top: 17px;
+        border-top: 1px solid var(--line);
+        padding-top: 14px;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+      .selected-day strong {
+        color: var(--ink);
+      }
+      .calendar-disclaimer {
+        margin: 18px 0 0;
+        color: var(--soft);
+        font-size: 0.72rem;
+      }
+      .phase-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 13px;
+      }
+      .phase-detail {
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: #fff9;
+        overflow: hidden;
+        transition:
+          transform 0.25s,
+          box-shadow 0.25s,
+          border-color 0.25s;
+      }
+      .phase-detail[open],
+      .phase-detail:hover {
+        border-color: #d6bdc5;
+        box-shadow: 0 10px 28px #5940520a;
+      }
+      .phase-detail[open] {
+        transform: translateY(-2px);
+      }
+      .phase-detail summary {
+        display: grid;
+        grid-template-columns: 36px 1fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        cursor: pointer;
+        list-style: none;
+      }
+      .phase-detail summary::-webkit-details-marker {
+        display: none;
+      }
+      .phase-icon {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--phase-pale);
+        color: var(--phase);
+        font: 500 1.1rem var(--serif);
+        transition: transform 0.3s;
+      }
+      .phase-detail[open] .phase-icon {
+        transform: rotate(-12deg) scale(1.08);
+      }
+      .phase-detail summary strong {
+        display: block;
+        font: 500 1.25rem var(--serif);
+      }
+      .phase-detail summary small {
+        display: block;
+        color: var(--muted);
+        font-size: 0.68rem;
+      }
+      .phase-detail summary em {
+        color: var(--phase);
+        font-style: normal;
+        transition: transform 0.25s;
+      }
+      .phase-detail[open] summary em {
+        transform: rotate(45deg);
+      }
+      .phase-body {
+        padding: 0 18px 18px 64px;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+      .phase-body p {
+        margin: 0 0 10px;
+      }
+      .phase-body b {
+        color: var(--ink);
+      }
+      .phase-body ul {
+        margin: 0 0 10px;
+        padding-left: 18px;
+      }
+      .phase-menstrual-card {
+        --phase: var(--rose-deep);
+        --phase-pale: var(--rose-pale);
+      }
+      .phase-follicular-card {
+        --phase: var(--sage);
+        --phase-pale: var(--sage-pale);
+      }
+      .phase-ovulation-card {
+        --phase: var(--plum);
+        --phase-pale: var(--plum-pale);
+      }
+      .phase-luteal-card {
+        --phase: var(--champagne);
+        --phase-pale: #f5eddf;
+      }
+      .phase-detail.active-phase {
+        box-shadow:
+          0 0 0 2px color-mix(in srgb, var(--phase) 35%, transparent),
+          0 12px 30px #5940520c;
+      }
+      .mood-grid {
+        display: grid;
+        grid-template-columns: 0.85fr 1.15fr;
+        gap: 20px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 13px;
+      }
+      .field.full {
+        grid-column: 1/-1;
+      }
+      .field textarea {
+        min-height: 82px;
+        resize: vertical;
+      }
+      .choice-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+      .choice {
+        position: relative;
+      }
+      .choice input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .choice span {
+        display: inline-flex;
+        min-height: 34px;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 99px;
+        background: #fff;
+        padding: 6px 11px;
+        color: var(--muted);
+        font-size: 0.7rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .choice input:checked + span {
+        border-color: #c98b98;
+        background: var(--rose-pale);
+        color: var(--rose-deep);
+      }
+      .choice input:focus-visible + span {
+        outline: 2px solid var(--rose);
+        outline-offset: 2px;
+      }
+      .log-list {
+        display: grid;
+        gap: 9px;
+        max-height: 400px;
+        overflow: auto;
+      }
+      .log-item {
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: #fff9;
+        padding: 13px 15px;
+      }
+      .log-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+      }
+      .log-top strong {
+        font: 500 1.05rem var(--serif);
+      }
+      .log-item p {
+        margin: 5px 0 0;
+        color: var(--muted);
+        font-size: 0.74rem;
+      }
+      .empty-state {
+        border: 1px dashed var(--line);
+        border-radius: 14px;
+        padding: 22px;
+        color: var(--muted);
+        text-align: center;
+        font-size: 0.8rem;
+      }
+      .care-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .care-detail {
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: #fff9;
+        overflow: hidden;
+      }
+      .care-detail summary {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 16px;
+        cursor: pointer;
+        list-style: none;
+        font-weight: 700;
+        font-size: 0.83rem;
+      }
+      .care-detail summary::-webkit-details-marker {
+        display: none;
+      }
+      .care-num {
+        display: grid;
+        width: 27px;
+        height: 27px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--plum-pale);
+        color: var(--plum);
+        font: 500 1rem var(--serif);
+      }
+      .care-detail[open] .care-num {
+        background: var(--rose-pale);
+        color: var(--rose-deep);
+      }
+      .care-answer {
+        padding: 0 17px 16px 54px;
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+      .care-answer p {
+        margin: 0 0 9px;
+      }
+      .quote {
+        display: block;
+        border-left: 2px solid var(--rose);
+        padding: 7px 0 7px 11px;
+        color: var(--rose-deep);
+        font: italic 1.05rem var(--serif);
+      }
+      .history-list {
+        display: grid;
+        gap: 10px;
+      }
+      .history-row {
+        display: grid;
+        grid-template-columns: 52px 1.2fr 0.8fr auto;
+        align-items: center;
+        gap: 14px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        background: #fff9;
+        padding: 14px 16px;
+      }
+      .history-index {
+        display: grid;
+        width: 42px;
+        height: 42px;
+        place-items: center;
+        border-radius: 50%;
+        background: var(--rose-pale);
+        color: var(--rose-deep);
+        font: 500 1rem var(--serif);
+      }
+      .history-date strong {
+        display: block;
+        font: 500 1.15rem var(--serif);
+      }
+      .history-date small,
+      .history-interval small {
+        color: var(--muted);
+        font-size: 0.68rem;
+      }
+      .history-interval strong {
+        display: block;
+        color: var(--plum);
+        font: 500 1rem var(--serif);
+      }
+      .history-actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .history-actions button {
+        border: 0;
+        background: transparent;
+        color: var(--rose-deep);
+        font-size: 0.72rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .history-actions button:hover {
+        text-decoration: underline;
+      }
+      .actual-label {
+        display: inline-flex;
+        margin-top: 4px;
+        border-radius: 99px;
+        background: #f8e9eb;
+        padding: 3px 8px;
+        color: var(--rose-deep);
+        font-size: 0.59rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      .subsection {
+        margin-top: 18px;
+        border-top: 1px solid var(--line);
+        padding-top: 16px;
+      }
+      .subsection h3 {
+        margin: 0 0 8px;
+        font: 500 1.2rem var(--serif);
+      }
+      .footer {
+        max-width: 800px;
+        margin: 27px auto 0;
+        color: var(--muted);
+        text-align: center;
+        font-size: 0.73rem;
+      }
+      .footer strong {
+        color: var(--ink);
+      }
+      .sources {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 10px;
+      }
+      .sources a {
+        color: var(--plum);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+      }
+      .toast {
+        position: fixed;
+        right: 22px;
+        bottom: 22px;
+        z-index: 20;
+        max-width: min(390px, calc(100vw - 32px));
+        border: 1px solid #dac5cb;
+        border-radius: 13px;
+        background: var(--paper);
+        padding: 13px 16px;
+        box-shadow: 0 14px 34px #49354621;
+        color: var(--ink);
+        font-size: 0.82rem;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .toast.show {
+        animation: toast-in 0.3s ease-out forwards;
+      }
+      .toast.error {
+        border-color: #d59999;
+        color: #89464f;
+      }
+      .modal {
+        width: min(480px, calc(100% - 28px));
+        border: 1px solid #fff;
+        border-radius: 21px;
+        background: var(--paper);
+        padding: 25px;
+        box-shadow: 0 28px 100px #281e2b45;
+        color: var(--ink);
+      }
+      .modal::backdrop {
+        background: #251d29aa;
+        backdrop-filter: blur(4px);
+      }
+      .modal[open] {
+        animation: reveal 0.25s ease-out;
+      }
+      .modal h2 {
+        margin: 0 0 7px;
+        font: 500 1.9rem var(--serif);
+      }
+      .modal > p {
+        color: var(--muted);
+        font-size: 0.83rem;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      .loading-shimmer {
+        min-height: 17px;
+        border-radius: 9px;
+        background: linear-gradient(90deg, #f0e8e8, #fff9f6, #f0e8e8);
+        background-size: 200% 100%;
+        animation: shimmer 1.7s linear infinite;
+      }
+      .reveal-pending {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      .revealed {
+        opacity: 1;
+        transform: none;
+        transition:
+          opacity 0.65s ease,
+          transform 0.65s cubic-bezier(0.2, 0.75, 0.2, 1);
+      }
+      @media (max-width: 850px) {
+        .hero {
+          grid-template-columns: 1fr 0.45fr;
+          gap: 18px;
+          padding: 60px 0 42px;
+        }
+        .hero-orbit {
+          width: 175px;
+          height: 175px;
+        }
+        .hero-seal {
+          width: 112px;
+          height: 112px;
+          font-size: 3rem;
+        }
+        .cycle-card {
+          grid-template-columns: 1fr 160px;
+        }
+        .cycle-ring {
+          width: 155px;
+          height: 155px;
+        }
+        .mood-grid {
+          grid-template-columns: 1fr;
+        }
+        .history-row {
+          grid-template-columns: 48px 1fr 0.7fr auto;
+        }
+      }
+      @media (max-width: 650px) {
+        .page {
+          width: calc(100% - 24px);
+          padding-top: 17px;
+        }
+        .masthead {
+          font-size: 0.63rem;
+        }
+        .hero {
+          grid-template-columns: 1fr;
+          padding: 48px 0 34px;
+        }
+        .hero h1 {
+          font-size: clamp(3.35rem, 14vw, 5rem);
+        }
+        .hero-art {
+          min-height: 190px;
+        }
+        .hero-orbit {
+          width: 165px;
+          height: 165px;
+        }
+        .hero-seal {
+          width: 106px;
+          height: 106px;
+        }
+        .hero-caption {
+          bottom: 0;
+        }
+        .cycle-overview {
+          grid-template-columns: 1fr;
+        }
+        .cycle-card {
+          grid-template-columns: 1fr 130px;
+          min-height: 250px;
+          padding: 22px 18px;
+        }
+        .cycle-ring {
+          width: 126px;
+          height: 126px;
+        }
+        .ring-number {
+          font-size: 2.5rem;
+        }
+        .cycle-facts {
+          gap: 8px;
+        }
+        .fact {
+          padding: 10px;
+        }
+        .timeline {
+          grid-template-columns: 1fr;
+        }
+        .timeline-item {
+          min-height: unset;
+          padding: 15px;
+        }
+        .timeline-item h3 {
+          margin-top: 9px;
+        }
+        .section-head {
+          display: block;
+        }
+        .calendar-actions {
+          margin-top: 14px;
+        }
+        .phase-grid,
+        .care-grid {
+          grid-template-columns: 1fr;
+        }
+        .history-row {
+          grid-template-columns: 42px 1fr auto;
+          gap: 10px;
+          padding: 12px;
+        }
+        .history-interval {
+          grid-column: 2;
+        }
+        .history-actions {
+          grid-column: 3;
+          grid-row: 1/3;
+        }
+        .history-index {
+          width: 36px;
+          height: 36px;
+        }
+        .settings-fields,
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .field.full {
+          grid-column: auto;
+        }
+        .calendar-day {
+          min-height: 45px;
+        }
+        .private-pill {
+          font-size: 0;
+          gap: 0;
+        }
+        .private-pill i {
+          margin: 5px;
+        }
+      }
+      @media (max-width: 390px) {
+        .cycle-card {
+          grid-template-columns: 1fr 104px;
+          gap: 6px;
+        }
+        .cycle-ring {
+          width: 102px;
+          height: 102px;
+        }
+        .ring-number {
+          font-size: 2rem;
+        }
+        .ring-caption {
+          font-size: 0.5rem;
+        }
+        .cycle-name {
+          font-size: 1.75rem;
+        }
+        .history-row {
+          grid-template-columns: 34px 1fr auto;
+        }
+        .history-interval {
+          font-size: 0.7rem;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+        .reveal-pending {
+          opacity: 1;
+          transform: none;
+        }
+      }
+    </style>
+    <style>
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 99px;
+        background: #fff9;
+        padding: 7px 12px;
+        color: var(--rose-deep);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        text-decoration: none;
+        text-transform: none;
+        transition:
+          transform 0.2s,
+          background 0.2s,
+          border-color 0.2s;
+      }
+      .back-link:hover {
+        transform: translateX(-2px);
+        border-color: #d5b2bb;
+        background: #fff;
+      }
+      .back-link:focus-visible {
+        outline: 3px solid #bd8999;
+        outline-offset: 3px;
+      }
+      .cycle-ring {
+        position: relative;
+        --menstrual-stop: 18%;
+        --follicular-stop: 53%;
+        --ovulation-stop: 63%;
+        --cycle-angle: 0deg;
+        --phase-color: var(--rose-deep);
+        background: conic-gradient(
+          from -90deg,
+          #cd8390 0 var(--menstrual-stop),
+          #82a395 var(--menstrual-stop) var(--follicular-stop),
+          #927ba0 var(--follicular-stop) var(--ovulation-stop),
+          #d2ad7d var(--ovulation-stop) 100%
+        );
+      }
+      .cycle-marker {
+        position: absolute;
+        z-index: 2;
+        inset: 0;
+        pointer-events: none;
+        transform: rotate(var(--cycle-angle));
+        transform-origin: center;
+        transition: transform 0.9s cubic-bezier(0.2, 0.75, 0.2, 1);
+      }
+      .cycle-marker::before {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        width: 13px;
+        height: 13px;
+        border: 2px solid white;
+        border-radius: 50%;
+        background: var(--phase-color);
+        box-shadow:
+          0 0 0 4px #fff8,
+          0 0 16px color-mix(in srgb, var(--phase-color) 60%, transparent);
+        content: "";
+        transform: translate(-50%, -50%);
+        transition: background 0.5s;
+      }
+      .phase-detail[open] .phase-body {
+        animation: reveal 0.32s ease-out both;
+      }
+      .calendar-day.actual-period {
+        background: #f3dadd;
+        color: #814653;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ambient one" aria-hidden="true"></div>
+    <div class="ambient two" aria-hidden="true"></div>
+    <main class="page">
+      <div class="masthead">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">✦</span
+          ><span>Cycle companion</span>
+        </div>
+        <a class="back-link" href="dashboard.html"
+          ><span aria-hidden="true">←</span> Back to SARTHI</a
+        ><span class="private-pill"><i></i>Private to this account</span>
+      </div>
+      <header class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">A quiet space for care</div>
+          <h1>Understanding,<br /><span>without assumptions.</span></h1>
+          <p class="hero-text">
+            A thoughtful companion built around confirmed dates, with gentle
+            estimates, useful context, and one simple reminder: ask what she
+            needs.
+          </p>
+          <div class="hero-note">
+            Designed around understanding, not assumptions.
+          </div>
+        </div>
+        <div class="hero-art" aria-hidden="true">
+          <div class="hero-orbit"></div>
+          <div class="hero-seal">✦<small>in her own rhythm</small></div>
+          <div class="hero-caption">Care can be quiet.</div>
+        </div>
+      </header>
+      <div
+        id="pageNotice"
+        class="notice"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+      <section
+        class="section cycle-overview reveal"
+        aria-labelledby="todayHeading"
+      >
+        <article class="panel cycle-card">
+          <div class="cycle-copy">
+            <div class="section-kicker" id="todayHeading">
+              Today’s cycle intelligence <span id="todayLabel"></span>
+            </div>
+            <h2 id="currentPhase" class="cycle-name">
+              Loading your private guide…
+            </h2>
+            <p id="phaseSummary" class="phase-summary">
+              Connecting to your saved cycle records.
+            </p>
+            <span id="basisBadge" class="actual-badge estimated"
+              >Prediction based on actual dates</span
+            >
+            <div class="phase-range" id="phaseRange"></div>
+            <div class="cycle-facts">
+              <div class="fact">
+                <span>Next period estimate</span
+                ><strong id="nextPeriodDate">—</strong>
+              </div>
+              <div class="fact">
+                <span>Approx. days remaining</span
+                ><strong id="daysRemaining">—</strong>
+              </div>
+            </div>
+          </div>
+          <div class="cycle-visual">
+            <div
+              class="cycle-ring"
+              role="img"
+              id="cycleRing"
+              aria-label="Cycle phase visualization"
+            >
+              <svg viewBox="0 0 190 190" aria-hidden="true">
+                <circle class="ring-track" cx="95" cy="95" r="85"></circle>
+                <circle
+                  class="ring-progress"
+                  id="ringProgress"
+                  cx="95"
+                  cy="95"
+                  r="85"
+                ></circle></svg
+              ><i class="cycle-marker" id="cycleMarker" aria-hidden="true"></i>
+              <div class="ring-center">
+                <span class="ring-number" id="cycleDay">—</span
+                ><span class="ring-caption">cycle day</span>
+              </div>
+            </div>
+            <div class="data-note" id="cycleLengthText">
+              Cycle estimate: — days
+            </div>
+          </div>
+        </article>
+        <article class="panel settings-card">
+          <div class="section-kicker">The estimate is hers to adjust</div>
+          <h2>Cycle notes</h2>
+          <p>
+            Actual period starts shape the rolling estimate. These settings are
+            used when there isn’t enough history yet.
+          </p>
+          <form id="profileForm">
+            <div class="settings-fields">
+              <label class="field"
+                >Fallback cycle length<input
+                  id="cycleLengthInput"
+                  type="number"
+                  min="15"
+                  max="60"
+                  value="28"
+                  required /></label
+              ><label class="field"
+                >Typical period duration<input
+                  id="periodLengthInput"
+                  type="number"
+                  min="1"
+                  max="10"
+                  value="5"
+                  required
+              /></label>
+            </div>
+            <div class="actions">
+              <button class="button" type="submit">Save cycle notes</button
+              ><button
+                class="button secondary"
+                id="openPeriodDialog"
+                type="button"
+              >
+                Period started today
+              </button>
+            </div>
+            <p class="settings-foot">
+              When an actual start differs from the estimate, choose this button
+              and set the correct date in the confirmation dialog. Use “Add a
+              past date” below for earlier starts.
+            </p>
+          </form>
+        </article>
+      </section>
+
+      <section
+        class="section panel"
+        aria-labelledby="phaseTimelineHeading"
+        style="padding: clamp(22px, 4vw, 34px)"
+      >
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">The current rhythm</div>
+            <h2 id="phaseTimelineHeading">A phase at a time</h2>
+          </div>
+          <p id="cycleAnchorText">
+            Phase dates are estimates anchored to the most recent actual period
+            start.
+          </p>
+        </div>
+        <div class="timeline" id="phaseTimeline">
+          <div class="timeline-item"><div class="loading-shimmer"></div></div>
+          <div class="timeline-item"><div class="loading-shimmer"></div></div>
+          <div class="timeline-item"><div class="loading-shimmer"></div></div>
+        </div>
+      </section>
+
+      <section
+        class="section panel calendar-panel reveal"
+        aria-labelledby="calendarHeading"
+      >
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">
+              Actual dates, clearly marked estimates
+            </div>
+            <h2 id="calendarHeading">Cycle calendar</h2>
+            <p>Choose any day for its recorded or estimated context.</p>
+          </div>
+          <div class="calendar-actions">
+            <button
+              class="icon-button"
+              id="previousMonth"
+              type="button"
+              aria-label="Previous month"
+            >
+              ‹</button
+            ><strong class="month-label" id="monthLabel">—</strong
+            ><button
+              class="icon-button"
+              id="nextMonth"
+              type="button"
+              aria-label="Next month"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+        <div class="calendar-wrap">
+          <div class="weekdays" aria-hidden="true">
+            <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span
+            ><span>Thu</span><span>Fri</span><span>Sat</span>
+          </div>
+          <div
+            class="calendar-grid"
+            id="calendarGrid"
+            role="group"
+            aria-label="Cycle calendar"
+          ></div>
+        </div>
+        <div class="legend">
+          <span
+            ><i class="actual-dot"></i>Actual period start / days
+            confirmed</span
+          ><span><i class="predicted-swatch"></i>Predicted period</span
+          ><span><i style="--legend: #e8efe9"></i>Follicular estimate</span
+          ><span><i style="--legend: #eee8f1"></i>Ovulation estimate</span
+          ><span><i style="--legend: #f5eddf"></i>Luteal estimate</span>
+        </div>
+        <div class="selected-day" id="selectedDayInfo" aria-live="polite">
+          Select a calendar day to see its cycle context.
+        </div>
+        <p class="calendar-disclaimer">
+          Shading is an estimate from past dates, not a confirmed event.
+          Calendar estimates cannot confirm ovulation or prevent pregnancy.
+        </p>
+      </section>
+
+      <section
+        class="section panel phase-panel reveal"
+        aria-labelledby="phaseGuideHeading"
+      >
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">
+              A little biology, with room for individuality
+            </div>
+            <h2 id="phaseGuideHeading">Four phases, many experiences</h2>
+          </div>
+          <p>
+            Hormone patterns are broad tendencies. They do not predict anyone's
+            mood or tell you how she feels today.
+          </p>
+        </div>
+        <div class="phase-grid">
+          <details
+            class="phase-detail phase-menstrual-card"
+            data-phase-card="menstrual"
+          >
+            <summary>
+              <span class="phase-icon">01</span
+              ><span
+                ><strong>Menstrual</strong
+                ><small>Bleeding · a new cycle begins</small></span
+              ><em>＋</em>
+            </summary>
+            <div class="phase-body">
+              <p>
+                <b>What’s happening:</b> The uterine lining sheds. Estrogen and
+                progesterone are relatively low at the start of bleeding. The
+                first day of bleeding is cycle day one.
+              </p>
+              <p>
+                <b>Possible experiences:</b> Cramps, fatigue, headache, or lower
+                energy can happen; experiences vary. Some people feel little
+                disruption.
+              </p>
+              <p>
+                <b>Care that may help:</b> Ask before offering a warm pack,
+                water, rest, comfortable clothes, or gentle movement. Don’t add
+                pressure or assume she wants advice.
+              </p>
+            </div>
+          </details>
+          <details
+            class="phase-detail phase-follicular-card"
+            data-phase-card="follicular"
+          >
+            <summary>
+              <span class="phase-icon">02</span
+              ><span
+                ><strong>Follicular</strong
+                ><small>Follicles develop · estrogen rises</small></span
+              ><em>＋</em>
+            </summary>
+            <div class="phase-body">
+              <p>
+                <b>What’s happening:</b> Follicle-stimulating hormone supports
+                follicle development in the ovary. As a follicle matures,
+                estrogen generally rises and the uterine lining begins
+                rebuilding. This phase starts on day one and overlaps
+                menstruation biologically.
+              </p>
+              <p>
+                <b>Possible experiences:</b> Energy or motivation may change for
+                some people, but there is no reliable emotional script.
+              </p>
+              <p>
+                <b>Care that may help:</b> Support routines or activities she
+                enjoys without imposing a schedule or expectation.
+              </p>
+            </div>
+          </details>
+          <details
+            class="phase-detail phase-ovulation-card"
+            data-phase-card="ovulation"
+          >
+            <summary>
+              <span class="phase-icon">03</span
+              ><span
+                ><strong>Ovulation</strong
+                ><small>LH surge · an egg may be released</small></span
+              ><em>＋</em>
+            </summary>
+            <div class="phase-body">
+              <p>
+                <b>What’s happening:</b> A rise in luteinizing hormone (LH)
+                triggers release of an egg. Cervical mucus can become clearer or
+                stretchier. Mild one-sided discomfort occurs for some people.
+              </p>
+              <p>
+                <b>Possible experiences:</b> Many notice no clear sign.
+                Ovulation timing varies and the calendar cannot confirm it.
+              </p>
+              <p>
+                <b>Care that may help:</b> Respect what she says about comfort
+                and intimacy. These calendar estimates are not contraception and
+                should not guide pregnancy prevention.
+              </p>
+            </div>
+          </details>
+          <details
+            class="phase-detail phase-luteal-card"
+            data-phase-card="luteal"
+          >
+            <summary>
+              <span class="phase-icon">04</span
+              ><span
+                ><strong>Luteal</strong
+                ><small>After ovulation · before the next period</small></span
+              ><em>＋</em>
+            </summary>
+            <div class="phase-body">
+              <p>
+                <b>What’s happening:</b> The follicle becomes the corpus luteum,
+                which produces progesterone. If pregnancy does not occur,
+                progesterone and estrogen fall before the next period.
+              </p>
+              <p>
+                <b>Possible experiences:</b> Some people notice breast
+                tenderness, bloating, appetite changes, fatigue, or mood
+                symptoms. Patterns vary between people and cycles; many have few
+                or no symptoms.
+              </p>
+              <p>
+                <b>Care that may help:</b> Check in gently, listen, and take her
+                experience as the source of truth. Don’t dismiss a feeling as
+                “just hormones.”
+              </p>
+            </div>
+          </details>
+        </div>
+        <div class="subsection">
+          <h3>Mood, PMS, and when support may help</h3>
+          <p class="phase-summary">
+            Some people experience recurring physical or mood symptoms before a
+            period; others experience little change. PMS is a pattern that can
+            affect everyday life. PMDD is a more severe condition that can
+            substantially interfere with daily life and needs professional
+            assessment. This page cannot diagnose either. If symptoms are
+            severe, persistent, or distressing, encourage a conversation with a
+            qualified clinician; symptom records can help that conversation.
+          </p>
+        </div>
+      </section>
+
+      <section
+        class="section panel mood-panel reveal"
+        aria-labelledby="moodHeading"
+      >
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">
+              Optional · only what she chooses to record
+            </div>
+            <h2 id="moodHeading">Daily notes</h2>
+          </div>
+          <p>
+            Mood and symptom notes are personal observations, not predictions.
+            Leave anything blank that she doesn’t want to track.
+          </p>
+        </div>
+        <div class="mood-grid">
+          <form id="logForm">
+            <div class="form-grid">
+              <label class="field"
+                >Date<input id="logDate" type="date" required /></label
+              ><label class="field"
+                >Mood, if she wants to note it<select id="logMood">
+                  <option value="">Skip</option>
+                  <option value="happy">Positive</option>
+                  <option value="calm">Calm</option>
+                  <option value="energized">Energized</option>
+                  <option value="neutral">Neutral</option>
+                  <option value="low">Low</option>
+                  <option value="frustrated">Frustrated</option>
+                  <option value="anxious">Anxious</option>
+                  <option value="sad">Sad</option>
+                  <option value="other">Other</option>
+                </select></label
+              ><label class="field"
+                >Energy · optional<select id="logEnergy">
+                  <option value="">Skip</option>
+                  <option value="1">1 · Very low</option>
+                  <option value="2">2 · Low</option>
+                  <option value="3">3 · Steady</option>
+                  <option value="4">4 · Good</option>
+                  <option value="5">5 · High</option>
+                </select></label
+              ><label class="field"
+                >Pain · optional<select id="logPain">
+                  <option value="">Skip</option>
+                  <option value="0">0 · None</option>
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5 · Moderate</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10 · Severe</option>
+                </select></label
+              >
+              <div class="field full">
+                <span>Physical symptoms · optional</span>
+                <div class="choice-row" id="symptomChoices">
+                  <label class="choice"
+                    ><input type="checkbox" value="cramps" /><span
+                      >Cramps</span
+                    ></label
+                  ><label class="choice"
+                    ><input type="checkbox" value="headache" /><span
+                      >Headache</span
+                    ></label
+                  ><label class="choice"
+                    ><input type="checkbox" value="bloating" /><span
+                      >Bloating</span
+                    ></label
+                  ><label class="choice"
+                    ><input type="checkbox" value="tenderness" /><span
+                      >Tenderness</span
+                    ></label
+                  ><label class="choice"
+                    ><input type="checkbox" value="fatigue" /><span
+                      >Fatigue</span
+                    ></label
+                  ><label class="choice"
+                    ><input type="checkbox" value="appetite change" /><span
+                      >Appetite change</span
+                    ></label
+                  ><label class="choice"
+                    ><input type="checkbox" value="other" /><span
+                      >Other</span
+                    ></label
+                  >
+                </div>
+              </div>
+              <label class="field full"
+                >Private note · optional<textarea
+                  id="logNotes"
+                  maxlength="1000"
+                  placeholder="A note she chooses to keep…"
+                ></textarea>
+              </label>
+            </div>
+            <div class="actions">
+              <button class="button" type="submit">Save daily note</button>
+            </div>
+          </form>
+          <div>
+            <div class="section-kicker" style="margin-bottom: 12px">
+              Recorded notes
+            </div>
+            <div id="logList" class="log-list">
+              <div class="empty-state">Loading saved notes…</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="section panel care-panel reveal"
+        aria-labelledby="careHeading"
+      >
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">A practical little handbook</div>
+            <h2 id="careHeading">How to be supportive</h2>
+          </div>
+          <p>
+            Care works best when it follows her lead. These are openings for a
+            conversation, not instructions about what she needs.
+          </p>
+        </div>
+        <div class="care-grid">
+          <details class="care-detail">
+            <summary>
+              <span class="care-num">1</span>When she feels physically
+              uncomfortable
+            </summary>
+            <div class="care-answer">
+              <p>
+                Offer a comfortable space, water, a warm compress, rest, or help
+                with a practical task. Gentle movement is only helpful if she
+                wants it.
+              </p>
+              <span class="quote"
+                >“Would something warm or comfortable help?”</span
+              >
+            </div>
+          </details>
+          <details class="care-detail">
+            <summary>
+              <span class="care-num">2</span>When she feels overwhelmed
+            </summary>
+            <div class="care-answer">
+              <p>
+                Listen without immediately correcting, fixing, or asking for a
+                full explanation. Let silence be okay. Ask whether she wants
+                company or room.
+              </p>
+              <span class="quote"
+                >“Do you want me to listen, or would you prefer some
+                space?”</span
+              >
+            </div>
+          </details>
+          <details class="care-detail">
+            <summary>
+              <span class="care-num">3</span>When frustration rises
+            </summary>
+            <div class="care-answer">
+              <p>
+                Keep your voice calm and your words respectful. Don’t assume a
+                disagreement is cycle-related, and don’t turn a hard moment into
+                a diagnosis.
+              </p>
+              <span class="quote"
+                >“You don’t have to explain everything right now. I’m
+                here.”</span
+              >
+            </div>
+          </details>
+          <details class="care-detail">
+            <summary>
+              <span class="care-num">4</span>When she wants reassurance or space
+            </summary>
+            <div class="care-answer">
+              <p>
+                Believe her answer and follow through. Reassurance can be
+                simple; space can be caring too. Check back only in a way she
+                welcomes.
+              </p>
+              <span class="quote">“I’m here if you need me.”</span>
+            </div>
+          </details>
+          <details class="care-detail">
+            <summary>
+              <span class="care-num">5</span>On a positive or energetic day
+            </summary>
+            <div class="care-answer">
+              <p>
+                Enjoy the day and support her plans. A phase description never
+                dictates what she should feel or what she should be up for.
+              </p>
+              <span class="quote"
+                >“That sounds good. What would you like to do?”</span
+              >
+            </div>
+          </details>
+          <details class="care-detail">
+            <summary><span class="care-num">6</span>What to avoid</summary>
+            <div class="care-answer">
+              <p>
+                Don’t say “it’s just hormones,” insist on advice, force a
+                conversation, or treat her differently without asking. Never use
+                a predicted phase to overrule what she tells you.
+              </p>
+              <span class="quote">Ask. Listen. Respect the answer.</span>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section
+        class="section panel history-panel reveal"
+        aria-labelledby="historyHeading"
+      >
+        <div class="section-head">
+          <div>
+            <div class="section-kicker">Confirmed dates stay in the record</div>
+            <h2 id="historyHeading">Cycle History</h2>
+          </div>
+          <button class="button secondary" id="addHistoryRecord" type="button">
+            ＋ Add a past date
+          </button>
+        </div>
+        <p class="phase-summary" style="margin-bottom: 17px">
+          Every entry below is an actual start date she confirmed. Estimated
+          dates are kept separate in the calendar.
+        </p>
+        <div id="historyList" class="history-list">
+          <div class="empty-state">Loading actual history…</div>
+        </div>
+        <div class="subsection">
+          <h3>Cycle history, one date at a time</h3>
+          <p class="phase-summary">
+            The interval is measured from one confirmed period start to the
+            next. Predictions are never added to this history automatically. Use
+            “Correct” to edit a date explicitly; removing an entry recalculates
+            estimates.
+          </p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <p>
+          <strong>Private, personal, and approximate.</strong> This companion is
+          for education and tracking, not diagnosis or contraception. Cycle
+          timing and symptoms can vary. Calendar-based ovulation estimates are
+          uncertain. Seek qualified medical advice for severe, persistent, or
+          concerning symptoms.
+        </p>
+        <div class="sources" aria-label="Health information sources">
+          <a
+            href="https://www.nhs.uk/conditions/periods/fertility-in-the-menstrual-cycle/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >NHS · cycle and fertility</a
+          ><a
+            href="https://www.acog.org/womens-health/faqs/premenstrual-syndrome"
+            target="_blank"
+            rel="noopener noreferrer"
+            >ACOG · PMS information</a
+          ><a
+            href="https://www.nhs.uk/symptoms/ovulation-pain/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >NHS · ovulation pain</a
+          >
+        </div>
+        <p style="margin-top: 12px">
+          This guide makes no assumptions about anyone's mood. Her own words
+          always matter more than a phase estimate.
+        </p>
+      </footer>
+    </main>
+
+    <dialog class="modal" id="periodDialog" aria-labelledby="periodDialogTitle">
+      <form id="periodForm">
+        <h2 id="periodDialogTitle">Record an actual start</h2>
+        <p>
+          Only save a date she has confirmed. Predictions stay separate from
+          actual history.
+        </p>
+        <div class="settings-fields">
+          <label class="field"
+            >Period started<input
+              id="periodStartInput"
+              type="date"
+              required /></label
+          ><label class="field"
+            >Period ended · optional<input
+              id="periodEndInput"
+              type="date" /></label
+          ><label class="field" style="grid-column: 1/-1"
+            >Note · optional<input
+              id="periodNoteInput"
+              type="text"
+              maxlength="1000"
+              placeholder="Only if useful"
+          /></label>
+        </div>
+        <div class="modal-actions">
+          <button
+            class="button secondary"
+            id="cancelPeriodDialog"
+            type="button"
+          >
+            Cancel</button
+          ><button class="button" type="submit">Save actual date</button>
+        </div>
+      </form>
+    </dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script type="module">
+      import { api } from "../assets/js/api.js";
+
+      const $ = (id) => document.getElementById(id);
+      const state = {
+        profile: null,
+        intelligence: null,
+        records: [],
+        logs: [],
+        asOfDate: "",
+        month: "",
+        selectedDate: "",
+      };
+      const phases = {
+        menstrual: {
+          title: "Menstrual phase",
+          summary:
+            "The uterine lining sheds. Bleeding and cramps can happen; comfort and energy needs vary from person to person.",
+        },
+        follicular: {
+          title: "Follicular phase",
+          summary:
+            "Follicles develop and estrogen generally rises. Some people notice more energy; others notice little change.",
+        },
+        ovulation: {
+          title: "Ovulation window",
+          summary:
+            "Ovulation may occur near this window. Timing varies and cannot be confirmed by calendar dates.",
+        },
+        luteal: {
+          title: "Luteal phase",
+          summary:
+            "Progesterone changes after ovulation. PMS symptoms are possible, but experiences differ across people and cycles.",
+        },
+      };
+      const dateParts = (value) => {
+        const [year, month, day] = value.split("-").map(Number);
+        return { year, month, day };
+      };
+      const addDays = (value, count) => {
+        const { year, month, day } = dateParts(value);
+        return new Date(Date.UTC(year, month - 1, day + count))
+          .toISOString()
+          .slice(0, 10);
+      };
+      const dayDifference = (from, to) => {
+        const a = dateParts(from),
+          b = dateParts(to);
+        return Math.round(
+          (Date.UTC(b.year, b.month - 1, b.day) -
+            Date.UTC(a.year, a.month - 1, a.day)) /
+            86400000,
+        );
+      };
+      const parseDate = (value) => {
+        const { year, month, day } = dateParts(value);
+        return new Date(Date.UTC(year, month - 1, day, 12));
+      };
+      const formatDate = (value) =>
+        value
+          ? parseDate(value).toLocaleDateString(undefined, {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+              timeZone: "UTC",
+            })
+          : "—";
+      const formatShort = (value) =>
+        value
+          ? parseDate(value).toLocaleDateString(undefined, {
+              month: "short",
+              day: "numeric",
+              timeZone: "UTC",
+            })
+          : "—";
+      const formatMonth = (value) => {
+        const [year, month] = value.split("-").map(Number);
+        return new Date(Date.UTC(year, month - 1, 1, 12)).toLocaleDateString(
+          undefined,
+          { month: "long", year: "numeric", timeZone: "UTC" },
+        );
+      };
+      const esc = (value) =>
+        String(value ?? "").replace(
+          /[&<>"']/g,
+          (ch) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[ch],
+        );
+      function showNotice(message, kind = "error") {
+        const node = $("pageNotice");
+        node.textContent = message;
+        node.className = `notice show ${kind === "success" ? "success" : ""}`;
+        node.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+      function clearNotice() {
+        $("pageNotice").className = "notice";
+        $("pageNotice").textContent = "";
+      }
+      let toastTimer;
+      function toast(message, error = false) {
+        const node = $("toast");
+        node.textContent = message;
+        node.className = `toast show${error ? " error" : ""}`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => (node.className = "toast"), 3200);
+      }
+
+      function renderCycle() {
+        const { profile, intelligence, asOfDate } = state;
+        if (!profile || !intelligence?.currentCycle) {
+          showNotice(
+            "No saved cycle record is available yet. Check your connection and sign in again.",
+          );
+          return;
+        }
+        const cycle = intelligence.currentCycle,
+          phase = cycle.currentPhase;
+        $("todayLabel").textContent = `· ${formatDate(asOfDate)}`;
+        $("currentPhase").textContent = phase.label;
+        $("phaseSummary").textContent = phase.summary;
+        $("basisBadge").textContent = cycle.isProjectedCycleStart
+          ? "Cycle day is estimated from the latest actual start"
+          : "Counted from an actual recorded start";
+        $("basisBadge").classList.toggle(
+          "estimated",
+          cycle.isProjectedCycleStart,
+        );
+        $("phaseRange").textContent =
+          `This phase is estimated from ${formatDate(cycle.phaseStartDate)} to ${formatDate(cycle.phaseEndDate)}.`;
+        $("cycleDay").textContent = String(cycle.cycleDay).padStart(2, "0");
+        $("cycleLengthText").textContent =
+          `Rolling estimate · ${intelligence.cycleLength} days`;
+        const next = intelligence.prediction?.predictedNextPeriodStart;
+        $("nextPeriodDate").textContent = next
+          ? formatShort(next)
+          : "Not enough history";
+        const remaining = next ? dayDifference(asOfDate, next) : null;
+        $("daysRemaining").textContent =
+          remaining === null
+            ? "—"
+            : remaining >= 0
+              ? `${remaining} days`
+              : `${Math.abs(remaining)} days past estimate`;
+        const circumference = 2 * Math.PI * 85;
+        const ring = $("ringProgress");
+        ring.style.strokeDasharray = String(circumference);
+        ring.style.strokeDashoffset = String(
+          circumference *
+            (1 - Math.min(cycle.cycleDay / intelligence.cycleLength, 1)),
+        );
+        $("cycleRing").setAttribute(
+          "aria-label",
+          `${phase.label}, estimated cycle day ${cycle.cycleDay} of ${intelligence.cycleLength}`,
+        );
+        const ranges = intelligence.phaseRanges;
+        const ringShell = $("cycleRing");
+        ringShell.style.setProperty(
+          "--cycle-angle",
+          `${((cycle.cycleDay - 1) / intelligence.cycleLength) * 360}deg`,
+        );
+        ringShell.style.setProperty("--phase-color", phaseColor(phase.key));
+        ringShell.style.setProperty(
+          "--menstrual-stop",
+          `${(ranges[0].endDay / intelligence.cycleLength) * 100}%`,
+        );
+        ringShell.style.setProperty(
+          "--follicular-stop",
+          `${(ranges[1].endDay / intelligence.cycleLength) * 100}%`,
+        );
+        ringShell.style.setProperty(
+          "--ovulation-stop",
+          `${(ranges[2].endDay / intelligence.cycleLength) * 100}%`,
+        );
+        const previous = cycle.previousPhase,
+          upcoming = cycle.nextPhase;
+        const currentStart = cycle.phaseStartDate,
+          currentEnd = cycle.phaseEndDate;
+        const upcomingStart = cycle.nextPhaseStartDate;
+        const phaseIndex = intelligence.phaseDates.findIndex(
+          (item) => item.key === phase.key,
+        );
+        const previousDates =
+          phaseIndex > 0 ? intelligence.phaseDates[phaseIndex - 1] : null;
+        const previousRange = intelligence.phaseRanges.find(
+          (item) => item.key === previous.key,
+        );
+        const priorCycleStart = addDays(
+          cycle.startDate,
+          -intelligence.cycleLength,
+        );
+        const previousDateText = previousDates
+          ? `${formatShort(previousDates.startDate)} – ${formatShort(previousDates.endDate)}`
+          : `${formatShort(addDays(priorCycleStart, previousRange.startDay - 1))} – ${formatShort(addDays(priorCycleStart, previousRange.endDay - 1))}`;
+        const items = [
+          {
+            label: "Previous phase",
+            name: previous.label,
+            date: previousDateText,
+            key: previous.key,
+          },
+          {
+            label: "Current phase",
+            name: phase.label,
+            date: `${formatShort(currentStart)} – ${formatShort(currentEnd)}`,
+            key: phase.key,
+            current: true,
+          },
+          {
+            label: "Up next",
+            name: upcoming.label,
+            date: `Estimated around ${formatShort(upcomingStart)}`,
+            key: upcoming.key,
+          },
+        ];
+        $("phaseTimeline").innerHTML = items
+          .map(
+            (item) =>
+              `<article class="timeline-item ${item.current ? "current" : ""}" style="--phase-color:${phaseColor(item.key)}"><div class="timeline-label"><i class="timeline-dot"></i>${item.label}</div><h3>${esc(item.name)}</h3><p>${esc(item.date)}</p></article>`,
+          )
+          .join("");
+        $("cycleAnchorText").textContent =
+          `Current cycle estimate is anchored to the actual start on ${formatDate(state.records.at(-1)?.actualPeriodStartDate)}.`;
+        document
+          .querySelectorAll("[data-phase-card]")
+          .forEach((card) =>
+            card.classList.toggle(
+              "active-phase",
+              card.dataset.phaseCard === phase.key,
+            ),
+          );
+      }
+      function phaseColor(key) {
+        return (
+          {
+            menstrual: "#bd7180",
+            follicular: "#668978",
+            ovulation: "#796487",
+            luteal: "#bd9660",
+          }[key] || "#796487"
+        );
+      }
+
+      function renderCalendar(days) {
+        $("monthLabel").textContent = formatMonth(state.month);
+        const [year, month] = state.month.split("-").map(Number),
+          firstDay = new Date(Date.UTC(year, month - 1, 1, 12)).getUTCDay();
+        let html = Array.from(
+          { length: firstDay },
+          () => '<span class="calendar-day empty" aria-hidden="true"></span>',
+        ).join("");
+        const dayByDate = new Map(days.map((day) => [day.date, day]));
+        for (const day of days) {
+          const n = dateParts(day.date).day,
+            classes = ["calendar-day", day.phase ? `phase-${day.phase}` : ""];
+          if (day.date === state.asOfDate) classes.push("today");
+          if (day.actualPeriodStart) classes.push("actual-start");
+          if (day.actualPeriod) classes.push("actual-period");
+          if (day.predictedPeriod) classes.push("predicted");
+          if (day.date === state.selectedDate) classes.push("selected");
+          const markers = [];
+          if (day.actualPeriodStart) markers.push("actual period start");
+          else if (day.actualPeriod) markers.push("actual period day");
+          if (day.predictedPeriod) markers.push("predicted period estimate");
+          if (day.fertileWindow) markers.push("estimated fertile window");
+          if (day.predictedOvulation) markers.push("estimated ovulation");
+          if (day.phase) markers.push(`${phaseTitle(day.phase)} estimate`);
+          if (day.date === state.asOfDate) markers.push("today");
+          html += `<button class="${classes.filter(Boolean).join(" ")}" type="button" data-date="${day.date}" aria-label="${esc(formatDate(day.date))}${markers.length ? `, ${esc(markers.join(", "))}` : ""}" aria-pressed="${day.date === state.selectedDate}">${n}</button>`;
+        }
+        $("calendarGrid").innerHTML = html;
+        $("calendarGrid")
+          .querySelectorAll("[data-date]")
+          .forEach((button) =>
+            button.addEventListener("click", () => {
+              state.selectedDate = button.dataset.date;
+              renderCalendar(days);
+              renderSelectedDate(dayByDate.get(state.selectedDate));
+            }),
+          );
+        if (state.selectedDate) {
+          renderSelectedDate(dayByDate.get(state.selectedDate));
+        }
+      }
+      function phaseTitle(key) {
+        return phases[key]?.title || "Cycle";
+      }
+      function renderSelectedDate(day) {
+        if (!day) {
+          $("selectedDayInfo").textContent =
+            "Select a calendar day to see its cycle context.";
+          return;
+        }
+        const notes = [];
+        if (day.actualPeriodStart) notes.push("actual period start recorded");
+        else if (day.actualPeriod)
+          notes.push("period day confirmed by recorded dates");
+        if (day.predictedPeriod) notes.push("predicted period day");
+        if (day.fertileWindow) notes.push("estimated fertile window");
+        if (day.predictedOvulation) notes.push("estimated ovulation day");
+        if (day.phase) notes.push(`${phaseTitle(day.phase)} estimate`);
+        $("selectedDayInfo").innerHTML =
+          `<strong>${esc(formatDate(day.date))}:</strong> ${esc(notes.join(" · ") || "No period record; phase estimate only.")}`;
+      }
+      async function loadCalendar(month = state.month) {
+        state.month = month;
+        const grid = $("calendarGrid");
+        grid.classList.add("changing");
+        try {
+          const response = await api.get("/cycle/calendar", { month });
+          renderCalendar(response.days || []);
+        } catch (error) {
+          showNotice(`Calendar couldn’t load: ${error.message}`);
+        } finally {
+          grid.classList.remove("changing");
+        }
+      }
+
+      function renderHistory() {
+        if (!state.records.length) {
+          $("historyList").innerHTML =
+            '<div class="empty-state">No actual period dates are recorded yet.</div>';
+          return;
+        }
+        const ordered = [...state.records].sort((a, b) =>
+          a.actualPeriodStartDate.localeCompare(b.actualPeriodStartDate),
+        );
+        $("historyList").innerHTML = ordered
+          .map((record, index) => {
+            const interval = record.cycleIntervalDays;
+            const duration = record.actualPeriodEndDate
+              ? `${dayDifference(record.actualPeriodStartDate, record.actualPeriodEndDate) + 1} days recorded`
+              : "Duration not recorded";
+            const created = record.createdAt
+              ? new Date(record.createdAt).toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : "date not available";
+            const wasCorrected =
+              record.updatedAt &&
+              record.createdAt &&
+              new Date(record.updatedAt).getTime() -
+                new Date(record.createdAt).getTime() >
+                1000;
+            const changed = wasCorrected
+              ? new Date(record.updatedAt).toLocaleDateString(undefined, {
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                })
+              : created;
+            const recordVerb = wasCorrected ? "corrected" : "recorded";
+            return `<article class="history-row"><span class="history-index">${String(index + 1).padStart(2, "0")}</span><div class="history-date"><strong>${esc(formatDate(record.actualPeriodStartDate))}</strong><span class="actual-label">Actual</span></div><div class="history-interval"><strong>${interval ? `${interval} days` : "Baseline"}</strong><small>${esc(duration)} · ${recordVerb} ${esc(changed)}</small>${record.notes ? `<small>${esc(record.notes)}</small>` : ""}</div><div class="history-actions"><button type="button" data-edit-period="${esc(record._id)}">Correct</button><button type="button" data-delete-period="${esc(record._id)}" aria-label="Remove actual period starting ${esc(formatDate(record.actualPeriodStartDate))}">Remove</button></div></article>`;
+          })
+          .join("");
+        $("historyList")
+          .querySelectorAll("[data-edit-period]")
+          .forEach((button) =>
+            button.addEventListener("click", () =>
+              openEditPeriod(button.dataset.editPeriod),
+            ),
+          );
+        $("historyList")
+          .querySelectorAll("[data-delete-period]")
+          .forEach((button) =>
+            button.addEventListener("click", () =>
+              removePeriod(button.dataset.deletePeriod),
+            ),
+          );
+      }
+
+      function renderLogs() {
+        const logs = state.logs;
+        if (!logs.length) {
+          $("logList").innerHTML =
+            '<div class="empty-state">No daily notes recorded. Mood and symptom tracking is entirely optional.</div>';
+          return;
+        }
+        $("logList").innerHTML = logs
+          .slice(0, 8)
+          .map((log) => {
+            const entries = [];
+            if (log.mood) entries.push(`Mood: ${log.mood}`);
+            if (log.energyLevel !== null && log.energyLevel !== undefined)
+              entries.push(`Energy ${log.energyLevel}/5`);
+            if (log.painLevel !== null && log.painLevel !== undefined)
+              entries.push(`Pain ${log.painLevel}/10`);
+            if (log.symptoms?.length) entries.push(log.symptoms.join(", "));
+            if (log.notes) entries.push(log.notes);
+            return `<article class="log-item"><div class="log-top"><strong>${esc(formatDate(log.date))}</strong><button class="button quiet" type="button" data-delete-log="${esc(log._id)}">Remove</button></div><p>${esc(entries.join(" · ") || "No details noted.")}</p></article>`;
+          })
+          .join("");
+        $("logList")
+          .querySelectorAll("[data-delete-log]")
+          .forEach((button) =>
+            button.addEventListener("click", async () => {
+              try {
+                await api.delete(
+                  `/cycle/logs/${encodeURIComponent(button.dataset.deleteLog)}`,
+                );
+                await loadLogs();
+                toast("Daily note removed.");
+              } catch (error) {
+                toast(error.message, true);
+              }
+            }),
+          );
+      }
+
+      async function loadLogs() {
+        const response = await api.get("/cycle/logs");
+        state.logs = response.logs || [];
+        renderLogs();
+      }
+      async function loadAll() {
+        clearNotice();
+        try {
+          const data = await api.get("/cycle/profile");
+          state.profile = data.profile;
+          state.records = data.periodRecords || [];
+          state.intelligence = data.intelligence;
+          state.asOfDate = data.asOfDate;
+          state.month = state.asOfDate.slice(0, 7);
+          state.selectedDate = state.asOfDate;
+          $("cycleLengthInput").value = state.profile.cycleLengthPreferenceDays;
+          $("periodLengthInput").value = state.profile.periodLengthEstimateDays;
+          $("logDate").value = state.asOfDate;
+          $("periodStartInput").value = state.asOfDate;
+          $("periodStartInput").max = state.asOfDate;
+          $("periodEndInput").max = state.asOfDate;
+          $("logDate").max = state.asOfDate;
+          renderCycle();
+          renderHistory();
+          await Promise.all([loadCalendar(state.month), loadLogs()]);
+        } catch (error) {
+          showNotice(
+            `Your saved cycle data couldn’t be loaded. ${error.message}. Check that you’re signed in and the SARTHI database is available. Nothing has been replaced with sample data.`,
+          );
+          $("currentPhase").textContent = "Your private guide is waiting";
+          $("phaseSummary").textContent =
+            "Saved cycle information will appear when the authenticated database connection is available.";
+          $("historyList").innerHTML =
+            '<div class="empty-state">History is not available offline; actual records remain on the server.</div>';
+        }
+      }
+
+      const dialog = $("periodDialog");
+      let editingId = null;
+      function openNewPeriod() {
+        editingId = null;
+        $("periodDialogTitle").textContent = "Record an actual start";
+        $("periodStartInput").value = state.asOfDate;
+        $("periodEndInput").value = "";
+        $("periodNoteInput").value = "";
+        dialog.showModal();
+      }
+      function openEditPeriod(id) {
+        const record = state.records.find((item) => item._id === id);
+        if (!record) return;
+        editingId = id;
+        $("periodDialogTitle").textContent = "Correct an actual date";
+        $("periodStartInput").value = record.actualPeriodStartDate;
+        $("periodEndInput").value = record.actualPeriodEndDate || "";
+        $("periodNoteInput").value = record.notes || "";
+        dialog.showModal();
+      }
+      $("openPeriodDialog").addEventListener("click", openNewPeriod);
+      $("addHistoryRecord").addEventListener("click", openNewPeriod);
+      $("cancelPeriodDialog").addEventListener("click", () => dialog.close());
+      $("periodForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const actualPeriodStartDate = $("periodStartInput").value,
+          actualPeriodEndDate = $("periodEndInput").value || null,
+          notes = $("periodNoteInput").value.trim();
+        if (
+          actualPeriodEndDate &&
+          actualPeriodEndDate < actualPeriodStartDate
+        ) {
+          toast("The end date must be on or after the start date.", true);
+          return;
+        }
+        const button =
+          event.submitter || $("periodForm").querySelector('[type="submit"]');
+        button.disabled = true;
+        button.textContent = "Saving…";
+        try {
+          if (editingId)
+            await api.put(`/cycle/periods/${encodeURIComponent(editingId)}`, {
+              actualPeriodStartDate,
+              actualPeriodEndDate,
+              notes,
+            });
+          else
+            await api.post("/cycle/periods", {
+              actualPeriodStartDate,
+              actualPeriodEndDate,
+              notes,
+            });
+          dialog.close();
+          await loadAll();
+          toast(
+            editingId
+              ? "Actual date corrected; estimates updated."
+              : "Actual start recorded; estimates updated.",
+          );
+        } catch (error) {
+          toast(error.message, true);
+        } finally {
+          button.disabled = false;
+          button.textContent = "Save actual date";
+        }
+      });
+      async function removePeriod(id) {
+        if (
+          !window.confirm(
+            "Remove this actual period date? The cycle estimates will be recalculated.",
+          )
+        )
+          return;
+        try {
+          await api.delete(`/cycle/periods/${encodeURIComponent(id)}`);
+          await loadAll();
+          toast("Actual date removed and estimates recalculated.");
+        } catch (error) {
+          toast(error.message, true);
+        }
+      }
+
+      $("profileForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const button = event.submitter;
+        button.disabled = true;
+        try {
+          await api.put("/cycle/profile", {
+            cycleLengthPreferenceDays: Number($("cycleLengthInput").value),
+            periodLengthEstimateDays: Number($("periodLengthInput").value),
+          });
+          await loadAll();
+          toast("Cycle notes saved.");
+        } catch (error) {
+          toast(error.message, true);
+        } finally {
+          button.disabled = false;
+        }
+      });
+      $("logForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const symptoms = [
+          ...document.querySelectorAll("#symptomChoices input:checked"),
+        ].map((input) => input.value);
+        const mood = $("logMood").value,
+          energy = $("logEnergy").value,
+          pain = $("logPain").value,
+          notes = $("logNotes").value.trim();
+        if (!mood && !energy && !pain && !symptoms.length && !notes) {
+          toast(
+            "Add at least one optional observation, or leave the day unlogged.",
+            true,
+          );
+          return;
+        }
+        try {
+          await api.post("/cycle/logs", {
+            date: $("logDate").value,
+            mood: mood || null,
+            energyLevel: energy ? Number(energy) : null,
+            painLevel: pain ? Number(pain) : null,
+            symptoms,
+            notes,
+          });
+          event.target.reset();
+          $("logDate").value = state.asOfDate;
+          await loadLogs();
+          toast("Daily note saved privately.");
+        } catch (error) {
+          toast(error.message, true);
+        }
+      });
+
+      function shiftMonth(amount) {
+        const [year, month] = state.month.split("-").map(Number);
+        const date = new Date(Date.UTC(year, month - 1 + amount, 1));
+        const next = `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+        loadCalendar(next);
+      }
+      $("previousMonth").addEventListener("click", () => shiftMonth(-1));
+      $("nextMonth").addEventListener("click", () => shiftMonth(1));
+
+      if (
+        !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+        "IntersectionObserver" in window
+      ) {
+        const observer = new IntersectionObserver(
+          (entries) =>
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("revealed");
+                observer.unobserve(entry.target);
+              }
+            }),
+          { threshold: 0.12 },
+        );
+        document.querySelectorAll(".reveal").forEach((section, index) => {
+          section.classList.add("reveal-pending");
+          section.style.transitionDelay = `${Math.min(index % 3, 2) * 70}ms`;
+          observer.observe(section);
+        });
+      }
+      loadAll();
+    </script>
+  </body>
 </html>

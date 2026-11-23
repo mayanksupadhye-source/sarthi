@@ -1,144 +1,265 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reset Room — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <style>
-    .reset-container {
-      max-width: 680px;
-      margin: var(--space-4) auto;
-    }
-    .reset-card {
-      background-color: var(--color-bg-paper);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-8);
-      box-shadow: var(--shadow-sm);
-    }
-  </style>
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">The Reset Room</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-        </div>
-      </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reset Room — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .reset-container {
+        max-width: 680px;
+        margin: var(--space-4) auto;
+      }
+      .reset-card {
+        background-color: var(--color-bg-paper);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-8);
+        box-shadow: var(--shadow-sm);
+      }
+      @media (max-width: 600px) {
+        .reset-container {
+          margin: 0 auto;
+        }
+        .reset-card {
+          padding: var(--space-5);
+        }
+        .reset-card h1 {
+          font-size: clamp(1.25rem, 6vw, 1.5rem) !important;
+        }
+        .breathing-wave-guide {
+          max-width: 100%;
+        }
+        #resetForm > div:last-of-type {
+          display: grid !important;
+          grid-template-columns: 1fr;
+          gap: 10px;
+          align-items: stretch !important;
+        }
+        #resetForm > div:last-of-type .btn {
+          width: 100%;
+          text-align: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">The Reset Room</div>
+          </div>
+          <div class="topbar-right">
+            <div id="topbarFocusWidget"></div>
+          </div>
+        </header>
 
-      <div class="page-container">
-        <div class="reset-container">
-          <div class="reset-card card-hero-wave wave-motif-calm" style="position: relative;">
-            <div class="text-xs" style="color: var(--accent-blue); font-weight: 800; letter-spacing: 0.1em; margin-bottom: var(--space-2);">
-              GROUNDING WORKFLOW
-            </div>
-            <h1 style="font-size: 1.5rem; margin-bottom: var(--space-2); color: var(--text-ink);">Pause. Regroup. Take the Next Step.</h1>
-            <p class="text-subtle text-sm" style="line-height: 1.6; margin-bottom: var(--space-4);">
-              When plans collapse, the mind exaggerates the damage and creates an intimidating mental backlog. A missed day does not destroy your future. Answer these three neutral questions to ground yourself.
-            </p>
+        <div class="page-container">
+          <div class="reset-container">
+            <div
+              class="reset-card card-hero-wave wave-motif-calm"
+              style="position: relative"
+            >
+              <div
+                class="text-xs"
+                style="
+                  color: var(--accent-blue);
+                  font-weight: 800;
+                  letter-spacing: 0.1em;
+                  margin-bottom: var(--space-2);
+                "
+              >
+                GROUNDING WORKFLOW
+              </div>
+              <h1
+                style="
+                  font-size: 1.5rem;
+                  margin-bottom: var(--space-2);
+                  color: var(--text-ink);
+                "
+              >
+                Pause. Regroup. Take the Next Step.
+              </h1>
+              <p
+                class="text-subtle text-sm"
+                style="line-height: 1.6; margin-bottom: var(--space-4)"
+              >
+                When plans collapse, the mind exaggerates the damage and creates
+                an intimidating mental backlog. A missed day does not destroy
+                your future. Answer these three neutral questions to ground
+                yourself.
+              </p>
 
-            <!-- Mindfulness Breathing Rhythm Guide -->
-            <div class="breathing-wave-guide" aria-label="4-7-8 Breathing Guide">
-              <span style="font-size: 0.75rem; font-weight: 700; color: var(--accent-blue); text-transform: uppercase; letter-spacing: 0.08em;">Breathe</span>
-              <span style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Inhale • Hold • Release</span>
-            </div>
-
-            <form id="resetForm" style="position: relative; z-index: 2;">
-              <div class="form-group">
-                <label class="form-label">1. What actually happened? (Neutral fact without judgment)</label>
-                <textarea id="resetFact" class="form-textarea" placeholder="e.g. Travel fatigue, unexpected college assignment submission, or missed morning session." required></textarea>
+              <!-- Mindfulness Breathing Rhythm Guide -->
+              <div
+                class="breathing-wave-guide"
+                aria-label="4-7-8 Breathing Guide"
+              >
+                <span
+                  style="
+                    font-size: 0.75rem;
+                    font-weight: 700;
+                    color: var(--accent-blue);
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                  "
+                  >Breathe</span
+                >
+                <span
+                  style="
+                    font-size: 0.7rem;
+                    color: var(--text-muted);
+                    margin-top: 2px;
+                  "
+                  >Inhale • Hold • Release</span
+                >
               </div>
 
-              <div class="form-group">
-                <label class="form-label">2. What is still intact? (Reality check)</label>
-                <textarea id="resetIntact" class="form-textarea" placeholder="e.g. My fundamental skills, past completed lectures, my health, and today's evening study block." required></textarea>
-              </div>
+              <form id="resetForm" style="position: relative; z-index: 2">
+                <div class="form-group">
+                  <label class="form-label"
+                    >1. What actually happened? (Neutral fact without
+                    judgment)</label
+                  >
+                  <textarea
+                    id="resetFact"
+                    class="form-textarea"
+                    placeholder="e.g. Travel fatigue, unexpected college assignment submission, or missed morning session."
+                    required
+                  ></textarea>
+                </div>
 
-              <div class="form-group">
-                <label class="form-label">3. What is the single next manageable action for the next 45 minutes?</label>
-                <input type="text" id="resetNextAction" class="form-input" placeholder="e.g. Solve 1 C++ LeetCode problem or complete 1 WebDev lesson" required>
-              </div>
+                <div class="form-group">
+                  <label class="form-label"
+                    >2. What is still intact? (Reality check)</label
+                  >
+                  <textarea
+                    id="resetIntact"
+                    class="form-textarea"
+                    placeholder="e.g. My fundamental skills, past completed lectures, my health, and today's evening study block."
+                    required
+                  ></textarea>
+                </div>
 
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-6);">
-                <a href="dashboard.html" class="btn btn-outline">Back to Today</a>
-                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 2rem;">
-                  Save Reflection & Begin Focus
-                </button>
+                <div class="form-group">
+                  <label class="form-label"
+                    >3. What is the single next manageable action for the next
+                    45 minutes?</label
+                  >
+                  <input
+                    type="text"
+                    id="resetNextAction"
+                    class="form-input"
+                    placeholder="e.g. Solve 1 C++ LeetCode problem or complete 1 WebDev lesson"
+                    required
+                  />
+                </div>
+
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-top: var(--space-6);
+                  "
+                >
+                  <a href="dashboard.html" class="btn btn-outline"
+                    >Back to Today</a
+                  >
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    style="padding: 0.75rem 2rem"
+                  >
+                    Save Reflection & Begin Focus
+                  </button>
+                </div>
+              </form>
+              <div class="sarthi-wave-container" aria-hidden="true">
+                <svg
+                  class="sarthi-wave-layer sarthi-wave-layer-1"
+                  viewBox="0 0 1200 120"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M0,75 C350,55 700,95 1050,70 L1200,75 L1200,120 L0,120 Z"
+                    fill="rgba(29, 78, 216, 0.05)"
+                  ></path>
+                </svg>
+                <svg
+                  class="sarthi-wave-layer sarthi-wave-layer-2"
+                  viewBox="0 0 1200 120"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M0,85 C250,50 600,100 950,65 L1200,80 L1200,120 L0,120 Z"
+                    fill="rgba(5, 150, 105, 0.04)"
+                  ></path>
+                </svg>
               </div>
-            </form>
-            <div class="sarthi-wave-container" aria-hidden="true">
-              <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M0,75 C350,55 700,95 1050,70 L1200,75 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.05)"></path>
-              </svg>
-              <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M0,85 C250,50 600,100 950,65 L1200,80 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.04)"></path>
-              </svg>
             </div>
           </div>
         </div>
-      </div>
-    </main>
-  </div>
+      </main>
+    </div>
 
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { getTodayString } from '../assets/js/utils.js';
-    import { showToast } from '../assets/js/toast.js';
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import { renderLayout } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { getTodayString } from "../assets/js/utils.js";
+      import { showToast } from "../assets/js/toast.js";
 
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-      renderLayout('reset-room');
+      async function init() {
+        const user = await checkAuth();
+        if (!user) return;
+        renderLayout("reset-room");
 
-      document.getElementById('resetForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const fact = document.getElementById('resetFact').value;
-        const intact = document.getElementById('resetIntact').value;
-        const nextAction = document.getElementById('resetNextAction').value;
+        document
+          .getElementById("resetForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const fact = document.getElementById("resetFact").value;
+            const intact = document.getElementById("resetIntact").value;
+            const nextAction = document.getElementById("resetNextAction").value;
 
-        const content = `[Disruption Reality]:\n${fact}\n\n[What is Intact]:\n${intact}\n\n[Next Manageable Action]:\n${nextAction}`;
+            const content = `[Disruption Reality]:\n${fact}\n\n[What is Intact]:\n${intact}\n\n[Next Manageable Action]:\n${nextAction}`;
 
-        try {
-          await api.post('/personal/notes', {
-            title: `Reset Room Reflection — ${new Date().toLocaleDateString()}`,
-            type: 'reset-room',
-            tags: ['reset-room', 'recovery', 'grounding'],
-            content,
-            nextSingleAction: nextAction
+            try {
+              await api.post("/personal/notes", {
+                title: `Reset Room Reflection — ${new Date().toLocaleDateString()}`,
+                type: "reset-room",
+                tags: ["reset-room", "recovery", "grounding"],
+                content,
+                nextSingleAction: nextAction,
+              });
+
+              // Also schedule the next action as a task for today
+              await api.post("/tasks", {
+                title: nextAction,
+                priority: "P1",
+                estimatedMinutes: 45,
+                scheduledDate: getTodayString(),
+              });
+
+              showToast("Reset saved. Starting focus session...", "success");
+              setTimeout(() => {
+                window.location.href = `focus.html?title=${encodeURIComponent(nextAction)}`;
+              }, 600);
+            } catch (err) {
+              showToast(err.message, "error");
+            }
           });
+      }
 
-          // Also schedule the next action as a task for today
-          await api.post('/tasks', {
-            title: nextAction,
-            priority: 'P1',
-            estimatedMinutes: 45,
-            scheduledDate: getTodayString()
-          });
-
-          showToast('Reset saved. Starting focus session...', 'success');
-          setTimeout(() => {
-            window.location.href = `focus.html?title=${encodeURIComponent(nextAction)}`;
-          }, 600);
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
-      });
-    }
-
-    init();
-  </script>
-</body>
+      init();
+    </script>
+  </body>
 </html>

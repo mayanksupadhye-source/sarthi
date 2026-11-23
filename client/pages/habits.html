@@ -1,151 +1,215 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Night Routine & Habits — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <style>
-    .habit-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--space-4) var(--space-5);
-      background-color: var(--color-bg-paper);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      margin-bottom: var(--space-3);
-      transition: all var(--transition-fast);
-    }
-    .habit-card:hover {
-      transform: translateX(3px);
-      border-color: #94A3B8;
-      box-shadow: var(--shadow-sm);
-    }
-  </style>
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">Habits & Night Routine</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-        </div>
-      </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Night Routine & Habits — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .habit-card {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-4) var(--space-5);
+        background-color: var(--color-bg-paper);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        margin-bottom: var(--space-3);
+        transition: all var(--transition-fast);
+      }
+      .habit-card:hover {
+        transform: translateX(3px);
+        border-color: #94a3b8;
+        box-shadow: var(--shadow-sm);
+      }
+      @media (max-width: 600px) {
+        .habit-card {
+          align-items: flex-start;
+          gap: 14px;
+          padding: 14px 15px;
+        }
+        .habit-card > div {
+          min-width: 0;
+          overflow-wrap: anywhere;
+        }
+        .habit-toggle {
+          flex: 0 0 24px;
+          width: 24px !important;
+          height: 24px !important;
+          margin-top: 2px;
+        }
+        .card-header {
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .card-header .badge {
+          white-space: nowrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Habits & Night Routine</div>
+          </div>
+          <div class="topbar-right">
+            <div id="topbarFocusWidget"></div>
+          </div>
+        </header>
 
-      <div class="page-container">
-        <!-- Night Routine Card with Calm Grounding Wave -->
-        <div class="card card-hero-wave wave-motif-calm" style="margin-bottom: var(--space-6); border-left: 4px solid var(--accent-blue);">
-          <div class="card-header" style="position: relative; z-index: 2;">
-            <div>
-              <span class="badge badge-primary" style="margin-bottom: var(--space-2);">EVENING WIND-DOWN</span>
-              <div class="card-title">Night Routine Protocol (10:30 PM – 11:40 PM · 70 Min)</div>
-              <div class="text-subtle text-sm">Wind-down sequence from handwritten schedule before sleep window</div>
+        <div class="page-container">
+          <!-- Night Routine Card with Calm Grounding Wave -->
+          <div
+            class="card card-hero-wave wave-motif-calm"
+            style="
+              margin-bottom: var(--space-6);
+              border-left: 4px solid var(--accent-blue);
+            "
+          >
+            <div class="card-header" style="position: relative; z-index: 2">
+              <div>
+                <span
+                  class="badge badge-primary"
+                  style="margin-bottom: var(--space-2)"
+                  >EVENING WIND-DOWN</span
+                >
+                <div class="card-title">
+                  Night Routine Protocol (10:30 PM – 11:40 PM · 70 Min)
+                </div>
+                <div class="text-subtle text-sm">
+                  Wind-down sequence from handwritten schedule before sleep
+                  window
+                </div>
+              </div>
+              <span class="badge badge-neutral">Asia/Kolkata</span>
             </div>
-            <span class="badge badge-neutral">Asia/Kolkata</span>
+            <div id="nightRoutineList" style="position: relative; z-index: 2">
+              <p class="text-muted text-sm">Loading night routine...</p>
+            </div>
+            <div class="sarthi-wave-container" aria-hidden="true">
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-1"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,75 C350,55 700,95 1050,70 L1200,75 L1200,120 L0,120 Z"
+                  fill="rgba(30, 64, 175, 0.05)"
+                ></path>
+              </svg>
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-2"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,85 C250,50 600,100 950,65 L1200,80 L1200,120 L0,120 Z"
+                  fill="rgba(5, 150, 105, 0.04)"
+                ></path>
+              </svg>
+            </div>
           </div>
-          <div id="nightRoutineList" style="position: relative; z-index: 2;">
-            <p class="text-muted text-sm">Loading night routine...</p>
-          </div>
-          <div class="sarthi-wave-container" aria-hidden="true">
-            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,75 C350,55 700,95 1050,70 L1200,75 L1200,120 L0,120 Z" fill="rgba(30, 64, 175, 0.05)"></path>
-            </svg>
-            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,85 C250,50 600,100 950,65 L1200,80 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.04)"></path>
-            </svg>
+
+          <!-- All Daily Habits Card -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Daily Execution Habits</div>
+              <div class="text-subtle text-sm">
+                Neutral check-in · Progress without guilt mechanics
+              </div>
+            </div>
+            <div id="allHabitsList">
+              <p class="text-muted text-sm">Loading habits...</p>
+            </div>
           </div>
         </div>
+      </main>
+    </div>
 
-        <!-- All Daily Habits Card -->
-        <div class="card">
-          <div class="card-header">
-            <div class="card-title">Daily Execution Habits</div>
-            <div class="text-subtle text-sm">Neutral check-in · Progress without guilt mechanics</div>
-          </div>
-          <div id="allHabitsList">
-            <p class="text-muted text-sm">Loading habits...</p>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import { renderLayout } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { getTodayString } from "../assets/js/utils.js";
+      import { showToast } from "../assets/js/toast.js";
 
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { getTodayString } from '../assets/js/utils.js';
-    import { showToast } from '../assets/js/toast.js';
-
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-      renderLayout('habits');
-      await loadHabits();
-    }
-
-    async function loadHabits() {
-      try {
-        const today = getTodayString();
-        const res = await api.get('/personal/habits', { date: today });
-        if (!res.success) return;
-
-        const nightHabits = res.habits.filter(h => h.category === 'night-routine');
-        const otherHabits = res.habits.filter(h => h.category !== 'night-routine');
-
-        renderHabitsList('nightRoutineList', nightHabits);
-        renderHabitsList('allHabitsList', otherHabits);
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
-    }
-
-    function renderHabitsList(containerId, habits) {
-      const container = document.getElementById(containerId);
-      if (!habits || habits.length === 0) {
-        container.innerHTML = '<p class="text-muted text-sm">No habits configured.</p>';
-        return;
+      async function init() {
+        const user = await checkAuth();
+        if (!user) return;
+        renderLayout("habits");
+        await loadHabits();
       }
 
-      container.innerHTML = habits.map(h => `
+      async function loadHabits() {
+        try {
+          const today = getTodayString();
+          const res = await api.get("/personal/habits", { date: today });
+          if (!res.success) return;
+
+          const nightHabits = res.habits.filter(
+            (h) => h.category === "night-routine",
+          );
+          const otherHabits = res.habits.filter(
+            (h) => h.category !== "night-routine",
+          );
+
+          renderHabitsList("nightRoutineList", nightHabits);
+          renderHabitsList("allHabitsList", otherHabits);
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      }
+
+      function renderHabitsList(containerId, habits) {
+        const container = document.getElementById(containerId);
+        if (!habits || habits.length === 0) {
+          container.innerHTML =
+            '<p class="text-muted text-sm">No habits configured.</p>';
+          return;
+        }
+
+        container.innerHTML = habits
+          .map(
+            (h) => `
         <div class="habit-card">
           <div>
             <div style="font-weight: 600; font-size: 0.9375rem;">${h.title}</div>
-            <span class="text-subtle text-xs">${h.category} · ${h.frequency}</span>
+            <span class="text-subtle text-xs">${h.category} · ${h.frequency}${h.groupDurationMinutes ? ` · ${h.groupDurationMinutes} min group` : ""}</span>
           </div>
-          <input type="checkbox" class="habit-toggle" data-id="${h._id}" ${h.isCompletedToday ? 'checked' : ''} style="width: 20px; height: 20px; cursor: pointer;">
+          <input type="checkbox" class="habit-toggle" data-id="${h._id}" ${h.isCompletedToday ? "checked" : ""} ${h.isTrackable === false ? "disabled" : ""} aria-label="Mark ${h.title} complete" style="width: 20px; height: 20px; cursor: pointer;">
         </div>
-      `).join('');
+      `,
+          )
+          .join("");
 
-      container.querySelectorAll('.habit-toggle').forEach(chk => {
-        chk.addEventListener('change', async (e) => {
-          const habitId = e.target.dataset.id;
-          const completed = e.target.checked;
-          try {
-            await api.post('/personal/habits/checkin', {
-              habitId,
-              date: getTodayString(),
-              completed
-            });
-            showToast(completed ? 'Habit completed!' : 'Habit unchecked');
-          } catch (err) {
-            showToast(err.message, 'error');
-          }
+        container.querySelectorAll(".habit-toggle").forEach((chk) => {
+          chk.addEventListener("change", async (e) => {
+            const habitId = e.target.dataset.id;
+            const completed = e.target.checked;
+            try {
+              await api.post("/personal/habits/checkin", {
+                habitId,
+                date: getTodayString(),
+                completed,
+              });
+              showToast(completed ? "Habit completed!" : "Habit unchecked");
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
         });
-      });
-    }
+      }
 
-    init();
-  </script>
-</body>
+      init();
+    </script>
+  </body>
 </html>
