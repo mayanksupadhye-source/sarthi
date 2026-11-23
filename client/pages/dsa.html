@@ -1,174 +1,439 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>C++ DSA Tracker — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <style>
-    .cluster-card {
-      background-color: var(--color-bg-paper);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      margin-bottom: var(--space-4);
-      overflow: hidden;
-      transition: all var(--transition-fast);
-      box-shadow: var(--shadow-sm);
-    }
-    .cluster-card:hover {
-      border-color: #94A3B8;
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
-    }
-    .cluster-header {
-      padding: var(--space-4) var(--space-5);
-      background-color: var(--color-bg-base);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--color-border);
-      transition: background-color var(--transition-fast);
-    }
-    .cluster-header:hover {
-      background-color: var(--color-bg-subtle);
-    }
-    .dsa-lecture-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--space-3) var(--space-5);
-      border-bottom: 1px solid var(--color-border);
-      font-size: 0.875rem;
-      transition: background-color var(--transition-fast);
-    }
-    .dsa-lecture-row:hover {
-      background-color: rgba(241, 245, 249, 0.6);
-    }
-    .dsa-lecture-row:last-child {
-      border-bottom: none;
-    }
-  </style>
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">C++ Data Structures & Algorithms</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-        </div>
-      </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>C++ DSA Tracker — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .cluster-card {
+        background-color: var(--bg-surface);
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-4);
+        overflow: hidden;
+        transition: all var(--transition-fast);
+        box-shadow: var(--shadow-sm);
+      }
+      .cluster-card:hover {
+        border-color: #94a3b8;
+        box-shadow: var(--shadow-md);
+      }
+      .cluster-header {
+        padding: var(--space-4) var(--space-5);
+        background-color: var(--bg-canvas);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border-hairline);
+        transition: background-color var(--transition-fast);
+      }
+      .cluster-header:hover {
+        background-color: var(--bg-subtle);
+      }
+      .dsa-lecture-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-3) var(--space-5);
+        border-bottom: 1px solid var(--border-hairline);
+        font-size: 0.875rem;
+        transition: background-color var(--transition-fast);
+      }
+      .dsa-lecture-row:hover {
+        background-color: var(--bg-subtle);
+      }
+      .dsa-lecture-row:last-child {
+        border-bottom: none;
+      }
+      .csv-preview-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.8125rem;
+        margin-top: var(--space-3);
+      }
+      .csv-preview-table th,
+      .csv-preview-table td {
+        border: 1px solid var(--border-hairline);
+        padding: var(--space-2) var(--space-3);
+        text-align: left;
+      }
+      .csv-preview-table th {
+        background-color: var(--bg-subtle);
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">C++ Data Structures & Algorithms</div>
+          </div>
+          <div class="topbar-right">
+            <div id="topbarFocusWidget"></div>
+          </div>
+        </header>
 
-      <div class="page-container">
-        <!-- Progress Summary with Harmonic Logic Wave -->
-        <div class="card card-hero-wave wave-motif-logic" style="margin-bottom: var(--space-6);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-4);">
+        <div class="page-container">
+          <!-- Progress Summary with Harmonic Logic Wave -->
+          <div
+            class="card card-hero-wave wave-motif-logic"
+            style="margin-bottom: var(--space-6)"
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: var(--space-4);
+                flex-wrap: wrap;
+                gap: var(--space-4);
+              "
+            >
+              <div>
+                <span
+                  class="badge badge-primary"
+                  style="
+                    margin-bottom: var(--space-2);
+                    background: rgba(13, 148, 136, 0.12);
+                    color: #0d9488;
+                  "
+                  >ALGORITHMIC MASTERY</span
+                >
+                <h2 style="font-size: 1.25rem">
+                  Apna College — 136 Lectures Roadmap
+                </h2>
+                <p class="text-subtle text-sm">
+                  Theory + Independent Code + LeetCode Problem Solving
+                </p>
+              </div>
+              <div
+                style="display: flex; align-items: center; gap: var(--space-4)"
+              >
+                <div style="text-align: right">
+                  <div
+                    style="font-size: 1.5rem; font-weight: 800; color: #0d9488"
+                    id="dsaProgressVal"
+                  >
+                    0 / 136
+                  </div>
+                  <div class="text-subtle text-xs" id="dsaTimeRemaining">-</div>
+                </div>
+                <button class="btn btn-outline btn-sm" id="btnOpenImportModal">
+                  📥 Import CSV
+                </button>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                id="dsaProgressBar"
+                style="width: 0%; background: #0d9488"
+              ></div>
+            </div>
+            <div class="sarthi-wave-container" aria-hidden="true">
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-1"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,120 L0,120 Z"
+                  fill="rgba(13, 148, 136, 0.07)"
+                ></path>
+              </svg>
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-2"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,70 Q200,40 400,70 T800,70 T1200,70 L1200,120 L0,120 Z"
+                  fill="rgba(5, 150, 105, 0.05)"
+                ></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Clusters Container -->
+          <div id="clustersContainer">
+            <p class="text-muted text-sm">Loading DSA curriculum...</p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Universal CSV Syllabus Importer Modal -->
+    <div class="modal-backdrop hidden" id="importModalBackdrop">
+      <div class="modal-box" style="max-width: 680px; width: 100%">
+        <div
+          class="modal-header"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+          "
+        >
+          <div>
+            <h3 class="modal-title" style="margin: 0; font-size: 1.125rem">
+              Universal Curriculum Importer
+            </h3>
+            <div class="text-subtle text-xs">
+              Import or update course syllabus via CSV spreadsheet
+            </div>
+          </div>
+          <button
+            class="block-btn-icon"
+            id="btnCloseImportModal"
+            style="font-size: 1.25rem"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: var(--space-3)">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              background: var(--bg-subtle);
+              padding: var(--space-3);
+              border-radius: var(--radius-sm);
+            "
+          >
             <div>
-              <span class="badge badge-primary" style="margin-bottom: var(--space-2); background: rgba(13, 148, 136, 0.12); color: #0D9488;">ALGORITHMIC MASTERY</span>
-              <h2 style="font-size: 1.25rem;">Apna College — 136 Lectures Roadmap</h2>
-              <p class="text-subtle text-sm">Theory + Independent Code + LeetCode Problem Solving</p>
+              <div style="font-weight: 600; font-size: 0.875rem">
+                Universal 3-Level CSV Template
+              </div>
+              <div class="text-subtle text-xs">
+                Main Section → Subsection → Sub-subsection → Activities with
+                durations and descriptions
+              </div>
             </div>
-            <div style="text-align: right;">
-              <div style="font-size: 1.5rem; font-weight: 800; color: #0D9488;" id="dsaProgressVal">0 / 136</div>
-              <div class="text-subtle text-xs" id="dsaTimeRemaining">-</div>
-            </div>
+            <a
+              href="/api/courses/template/csv"
+              download="sarthi_curriculum_template.csv"
+              class="btn btn-outline btn-sm"
+              >Download Template</a
+            >
           </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="dsaProgressBar" style="width: 0%; background: #0D9488;"></div>
-          </div>
-          <div class="sarthi-wave-container" aria-hidden="true">
-            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,120 L0,120 Z" fill="rgba(13, 148, 136, 0.07)"></path>
-            </svg>
-            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,70 Q200,40 400,70 T800,70 T1200,70 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
-            </svg>
-          </div>
-        </div>
 
-        <!-- Clusters Container -->
-        <div id="clustersContainer">
-          <p class="text-muted text-sm">Loading DSA curriculum...</p>
+          <div>
+            <label class="form-label" for="csvFileInput">Upload CSV File</label>
+            <input
+              type="file"
+              id="csvFileInput"
+              accept=".csv"
+              class="form-input"
+              style="padding: var(--space-2)"
+            />
+          </div>
+
+          <div>
+            <label class="form-label" for="csvPasteArea"
+              >Or Paste CSV Content</label
+            >
+            <textarea
+              id="csvPasteArea"
+              class="form-input"
+              rows="5"
+              placeholder="main_section_id,main_section_name,main_section_description,main_section_order,main_section_total_content_minutes,main_section_total_effort_minutes,subsection_id,subsection_name,subsection_description,subsection_order,subsection_total_content_minutes,subsection_total_effort_minutes,sub_subsection_id,sub_subsection_name,sub_subsection_description,sub_subsection_order,sub_subsection_total_content_minutes,sub_subsection_total_effort_minutes,serial_number,activity_name,description,content_duration_minutes,estimated_execution_minutes,activity_type,priority,dependencies,optional_deadline,notes,course_name,activity_multiplier_override&#10;foundations,Algorithms,Core search,1,75,150,searching,Binary Search,Fast lookup,1,75,150,variations,Rotated Arrays,Pivot searches,1,75,150,1,Search in Rotated Sorted Array,Find pivot,45,90,problem,P1,,,DSA Track,"
+            ></textarea>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+            "
+          >
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              id="btnPreviewImport"
+            >
+              Preview Import
+            </button>
+          </div>
+
+          <!-- Preview Area -->
+          <div
+            id="previewResultContainer"
+            style="
+              display: none;
+              border-top: 1px solid var(--border-hairline);
+              padding-top: var(--space-3);
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <div
+                id="previewSummaryText"
+                style="font-weight: 600; font-size: 0.875rem"
+              ></div>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                id="btnCommitImport"
+              >
+                Commit to Syllabus
+              </button>
+            </div>
+            <div
+              id="previewWarnings"
+              style="
+                color: var(--accent-amber);
+                font-size: 0.75rem;
+                margin-top: var(--space-1);
+              "
+            ></div>
+            <div
+              style="
+                max-height: 200px;
+                overflow-y: auto;
+                margin-top: var(--space-2);
+              "
+            >
+              <table class="csv-preview-table" id="previewTable">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Activity Name</th>
+                    <th>Content (min)</th>
+                    <th>Effort (min)</th>
+                    <th>Type</th>
+                    <th>Priority</th>
+                  </tr>
+                </thead>
+                <tbody id="previewTableBody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
-    </main>
-  </div>
+    </div>
 
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { formatMinutes } from '../assets/js/utils.js';
-    import { showToast } from '../assets/js/toast.js';
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import {
+        renderLayout,
+        notifyCourseNavigationChanged,
+      } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { formatMinutes } from "../assets/js/utils.js";
+      import { showToast } from "../assets/js/toast.js";
 
-    let course = null;
+      let course = null;
+      let parsedRecordsToCommit = null;
 
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-      renderLayout('dsa');
-      await loadCourse();
-    }
-
-    async function loadCourse() {
-      try {
-        const res = await api.get('/courses/dsa');
-        if (!res.success) return;
-        course = res.course;
-
-        const percent = Math.round((course.completedLectures / (course.totalLectures || 1)) * 100);
-        document.getElementById('dsaProgressVal').textContent = `${course.completedLectures} / ${course.totalLectures} (${percent}%)`;
-        document.getElementById('dsaProgressBar').style.width = `${percent}%`;
-
-        const remMin = Math.max(0, course.totalMinutes - course.completedMinutes);
-        document.getElementById('dsaTimeRemaining').textContent = `${formatMinutes(course.completedMinutes)} completed · ${formatMinutes(remMin)} remaining`;
-
-        renderClusters(course.sections);
-      } catch (err) {
-        showToast(err.message, 'error');
-      }
-    }
-
-    function renderClusters(clusters) {
-      const container = document.getElementById('clustersContainer');
-      if (!clusters || clusters.length === 0) {
-        container.innerHTML = '<p class="text-muted text-sm">No clusters found.</p>';
+      async function init() {
+        window.location.replace("tracker.html?slug=dsa");
         return;
+        if (!user) return;
+        renderLayout("dsa");
+        await loadCourse();
+        setupImportEvents();
       }
 
-      container.innerHTML = clusters.map((c, idx) => {
-        const done = c.lectures.filter(l => l.isWatched && l.isCodeDone).length;
-        const total = c.lectures.length;
-        const isOpen = idx < 3; // Open first 3 by default
+      async function loadCourse() {
+        try {
+          const res = await api.get("/courses/dsa");
+          if (!res.success) return;
+          course = res.course;
 
-        return `
+          const percent = Math.round(
+            (course.completedLectures / (course.totalLectures || 1)) * 100,
+          );
+          document.getElementById("dsaProgressVal").textContent =
+            `${course.completedLectures} / ${course.totalLectures} (${percent}%)`;
+          document.getElementById("dsaProgressBar").style.width = `${percent}%`;
+
+          const remMin = Math.max(
+            0,
+            course.totalMinutes - course.completedMinutes,
+          );
+          document.getElementById("dsaTimeRemaining").textContent =
+            `${formatMinutes(course.completedMinutes)} completed · ${formatMinutes(remMin)} remaining`;
+
+          renderClusters(course.sections);
+        } catch (err) {
+          const container = document.getElementById("clustersContainer");
+          if (container) {
+            container.innerHTML = `
+            <div class="card" style="text-align: center; padding: var(--space-8);">
+              <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: var(--space-2);">No DSA Syllabus Active Yet</h3>
+              <p class="text-muted text-sm" style="max-width: 480px; margin: 0 auto var(--space-4);">
+                SARTHI runs on user-managed curricula. Click "📥 Import CSV" to upload your syllabus (e.g. Apna College, Striver, NeetCode, or custom problems).
+              </p>
+              <button class="btn btn-primary btn-sm" id="btnEmptyImportDSA">📥 Import DSA Syllabus CSV</button>
+            </div>
+          `;
+            document
+              .getElementById("btnEmptyImportDSA")
+              ?.addEventListener("click", () => {
+                document
+                  .getElementById("importModalBackdrop")
+                  ?.classList.remove("hidden");
+              });
+          }
+        }
+      }
+
+      function renderClusters(clusters) {
+        const container = document.getElementById("clustersContainer");
+        if (!clusters || clusters.length === 0) {
+          container.innerHTML =
+            '<p class="text-muted text-sm">No clusters found.</p>';
+          return;
+        }
+
+        container.innerHTML = clusters
+          .map((c, idx) => {
+            const done = c.lectures.filter(
+              (l) => l.isWatched && l.isCodeDone,
+            ).length;
+            const total = c.lectures.length;
+            const isOpen = idx < 3; // Open first 3 by default
+
+            return `
           <div class="cluster-card">
             <div class="cluster-header" onclick="this.nextElementSibling.style.display = this.nextElementSibling.style.display === 'none' ? 'block' : 'none'">
               <div>
-                <strong style="font-size: 0.9375rem;">${c.title}</strong>
+                <strong style="font-size: 0.9375rem; color: var(--text-ink);">${c.title}</strong>
               </div>
               <div style="display: flex; align-items: center; gap: var(--space-3);">
-                <span class="badge ${done === total && total > 0 ? 'badge-success' : 'badge-neutral'}">
+                <span class="badge ${done === total && total > 0 ? "badge-success" : "badge-neutral"}">
                   ${done} / ${total} solved
                 </span>
                 <span class="text-subtle text-xs">▼</span>
               </div>
             </div>
-            <div class="cluster-body" style="display: ${isOpen ? 'block' : 'none'};">
-              ${c.lectures.map(l => `
+            <div class="cluster-body" style="display: ${isOpen ? "block" : "none"};">
+              ${c.lectures
+                .map(
+                  (l) => `
                 <div class="dsa-lecture-row">
-                  <div style="display: flex; align-items: center; gap: var(--space-3);">
-                    <input type="checkbox" class="dsa-chk" data-id="${l._id}" ${l.isWatched && l.isCodeDone ? 'checked' : ''} style="width: 16px; height: 16px; cursor: pointer;">
-                    <div>
-                      <div style="font-weight: 500; ${l.isWatched && l.isCodeDone ? 'text-decoration: line-through; opacity: 0.6;' : ''}">
+                  <div style="display: flex; align-items: center; gap: var(--space-3); flex: 1; min-width: 0;">
+                    <input type="checkbox" class="dsa-chk" data-id="${l._id}" ${l.isWatched && l.isCodeDone ? "checked" : ""} style="width: 16px; height: 16px; cursor: pointer; accent-color: #0D9488;">
+                    <div style="min-width: 0;">
+                      <div style="font-weight: 500; color: var(--text-ink); ${l.isWatched && l.isCodeDone ? "text-decoration: line-through; opacity: 0.6;" : ""}">
                         Lec ${l.lectureNumber}: ${l.title}
                       </div>
                       <div class="text-subtle text-xs">
@@ -176,57 +441,181 @@
                       </div>
                     </div>
                   </div>
-                  <div style="display: flex; align-items: center; gap: var(--space-3);">
+                  <div style="display: flex; align-items: center; gap: var(--space-3); flex-shrink: 0;">
                     <select class="form-select confidence-select" data-id="${l._id}" style="padding: 0.2rem 0.5rem; font-size: 0.75rem; width: 100px;">
-                      <option value="1" ${l.confidence === 1 ? 'selected' : ''}>★ Needs Rev</option>
-                      <option value="2" ${l.confidence === 2 ? 'selected' : ''}>★★ Developing</option>
-                      <option value="3" ${l.confidence === 3 ? 'selected' : ''}>★★★ Decent</option>
-                      <option value="4" ${l.confidence === 4 ? 'selected' : ''}>★★★★ Solid</option>
-                      <option value="5" ${l.confidence === 5 ? 'selected' : ''}>★★★★★ Mastered</option>
+                      <option value="1" ${l.confidence === 1 ? "selected" : ""}>★ Needs Rev</option>
+                      <option value="2" ${l.confidence === 2 ? "selected" : ""}>★★ Developing</option>
+                      <option value="3" ${l.confidence === 3 ? "selected" : ""}>★★★ Decent</option>
+                      <option value="4" ${l.confidence === 4 ? "selected" : ""}>★★★★ Solid</option>
+                      <option value="5" ${l.confidence === 5 ? "selected" : ""}>★★★★★ Mastered</option>
                     </select>
-                    <a href="focus.html?courseSlug=dsa&title=${encodeURIComponent('DSA Lec ' + l.lectureNumber + ': ' + l.title)}" class="btn btn-primary btn-sm">
+                    <a href="focus.html?courseSlug=dsa&title=${encodeURIComponent("DSA Lec " + l.lectureNumber + ": " + l.title)}" class="btn btn-primary btn-sm">
                       Solve
                     </a>
                   </div>
                 </div>
-              `).join('')}
+              `,
+                )
+                .join("")}
             </div>
           </div>
         `;
-      }).join('');
+          })
+          .join("");
 
-      container.querySelectorAll('.dsa-chk').forEach(chk => {
-        chk.addEventListener('change', async (e) => {
-          const lecId = e.target.dataset.id;
-          const checked = e.target.checked;
-          try {
-            await api.put(`/courses/dsa/lecture/${lecId}`, {
-              isWatched: checked,
-              isCodeDone: checked
-            });
-            showToast(checked ? 'Lecture problem coded & mastered!' : 'Marked pending');
-            await loadCourse();
-          } catch (err) {
-            showToast(err.message, 'error');
-          }
+        container.querySelectorAll(".dsa-chk").forEach((chk) => {
+          chk.addEventListener("change", async (e) => {
+            const lecId = e.target.dataset.id;
+            const checked = e.target.checked;
+            try {
+              await api.put(`/courses/dsa/lecture/${lecId}`, {
+                isWatched: checked,
+                isCodeDone: checked,
+              });
+              showToast(
+                checked
+                  ? "Lecture problem coded & mastered!"
+                  : "Marked pending",
+              );
+              await loadCourse();
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
         });
-      });
 
-      container.querySelectorAll('.confidence-select').forEach(sel => {
-        sel.addEventListener('change', async (e) => {
-          const lecId = e.target.dataset.id;
-          const confidence = e.target.value;
-          try {
-            await api.put(`/courses/dsa/lecture/${lecId}`, { confidence });
-            showToast('Confidence updated');
-          } catch (err) {
-            showToast(err.message, 'error');
-          }
+        container.querySelectorAll(".confidence-select").forEach((sel) => {
+          sel.addEventListener("change", async (e) => {
+            const lecId = e.target.dataset.id;
+            const confidence = e.target.value;
+            try {
+              await api.put(`/courses/dsa/lecture/${lecId}`, { confidence });
+              showToast("Confidence rating updated.");
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
         });
-      });
-    }
+      }
 
-    init();
-  </script>
-</body>
+      function setupImportEvents() {
+        const modal = document.getElementById("importModalBackdrop");
+        document
+          .getElementById("btnOpenImportModal")
+          .addEventListener("click", () => {
+            modal.classList.remove("hidden");
+          });
+        document
+          .getElementById("btnCloseImportModal")
+          .addEventListener("click", () => {
+            modal.classList.add("hidden");
+          });
+        modal.addEventListener("click", (e) => {
+          if (e.target.id === "importModalBackdrop")
+            modal.classList.add("hidden");
+        });
+
+        // Handle CSV File Selection
+        document
+          .getElementById("csvFileInput")
+          .addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (evt) => {
+                document.getElementById("csvPasteArea").value =
+                  evt.target.result;
+              };
+              reader.readAsText(file);
+            }
+          });
+
+        // Handle CSV Preview
+        document
+          .getElementById("btnPreviewImport")
+          .addEventListener("click", async () => {
+            const text = document.getElementById("csvPasteArea").value.trim();
+            if (!text) {
+              showToast("Please upload or paste CSV text first.", "error");
+              return;
+            }
+
+            try {
+              const res = await api.post("/courses/import/preview", {
+                csvText: text,
+              });
+              if (!res.success)
+                throw new Error(res.error || "Failed to preview CSV");
+
+              parsedRecordsToCommit = res.records;
+              document.getElementById("previewSummaryText").textContent =
+                `Validated ${res.totalRows} activities.`;
+
+              const warnEl = document.getElementById("previewWarnings");
+              if (res.warnings && res.warnings.length > 0) {
+                warnEl.textContent = res.warnings.slice(0, 3).join(" | ");
+              } else {
+                warnEl.textContent = "";
+              }
+
+              const tbody = document.getElementById("previewTableBody");
+              tbody.innerHTML = res.records
+                .slice(0, 10)
+                .map(
+                  (r) => `
+            <tr>
+              <td>${r.serialNumber}</td>
+              <td>${r.title}</td>
+              <td>${r.contentDurationMinutes}</td>
+              <td>${r.estimatedExecutionMinutes}</td>
+              <td>${r.activityType}</td>
+              <td>${r.priority}</td>
+            </tr>
+          `,
+                )
+                .join("");
+
+              document.getElementById("previewResultContainer").style.display =
+                "block";
+              showToast(
+                `Successfully validated ${res.totalRows} syllabus activities.`,
+                "success",
+              );
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        // Handle CSV Commit
+        document
+          .getElementById("btnCommitImport")
+          .addEventListener("click", async () => {
+            if (!parsedRecordsToCommit || parsedRecordsToCommit.length === 0)
+              return;
+
+            try {
+              const res = await api.post("/courses/import/commit", {
+                courseSlug: "dsa",
+                courseTitle: "C++ Data Structures & Algorithms",
+                records: parsedRecordsToCommit,
+              });
+
+              if (res.success) {
+                showToast(
+                  `Committed ${res.totalActivities} activities (${res.createdCount} new, ${res.updatedCount} updated).`,
+                  "success",
+                );
+                modal.classList.add("hidden");
+                await loadCourse();
+                await notifyCourseNavigationChanged();
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+      }
+
+      init();
+    </script>
+  </body>
 </html>
