@@ -3,6 +3,7 @@ import { Task } from '../models/Task.js';
 import { FocusSession } from '../models/FocusSession.js';
 import { Setting } from '../models/Setting.js';
 import { ScheduleTemplate } from '../models/ScheduleTemplate.js';
+import { removeJournalHistorySchedule } from './journalScheduleMigration.js';
 
 /**
  * Computes the emotional and execution dayState for a user.
@@ -19,6 +20,7 @@ import { ScheduleTemplate } from '../models/ScheduleTemplate.js';
  * - fresh: Day not yet started
  */
 export async function computeDayState(userId, dateString = null, currentTimeString = null) {
+  await removeJournalHistorySchedule(userId);
   const today = dateString || new Date().toISOString().split('T')[0];
   const nowTime = currentTimeString || new Date().toTimeString().substring(0, 5); // "HH:MM"
 

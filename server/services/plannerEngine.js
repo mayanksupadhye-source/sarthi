@@ -24,13 +24,23 @@ export class PlannerEngine {
 
   /**
    * Sort tasks by scheduling priority:
+   * 0. Exam subjects (when exam mode is active)
    * 1. Hard deadlines (earlier deadlines first)
    * 2. Priority: P1 (Essential) > P2 (Important) > P3 (Optional)
    * 3. Protected status
    * 4. Remaining effort (shorter first for momentum, or preservation)
    */
-  static rankTasks(tasks, targetDateStr = null) {
+  static rankTasks(tasks, targetDateStr = null, examMode = null) {
     return [...tasks].sort((a, b) => {
+      // 0. If exam mode is active, prioritize academic/exam tasks and focus subjects
+      if (examMode && (examMode.enabled || examMode.isExamDay)) {
+        const focus = Array.isArray(examMode.focusSubjects) ? examMode.focusSubjects : [];
+        const isExamA = ['academic', 'exam'].includes(a.category) || focus.includes(a.category) || (a.title && /exam|revision|academic/i.test(a.title));
+        const isExamB = ['academic', 'exam'].includes(b.category) || focus.includes(b.category) || (b.title && /exam|revision|academic/i.test(b.title));
+        if (isExamA && !isExamB) return -1;
+        if (!isExamA && isExamB) return 1;
+      }
+
       // 1. Unmet dependencies must be scheduled after their prerequisites
       // 2. Urgent deadlines
       if (a.deadline && b.deadline) {
@@ -92,12 +102,17 @@ export class PlannerEngine {
     existingScheduledTasks = [],
     missedOrUnfinishedTasks = [],
     backlogTasks = [],
-    slackDayStatus = { available: 4, used: 0, isRequested: false },
-    maxCatchupMinutes = 60
+    slackDayStatus = { available: 3, used: 0, isRequested: false },
+    maxCatchupMinutes = 60,
+    examMode = null
   }) {
     const reasons = [];
     const changes = [];
     const warnings = [];
+
+    if (examMode && (examMode.enabled || examMode.isExamDay)) {
+      reasons.push('Exam preparation phase active: academic revision prioritised, optional exploration throttled.');
+    }
 
     // Case 1: Slack Day Requested
     if (slackDayStatus.isRequested) {
@@ -182,7 +197,7 @@ export class PlannerEngine {
     const uniqueCandidates = Array.from(uniqueCandidatesMap.values());
 
     // 3. Rank candidates according to SARTHI priority rules
-    const rankedCandidates = PlannerEngine.rankTasks(uniqueCandidates, targetDate);
+    const rankedCandidates = PlannerEngine.rankTasks(uniqueCandidates, targetDate, examMode);
 
     // 4. Fill available capacity
     // Max effective capacity = dailyCapacityMinutes + (if catchup needed, max extra buffer)
@@ -193,6 +208,24 @@ export class PlannerEngine {
 
     for (const task of rankedCandidates) {
       const remainingEffort = PlannerEngine.getRemainingEffort(task);
+
+      // In exam mode, throttle optional explorations and non-essential P3 tasks
+      if (examMode && (examMode.enabled || examMode.isExamDay) && (task.category === 'exploration' || task.priority === 'P3')) {
+        const examDeferReason = 'Deferred to protect cognitive capacity during exam preparation';
+        deferredTasks.push({
+          ...task,
+          remainingMinutes: remainingEffort,
+          deferReason: examDeferReason
+        });
+        changes.push({
+          taskId: task._id || task.id,
+          title: task.title,
+          priority: task.priority,
+          action: 'defer',
+          reason: examDeferReason
+        });
+        continue;
+      }
 
       // Check deadline conflict
       if (task.deadline && task.deadline < targetDate) {
@@ -326,6 +359,155 @@ export class PlannerEngine {
     return {
       distributionPlan,
       unplacedTasks
+    };
+  }
+
+  /**
+   * Section-Aware Dynamic Curriculum Allocation
+   * 
+   * Maps uncompleted curriculum activities to timetable study blocks.
+   * Respects section/module boundaries without arbitrary fragmentation.
+   * 
+   * @param {Object} params
+   * @param {Array} params.blocks - Schedule blocks for the day
+   * @param {Array} params.activities - Uncompleted curriculum activities
+   * @param {number} params.minCoherentMinutes - Minimum fragment window (default 15 mins)
+   * @returns {Object} allocation
+   */
+  static allocateCurriculumToBlocks({ blocks = [], activities = [], minCoherentMinutes = 15 }) {
+    // 1. Identify study / learning blocks
+    const studyBlocks = blocks.filter(b => 
+      ['study', 'webdev', 'dsa', 'oratory', 'exploration'].includes(b.category) ||
+      b.blockType === 'learning' ||
+      b.blockType === 'exploration' ||
+      Boolean(b.courseSlug)
+    );
+
+    const blockAllocations = [];
+    const allocatedActivityIds = new Set();
+    const allocatedActivities = [];
+    let totalAllocatedMinutes = 0;
+
+    const uncompleted = activities.filter(a => a.status !== 'completed');
+
+    // Group activities by courseSlug, preserving sequential section order
+    const courseActivities = new Map();
+    for (const act of uncompleted) {
+      const slug = act.courseSlug || 'general';
+      if (!courseActivities.has(slug)) {
+        courseActivities.set(slug, []);
+      }
+      courseActivities.get(slug).push(act);
+    }
+
+    // Sort each course's activities by sectionNumber asc, activityNumber asc
+    for (const acts of courseActivities.values()) {
+      acts.sort((a, b) => {
+        const secA = Number(a.sectionNumber) || 0;
+        const secB = Number(b.sectionNumber) || 0;
+        if (secA !== secB) return secA - secB;
+        return (Number(a.activityNumber) || 0) - (Number(b.activityNumber) || 0);
+      });
+    }
+
+    // 2. Iterate through study blocks
+    for (const block of studyBlocks) {
+      let remainingBlockMinutes = block.durationMinutes || 0;
+      const assigned = [];
+      const targetSlug = block.courseSlug || (
+        block.category === 'dsa' ? 'dsa' :
+        block.category === 'webdev' ? 'web-development' :
+        block.category === 'oratory' ? 'oratory' :
+        block.category === 'exploration' ? 'exploration' :
+        null
+      );
+
+      const candidateSlugs = targetSlug 
+        ? [targetSlug] 
+        : Array.from(courseActivities.keys());
+
+      for (const slug of candidateSlugs) {
+        const acts = courseActivities.get(slug) || [];
+        
+        for (const act of acts) {
+          const actId = (act._id || act.activityId || act.id || '').toString();
+          if (allocatedActivityIds.has(actId)) continue;
+
+          const effort = act.remainingMinutes || act.totalEffortMinutes || act.estimatedExecutionMinutes || 30;
+
+          // If the whole activity fits comfortably
+          if (effort <= remainingBlockMinutes) {
+            assigned.push({
+              activityId: actId,
+              courseSlug: act.courseSlug,
+              sectionNumber: act.sectionNumber,
+              sectionTitle: act.sectionTitle,
+              activityNumber: act.activityNumber,
+              title: act.title,
+              allocatedMinutes: effort,
+              status: act.status || 'pending'
+            });
+            allocatedActivityIds.add(actId);
+            allocatedActivities.push(act);
+            remainingBlockMinutes -= effort;
+            totalAllocatedMinutes += effort;
+          } 
+          // If activity slightly exceeds remaining window (within 20% leeway) and block has meaningful time
+          else if (remainingBlockMinutes >= minCoherentMinutes && (effort - remainingBlockMinutes) <= Math.max(10, remainingBlockMinutes * 0.2)) {
+            assigned.push({
+              activityId: actId,
+              courseSlug: act.courseSlug,
+              sectionNumber: act.sectionNumber,
+              sectionTitle: act.sectionTitle,
+              activityNumber: act.activityNumber,
+              title: act.title,
+              allocatedMinutes: effort,
+              status: act.status || 'pending',
+              note: 'Allocated with coherent section boundary completion'
+            });
+            allocatedActivityIds.add(actId);
+            allocatedActivities.push(act);
+            totalAllocatedMinutes += effort;
+            remainingBlockMinutes = 0;
+            break;
+          }
+
+          if (remainingBlockMinutes < minCoherentMinutes) {
+            break;
+          }
+        }
+
+        if (remainingBlockMinutes < minCoherentMinutes) {
+          break;
+        }
+      }
+
+      blockAllocations.push({
+        blockId: block.blockId,
+        label: block.label,
+        category: block.category,
+        courseSlug: block.courseSlug,
+        startTime: block.startTime,
+        endTime: block.endTime,
+        durationMinutes: block.durationMinutes,
+        assignedActivities: assigned,
+        usedMinutes: (block.durationMinutes || 0) - remainingBlockMinutes,
+        freeMinutes: Math.max(0, remainingBlockMinutes)
+      });
+    }
+
+    const unallocated = uncompleted.filter(a => {
+      const actId = (a._id || a.activityId || a.id || '').toString();
+      return !allocatedActivityIds.has(actId);
+    });
+
+    return {
+      blockAllocations,
+      allocatedActivityIds: Array.from(allocatedActivityIds),
+      allocatedActivitiesCount: allocatedActivityIds.size,
+      totalAllocatedMinutes,
+      unallocatedCount: unallocated.length,
+      unallocatedActivities: unallocated
     };
   }
 }
