@@ -1,424 +1,1567 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Today — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <style>
-    .hero-banner {
-      position: relative;
-      background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
-      border: 1px solid var(--border-hairline);
-      border-left: 4px solid var(--accent-blue);
-      color: var(--text-ink);
-      border-radius: var(--radius-md);
-      padding: var(--space-6) var(--space-8);
-      margin-bottom: var(--space-6);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-    }
-    .hero-banner > * {
-      position: relative;
-      z-index: 2;
-    }
-    .hero-date {
-      color: var(--accent-blue);
-      font-weight: 700;
-      text-transform: uppercase;
-      font-size: 0.8125rem;
-      letter-spacing: 0.08em;
-      margin-bottom: var(--space-1);
-    }
-    .capacity-gauge {
-      text-align: right;
-    }
-    .capacity-value {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: var(--text-ink);
-    }
-    .capacity-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .next-action-card {
-      border-left: 4px solid var(--color-primary);
-      margin-bottom: var(--space-6);
-    }
-    .task-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--space-3) 0;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .task-row:last-child {
-      border-bottom: none;
-    }
-    .task-meta {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-    }
-    .task-actions {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-    }
-    .timetable-strip {
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      max-height: 480px;
-      overflow-y: auto;
-    }
-    .timetable-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.5rem 0.75rem;
-      border-radius: var(--radius-sm);
-      background-color: var(--color-bg-base);
-      font-size: 0.8125rem;
-    }
-    .timetable-item.study {
-      border-left: 3px solid var(--color-primary);
-    }
-    .timetable-item.protected {
-      border-left: 3px solid var(--color-ink);
-    }
-    .quick-checkin-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--space-2) 0;
-      border-bottom: 1px solid var(--color-border);
-    }
-    .quick-checkin-item:last-child {
-      border-bottom: none;
-    }
-  </style>
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">Today's Execution</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-          <button id="quickAddTaskBtn" class="btn btn-primary btn-sm">+ New Task</button>
-        </div>
-      </header>
-
-      <div class="page-container">
-        <!-- Hero Execution Header -->
-        <div class="hero-banner">
-          <div>
-            <div class="hero-date" id="heroDateLabel">TODAY</div>
-            <h1 style="color: var(--text-ink); font-size: 1.5rem; margin-bottom: var(--space-2);" id="heroGreeting">Focus on the Next Action</h1>
-            <p style="color: var(--text-muted); font-size: 0.875rem;" id="heroSubtext">
-              1 committed action beats 10 hypothetical intentions.
-            </p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Today — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .hero-banner {
+        position: relative;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid var(--border-hairline);
+        border-left: 4px solid var(--accent-blue);
+        color: var(--text-ink);
+        border-radius: var(--radius-md);
+        padding: var(--space-6) var(--space-8);
+        margin-bottom: var(--space-6);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: var(--shadow-sm);
+        overflow: hidden;
+      }
+      .hero-banner > * {
+        position: relative;
+        z-index: 2;
+      }
+      .hero-date {
+        color: var(--accent-blue);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8125rem;
+        letter-spacing: 0.08em;
+        margin-bottom: var(--space-1);
+      }
+      .capacity-gauge {
+        text-align: right;
+      }
+      .capacity-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text-ink);
+      }
+      .capacity-label {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .next-action-card {
+        border-left: 4px solid var(--accent-blue);
+        margin-bottom: var(--space-6);
+      }
+      .task-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-3) 0;
+        border-bottom: 1px solid var(--border-hairline);
+      }
+      .task-row:last-child {
+        border-bottom: none;
+      }
+      .task-meta {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+      }
+      .task-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+      }
+      .timetable-strip {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        max-height: 480px;
+        overflow-y: auto;
+      }
+      .timetable-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius-sm);
+        background-color: var(--bg-canvas);
+        border: 1px solid var(--border-hairline);
+        font-size: 0.8125rem;
+      }
+      .timetable-item.study {
+        border-left: 3px solid var(--accent-blue);
+      }
+      .timetable-item.protected {
+        border-left: 3px solid var(--text-ink);
+      }
+      .quick-checkin-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-2) 0;
+        border-bottom: 1px solid var(--border-hairline);
+      }
+      .quick-checkin-item:last-child {
+        border-bottom: none;
+      }
+      .personal-headline {
+        margin-bottom: var(--space-4);
+        padding: var(--space-3) var(--space-4);
+        border-left: 3px solid var(--accent-blue);
+        border-radius: var(--radius-sm);
+        background: linear-gradient(
+          100deg,
+          var(--accent-blue-subtle),
+          transparent 76%
+        );
+      }
+      .personal-headline-display {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        min-height: 34px;
+      }
+      .personal-headline-text {
+        margin: 0;
+        color: var(--text-ink);
+        font-family: var(--font-display);
+        font-size: clamp(1rem, 2.2vw, 1.3rem);
+        font-weight: 700;
+        line-height: 1.35;
+      }
+      .personal-headline-text.is-placeholder {
+        color: var(--text-subtle);
+        font-family: var(--font-body);
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+      .personal-headline-edit {
+        flex: 0 0 auto;
+        padding: 0.25rem 0.45rem;
+        color: var(--text-subtle);
+        font-size: 0.75rem;
+      }
+      .personal-headline-form {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        margin-top: var(--space-2);
+      }
+      .personal-headline-input {
+        min-width: 0;
+        flex: 1;
+      }
+      .personal-headline-status {
+        min-height: 1em;
+        margin-top: 4px;
+        color: var(--text-subtle);
+        font-size: 0.7rem;
+      }
+      .work-item-card {
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-sm);
+        padding: var(--space-3);
+        margin-bottom: var(--space-2);
+        background-color: var(--bg-surface);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+      .work-item-card.course {
+        border-left: 3px solid var(--accent-blue);
+      }
+      .work-item-card.reading {
+        border-left: 3px solid #d97706;
+      }
+      .work-item-card.academic {
+        border-left: 3px solid #7c3aed;
+      }
+      .work-item-card.exam_prep {
+        border-left: 3px solid #dc2626;
+      }
+      .completed-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-2) 0;
+        border-bottom: 1px solid var(--border-hairline);
+        font-size: 0.875rem;
+      }
+      .completed-item:last-child {
+        border-bottom: none;
+      }
+      .reflection-textarea {
+        width: 100%;
+        min-height: 64px;
+        padding: 8px 10px;
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-sm);
+        font-family: inherit;
+        font-size: 0.875rem;
+        resize: vertical;
+        background-color: var(--bg-canvas);
+      }
+      .reflection-textarea:focus {
+        outline: none;
+        border-color: var(--accent-blue);
+        box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
+      }
+      @media (max-width: 520px) {
+        .personal-headline {
+          padding: var(--space-3);
+        }
+        .personal-headline-form {
+          flex-wrap: wrap;
+        }
+        .personal-headline-input {
+          flex-basis: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Today's Execution</div>
           </div>
-          <div class="capacity-gauge">
-            <div class="capacity-value" id="capacityVal">0m / 330m</div>
-            <div class="capacity-label">Daily Capacity Booked</div>
-            <div class="progress-bar" style="width: 140px; margin-top: var(--space-2); background: rgba(148, 163, 184, 0.25);">
-              <div class="progress-fill" id="capacityBar" style="width: 0%; background: var(--accent-blue);"></div>
+          <div class="topbar-right">
+            <div id="topbarFocusWidget"></div>
+            <button id="quickAddTaskBtn" class="btn btn-primary btn-sm">
+              + New Task
+            </button>
+          </div>
+        </header>
+
+        <div class="page-container">
+          <section class="personal-headline" aria-label="Personal headline">
+            <div class="personal-headline-display" id="personalHeadlineDisplay">
+              <p
+                class="personal-headline-text is-placeholder"
+                id="personalHeadlineText"
+              >
+                Write a headline for this chapter of your life.
+              </p>
+              <button
+                type="button"
+                class="btn btn-outline personal-headline-edit"
+                id="editPersonalHeadline"
+                aria-expanded="false"
+                aria-controls="personalHeadlineForm"
+              >
+                Edit
+              </button>
+            </div>
+            <form
+              class="personal-headline-form"
+              id="personalHeadlineForm"
+              hidden
+            >
+              <input
+                class="form-input personal-headline-input"
+                id="personalHeadlineInput"
+                type="text"
+                maxlength="160"
+                autocomplete="off"
+                aria-label="Personal headline"
+                placeholder="Write a headline for this chapter of your life."
+              />
+              <button
+                type="submit"
+                class="btn btn-primary btn-sm"
+                id="savePersonalHeadline"
+              >
+                Save
+              </button>
+              <button
+                type="button"
+                class="btn btn-outline btn-sm"
+                id="cancelPersonalHeadline"
+              >
+                Cancel
+              </button>
+            </form>
+            <div
+              class="personal-headline-status"
+              id="personalHeadlineStatus"
+              role="status"
+              aria-live="polite"
+            ></div>
+          </section>
+
+          <!-- Date Navigator Bar -->
+          <div
+            class="card"
+            style="
+              padding: var(--space-3) var(--space-4);
+              margin-bottom: var(--space-4);
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              flex-wrap: wrap;
+              gap: var(--space-3);
+            "
+          >
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: var(--space-2);
+                flex-wrap: wrap;
+              "
+            >
+              <button
+                id="btnPrevDate"
+                class="btn btn-outline btn-sm"
+                title="Previous Day"
+              >
+                ←
+              </button>
+              <input
+                type="date"
+                id="selectedDateInput"
+                class="form-input"
+                style="
+                  padding: 3px 8px;
+                  font-size: 0.875rem;
+                  width: auto;
+                  font-weight: 600;
+                "
+              />
+              <button
+                id="btnNextDate"
+                class="btn btn-outline btn-sm"
+                title="Next Day"
+              >
+                →
+              </button>
+              <button
+                id="btnTodayDate"
+                class="btn btn-outline btn-sm"
+                style="font-weight: 600"
+              >
+                Today
+              </button>
+              <span
+                id="selectedDateFormatted"
+                class="text-subtle text-sm"
+                style="font-weight: 600; margin-left: var(--space-2)"
+              ></span>
+            </div>
+            <div
+              style="
+                display: flex;
+                align-items: center;
+                gap: var(--space-2);
+                flex-wrap: wrap;
+              "
+            >
+              <span class="badge badge-sky" id="statPlannedCount"
+                >0 Planned</span
+              >
+              <span class="badge badge-success" id="statCompletedCount"
+                >0 Done</span
+              >
+              <span class="badge badge-p1" id="statActualMinutesSpent"
+                >0m Spent</span
+              >
+              <a
+                href="calendar.html"
+                class="btn btn-outline btn-sm"
+                style="margin-left: var(--space-2)"
+                >📅 Calendar</a
+              >
             </div>
           </div>
-          <div class="sarthi-wave-container" aria-hidden="true">
-            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,45 C200,95 400,10 600,55 C800,100 1000,20 1200,60 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.07)"></path>
-            </svg>
-            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,70 C250,20 500,85 750,45 C1000,15 1100,75 1200,50 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
-            </svg>
-          </div>
-        </div>
 
-        <!-- Disruption Recovery Banner (Shown only when missed tasks exist) -->
-        <div id="disruptionBanner" class="alert alert-warning" style="display: none; justify-content: space-between; align-items: center;">
-          <div>
-            <strong>Disrupted schedule detected:</strong> <span id="disruptedCount">0</span> uncompleted task(s) from past dates need reconciliation.
-          </div>
-          <a href="planner.html" class="btn btn-secondary btn-sm" style="margin-left: var(--space-4);">
-            🧠 Review Replan Proposal
-          </a>
-        </div>
-
-        <!-- Next Action Spotlight -->
-        <div id="nextActionBox" class="card next-action-card" style="display: none;">
-          <div class="card-header" style="border: none; padding-bottom: 0; margin-bottom: var(--space-2);">
-            <div class="text-xs" style="color: var(--color-primary); font-weight: 800;">SINGLE NEXT ACTION</div>
-            <span id="nextActionPriority"></span>
-          </div>
-          <div style="display: flex; justify-content: space-between; align-items: center;">
+          <!-- Hero Execution Header -->
+          <div class="hero-banner">
             <div>
-              <h3 id="nextActionTitle" style="margin-bottom: var(--space-1);">-</h3>
-              <p class="text-subtle text-sm" id="nextActionMeta">-</p>
+              <div class="hero-date" id="heroDateLabel">TODAY</div>
+              <h1
+                style="
+                  color: var(--text-ink);
+                  font-size: 1.5rem;
+                  margin-bottom: var(--space-2);
+                "
+                id="heroGreeting"
+              >
+                Focus on the Next Action
+              </h1>
+              <p
+                style="color: var(--text-muted); font-size: 0.875rem"
+                id="heroSubtext"
+              >
+                1 committed action beats 10 hypothetical intentions.
+              </p>
             </div>
-            <button id="startNextActionBtn" class="btn btn-primary">
-              ▶ Start Focus Session
+            <div class="capacity-gauge">
+              <div class="capacity-value" id="capacityVal">0m / 330m</div>
+              <div class="capacity-label">Daily Capacity Booked</div>
+              <div
+                class="progress-bar"
+                style="
+                  width: 140px;
+                  margin-top: var(--space-2);
+                  background: rgba(148, 163, 184, 0.25);
+                "
+              >
+                <div
+                  class="progress-fill"
+                  id="capacityBar"
+                  style="width: 0%; background: var(--accent-blue)"
+                ></div>
+              </div>
+            </div>
+            <div class="sarthi-wave-container" aria-hidden="true">
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-1"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,45 C200,95 400,10 600,55 C800,100 1000,20 1200,60 L1200,120 L0,120 Z"
+                  fill="rgba(29, 78, 216, 0.07)"
+                ></path>
+              </svg>
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-2"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,70 C250,20 500,85 750,45 C1000,15 1100,75 1200,50 L1200,120 L0,120 Z"
+                  fill="rgba(5, 150, 105, 0.05)"
+                ></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Date Exception Active Banner -->
+          <div
+            id="exceptionBanner"
+            class="alert alert-info"
+            style="
+              display: none;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: var(--space-4);
+            "
+          >
+            <div>
+              <strong>🎯 Date-Specific Schedule Exception Active:</strong>
+              <span id="exceptionBannerText">College Holiday Override</span>
+            </div>
+            <a href="timetable.html" class="btn btn-outline btn-sm"
+              >Manage Schedule</a
+            >
+          </div>
+
+          <!-- Disruption Recovery Banner -->
+          <div
+            id="disruptionBanner"
+            class="alert alert-warning"
+            style="
+              display: none;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: var(--space-4);
+            "
+          >
+            <div>
+              <strong>Disrupted schedule detected:</strong>
+              <span id="disruptedCount">0</span> uncompleted task(s) from past
+              dates need reconciliation.
+            </div>
+            <a
+              href="planner.html"
+              class="btn btn-secondary btn-sm"
+              style="margin-left: var(--space-4)"
+            >
+              🧠 Review Replan Proposal
+            </a>
+          </div>
+
+          <!-- Active Recovery Ledger Opportunity Card -->
+          <div
+            id="recoveryOpportunityCard"
+            class="card"
+            style="
+              display: none;
+              background: linear-gradient(
+                135deg,
+                rgba(29, 78, 216, 0.04) 0%,
+                rgba(5, 150, 105, 0.04) 100%
+              );
+              border-left: 4px solid var(--accent-green);
+              margin-bottom: var(--space-4);
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: var(--space-3);
+              "
+            >
+              <div>
+                <div
+                  style="
+                    display: flex;
+                    align-items: center;
+                    gap: var(--space-2);
+                    margin-bottom: 2px;
+                  "
+                >
+                  <span class="badge badge-success" style="font-size: 0.7rem"
+                    >Adaptive Recovery Engine</span
+                  >
+                  <span class="text-xs text-subtle" id="recoveryLedgerBalance"
+                    >0m Unrecovered Deficit</span
+                  >
+                </div>
+                <h3
+                  style="
+                    font-size: 1rem;
+                    font-weight: 700;
+                    margin: 0;
+                    color: var(--text-ink);
+                  "
+                >
+                  Active Recovery Opportunity
+                </h3>
+                <p class="text-subtle text-xs" style="margin-top: 2px">
+                  Recover missed curriculum or study blocks gradually without
+                  overloading tomorrow's schedule.
+                </p>
+              </div>
+              <div style="display: flex; gap: var(--space-2)">
+                <button
+                  id="btnAccept20mRecovery"
+                  class="btn btn-primary btn-sm"
+                >
+                  + Add 20m Recovery Session
+                </button>
+                <button
+                  id="btnAccept40mRecovery"
+                  class="btn btn-outline btn-sm"
+                >
+                  + Add 40m
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Action Spotlight -->
+          <div
+            id="nextActionBox"
+            class="card next-action-card"
+            style="display: none"
+          >
+            <div
+              class="card-header"
+              style="
+                border: none;
+                padding-bottom: 0;
+                margin-bottom: var(--space-2);
+              "
+            >
+              <div
+                class="text-xs"
+                style="color: var(--accent-blue); font-weight: 800"
+              >
+                SINGLE NEXT ACTION
+              </div>
+              <span id="nextActionPriority"></span>
+            </div>
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: var(--space-3);
+              "
+            >
+              <div>
+                <h3 id="nextActionTitle" style="margin-bottom: var(--space-1)">
+                  -
+                </h3>
+                <p class="text-subtle text-sm" id="nextActionMeta">-</p>
+              </div>
+              <button id="startNextActionBtn" class="btn btn-primary">
+                ▶ Start Focus Session
+              </button>
+            </div>
+          </div>
+          <div
+            id="nextUpBox"
+            class="card"
+            style="
+              display: none;
+              border-left: 4px solid var(--accent-green);
+              padding: var(--space-3) var(--space-4);
+              margin-top: var(--space-3);
+            "
+            aria-live="polite"
+          >
+            <strong>Next up</strong
+            ><span id="nextUpText" style="margin-left: 8px"></span>
+          </div>
+
+          <!-- 2-Column Asymmetric Layout -->
+          <div class="grid-asymmetric">
+            <!-- Left Main Column: Scheduled Work, Tasks, Completed & Reflection -->
+            <div
+              style="display: flex; flex-direction: column; gap: var(--space-6)"
+            >
+              <!-- 1. Scheduled Learning & Responsibilities -->
+              <div class="card" id="scheduledWorkCard">
+                <div
+                  class="card-header"
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  "
+                >
+                  <div>
+                    <div class="card-title">
+                      Scheduled Learning & Responsibilities
+                    </div>
+                    <div class="text-subtle text-sm">
+                      Course activities, reading, academics & exams
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: var(--space-2)">
+                    <a href="courses.html" class="btn btn-outline btn-sm"
+                      >Courses Hub</a
+                    >
+                  </div>
+                </div>
+                <div id="scheduledWorkList">
+                  <p
+                    class="text-muted text-sm"
+                    style="padding: var(--space-2) 0"
+                  >
+                    No curriculum or academic sessions scheduled for this day.
+                  </p>
+                </div>
+              </div>
+
+              <!-- 2. Today's Planned Tasks -->
+              <div class="card" id="tasksCard">
+                <div class="card-header">
+                  <div>
+                    <div class="card-title">Planned Tasks</div>
+                    <div class="text-subtle text-sm">
+                      Prioritised execution list
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: var(--space-2)">
+                    <a href="planner.html" class="btn btn-outline btn-sm"
+                      >Adapt Plan</a
+                    >
+                  </div>
+                </div>
+
+                <!-- Signature Moment: Daily Plan Completion Wave Crest -->
+                <div
+                  id="completionBanner"
+                  style="display: none; margin-bottom: var(--space-4)"
+                ></div>
+
+                <div id="tasksList">
+                  <p
+                    class="text-muted text-sm"
+                    style="padding: var(--space-4) 0"
+                  >
+                    Loading tasks...
+                  </p>
+                </div>
+              </div>
+
+              <!-- 3. Completed Today -->
+              <div class="card" id="completedWorkCard">
+                <div
+                  class="card-header"
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  "
+                >
+                  <div>
+                    <div class="card-title">Completed on This Day</div>
+                    <div class="text-subtle text-sm">
+                      Preserved record of actual achievements
+                    </div>
+                  </div>
+                  <span
+                    class="badge badge-success text-xs"
+                    id="completedBadgeCount"
+                    >0 Completed</span
+                  >
+                </div>
+                <div id="completedList">
+                  <p
+                    class="text-muted text-sm"
+                    style="padding: var(--space-2) 0"
+                  >
+                    No completed activities logged for this day yet.
+                  </p>
+                </div>
+              </div>
+
+              <!-- 4. Daily Reflection -->
+              <div class="card" id="dailyReflectionCard">
+                <div
+                  class="card-header"
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  "
+                >
+                  <div>
+                    <div class="card-title">Daily Reflection & Summary</div>
+                    <div class="text-subtle text-sm">
+                      Capture honest insights, friction, and tomorrow's
+                      improvements
+                    </div>
+                  </div>
+                  <span
+                    id="reflectionSavedStatus"
+                    class="text-xs text-subtle"
+                    role="status"
+                  ></span>
+                </div>
+                <form
+                  id="dailyReflectionForm"
+                  style="
+                    display: flex;
+                    flex-direction: column;
+                    gap: var(--space-3);
+                    margin-top: var(--space-2);
+                  "
+                >
+                  <div>
+                    <label
+                      class="form-label"
+                      for="reflectionWhatWentWell"
+                      style="font-weight: 600"
+                      >What went well today?</label
+                    >
+                    <textarea
+                      id="reflectionWhatWentWell"
+                      class="reflection-textarea"
+                      placeholder="e.g. Cleared 2 DSA problems without looking at hints; stuck to the 7 AM morning routine."
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label
+                      class="form-label"
+                      for="reflectionWhatStruggled"
+                      style="font-weight: 600"
+                      >What did I struggle with or what caused friction?</label
+                    >
+                    <textarea
+                      id="reflectionWhatStruggled"
+                      class="reflection-textarea"
+                      placeholder="e.g. Spent too long configuring environment; got distracted after lunch."
+                    ></textarea>
+                  </div>
+                  <div>
+                    <label
+                      class="form-label"
+                      for="reflectionWhatImprove"
+                      style="font-weight: 600"
+                      >What will I do differently tomorrow?</label
+                    >
+                    <textarea
+                      id="reflectionWhatImprove"
+                      class="reflection-textarea"
+                      placeholder="e.g. Put phone in drawer during the 10 AM focus block; prep dinner in advance."
+                    ></textarea>
+                  </div>
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: flex-end;
+                      align-items: center;
+                      gap: var(--space-2);
+                    "
+                  >
+                    <button
+                      type="submit"
+                      class="btn btn-primary btn-sm"
+                      id="btnSaveReflection"
+                    >
+                      Save Daily Reflection
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Right Column: Timetable, Quick Exceptions & Buffer -->
+            <div
+              style="display: flex; flex-direction: column; gap: var(--space-6)"
+            >
+              <!-- Timetable Blocks -->
+              <div class="card">
+                <div
+                  class="card-header"
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  "
+                >
+                  <div class="card-title">Day Schedule</div>
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: var(--space-2);
+                    "
+                  >
+                    <span class="badge badge-neutral" id="dayTypeBadge"
+                      >Weekday</span
+                    >
+                    <button
+                      id="btnQuickException"
+                      class="btn btn-outline btn-sm"
+                      style="font-size: 0.75rem; padding: 2px 8px"
+                    >
+                      + Free Day
+                    </button>
+                  </div>
+                </div>
+                <div class="timetable-strip" id="timetableList">
+                  <p class="text-muted text-sm">Loading timetable...</p>
+                </div>
+              </div>
+
+              <!-- Quick Habit Check-ins -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Daily Habits</div>
+                  <a
+                    href="habits.html"
+                    class="text-xs"
+                    style="color: var(--accent-blue)"
+                    >View All →</a
+                  >
+                </div>
+                <div id="quickHabitsList">
+                  <p class="text-muted text-sm">Loading habits...</p>
+                </div>
+              </div>
+
+              <!-- Recovery & Slack Days Status -->
+              <div class="card">
+                <div class="card-header">
+                  <div class="card-title">Slack Days Buffer</div>
+                  <span class="text-xs" style="color: var(--text-muted)"
+                    >Emergency Protection</span
+                  >
+                </div>
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  "
+                >
+                  <div>
+                    <div
+                      style="
+                        font-size: 1.25rem;
+                        font-weight: 800;
+                        color: var(--text-ink);
+                      "
+                      id="slackDaysVal"
+                    >
+                      - / 3
+                    </div>
+                    <div class="text-subtle text-sm">Slack Days Available</div>
+                  </div>
+                  <a href="planner.html" class="btn btn-outline btn-sm"
+                    >Manage</a
+                  >
+                </div>
+                <div
+                  style="
+                    margin-top: var(--space-3);
+                    padding-top: var(--space-3);
+                    border-top: 1px solid var(--border-hairline);
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  "
+                >
+                  <span
+                    class="text-xs text-subtle"
+                    title="Slack Days are emergency buffers, not planned holidays."
+                    >Monthly Policy:</span
+                  >
+                  <span class="badge badge-neutral" style="font-size: 0.7rem"
+                    >3 Emergency Buffers/Mo</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Quick Add Task Modal -->
+    <div id="taskModal" class="modal-backdrop hidden">
+      <div class="modal-box">
+        <div class="card-header">
+          <div class="card-title">Add New Task</div>
+          <button id="closeTaskModalBtn" class="btn btn-outline btn-sm">
+            ✕
+          </button>
+        </div>
+        <form id="createTaskForm">
+          <div class="form-group">
+            <label class="form-label">Task Title</label>
+            <input
+              type="text"
+              id="taskTitleInput"
+              class="form-input"
+              placeholder="e.g. Solve LeetCode Binary Search or Complete CSS Flexbox"
+              required
+            />
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <select id="taskPriorityInput" class="form-select">
+                <option value="P1">P1 — Essential (Must happen)</option>
+                <option value="P2" selected>
+                  P2 — Important (Core progress)
+                </option>
+                <option value="P3">P3 — Optional (Can defer if needed)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estimated Effort (Minutes)</label>
+              <input
+                type="number"
+                id="taskEstimateInput"
+                class="form-input"
+                value="45"
+                min="5"
+                step="5"
+                required
+              />
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Category</label>
+              <select id="taskCategoryInput" class="form-select">
+                <option value="dsa">DSA & Problem Solving</option>
+                <option value="webdev">Web Development</option>
+                <option value="academic">Academic & College</option>
+                <option value="oratory">Oratory & Speech</option>
+                <option value="fitness">Gym & Fitness</option>
+                <option value="reading">Business Reading</option>
+                <option value="general" selected>General</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Deadline (Optional)</label>
+              <input type="date" id="taskDeadlineInput" class="form-input" />
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-4);
+            "
+          >
+            <button type="button" id="cancelModalBtn" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Schedule Task for Today
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Partial Progress Modal -->
+    <div id="partialModal" class="modal-backdrop hidden">
+      <div class="modal-box">
+        <div class="card-header">
+          <div class="card-title">Log Partial Progress</div>
+          <button id="closePartialModalBtn" class="btn btn-outline btn-sm">
+            ✕
+          </button>
+        </div>
+        <form id="partialForm">
+          <input type="hidden" id="partialTaskId" />
+          <p class="text-subtle text-sm" style="margin-bottom: var(--space-4)">
+            Did you make partial headway? Log the actual minutes spent. SARTHI
+            preserves completed work and schedules only the remaining effort.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Actual Minutes Spent</label>
+            <input
+              type="number"
+              id="partialMinutesInput"
+              class="form-input"
+              min="5"
+              step="5"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Brief Note on Where You Stopped</label>
+            <input
+              type="text"
+              id="partialNoteInput"
+              class="form-input"
+              placeholder="e.g. Watched lecture, need to code the LeetCode solution next"
+            />
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-4);
+            "
+          >
+            <button type="button" id="cancelPartialBtn" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Save Progress</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Quick Exception Modal -->
+    <div id="quickExcModal" class="modal-backdrop hidden">
+      <div class="modal-box" style="max-width: 440px">
+        <div class="card-header">
+          <div class="card-title">Log Today's Schedule Override</div>
+          <button id="closeQuickExcBtn" class="btn btn-outline btn-sm">
+            ✕
+          </button>
+        </div>
+        <p class="text-subtle text-sm" style="margin-bottom: var(--space-3)">
+          College holiday or unexpected free hours? Instantly switch today's
+          schedule to the Holiday / Preparation template.
+        </p>
+        <div style="display: flex; flex-direction: column; gap: var(--space-3)">
+          <div>
+            <label class="form-label">Override Type</label>
+            <select id="quickExcType" class="form-select">
+              <option value="college_holiday">
+                College Holiday (No Classes)
+              </option>
+              <option value="exam_leave">Preparation / Exam Leave</option>
+              <option value="sick_day">Sick Day</option>
+              <option value="custom">Other Free Day</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Extra Available Study Minutes</label>
+            <input
+              type="number"
+              id="quickExcMinutes"
+              class="form-input"
+              value="180"
+              step="30"
+            />
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-3);
+            "
+          >
+            <button
+              type="button"
+              id="cancelQuickExcBtn"
+              class="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              id="confirmQuickExcBtn"
+              class="btn btn-primary"
+            >
+              Apply Today
             </button>
           </div>
         </div>
-
-        <!-- 2-Column Asymmetric Layout -->
-        <div class="grid-asymmetric">
-          <!-- Left Main Column: Scheduled Tasks -->
-          <div style="display: flex; flex-direction: column; gap: var(--space-6);">
-            <div class="card">
-              <div class="card-header">
-                <div>
-                  <div class="card-title">Today's Planned Tasks</div>
-                  <div class="text-subtle text-sm">Prioritised execution list</div>
-                </div>
-                <div style="display: flex; gap: var(--space-2);">
-                  <a href="planner.html" class="btn btn-outline btn-sm">Adapt Plan</a>
-                </div>
-              </div>
-
-              <!-- Signature Moment 1: Daily Plan Completion Wave Crest -->
-              <div id="completionBanner" style="display: none; margin-bottom: var(--space-4);"></div>
-
-              <div id="tasksList">
-                <p class="text-muted text-sm" style="padding: var(--space-4) 0;">Loading tasks...</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Column: Timetable & Quick Check-ins -->
-          <div style="display: flex; flex-direction: column; gap: var(--space-6);">
-            <!-- Timetable Blocks -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Day Schedule</div>
-                <span class="badge badge-neutral" id="dayTypeBadge">Weekday</span>
-              </div>
-              <div class="timetable-strip" id="timetableList">
-                <p class="text-muted text-sm">Loading timetable...</p>
-              </div>
-            </div>
-
-            <!-- Quick Habit Check-ins -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Daily Habits</div>
-                <a href="habits.html" class="text-xs" style="color: var(--color-primary);">View All →</a>
-              </div>
-              <div id="quickHabitsList">
-                <p class="text-muted text-sm">Loading habits...</p>
-              </div>
-            </div>
-
-            <!-- Recovery & Slack Days Status -->
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">Recovery Buffer</div>
-                <span class="text-xs" style="color: var(--color-muted);">Monthly</span>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                  <div style="font-size: 1.25rem; font-weight: 800;" id="slackDaysVal">- / 4</div>
-                  <div class="text-subtle text-sm">Slack Days Available</div>
-                </div>
-                <a href="planner.html" class="btn btn-outline btn-sm">Manage</a>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
-    </main>
-  </div>
-
-  <!-- Quick Add Task Modal -->
-  <div id="taskModal" class="modal-backdrop hidden">
-    <div class="modal-box">
-      <div class="card-header">
-        <div class="card-title">Add New Task</div>
-        <button id="closeTaskModalBtn" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <form id="createTaskForm">
-        <div class="form-group">
-          <label class="form-label">Task Title</label>
-          <input type="text" id="taskTitleInput" class="form-input" placeholder="e.g. Solve LeetCode Binary Search or Complete CSS Flexbox" required>
-        </div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label class="form-label">Priority</label>
-            <select id="taskPriorityInput" class="form-select">
-              <option value="P1">P1 — Essential (Must happen)</option>
-              <option value="P2" selected>P2 — Important (Core progress)</option>
-              <option value="P3">P3 — Optional (Can defer if needed)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Estimated Effort (Minutes)</label>
-            <input type="number" id="taskEstimateInput" class="form-input" value="45" min="5" step="5" required>
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label class="form-label">Category</label>
-            <select id="taskCategoryInput" class="form-select">
-              <option value="dsa">DSA & Problem Solving</option>
-              <option value="webdev">Web Development</option>
-              <option value="academic">Academic & College</option>
-              <option value="oratory">Oratory & Speech</option>
-              <option value="fitness">Gym & Fitness</option>
-              <option value="reading">Business Reading</option>
-              <option value="general" selected>General</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Deadline (Optional)</label>
-            <input type="date" id="taskDeadlineInput" class="form-input">
-          </div>
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
-          <button type="button" id="cancelModalBtn" class="btn btn-outline">Cancel</button>
-          <button type="submit" class="btn btn-primary">Schedule Task for Today</button>
-        </div>
-      </form>
     </div>
-  </div>
 
-  <!-- Partial Progress Modal -->
-  <div id="partialModal" class="modal-backdrop hidden">
-    <div class="modal-box">
-      <div class="card-header">
-        <div class="card-title">Log Partial Progress</div>
-        <button id="closePartialModalBtn" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <form id="partialForm">
-        <input type="hidden" id="partialTaskId">
-        <p class="text-subtle text-sm" style="margin-bottom: var(--space-4);">
-          Did you make partial headway? Log the actual minutes spent. SARTHI preserves completed work and schedules only the remaining effort.
-        </p>
-        <div class="form-group">
-          <label class="form-label">Actual Minutes Spent</label>
-          <input type="number" id="partialMinutesInput" class="form-input" min="5" step="5" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Brief Note on Where You Stopped</label>
-          <input type="text" id="partialNoteInput" class="form-input" placeholder="e.g. Watched lecture, need to code the LeetCode solution next">
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
-          <button type="button" id="cancelPartialBtn" class="btn btn-outline">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Progress</button>
-        </div>
-      </form>
-    </div>
-  </div>
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import { renderLayout } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import {
+        formatMinutes,
+        formatTodayDate,
+        getPriorityBadge,
+        getTodayString,
+        formatTime12,
+        formatTimeRange,
+      } from "../assets/js/utils.js";
+      import { showToast } from "../assets/js/toast.js";
 
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { formatMinutes, formatTodayDate, getPriorityBadge, getTodayString, formatTime12, formatTimeRange } from '../assets/js/utils.js';
-    import { showToast } from '../assets/js/toast.js';
+      let currentDayData = null;
+      let savedPersonalHeadline = "";
+      const urlParams = new URLSearchParams(window.location.search);
+      let selectedDate = urlParams.get("date") || getTodayString();
 
-    let currentDayData = null;
-
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-      renderLayout('dashboard');
-
-      document.getElementById('heroDateLabel').textContent = formatTodayDate().toUpperCase();
-
-      await loadTodayData();
-      await loadQuickHabits();
-      setupEventListeners();
-    }
-
-    async function loadTodayData() {
-      try {
-        const res = await api.get('/planner/today');
-        if (!res.success) return;
-        currentDayData = res;
-
-        // 1. Capacity Gauge
-        const target = res.targetCapacityMinutes || 330;
-        const allocated = res.dailyPlan?.allocatedMinutes || 0;
-        document.getElementById('capacityVal').textContent = `${formatMinutes(allocated)} / ${formatMinutes(target)}`;
-        const percent = Math.min(100, Math.round((allocated / target) * 100));
-        document.getElementById('capacityBar').style.width = `${percent}%`;
-
-        // 2. Disruption Alert
-        if (res.missedTasksCount > 0) {
-          document.getElementById('disruptionBanner').style.display = 'flex';
-          document.getElementById('disruptedCount').textContent = res.missedTasksCount;
-        } else {
-          document.getElementById('disruptionBanner').style.display = 'none';
-        }
-
-        // 3. Slack Days
-        if (res.slackDayStatus) {
-          const s = res.slackDayStatus;
-          document.getElementById('slackDaysVal').textContent = `${s.remaining} / ${s.allowance}`;
-        }
-
-        // 4. Day type badge
-        document.getElementById('dayTypeBadge').textContent = (res.dayType || 'weekday').toUpperCase();
-
-        // 5. Timetable Blocks
-        renderTimetable(res.timetableBlocks || []);
-
-        // 6. Scheduled Tasks & Next Action
-        renderTasks(res.scheduledTasks || []);
-      } catch (err) {
-        showToast(err.message || 'Failed to load today data', 'error');
+      function shiftDate(dateStr, days) {
+        const [y, m, d] = dateStr.split("-").map(Number);
+        const dt = new Date(y, m - 1, d);
+        dt.setDate(dt.getDate() + days);
+        const ny = dt.getFullYear();
+        const nm = String(dt.getMonth() + 1).padStart(2, "0");
+        const nd = String(dt.getDate()).padStart(2, "0");
+        return `${ny}-${nm}-${nd}`;
       }
-    }
 
-    function renderTasks(tasks) {
-      const container = document.getElementById('tasksList');
-      const completionBanner = document.getElementById('completionBanner');
+      function formatReadableDate(dateStr) {
+        if (!dateStr) return "";
+        const [y, m, d] = dateStr.split("-").map(Number);
+        const dt = new Date(y, m - 1, d);
+        const options = {
+          weekday: "short",
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        };
+        return dt.toLocaleDateString("en-IN", options);
+      }
 
-      if (tasks.length === 0) {
-        if (completionBanner) {
-          completionBanner.style.display = 'none';
-          completionBanner.innerHTML = '';
+      function navigateToDate(newDate) {
+        selectedDate = newDate;
+        const url = new URL(window.location.href);
+        url.searchParams.set("date", newDate);
+        window.history.pushState({}, "", url);
+        loadTodayData(selectedDate);
+      }
+
+      function renderPersonalHeadline() {
+        const text = document.getElementById("personalHeadlineText");
+        const placeholder = "Write a headline for this chapter of your life.";
+        text.textContent = savedPersonalHeadline || placeholder;
+        text.classList.toggle("is-placeholder", !savedPersonalHeadline);
+      }
+
+      async function loadPersonalHeadline() {
+        try {
+          const response = await api.get("/settings");
+          savedPersonalHeadline = String(
+            response.settings?.personalHeadline || "",
+          ).trim();
+        } catch {
+          savedPersonalHeadline = "";
         }
-        container.innerHTML = `
+        renderPersonalHeadline();
+      }
+
+      function setupPersonalHeadline() {
+        const editor = document.getElementById("personalHeadlineForm");
+        const display = document.getElementById("personalHeadlineDisplay");
+        const editButton = document.getElementById("editPersonalHeadline");
+        const input = document.getElementById("personalHeadlineInput");
+        const status = document.getElementById("personalHeadlineStatus");
+        editButton.addEventListener("click", () => {
+          input.value = savedPersonalHeadline;
+          editor.hidden = false;
+          display.hidden = true;
+          editButton.setAttribute("aria-expanded", "true");
+          status.textContent = "";
+          input.focus();
+        });
+        document
+          .getElementById("cancelPersonalHeadline")
+          .addEventListener("click", () => {
+            editor.hidden = true;
+            display.hidden = false;
+            editButton.setAttribute("aria-expanded", "false");
+            status.textContent = "";
+          });
+        editor.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          const saveButton = document.getElementById("savePersonalHeadline");
+          saveButton.disabled = true;
+          status.textContent = "Saving…";
+          try {
+            const response = await api.put("/settings", {
+              personalHeadline: input.value.trim(),
+            });
+            savedPersonalHeadline = String(
+              response.settings?.personalHeadline || "",
+            ).trim();
+            renderPersonalHeadline();
+            editor.hidden = true;
+            display.hidden = false;
+            editButton.setAttribute("aria-expanded", "false");
+            status.textContent = "Saved";
+          } catch (error) {
+            status.textContent =
+              error.message || "Could not save the headline.";
+          } finally {
+            saveButton.disabled = false;
+          }
+        });
+      }
+
+      function setupDateNavigator() {
+        const input = document.getElementById("selectedDateInput");
+        const btnPrev = document.getElementById("btnPrevDate");
+        const btnNext = document.getElementById("btnNextDate");
+        const btnToday = document.getElementById("btnTodayDate");
+
+        input.value = selectedDate;
+        input.addEventListener("change", (e) => {
+          if (e.target.value) navigateToDate(e.target.value);
+        });
+        btnPrev.addEventListener("click", () => {
+          navigateToDate(shiftDate(selectedDate, -1));
+        });
+        btnNext.addEventListener("click", () => {
+          navigateToDate(shiftDate(selectedDate, 1));
+        });
+        btnToday.addEventListener("click", () => {
+          navigateToDate(getTodayString());
+        });
+
+        // Reflection save listener
+        const reflectionForm = document.getElementById("dailyReflectionForm");
+        reflectionForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btnSave = document.getElementById("btnSaveReflection");
+          const statusSpan = document.getElementById("reflectionSavedStatus");
+          btnSave.disabled = true;
+          statusSpan.textContent = "Saving...";
+          try {
+            const whatWentWell = document.getElementById(
+              "reflectionWhatWentWell",
+            ).value;
+            const whatStruggled = document.getElementById(
+              "reflectionWhatStruggled",
+            ).value;
+            const whatImprove = document.getElementById(
+              "reflectionWhatImprove",
+            ).value;
+
+            await api.put("/planner/reflection", {
+              date: selectedDate,
+              whatWentWell,
+              whatStruggled,
+              whatImprove,
+            });
+            statusSpan.textContent = "✓ Saved";
+            showToast("Daily reflection saved for " + selectedDate, "success");
+            setTimeout(() => {
+              statusSpan.textContent = "";
+            }, 3000);
+          } catch (err) {
+            statusSpan.textContent = "Failed to save";
+            showToast(err.message || "Could not save reflection", "error");
+          } finally {
+            btnSave.disabled = false;
+          }
+        });
+      }
+
+      async function init() {
+        const user = await checkAuth();
+        if (!user) return;
+        renderLayout("dashboard");
+        setupPersonalHeadline();
+        loadPersonalHeadline();
+        setupDateNavigator();
+
+        await loadTodayData(selectedDate);
+        await loadQuickHabits();
+        setupEventListeners();
+      }
+
+      async function loadTodayData(targetDate = selectedDate) {
+        try {
+          const res = await api.get("/planner/today", { date: targetDate });
+          if (!res.success) return;
+          currentDayData = res;
+          let routineHabits = [];
+          try {
+            const routineRes = await api.get("/personal/habits", {
+              date: targetDate,
+            });
+            routineHabits = (routineRes.habits || []).filter(
+              (h) => h.category === "night-routine",
+            );
+          } catch {}
+
+          // Date labels
+          document.getElementById("selectedDateInput").value = targetDate;
+          document.getElementById("selectedDateFormatted").textContent =
+            formatReadableDate(targetDate);
+          const isCurrentToday = targetDate === getTodayString();
+          document.getElementById("heroDateLabel").textContent = isCurrentToday
+            ? `TODAY · ${formatReadableDate(targetDate).toUpperCase()}`
+            : formatReadableDate(targetDate).toUpperCase();
+
+          // 1. Capacity Gauge
+          const target = res.targetCapacityMinutes || 330;
+          const allocated = res.dailyPlan?.allocatedMinutes || 0;
+          document.getElementById("capacityVal").textContent =
+            `${formatMinutes(allocated)} / ${formatMinutes(target)}`;
+          const percent = Math.min(100, Math.round((allocated / target) * 100));
+          document.getElementById("capacityBar").style.width = `${percent}%`;
+
+          // 2. Stat Counts
+          const plannedTotal =
+            (res.scheduledTasks || []).length +
+            (res.scheduledWork || []).length;
+          const completedTotal = (res.completedToday || []).length;
+          document.getElementById("statPlannedCount").textContent =
+            `${plannedTotal} Planned`;
+          document.getElementById("statCompletedCount").textContent =
+            `${completedTotal} Done`;
+          document.getElementById("statActualMinutesSpent").textContent =
+            `${res.totalActualMinutesSpent || 0}m Spent`;
+
+          // 3. Schedule Exception Indicator
+          const excBanner = document.getElementById("exceptionBanner");
+          if (res.isException && res.exceptionDetails) {
+            excBanner.style.display = "flex";
+            const notes = res.exceptionDetails.notes
+              ? ` (${res.exceptionDetails.notes})`
+              : "";
+            document.getElementById("exceptionBannerText").textContent =
+              `${String(res.exceptionDetails.type || "")
+                .replace("_", " ")
+                .toUpperCase()}${notes} · +${res.exceptionDetails.extraAvailableMinutes || 0}m capacity`;
+          } else {
+            excBanner.style.display = "none";
+          }
+
+          // 4. Disruption Alert & Recovery Status
+          if (res.missedTasksCount > 0) {
+            document.getElementById("disruptionBanner").style.display = "flex";
+            document.getElementById("disruptedCount").textContent =
+              res.missedTasksCount;
+          } else {
+            document.getElementById("disruptionBanner").style.display = "none";
+          }
+
+          const recoveryCard = document.getElementById(
+            "recoveryOpportunityCard",
+          );
+          if (res.recoveryStatus && res.recoveryStatus.remainingMinutes > 0) {
+            recoveryCard.style.display = "block";
+            document.getElementById("recoveryLedgerBalance").textContent =
+              `${res.recoveryStatus.remainingMinutes}m Unrecovered Deficit (${res.recoveryStatus.entriesCount || 1} session(s))`;
+          } else {
+            recoveryCard.style.display = "none";
+          }
+
+          // 5. Slack Days
+          if (res.slackDayStatus) {
+            const s = res.slackDayStatus;
+            document.getElementById("slackDaysVal").textContent =
+              `${s.remaining} / ${s.allowance}`;
+          }
+
+          // 6. Day type badge
+          document.getElementById("dayTypeBadge").textContent = (
+            res.dayType || "weekday"
+          ).toUpperCase();
+
+          // 7. Timetable Blocks
+          renderTimetable(res.timetableBlocks || [], routineHabits);
+          updateNextUp(
+            res.timetableBlocks || [],
+            res.scheduledTasks || [],
+            routineHabits,
+          );
+
+          // 8. Scheduled Work (Courses, Books, Academics, Exam Prep)
+          renderScheduledWork(res.scheduledWork || []);
+
+          // 9. Scheduled Tasks & Next Action
+          renderTasks(res.scheduledTasks || []);
+
+          // 10. Completed Today
+          renderCompletedToday(res.completedToday || []);
+
+          // 11. Reflection Form
+          renderReflection(res.reflection || {});
+        } catch (err) {
+          showToast(err.message || "Failed to load today data", "error");
+        }
+      }
+
+      function renderScheduledWork(workList) {
+        const container = document.getElementById("scheduledWorkList");
+        if (!workList || workList.length === 0) {
+          container.innerHTML =
+            '<p class="text-muted text-sm" style="padding: var(--space-2) 0;">No curriculum activities or academic commitments scheduled for this day.</p>';
+          return;
+        }
+
+        container.innerHTML = workList
+          .map((item) => {
+            let typeBadge = "";
+            let metaDetail = "";
+            let linkLabel = "View in Tracker →";
+
+            if (item.type === "exploration") {
+              typeBadge = `<span class="badge badge-success text-xs">🔬 ${(item.courseSlug || "EXPLORE").toUpperCase()}</span>`;
+              const contentM = Math.round(item.contentDurationMinutes || 0);
+              const effortM = Math.round(item.totalEffortMinutes || 0);
+              const remM = Math.round(item.remainingMinutes || 0);
+              metaDetail = `Exploration · ${contentM ? "Content: " + contentM + "m · " : ""}Effort (${item.practiceMultiplier || 1.0}×): ${effortM}m · Remaining: ${remM}m`;
+              linkLabel = "Open Exploration →";
+            } else if (item.type === "course") {
+              typeBadge = `<span class="badge badge-sky text-xs">${(item.courseSlug || "course").toUpperCase()}</span>`;
+              metaDetail = `Content: ${item.contentDurationMinutes}m · Effort (${item.practiceMultiplier || 1.6}x): ${item.totalEffortMinutes}m · Remaining: ${item.remainingMinutes}m`;
+            } else if (item.type === "reading") {
+              typeBadge =
+                '<span class="badge badge-warning text-xs">READING</span>';
+              metaDetail = `${item.author ? "By " + item.author + " · " : ""}${item.totalPages ? item.currentPage + " / " + item.totalPages + " pp" : "35m planned"}`;
+              linkLabel = "Log Reading →";
+            } else if (item.type === "academic") {
+              typeBadge =
+                '<span class="badge badge-purple text-xs">ASSIGNMENT</span>';
+              metaDetail = `Due: ${item.dueDate || "Today"} · Est: ${item.estimatedMinutes}m`;
+              linkLabel = "Academics →";
+            } else if (item.type === "exam_prep") {
+              typeBadge =
+                '<span class="badge badge-danger text-xs">EXAM PREP</span>';
+              metaDetail = item.examDate
+                ? `Exam Date: ${item.examDate}`
+                : "High-Priority Preparation";
+              linkLabel = "Academics →";
+            }
+
+            return `
+          <div class="work-item-card ${item.type}">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: 2px;">
+                ${typeBadge}
+                ${getPriorityBadge(item.priority || "P2")}
+                <span style="font-weight: 600; font-size: 0.9375rem; color: var(--text-ink);">${escapeHtml(item.title)}</span>
+              </div>
+              <div class="text-subtle text-xs" style="margin-top: 2px;">
+                ${metaDetail}
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-2);">
+              <a href="${item.trackerUrl || "courses.html"}" class="btn btn-outline btn-sm">${linkLabel}</a>
+            </div>
+          </div>
+        `;
+          })
+          .join("");
+      }
+
+      function renderCompletedToday(completedList) {
+        const container = document.getElementById("completedList");
+        const badge = document.getElementById("completedBadgeCount");
+        badge.textContent = `${completedList.length} Completed`;
+
+        if (!completedList || completedList.length === 0) {
+          container.innerHTML =
+            '<p class="text-muted text-sm" style="padding: var(--space-2) 0;">No completed activities logged for this day yet.</p>';
+          return;
+        }
+
+        container.innerHTML = completedList
+          .map(
+            (item) => `
+        <div class="completed-item">
+          <div style="display: flex; align-items: center; gap: var(--space-2);">
+            <span style="color: var(--accent-green); font-weight: 700;">✓</span>
+            <div>
+              <span style="font-weight: 600; color: var(--text-ink); text-decoration: line-through; opacity: 0.75;">${escapeHtml(item.title)}</span>
+              <span class="badge badge-neutral text-xs" style="margin-left: 6px; font-size: 0.65rem; text-transform: uppercase;">${item.type}</span>
+            </div>
+          </div>
+          <span class="badge badge-success text-xs">${item.actualMinutes}m actual</span>
+        </div>
+      `,
+          )
+          .join("");
+      }
+
+      function renderReflection(reflection) {
+        document.getElementById("reflectionWhatWentWell").value =
+          reflection.whatWentWell || "";
+        document.getElementById("reflectionWhatStruggled").value =
+          reflection.whatStruggled || "";
+        document.getElementById("reflectionWhatImprove").value =
+          reflection.whatImprove || "";
+        document.getElementById("reflectionSavedStatus").textContent = "";
+      }
+
+      function renderTasks(tasks) {
+        const container = document.getElementById("tasksList");
+        const completionBanner = document.getElementById("completionBanner");
+
+        if (tasks.length === 0) {
+          if (completionBanner) {
+            completionBanner.style.display = "none";
+            completionBanner.innerHTML = "";
+          }
+          container.innerHTML = `
           <div class="wave-empty-state">
             <svg class="wave-empty-svg" viewBox="0 0 380 48" preserveAspectRatio="none" aria-hidden="true">
               <path d="M0,24 Q95,8 190,24 T380,24" fill="none" stroke="rgba(29, 78, 216, 0.28)" stroke-width="2" stroke-linecap="round"></path>
               <path d="M0,32 Q95,44 190,32 T380,32" fill="none" stroke="rgba(5, 150, 105, 0.22)" stroke-width="2" stroke-linecap="round"></path>
             </svg>
-            <p class="text-muted text-sm" style="margin-bottom: var(--space-3); font-weight: 500;">Clear horizon. No tasks scheduled for today yet.</p>
-            <button id="addFirstTaskBtn" class="btn btn-outline btn-sm">+ Add Your First Task</button>
+            <p class="text-muted text-sm" style="margin-bottom: var(--space-3); font-weight: 500;">Clear horizon. No tasks scheduled for this day.</p>
+            <button id="addFirstTaskBtn" class="btn btn-outline btn-sm">+ Add Task</button>
           </div>
         `;
-        document.getElementById('addFirstTaskBtn')?.addEventListener('click', openTaskModal);
-        document.getElementById('nextActionBox').style.display = 'none';
-        return;
-      }
+          document
+            .getElementById("addFirstTaskBtn")
+            ?.addEventListener("click", openTaskModal);
+          document.getElementById("nextActionBox").style.display = "none";
+          return;
+        }
 
-      // Identify single next action: First uncompleted P1, or first uncompleted task
-      const pendingTasks = tasks.filter(t => t.status !== 'completed');
+        const pendingTasks = tasks.filter((t) => t.status !== "completed");
 
-      // Signature Moment 1: Daily Plan Completion Wave Crest
-      if (tasks.length > 0 && pendingTasks.length === 0) {
-        if (completionBanner) {
-          completionBanner.style.display = 'block';
-          completionBanner.innerHTML = `
+        if (tasks.length > 0 && pendingTasks.length === 0) {
+          if (completionBanner) {
+            completionBanner.style.display = "block";
+            completionBanner.innerHTML = `
             <div class="wave-completion-crest">
               <div style="position: relative; z-index: 2; max-width: 82%;">
                 <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1);">
@@ -438,202 +1581,463 @@
               </svg>
             </div>
           `;
+          }
+        } else if (completionBanner) {
+          completionBanner.style.display = "none";
+          completionBanner.innerHTML = "";
         }
-      } else if (completionBanner) {
-        completionBanner.style.display = 'none';
-        completionBanner.innerHTML = '';
-      }
 
-      if (pendingTasks.length > 0) {
-        const next = pendingTasks.find(t => t.priority === 'P1') || pendingTasks[0];
-        document.getElementById('nextActionBox').style.display = 'block';
-        document.getElementById('nextActionTitle').textContent = next.title;
-        document.getElementById('nextActionPriority').innerHTML = getPriorityBadge(next.priority);
-        document.getElementById('nextActionMeta').textContent = `${formatMinutes(next.remainingMinutes || next.estimatedMinutes)} remaining · Category: ${next.category}`;
-        
-        document.getElementById('startNextActionBtn').onclick = () => {
-          window.location.href = `focus.html?taskId=${next._id}&title=${encodeURIComponent(next.title)}`;
-        };
-      } else {
-        document.getElementById('nextActionBox').style.display = 'none';
-      }
+        if (pendingTasks.length > 0) {
+          const next =
+            pendingTasks.find((t) => t.priority === "P1") || pendingTasks[0];
+          document.getElementById("nextActionBox").style.display = "block";
+          document.getElementById("nextActionTitle").textContent = next.title;
+          document.getElementById("nextActionPriority").innerHTML =
+            getPriorityBadge(next.priority);
+          document.getElementById("nextActionMeta").textContent =
+            `${formatMinutes(next.remainingMinutes || next.estimatedMinutes)} remaining · Category: ${next.category}`;
 
-      let html = '';
-      tasks.forEach(t => {
-        const isDone = t.status === 'completed';
-        html += `
-          <div class="task-row" style="${isDone ? 'opacity: 0.55;' : ''}">
+          document.getElementById("startNextActionBtn").onclick = () => {
+            window.location.href = `focus.html?taskId=${next._id}&title=${encodeURIComponent(next.title)}`;
+          };
+        } else {
+          document.getElementById("nextActionBox").style.display = "none";
+        }
+
+        container.innerHTML = tasks
+          .map((t) => {
+            const isDone = t.status === "completed";
+            const displayEffort = isDone
+              ? `${t.actualMinutes || t.estimatedMinutes}m actual`
+              : t.remainingMinutes !== undefined &&
+                  t.remainingMinutes !== t.estimatedMinutes
+                ? `${t.remainingMinutes}m left (of ${t.estimatedMinutes}m)`
+                : `${t.estimatedMinutes}m`;
+
+            return `
+          <div class="task-row">
             <div class="task-meta">
-              <input type="checkbox" ${isDone ? 'checked disabled' : ''} data-id="${t._id}" class="complete-chk" style="width: 18px; height: 18px; cursor: pointer;">
+              <input type="checkbox" class="task-complete-chk" data-id="${t._id}" ${isDone ? "checked" : ""} style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--accent-green);">
               <div>
-                <div style="font-weight: 600; font-size: 0.9375rem; ${isDone ? 'text-decoration: line-through;' : ''}">
-                  ${t.title}
+                <div style="font-weight: 600; color: var(--text-ink); ${isDone ? "text-decoration: line-through; opacity: 0.55;" : ""}">
+                  ${escapeHtml(t.title)}
                 </div>
                 <div class="text-subtle text-xs" style="margin-top: 2px;">
-                  ${getPriorityBadge(t.priority)} · ${formatMinutes(t.remainingMinutes || t.estimatedMinutes)}
-                  ${t.actualMinutes > 0 ? `· (${t.actualMinutes}m logged)` : ''}
+                  ${getPriorityBadge(t.priority)} · ${displayEffort} · <span style="text-transform: capitalize;">${t.category}</span>
                 </div>
               </div>
             </div>
             <div class="task-actions">
-              ${!isDone ? `
-                <button class="btn btn-outline btn-sm partial-btn" data-id="${t._id}">Log Headway</button>
+              ${
+                !isDone
+                  ? `
+                <button class="btn btn-outline btn-sm partial-btn" data-id="${t._id}">Log Partial</button>
                 <a href="focus.html?taskId=${t._id}&title=${encodeURIComponent(t.title)}" class="btn btn-primary btn-sm">Focus</a>
-              ` : '<span class="badge badge-success">Done</span>'}
+              `
+                  : '<span class="badge badge-success text-xs">Done</span>'
+              }
             </div>
           </div>
         `;
-      });
+          })
+          .join("");
 
-      container.innerHTML = html;
-
-      // Checkbox listener
-      container.querySelectorAll('.complete-chk').forEach(chk => {
-        chk.addEventListener('change', async (e) => {
-          const id = e.target.dataset.id;
-          try {
-            await api.post(`/tasks/${id}/complete`, {});
-            showToast('Task marked complete!', 'success');
-            await loadTodayData();
-          } catch (err) {
-            showToast(err.message, 'error');
-          }
-        });
-      });
-
-      // Partial log listener
-      container.querySelectorAll('.partial-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = e.target.dataset.id;
-          openPartialModal(id);
-        });
-      });
-    }
-
-    function renderTimetable(blocks) {
-      const container = document.getElementById('timetableList');
-      if (blocks.length === 0) {
-        container.innerHTML = '<p class="text-muted text-sm">No schedule blocks configured.</p>';
-        return;
-      }
-
-      container.innerHTML = blocks.map(b => `
-        <div class="timetable-item ${b.category === 'study' ? 'study' : ''} ${b.isProtected ? 'protected' : ''}">
-          <div>
-            <span style="font-weight: 600;">${formatTimeRange(b.startTime, b.endTime)}</span>
-            <span style="margin-left: var(--space-2); color: var(--color-ink);">${b.label}</span>
-          </div>
-          <span class="text-subtle text-xs">${b.durationMinutes}m</span>
-        </div>
-      `).join('');
-    }
-
-    async function loadQuickHabits() {
-      try {
-        const res = await api.get('/personal/habits');
-        if (!res.success) return;
-        const container = document.getElementById('quickHabitsList');
-        if (res.habits.length === 0) {
-          container.innerHTML = '<p class="text-muted text-sm">No habits configured.</p>';
-          return;
-        }
-
-        container.innerHTML = res.habits.slice(0, 4).map(h => `
-          <div class="quick-checkin-item">
-            <span class="text-sm">${h.title}</span>
-            <input type="checkbox" class="habit-chk" data-id="${h._id}" ${h.isCompletedToday ? 'checked' : ''} style="width: 16px; height: 16px;">
-          </div>
-        `).join('');
-
-        container.querySelectorAll('.habit-chk').forEach(chk => {
-          chk.addEventListener('change', async (e) => {
+        container.querySelectorAll(".task-complete-chk").forEach((chk) => {
+          chk.addEventListener("change", async (e) => {
             const id = e.target.dataset.id;
-            const completed = e.target.checked;
+            const checked = e.target.checked;
             try {
-              await api.post('/personal/habits/checkin', {
-                habitId: id,
-                date: getTodayString(),
-                completed
-              });
-              showToast(completed ? 'Habit checked in!' : 'Habit unchecked');
+              if (checked) {
+                await api.put(`/tasks/${id}/status`, { status: "completed" });
+                showToast("Task marked complete!", "success");
+              } else {
+                await api.put(`/tasks/${id}/status`, { status: "pending" });
+                showToast("Task marked pending");
+              }
+              await loadTodayData(selectedDate);
             } catch (err) {
-              showToast(err.message, 'error');
+              showToast(err.message, "error");
             }
           });
         });
-      } catch {}
-    }
 
-    function setupEventListeners() {
-      document.getElementById('quickAddTaskBtn').addEventListener('click', openTaskModal);
-      document.getElementById('closeTaskModalBtn').addEventListener('click', closeTaskModal);
-      document.getElementById('cancelModalBtn').addEventListener('click', closeTaskModal);
+        container.querySelectorAll(".partial-btn").forEach((btn) => {
+          btn.addEventListener("click", () => openPartialModal(btn.dataset.id));
+        });
+      }
 
-      document.getElementById('createTaskForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
+      function renderTimetable(blocks, routineHabits = []) {
+        const container = document.getElementById("timetableList");
+        if (blocks.length === 0) {
+          container.innerHTML =
+            '<p class="text-muted text-sm">No schedule blocks found for today.</p>';
+          return;
+        }
+
+        container.innerHTML = blocks
+          .map((b) => {
+            const isFixed =
+              b.blockType === "fixed_routine" ||
+              (["rest", "routine", "college"].includes(b.category) &&
+                !b.isTrackable);
+            const isTrackable =
+              b.isTrackable ||
+              b.blockType === "actionable_routine" ||
+              b.category === "gym";
+            const typeBadge = isFixed
+              ? '<span class="badge badge-neutral text-xs" style="font-size: 0.65rem;">Fixed Routine</span>'
+              : isTrackable
+                ? '<span class="badge badge-sage text-xs" style="font-size: 0.65rem;">Trackable</span>'
+                : b.courseSlug
+                  ? `<span class="badge badge-sky text-xs" style="font-size: 0.65rem;">${b.courseSlug.toUpperCase()}</span>`
+                  : "";
+
+            return `
+          <div class="timetable-item ${b.category || ""} ${b.isProtected ? "protected" : ""}">
+            <div style="flex: 1; min-width: 0;">
+              <div style="display: flex; align-items: center; gap: var(--space-2);">
+                <span style="font-weight: 600; color: var(--text-ink);">${formatTimeRange(b.startTime, b.endTime)}</span>
+                ${typeBadge}
+              </div>
+              <div class="text-subtle text-xs" style="margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${escapeHtml(b.label)}
+              </div>
+              ${/night routine/i.test(b.label) ? renderRoutineSteps(routineHabits) : ""}
+            </div>
+            <span class="badge ${b.isProtected ? "badge-p1" : "badge-neutral"}" style="margin-left: var(--space-2);">${b.durationMinutes}m</span>
+          </div>
+        `;
+          })
+          .join("");
+
+        container.querySelectorAll(".today-routine-check").forEach((input) =>
+          input.addEventListener("change", async () => {
+            try {
+              await api.post("/personal/habits/checkin", {
+                habitId: input.dataset.id,
+                date: selectedDate,
+                completed: input.checked,
+              });
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message, "error");
+              input.checked = !input.checked;
+            }
+          }),
+        );
+      }
+
+      function renderRoutineSteps(habits) {
+        if (!habits.length) return "";
+        const slots = {
+          vocabulary: "10:30 PM–10:35 PM",
+          hygiene: "10:35 PM–10:40 PM",
+          "meditation-breathing": "10:40 PM–10:55 PM",
+          reading: "10:55 PM–11:30 PM",
+          journaling: "11:30 PM–11:40 PM",
+          "whole-routine": "10:30 PM–11:40 PM",
+        };
+        return `<div style="margin-top:8px;padding:8px 10px;background:var(--color-bg-base);border-radius:8px">${habits.map((h) => `<label style="display:flex;align-items:center;gap:7px;padding:2px 0;font-size:.75rem"><input class="today-routine-check" type="checkbox" data-id="${h._id}" ${h.isCompletedToday ? "checked" : ""} ${h.isTrackable === false ? "disabled" : ""}><span>${escapeHtml(h.title)} <span class="text-subtle">${slots[h.routineGroup] || ""}</span></span></label>`).join("")}</div>`;
+      }
+
+      function updateNextUp(blocks, tasks, routineHabits) {
+        const box = document.getElementById("nextUpBox");
+        const label = document.getElementById("nextUpText");
+        const parts = new Intl.DateTimeFormat("en-GB", {
+          timeZone: "Asia/Kolkata",
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23",
+        })
+          .format(new Date())
+          .split(":")
+          .map(Number);
+        const now = parts[0] * 60 + parts[1];
+        const events = [];
+        const toMin = (t) => {
+          const [h, m] = String(t || "00:00")
+            .split(":")
+            .map(Number);
+          return h * 60 + m;
+        };
+        const routineBlock = blocks.find((b) => /night routine/i.test(b.label));
+        if (routineBlock) {
+          const base = toMin(routineBlock.startTime);
+          const offsets = {
+            vocabulary: 0,
+            hygiene: 5,
+            "meditation-breathing": 10,
+            reading: 25,
+            journaling: 60,
+          };
+          const seen = new Set();
+          for (const h of routineHabits) {
+            const group = h.routineGroup;
+            if (!group || group === "whole-routine" || seen.has(group))
+              continue;
+            seen.add(group);
+            const time = base + (offsets[group] || 0);
+            const nextStep = routineHabits.find(
+              (x) => x.routineGroup === group && !x.isCompletedToday,
+            );
+            if (nextStep && time >= now)
+              events.push({ time, title: nextStep.title });
+          }
+        }
+        for (const b of blocks) {
+          if (
+            /night routine/i.test(b.label) ||
+            ["rest", "college"].includes(b.category) ||
+            b.blockType === "fixed_routine"
+          )
+            continue;
+          const actionable =
+            b.isTrackable || b.courseSlug || /reading/i.test(b.label);
+          const time = toMin(b.startTime);
+          if (actionable && time >= now) events.push({ time, title: b.label });
+        }
+        const next = events.sort((a, b) => a.time - b.time)[0];
+        if (next) {
+          const hh = Math.floor(next.time / 60) % 24,
+            mm = next.time % 60;
+          label.textContent = `${next.title} · ${formatTime12(`${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`)}`;
+          box.style.display = "block";
+        } else {
+          box.style.display = "none";
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+
+      async function loadQuickHabits() {
         try {
-          const title = document.getElementById('taskTitleInput').value.trim();
-          const priority = document.getElementById('taskPriorityInput').value;
-          const estimatedMinutes = document.getElementById('taskEstimateInput').value;
-          const category = document.getElementById('taskCategoryInput').value;
-          const deadline = document.getElementById('taskDeadlineInput').value || null;
+          const res = await api.get("/habits");
+          if (!res.success) return;
+          const container = document.getElementById("quickHabitsList");
+          if (!res.habits || res.habits.length === 0) {
+            container.innerHTML =
+              '<p class="text-muted text-sm">No habits configured.</p>';
+            return;
+          }
 
-          await api.post('/tasks', {
-            title,
-            priority,
-            estimatedMinutes,
-            category,
-            deadline,
-            scheduledDate: getTodayString()
+          const todayStr = selectedDate;
+
+          container.innerHTML = res.habits
+            .slice(0, 4)
+            .map((h) => {
+              const isDone = (h.completionHistory || []).some((entry) =>
+                (typeof entry === "string" ? entry : entry.date).startsWith(
+                  todayStr,
+                ),
+              );
+              return `
+            <div class="quick-checkin-item">
+              <div>
+                <span style="font-size: 0.875rem; font-weight: 500; color: var(--text-ink);">${escapeHtml(h.name)}</span>
+                <span class="text-subtle text-xs" style="margin-left: var(--space-2);">${h.streak || 0} streak</span>
+              </div>
+              <input type="checkbox" class="habit-chk" data-id="${h._id}" ${isDone ? "checked disabled" : ""} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-green);">
+            </div>
+          `;
+            })
+            .join("");
+
+          container.querySelectorAll(".habit-chk").forEach((chk) => {
+            chk.addEventListener("change", async (e) => {
+              const id = e.target.dataset.id;
+              try {
+                await api.post(`/habits/${id}/complete`);
+                showToast("Habit checked in!", "success");
+                e.target.disabled = true;
+              } catch (err) {
+                showToast(err.message, "error");
+              }
+            });
+          });
+        } catch {}
+      }
+
+      function setupEventListeners() {
+        document
+          .getElementById("quickAddTaskBtn")
+          .addEventListener("click", openTaskModal);
+        document
+          .getElementById("closeTaskModalBtn")
+          .addEventListener("click", closeTaskModal);
+        document
+          .getElementById("cancelModalBtn")
+          .addEventListener("click", closeTaskModal);
+
+        document
+          .getElementById("createTaskForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            try {
+              const title = document
+                .getElementById("taskTitleInput")
+                .value.trim();
+              const priority =
+                document.getElementById("taskPriorityInput").value;
+              const estimatedMinutes =
+                document.getElementById("taskEstimateInput").value;
+              const category =
+                document.getElementById("taskCategoryInput").value;
+              const deadline =
+                document.getElementById("taskDeadlineInput").value || null;
+
+              await api.post("/tasks", {
+                title,
+                priority,
+                estimatedMinutes,
+                category,
+                deadline,
+                scheduledDate: selectedDate,
+              });
+
+              showToast("Task added to schedule!", "success");
+              closeTaskModal();
+              document.getElementById("createTaskForm").reset();
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message, "error");
+            }
           });
 
-          showToast('Task added to today\'s plan!', 'success');
-          closeTaskModal();
-          document.getElementById('createTaskForm').reset();
-          await loadTodayData();
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
-      });
+        // Recovery Opportunity Buttons
+        document
+          .getElementById("btnAccept20mRecovery")
+          ?.addEventListener("click", async () => {
+            try {
+              await api.post("/planner/recovery/accept", {
+                minutes: 20,
+                title: "Gradual Recovery Session (20m)",
+                date: selectedDate,
+              });
+              showToast("20m Recovery Session scheduled!", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+        document
+          .getElementById("btnAccept40mRecovery")
+          ?.addEventListener("click", async () => {
+            try {
+              await api.post("/planner/recovery/accept", {
+                minutes: 40,
+                title: "Gradual Recovery Session (40m)",
+                date: selectedDate,
+              });
+              showToast("40m Recovery Session scheduled!", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
 
-      // Partial log modal setup
-      document.getElementById('closePartialModalBtn').addEventListener('click', closePartialModal);
-      document.getElementById('cancelPartialBtn').addEventListener('click', closePartialModal);
-      document.getElementById('partialForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('partialTaskId').value;
-        const minutesSpent = document.getElementById('partialMinutesInput').value;
-        const notes = document.getElementById('partialNoteInput').value;
+        // Partial log modal setup
+        document
+          .getElementById("closePartialModalBtn")
+          .addEventListener("click", closePartialModal);
+        document
+          .getElementById("cancelPartialBtn")
+          .addEventListener("click", closePartialModal);
+        document
+          .getElementById("partialForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("partialTaskId").value;
+            const minutesSpent = document.getElementById(
+              "partialMinutesInput",
+            ).value;
+            const notes = document.getElementById("partialNoteInput").value;
 
-        try {
-          await api.post(`/tasks/${id}/partial`, { minutesSpent, notes });
-          showToast('Headway preserved!', 'success');
-          closePartialModal();
-          await loadTodayData();
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
-      });
-    }
+            try {
+              await api.post(`/tasks/${id}/partial`, {
+                minutesSpent,
+                notes,
+                date: selectedDate,
+              });
+              showToast("Headway preserved!", "success");
+              closePartialModal();
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
 
-    function openTaskModal() {
-      document.getElementById('taskModal').classList.remove('hidden');
-    }
-    function closeTaskModal() {
-      document.getElementById('taskModal').classList.add('hidden');
-    }
+        // Quick Exception modal setup
+        const quickExcModal = document.getElementById("quickExcModal");
+        document
+          .getElementById("btnQuickException")
+          .addEventListener("click", () => {
+            quickExcModal.classList.remove("hidden");
+          });
+        document
+          .getElementById("closeQuickExcBtn")
+          .addEventListener("click", () =>
+            quickExcModal.classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelQuickExcBtn")
+          .addEventListener("click", () =>
+            quickExcModal.classList.add("hidden"),
+          );
+        document
+          .getElementById("confirmQuickExcBtn")
+          .addEventListener("click", async () => {
+            const excType = document.getElementById("quickExcType").value;
+            const extraMin =
+              parseInt(document.getElementById("quickExcMinutes").value, 10) ||
+              180;
 
-    function openPartialModal(id) {
-      document.getElementById('partialTaskId').value = id;
-      document.getElementById('partialMinutesInput').value = '25';
-      document.getElementById('partialNoteInput').value = '';
-      document.getElementById('partialModal').classList.remove('hidden');
-    }
-    function closePartialModal() {
-      document.getElementById('partialModal').classList.add('hidden');
-    }
+            try {
+              await api.post("/timetable/exceptions", {
+                date: selectedDate,
+                exceptionType: excType,
+                templateOverride: "holiday",
+                extraAvailableMinutes: extraMin,
+                notes: "Quick logged from Today dashboard",
+              });
+              showToast("Day set to Holiday / Prep schedule!", "success");
+              quickExcModal.classList.add("hidden");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+      }
 
-    init();
-  </script>
-</body>
+      function openTaskModal() {
+        document.getElementById("taskModal").classList.remove("hidden");
+      }
+      function closeTaskModal() {
+        document.getElementById("taskModal").classList.add("hidden");
+      }
+
+      function openPartialModal(id) {
+        document.getElementById("partialTaskId").value = id;
+        document.getElementById("partialMinutesInput").value = "25";
+        document.getElementById("partialNoteInput").value = "";
+        document.getElementById("partialModal").classList.remove("hidden");
+      }
+      function closePartialModal() {
+        document.getElementById("partialModal").classList.add("hidden");
+      }
+
+      init();
+    </script>
+  </body>
 </html>
