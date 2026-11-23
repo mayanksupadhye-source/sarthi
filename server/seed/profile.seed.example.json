@@ -108,7 +108,7 @@
     "preferredSlot": "Sunday night",
     "finalReward": {
       "label": "Mountain trek",
-      "savingsTargetINR": 4000,
+      "savingsTargetINR": 5000,
       "monthlyContributionINR": 800
     }
   },
@@ -121,7 +121,7 @@
     "weeklyHackathonBudgetHours": 6
   },
   "fitness": {
-    "startWeightKg": 88,
+    "startWeightKg": 90,
     "targetWeightKg": 73,
     "checkInEveryDays": 14,
     "noSugarChallenge": true
