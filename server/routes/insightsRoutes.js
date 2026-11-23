@@ -63,13 +63,13 @@ router.get('/summary', async (req, res, next) => {
       userId,
       date: { $regex: `^${currentMonth}` }
     });
-    const slackAllowed = settings.monthlySlackDaysAllowed || 2;
+    const slackAllowed = settings.monthlySlackDaysAllowed ?? 3;
     const slackRemaining = Math.max(0, slackAllowed - monthlySlackDays);
 
     // 5. Weight Progress
     const weightLogs = await WeightLog.find({ userId }).sort({ date: 1 });
-    const startWeight = settings.startingWeightKg || 88;
-    const targetWeight = settings.targetWeightKg || 73;
+    const startWeight = 90;
+    const targetWeight = 73;
     const currentWeight = weightLogs.length > 0 ? weightLogs[weightLogs.length - 1].weightKg : startWeight;
     const weightLost = Math.max(0, startWeight - currentWeight);
 
