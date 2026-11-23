@@ -1,513 +1,1201 @@
-<!DOCTYPE html>
+﻿<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Business Reading — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <style>
-    .stat-card {
-      background-color: var(--color-bg-paper);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-5);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-1);
-    }
-    .stat-card .stat-label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: var(--color-muted);
-    }
-    .stat-card .stat-value {
-      font-size: 1.75rem;
-      font-weight: 800;
-      color: var(--color-ink);
-      line-height: 1.2;
-    }
-    .stat-card .stat-helper {
-      font-size: 0.75rem;
-      color: var(--color-subtle);
-      margin-top: var(--space-1);
-    }
-    .book-card {
-      background-color: var(--color-bg-paper);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      padding: var(--space-5);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: var(--space-4);
-      border-top: 4px solid var(--color-ink);
-      transition: all var(--transition-fast);
-      box-shadow: var(--shadow-sm);
-    }
-    .book-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 16px -2px rgba(15, 23, 42, 0.08);
-      border-color: #94A3B8;
-    }
-    .book-card.primary-accent {
-      border-top-color: var(--color-primary);
-    }
-    .book-chip-btn {
-      cursor: pointer;
-      padding: 0.25rem 0.625rem;
-      font-size: 0.75rem;
-      font-weight: 600;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
-      background-color: var(--color-bg-base);
-      color: var(--color-charcoal);
-      transition: all var(--transition-fast);
-    }
-    .book-chip-btn:hover {
-      border-color: var(--color-primary);
-      color: var(--color-primary);
-    }
-    .session-item {
-      padding: var(--space-5);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      background-color: var(--color-bg-paper);
-      margin-bottom: var(--space-4);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-3);
-    }
-    .session-item:last-child {
-      margin-bottom: 0;
-    }
-    .session-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      gap: var(--space-2);
-      padding-bottom: var(--space-3);
-      border-bottom: 1px solid var(--color-border);
-    }
-    .session-title {
-      font-size: 1.0625rem;
-      font-weight: 700;
-      color: var(--color-ink);
-    }
-    .session-author {
-      font-size: 0.8125rem;
-      color: var(--color-muted);
-    }
-    .session-meta-badges {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      flex-wrap: wrap;
-    }
-    .notes-block {
-      font-size: 0.875rem;
-      color: var(--color-charcoal);
-      line-height: 1.6;
-    }
-    .practical-application-block {
-      background-color: var(--color-bg-base);
-      border-left: 3px solid var(--color-primary);
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      padding: var(--space-3) var(--space-4);
-      font-size: 0.875rem;
-      line-height: 1.5;
-    }
-    .filter-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: var(--space-3);
-      margin-bottom: var(--space-4);
-    }
-  </style>
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">Business Reading Tracker</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-          <button id="logReadingBtn" class="btn btn-primary btn-sm">+ Log Reading Session</button>
-        </div>
-      </header>
-
-      <div class="page-container">
-        <!-- Summary Cards -->
-        <div class="grid-4" style="margin-bottom: var(--space-6);">
-          <div class="stat-card">
-            <div class="stat-label">Total Sessions</div>
-            <div class="stat-value" id="statTotalSessions">0</div>
-            <div class="stat-helper">Daily 35m Habit</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Pages Read</div>
-            <div class="stat-value" id="statTotalPages">0</div>
-            <div class="stat-helper">Cumulative Volume</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Reading Time</div>
-            <div class="stat-value" id="statTotalHours">0.0h</div>
-            <div class="stat-helper" id="statTotalMinutes">0 mins total</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Books Tracked</div>
-            <div class="stat-value" id="statTotalBooks">0</div>
-            <div class="stat-helper">Core Frameworks</div>
-          </div>
-        </div>
-
-        <!-- Core Reading Shelf -->
-        <div style="margin-bottom: var(--space-6);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3);">
-            <div>
-              <h2 style="font-size: 1.125rem; font-weight: 700; color: var(--color-ink);">Core Syllabus & Focus Books</h2>
-              <p class="text-subtle text-sm">Strategic business & psychology literature for engineering high-leverage outcomes.</p>
-            </div>
-          </div>
-          <div class="grid-2">
-            <!-- Book 1: SPIN Selling -->
-            <div class="book-card primary-accent">
-              <div>
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-2);">
-                  <div>
-                    <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--color-ink);">SPIN Selling</h3>
-                    <p class="text-subtle text-sm">Neil Rackham</p>
-                  </div>
-                  <span class="badge badge-neutral" id="spinSellingStats">0 sessions</span>
-                </div>
-                <p class="text-sm text-subtle" style="line-height: 1.5; margin-top: var(--space-2);">
-                  Research-backed framework for high-value B2B sales: <strong>S</strong>ituation, <strong>P</strong>roblem, <strong>I</strong>mplication, and <strong>N</strong>eed-Payoff questions. Moving beyond transactional pitch tactics.
-                </p>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; padding-top: var(--space-3); border-top: 1px solid var(--color-border);">
-                <span class="text-xs text-muted" id="spinSellingPages">0 pages logged</span>
-                <button type="button" class="btn btn-outline btn-sm" id="quickLogSpinBtn">+ Log SPIN Session</button>
-              </div>
-            </div>
-
-            <!-- Book 2: Influence -->
-            <div class="book-card">
-              <div>
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-2);">
-                  <div>
-                    <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--color-ink);">Influence: The Psychology of Persuasion</h3>
-                    <p class="text-subtle text-sm">Robert B. Cialdini</p>
-                  </div>
-                  <span class="badge badge-neutral" id="influenceStats">0 sessions</span>
-                </div>
-                <p class="text-sm text-subtle" style="line-height: 1.5; margin-top: var(--space-2);">
-                  The 6 universal principles of ethical persuasion: Reciprocity, Commitment & Consistency, Social Proof, Authority, Liking, and Scarcity. Understanding cognitive triggers in human decision-making.
-                </p>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; padding-top: var(--space-3); border-top: 1px solid var(--color-border);">
-                <span class="text-xs text-muted" id="influencePages">0 pages logged</span>
-                <button type="button" class="btn btn-outline btn-sm" id="quickLogInfluenceBtn">+ Log Influence Session</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Reading History & Session Logs -->
-        <div class="card">
-          <div class="card-header" style="margin-bottom: var(--space-4);">
-            <div>
-              <div class="card-title">Reading Sessions Log</div>
-              <div class="text-subtle text-sm">Every page turned with documented insights and tactical application</div>
-            </div>
-            <div style="display: flex; align-items: center; gap: var(--space-2);">
-              <span class="badge badge-neutral" id="logCountBadge">0 Sessions</span>
-            </div>
-          </div>
-
-          <!-- Filter & View Controls -->
-          <div class="filter-bar">
-            <div style="display: flex; align-items: center; gap: var(--space-2);">
-              <label for="bookFilter" class="text-xs text-muted" style="font-weight: 700; text-transform: uppercase;">Filter Book:</label>
-              <select id="bookFilter" class="form-select" style="padding: 0.35rem 0.75rem; font-size: 0.8125rem; min-width: 180px;">
-                <option value="ALL">All Books</option>
-                <option value="SPIN Selling">SPIN Selling</option>
-                <option value="Influence">Influence</option>
-              </select>
-            </div>
-            <div style="display: flex; align-items: center; gap: var(--space-2);">
-              <button id="viewCardBtn" class="btn btn-outline btn-sm active" title="Card View">Card View</button>
-              <button id="viewTableBtn" class="btn btn-outline btn-sm" title="Table View">Table View</button>
-            </div>
-          </div>
-
-          <!-- Sessions Container -->
-          <div id="sessionsContainer">
-            <p class="text-muted text-sm">Loading reading logs...</p>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- Log Reading Session Modal -->
-  <div id="readingModal" class="modal-backdrop hidden">
-    <div class="modal-box">
-      <div class="card-header">
-        <div class="card-title">Log Business Reading Session</div>
-        <button id="closeReadingModal" class="btn btn-outline btn-sm" aria-label="Close modal">✕</button>
-      </div>
-
-      <!-- Quick Preset Selection -->
-      <div style="margin-bottom: var(--space-4);">
-        <label class="text-xs text-muted" style="display: block; font-weight: 700; text-transform: uppercase; margin-bottom: var(--space-2);">Quick Book Select:</label>
-        <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
-          <button type="button" class="book-chip-btn" id="chipSpinSelling">SPIN Selling (Neil Rackham)</button>
-          <button type="button" class="book-chip-btn" id="chipInfluence">Influence (Robert Cialdini)</button>
-          <button type="button" class="book-chip-btn" id="chipClearBook">Other / Custom</button>
-        </div>
-      </div>
-
-      <form id="readingForm">
-        <div class="form-group">
-          <label class="form-label" for="bookTitleInput">Book Title *</label>
-          <input type="text" id="bookTitleInput" class="form-input" placeholder="e.g. SPIN Selling" required>
-        </div>
-
-        <div class="grid-2">
-          <div class="form-group">
-            <label class="form-label" for="authorInput">Author</label>
-            <input type="text" id="authorInput" class="form-input" placeholder="e.g. Neil Rackham">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="dateInput">Date *</label>
-            <input type="date" id="dateInput" class="form-input" required>
-          </div>
-        </div>
-
-        <div class="grid-3">
-          <div class="form-group">
-            <label class="form-label" for="startPageInput">Start Page</label>
-            <input type="number" id="startPageInput" class="form-input" min="0" value="0" placeholder="e.g. 24">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="endPageInput">End Page</label>
-            <input type="number" id="endPageInput" class="form-input" min="0" value="0" placeholder="e.g. 52">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="durationMinutesInput">Duration (Mins)</label>
-            <input type="number" id="durationMinutesInput" class="form-input" min="1" value="35" placeholder="e.g. 35">
-          </div>
-        </div>
-
-        <div id="calculatedPagesNotice" class="text-xs text-subtle" style="margin-top: -8px; margin-bottom: var(--space-4); font-weight: 600;">
-          Calculated Volume: <span id="pagesReadCalc" style="color: var(--color-primary);">0 pages</span>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="keyTakeawaysInput">Key Takeaways & Core Concepts</label>
-          <textarea id="keyTakeawaysInput" class="form-textarea" placeholder="Core ideas, models, or frameworks learned during this session..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="practicalApplicationInput">Practical Application / Next Action</label>
-          <textarea id="practicalApplicationInput" class="form-textarea" placeholder="How will you apply this principle in your projects, sales pitches, or communications?"></textarea>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-6);">
-          <button type="button" id="cancelReadingBtn" class="btn btn-outline">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="saveReadingBtn">Save Reading Session</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { showToast } from '../assets/js/toast.js';
-    import { getTodayString, formatMinutes } from '../assets/js/utils.js';
-
-    let allLogs = [];
-    let currentViewMode = 'card'; // 'card' or 'table'
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
-
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-      renderLayout('reading');
-
-      document.getElementById('dateInput').value = getTodayString();
-      setupEvents();
-      await loadReadingLogs();
-    }
-
-    async function loadReadingLogs() {
-      try {
-        const res = await api.get('/personal/reading');
-        if (!res.success) {
-          throw new Error(res.error || 'Failed to fetch reading logs');
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Business Reading â€” SARTHI (à¤¸à¤¾à¤°à¤¥à¥€)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .stat-card {
+        background-color: var(--color-bg-paper);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-5);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+      }
+      .stat-card .stat-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-muted);
+      }
+      .stat-card .stat-value {
+        font-size: 1.75rem;
+        font-weight: 800;
+        color: var(--color-ink);
+        line-height: 1.2;
+      }
+      .stat-card .stat-helper {
+        font-size: 0.75rem;
+        color: var(--color-subtle);
+        margin-top: var(--space-1);
+      }
+      .book-card {
+        background-color: var(--color-bg-paper);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-5);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: var(--space-4);
+        border-top: 4px solid var(--color-ink);
+        transition: all var(--transition-fast);
+        box-shadow: var(--shadow-sm);
+      }
+      .book-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px -2px rgba(15, 23, 42, 0.08);
+        border-color: #94a3b8;
+      }
+      .book-card.primary-accent {
+        border-top-color: var(--color-primary);
+      }
+      .book-chip-btn {
+        cursor: pointer;
+        padding: 0.25rem 0.625rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        background-color: var(--color-bg-base);
+        color: var(--color-charcoal);
+        transition: all var(--transition-fast);
+      }
+      .book-chip-btn:hover {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+      }
+      .session-item {
+        padding: var(--space-5);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background-color: var(--color-bg-paper);
+        margin-bottom: var(--space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+      }
+      .session-item:last-child {
+        margin-bottom: 0;
+      }
+      .session-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        padding-bottom: var(--space-3);
+        border-bottom: 1px solid var(--color-border);
+      }
+      .session-title {
+        font-size: 1.0625rem;
+        font-weight: 700;
+        color: var(--color-ink);
+      }
+      .session-author {
+        font-size: 0.8125rem;
+        color: var(--color-muted);
+      }
+      .session-meta-badges {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+      }
+      .notes-block {
+        font-size: 0.875rem;
+        color: var(--color-charcoal);
+        line-height: 1.6;
+      }
+      .practical-application-block {
+        background-color: var(--color-bg-base);
+        border-left: 3px solid var(--color-primary);
+        border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+        padding: var(--space-3) var(--space-4);
+        font-size: 0.875rem;
+        line-height: 1.5;
+      }
+      .filter-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: var(--space-3);
+        margin-bottom: var(--space-4);
+      }
+      .roadmap-phase,
+      .roadmap-book,
+      .completed-book {
+        background: var(--color-bg-paper);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        padding: var(--space-4);
+        box-shadow: var(--shadow-sm);
+      }
+      .roadmap-phase {
+        margin-bottom: var(--space-4);
+      }
+      .roadmap-pair,
+      .roadmap-books,
+      .completed-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-4);
+      }
+      .roadmap-track-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+      }
+      .roadmap-book {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+      }
+      .roadmap-book h3 {
+        font-size: 1rem;
+        font-weight: 800;
+        color: var(--color-ink);
+      }
+      .roadmap-book p {
+        font-size: 0.82rem;
+        line-height: 1.5;
+        color: var(--color-subtle);
+      }
+      .roadmap-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: auto;
+      }
+      .reading-progress {
+        height: 7px;
+        background: var(--color-bg-base);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .reading-progress span {
+        display: block;
+        height: 100%;
+        background: var(--color-primary);
+        transition: width 0.3s ease;
+      }
+      .completed-section {
+        margin-top: var(--space-8);
+        padding-top: var(--space-6);
+        border-top: 2px solid var(--color-border);
+      }
+      .archived-section {
+        margin-top: var(--space-6);
+        padding-top: var(--space-5);
+        border-top: 1px solid var(--color-border);
+      }
+      .completed-history {
+        display: none;
+      }
+      .completed-history.open {
+        display: block;
+      }
+      .session-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.5rem;
+      }
+      .modal-box {
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      @media (max-width: 760px) {
+        .roadmap-pair,
+        .roadmap-books,
+        .completed-grid {
+          grid-template-columns: 1fr;
         }
+      }
+      @media (max-width: 640px) {
+        .session-header {
+          align-items: flex-start;
+          gap: 8px;
+        }
+        .session-meta-badges {
+          flex-wrap: wrap;
+        }
+        .session-actions {
+          justify-content: flex-start;
+          flex-wrap: wrap;
+        }
+        .filter-bar {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+        .modal-box {
+          width: calc(100vw - 24px);
+          max-height: calc(100dvh - 24px);
+          overflow-y: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">
+              â˜°
+            </button>
+            <div class="page-headline">Business Reading Tracker</div>
+          </div>
+          <div class="topbar-right">
+            <div id="topbarFocusWidget"></div>
+            <button id="logReadingBtn" class="btn btn-primary btn-sm">
+              + Log Reading Session
+            </button>
+          </div>
+        </header>
 
-        allLogs = Array.isArray(res.logs) ? res.logs : [];
-        updateSummaryStats();
-        updateBookShelfStats();
-        renderLogs();
-      } catch (err) {
-        console.error('Error loading reading logs:', err);
-        showToast(err.message || 'Error loading reading logs', 'error');
-        document.getElementById('sessionsContainer').innerHTML = `
+        <div class="page-container">
+          <!-- Summary Cards -->
+          <div class="grid-4" style="margin-bottom: var(--space-6)">
+            <div class="stat-card">
+              <div class="stat-label">Total Sessions</div>
+              <div class="stat-value" id="statTotalSessions">0</div>
+              <div class="stat-helper">Saved reading sessions</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Pages Read</div>
+              <div class="stat-value" id="statTotalPages">0</div>
+              <div class="stat-helper">Unique pages across your books</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Reading Time</div>
+              <div class="stat-value" id="statTotalHours">0.0h</div>
+              <div class="stat-helper" id="statTotalMinutes">0 mins total</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Books Tracked</div>
+              <div class="stat-value" id="statTotalBooks">0</div>
+              <div class="stat-helper">Core Frameworks</div>
+            </div>
+          </div>
+
+          <section style="margin-bottom: var(--space-6)">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: var(--space-3);
+              "
+            >
+              <div>
+                <h2
+                  style="
+                    font-size: 1.125rem;
+                    font-weight: 700;
+                    color: var(--color-ink);
+                  "
+                >
+                  Reading Roadmap
+                </h2>
+                <p class="text-subtle text-sm">
+                  Two independent tracks. The next title opens when its track is
+                  ready.
+                </p>
+              </div>
+              <button
+                id="addReadingPairBtn"
+                class="btn btn-primary"
+                type="button"
+              >
+                + Add Another Pair
+              </button>
+            </div>
+            <div id="readingRoadmap">
+              <p class="text-subtle">Loading roadmapâ€¦</p>
+            </div>
+          </section>
+          <section style="margin-bottom: var(--space-6)">
+            <h2
+              style="
+                font-size: 1.125rem;
+                font-weight: 700;
+                color: var(--color-ink);
+                margin-bottom: var(--space-3);
+              "
+            >
+              Active Reading
+            </h2>
+            <div id="activeReadingBooks" class="roadmap-books">
+              <p class="text-subtle">Loading booksâ€¦</p>
+            </div>
+          </section>
+
+          <!-- Reading History & Session Logs -->
+          <div class="card">
+            <div class="card-header" style="margin-bottom: var(--space-4)">
+              <div>
+                <div class="card-title">Reading Sessions Log</div>
+                <div class="text-subtle text-sm">
+                  Every page turned with documented insights and tactical
+                  application
+                </div>
+              </div>
+              <div
+                style="display: flex; align-items: center; gap: var(--space-2)"
+              >
+                <span class="badge badge-neutral" id="logCountBadge"
+                  >0 Sessions</span
+                >
+              </div>
+            </div>
+            <div
+              style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.6rem;
+                margin-bottom: var(--space-3);
+                width: 100%;
+              "
+            >
+              <select
+                id="phaseFilter"
+                class="form-select"
+                aria-label="Filter by phase"
+              >
+                <option value="ALL">All Phases</option>
+              </select>
+              <select
+                id="authorFilter"
+                class="form-select"
+                aria-label="Filter by author"
+              >
+                <option value="ALL">All Authors</option>
+              </select>
+              <select
+                id="categoryFilter"
+                class="form-select"
+                aria-label="Filter by category"
+              >
+                <option value="ALL">All Categories</option>
+              </select>
+              <select
+                id="statusFilter"
+                class="form-select"
+                aria-label="Filter by status"
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="reading">Currently Reading</option>
+                <option value="available">Available</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="completed">Completed</option>
+                <option value="paused">Paused</option>
+                <option value="archived">Archived</option>
+              </select>
+              <label class="text-xs text-muted"
+                >From <input id="dateFromFilter" class="form-input" type="date"
+              /></label>
+              <label class="text-xs text-muted"
+                >To <input id="dateToFilter" class="form-input" type="date"
+              /></label>
+            </div>
+
+            <!-- Filter & View Controls -->
+            <div class="filter-bar">
+              <div
+                style="display: flex; align-items: center; gap: var(--space-2)"
+              >
+                <label
+                  for="bookFilter"
+                  class="text-xs text-muted"
+                  style="font-weight: 700; text-transform: uppercase"
+                  >Filter Book:</label
+                >
+                <select
+                  id="bookFilter"
+                  class="form-select"
+                  style="
+                    padding: 0.35rem 0.75rem;
+                    font-size: 0.8125rem;
+                    min-width: 180px;
+                  "
+                >
+                  <option value="ALL">All Books</option>
+                </select>
+              </div>
+              <div
+                style="display: flex; align-items: center; gap: var(--space-2)"
+              >
+                <button
+                  id="viewCardBtn"
+                  class="btn btn-outline btn-sm active"
+                  title="Card View"
+                >
+                  Card View
+                </button>
+                <button
+                  id="viewTableBtn"
+                  class="btn btn-outline btn-sm"
+                  title="Table View"
+                >
+                  Table View
+                </button>
+              </div>
+            </div>
+
+            <!-- Sessions Container -->
+            <div id="sessionsContainer">
+              <p class="text-muted text-sm">Loading reading logs...</p>
+            </div>
+          </div>
+          <section class="archived-section">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: var(--space-3);
+              "
+            >
+              <div>
+                <h2 style="font-size: 1rem; font-weight: 800">
+                  Archived Books
+                </h2>
+                <p class="text-subtle text-sm">
+                  Archived titles keep their sessions and can be restored.
+                </p>
+              </div>
+            </div>
+            <div id="archivedReadingBooks" class="completed-grid"></div>
+          </section>
+          <section class="completed-section">
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: var(--space-3);
+              "
+            >
+              <div>
+                <h2 style="font-size: 1.125rem; font-weight: 800">
+                  Completed Books
+                </h2>
+                <p class="text-subtle text-sm">
+                  Finished books and their permanent reading history.
+                </p>
+              </div>
+              <span id="completedBookCount" class="badge badge-neutral"
+                >0 books</span
+              >
+            </div>
+            <div id="completedReadingBooks" class="completed-grid">
+              <p class="text-subtle">Completed books will be kept here.</p>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- Log Reading Session Modal -->
+    <div id="readingModal" class="modal-backdrop hidden">
+      <div class="modal-box">
+        <div class="card-header">
+          <div class="card-title">Log Business Reading Session</div>
+          <button
+            id="closeReadingModal"
+            class="btn btn-outline btn-sm"
+            aria-label="Close modal"
+          >
+            âœ•
+          </button>
+        </div>
+
+        <form id="readingForm">
+          <input type="hidden" id="readingSessionId" />
+          <input type="hidden" id="readingBookId" />
+          <div class="form-group">
+            <label class="form-label" for="readingBookSelect"
+              >Choose an available book</label
+            >
+            <select id="readingBookSelect" class="form-select">
+              <option value="">Choose a bookâ€¦</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="bookTitleInput">Book Title *</label>
+            <input
+              type="text"
+              id="bookTitleInput"
+              class="form-input"
+              placeholder="Enter a book title"
+              required
+            />
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="authorInput">Author</label>
+              <input
+                type="text"
+                id="authorInput"
+                class="form-input"
+                placeholder="Book author"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="dateInput">Date *</label>
+              <input type="date" id="dateInput" class="form-input" required />
+            </div>
+          </div>
+
+          <div class="grid-3">
+            <div class="form-group">
+              <label class="form-label" for="startPageInput">Start Page</label>
+              <input
+                type="number"
+                id="startPageInput"
+                class="form-input"
+                min="0"
+                value="0"
+                placeholder="e.g. 24"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="endPageInput">End Page</label>
+              <input
+                type="number"
+                id="endPageInput"
+                class="form-input"
+                min="0"
+                value="0"
+                placeholder="e.g. 52"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="durationMinutesInput"
+                >Duration (Mins)</label
+              >
+              <input
+                type="number"
+                id="durationMinutesInput"
+                class="form-input"
+                min="1"
+                value="35"
+                placeholder="e.g. 35"
+              />
+            </div>
+          </div>
+
+          <div
+            id="calculatedPagesNotice"
+            class="text-xs text-subtle"
+            style="
+              margin-top: -8px;
+              margin-bottom: var(--space-4);
+              font-weight: 600;
+            "
+          >
+            Calculated Volume:
+            <span id="pagesReadCalc" style="color: var(--color-primary)"
+              >0 pages</span
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="keyTakeawaysInput"
+              >Key Takeaways & Core Concepts</label
+            >
+            <textarea
+              id="keyTakeawaysInput"
+              class="form-textarea"
+              placeholder="Core ideas, models, or frameworks learned during this session..."
+            ></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="practicalApplicationInput"
+              >Practical Application / Next Action</label
+            >
+            <textarea
+              id="practicalApplicationInput"
+              class="form-textarea"
+              placeholder="How will you apply this principle in your projects, sales pitches, or communications?"
+            ></textarea>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-6);
+            "
+          >
+            <button type="button" id="cancelReadingBtn" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" id="saveReadingBtn">
+              Save Reading Session
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="addPairModal" class="modal-backdrop hidden">
+      <div class="modal-box">
+        <div class="card-header">
+          <div class="card-title">Add Another Pair</div>
+          <button
+            type="button"
+            id="closePairModal"
+            class="btn btn-outline btn-sm"
+          >
+            Ã—
+          </button>
+        </div>
+        <form id="addPairForm">
+          <div class="form-group">
+            <label class="form-label" for="newPhaseTitle">Phase name *</label
+            ><input
+              id="newPhaseTitle"
+              class="form-input"
+              required
+              maxlength="120"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="newPhaseDescription"
+              >Phase description</label
+            ><textarea
+              id="newPhaseDescription"
+              class="form-textarea"
+              maxlength="1200"
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="newPhaseCategory"
+              >Category / learning domain</label
+            ><input id="newPhaseCategory" class="form-input" maxlength="80" />
+          </div>
+          <div class="roadmap-pair">
+            <div class="card" style="padding: var(--space-4)">
+              <h3>Track A</h3>
+              <div class="form-group">
+                <label class="form-label" for="pairATitle">Book title *</label
+                ><input
+                  id="pairATitle"
+                  class="form-input"
+                  required
+                  maxlength="180"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pairAAuthor">Author *</label
+                ><input
+                  id="pairAAuthor"
+                  class="form-input"
+                  required
+                  maxlength="160"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pairADescription"
+                  >Description</label
+                ><textarea
+                  id="pairADescription"
+                  class="form-textarea"
+                  maxlength="2400"
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pairACategory">Category</label
+                ><input id="pairACategory" class="form-input" maxlength="80" />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pairAPages"
+                  >Total pages (optional)</label
+                ><input
+                  id="pairAPages"
+                  class="form-input"
+                  type="number"
+                  min="1"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="pairACover"
+                  >Cover image URL (optional)</label
+                ><input id="pairACover" class="form-input" type="url" />
+              </div>
+            </div>
+            <div class="card" id="pairBPanel" style="padding: var(--space-4)">
+              <label style="display: flex; gap: 0.5rem; align-items: center"
+                ><input id="includePairB" type="checkbox" checked /> Add Track B
+                book</label
+              >
+              <div id="pairBFields">
+                <h3 style="margin-top: var(--space-3)">Track B</h3>
+                <div class="form-group">
+                  <label class="form-label" for="pairBTitle">Book title</label
+                  ><input id="pairBTitle" class="form-input" maxlength="180" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="pairBAuthor">Author</label
+                  ><input id="pairBAuthor" class="form-input" maxlength="160" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="pairBDescription"
+                    >Description</label
+                  ><textarea
+                    id="pairBDescription"
+                    class="form-textarea"
+                    maxlength="2400"
+                  ></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="pairBCategory">Category</label
+                  ><input
+                    id="pairBCategory"
+                    class="form-input"
+                    maxlength="80"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="pairBPages"
+                    >Total pages (optional)</label
+                  ><input
+                    id="pairBPages"
+                    class="form-input"
+                    type="number"
+                    min="1"
+                  />
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="pairBCover"
+                    >Cover image URL (optional)</label
+                  ><input id="pairBCover" class="form-input" type="url" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: 0.5rem;
+              margin-top: var(--space-4);
+            "
+          >
+            <button type="button" id="cancelPairModal" class="btn btn-outline">
+              Cancel</button
+            ><button type="submit" class="btn btn-primary">Save Phase</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import { renderLayout } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { showToast } from "../assets/js/toast.js";
+      import { getTodayString, formatMinutes } from "../assets/js/utils.js";
+
+      let allLogs = [];
+      let readingBooks = [];
+      let readingPhases = [];
+      let readingTracks = [];
+      let readingStats = {};
+      let currentViewMode = "card"; // 'card' or 'table'
+
+      function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+      function formatReadingDate(value) {
+        const parts = String(value || "")
+          .slice(0, 10)
+          .split("-");
+        return parts.length === 3
+          ? parts[2] + "/" + parts[1] + "/" + parts[0]
+          : String(value || "");
+      }
+
+      async function init() {
+        const user = await checkAuth();
+        if (!user) return;
+        renderLayout("reading");
+
+        document.getElementById("dateInput").value = getTodayString();
+        setupEvents();
+        await loadReadingLogs();
+      }
+
+      async function loadReadingLogs() {
+        try {
+          const res = await api.get("/personal/reading");
+          if (!res.success) {
+            throw new Error(res.error || "Failed to fetch reading logs");
+          }
+
+          allLogs = Array.isArray(res.logs) ? res.logs : [];
+          readingBooks = Array.isArray(res.books) ? res.books : [];
+          readingPhases = Array.isArray(res.phases) ? res.phases : [];
+          readingTracks = Array.isArray(res.tracks) ? res.tracks : [];
+          readingStats = res.stats || {};
+          updateSummaryStats();
+          renderRoadmap();
+          renderCompletedBooks();
+          renderArchivedBooks();
+          populateBookFilters();
+          renderLogs();
+        } catch (err) {
+          console.error("Error loading reading logs:", err);
+          showToast(err.message || "Error loading reading logs", "error");
+          document.getElementById("sessionsContainer").innerHTML = `
           <div style="padding: var(--space-4); color: var(--color-danger); background-color: #FEF2F2; border: 1px solid #FCA5A5; border-radius: var(--radius-sm);">
             Failed to load reading records. Please refresh the page.
           </div>
         `;
-      }
-    }
-
-    function updateSummaryStats() {
-      const totalSessions = allLogs.length;
-      let totalPages = 0;
-      let totalMinutes = 0;
-      const uniqueBooks = new Set();
-
-      allLogs.forEach(log => {
-        const pages = Number(log.pagesRead) || Math.max(0, (Number(log.endPage) || 0) - (Number(log.startPage) || 0));
-        totalPages += pages;
-        totalMinutes += (Number(log.durationMinutes) || 0);
-        if (log.bookTitle && log.bookTitle.trim()) {
-          uniqueBooks.add(log.bookTitle.trim().toLowerCase());
         }
-      });
-
-      const totalHours = (totalMinutes / 60).toFixed(1);
-
-      document.getElementById('statTotalSessions').textContent = totalSessions;
-      document.getElementById('statTotalPages').textContent = totalPages;
-      document.getElementById('statTotalHours').textContent = `${totalHours}h`;
-      document.getElementById('statTotalMinutes').textContent = `${totalMinutes} mins total`;
-      document.getElementById('statTotalBooks').textContent = uniqueBooks.size;
-      document.getElementById('logCountBadge').textContent = `${totalSessions} Session${totalSessions === 1 ? '' : 's'}`;
-    }
-
-    function updateBookShelfStats() {
-      const spinLogs = allLogs.filter(l => (l.bookTitle || '').toLowerCase().includes('spin'));
-      const spinPages = spinLogs.reduce((sum, l) => sum + (Number(l.pagesRead) || Math.max(0, (Number(l.endPage) || 0) - (Number(l.startPage) || 0))), 0);
-      document.getElementById('spinSellingStats').textContent = `${spinLogs.length} session${spinLogs.length === 1 ? '' : 's'}`;
-      document.getElementById('spinSellingPages').textContent = `${spinPages} pages logged`;
-
-      const infLogs = allLogs.filter(l => (l.bookTitle || '').toLowerCase().includes('influence'));
-      const infPages = infLogs.reduce((sum, l) => sum + (Number(l.pagesRead) || Math.max(0, (Number(l.endPage) || 0) - (Number(l.startPage) || 0))), 0);
-      document.getElementById('influenceStats').textContent = `${infLogs.length} session${infLogs.length === 1 ? '' : 's'}`;
-      document.getElementById('influencePages').textContent = `${infPages} pages logged`;
-    }
-
-    function renderLogs() {
-      const container = document.getElementById('sessionsContainer');
-      const filterVal = document.getElementById('bookFilter').value;
-
-      let filteredLogs = allLogs;
-      if (filterVal === 'SPIN Selling') {
-        filteredLogs = allLogs.filter(l => (l.bookTitle || '').toLowerCase().includes('spin'));
-      } else if (filterVal === 'Influence') {
-        filteredLogs = allLogs.filter(l => (l.bookTitle || '').toLowerCase().includes('influence'));
       }
 
-      if (filteredLogs.length === 0) {
-        if (allLogs.length === 0) {
-          container.innerHTML = `
-            <div style="text-align: center; padding: var(--space-10) var(--space-4); background-color: var(--color-bg-paper); border: 1px dashed var(--color-border); border-radius: var(--radius-md);">
-              <div style="font-size: 2.5rem; margin-bottom: var(--space-3);">📖</div>
-              <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--color-ink); margin-bottom: var(--space-2);">No Reading Sessions Logged Yet</h3>
-              <p class="text-subtle text-sm" style="max-width: 460px; margin: 0 auto var(--space-5); line-height: 1.6;">
-                Daily business reading compounds into immense strategic leverage. Begin your 35-minute session today with <strong>SPIN Selling</strong> or <strong>Influence</strong>.
-              </p>
-              <button id="emptyLogBtn" class="btn btn-primary btn-sm">+ Log Your First Session</button>
-            </div>
-          `;
-          const emptyBtn = document.getElementById('emptyLogBtn');
-          if (emptyBtn) {
-            emptyBtn.addEventListener('click', openModal);
-          }
+      function updateSummaryStats() {
+        const totalSessions =
+          Number(readingStats.totalSessions) || allLogs.length;
+        const totalPages = Number(readingStats.pagesRead) || 0;
+        const totalMinutes = Number(readingStats.totalMinutes) || 0;
+        const totalHours = (totalMinutes / 60).toFixed(1);
+
+        document.getElementById("statTotalSessions").textContent =
+          totalSessions;
+        document.getElementById("statTotalPages").textContent = totalPages;
+        document.getElementById("statTotalHours").textContent =
+          `${totalHours}h`;
+        document.getElementById("statTotalMinutes").textContent =
+          `${totalMinutes} mins total`;
+        document.getElementById("statTotalBooks").textContent =
+          Number(readingStats.booksTracked) ||
+          readingBooks.filter((book) => book.status !== "archived").length;
+        document.getElementById("logCountBadge").textContent =
+          `${totalSessions} Session${totalSessions === 1 ? "" : "s"}`;
+      }
+
+      const phaseFor = (book) =>
+        readingPhases.find(
+          (phase) =>
+            String(phase._id) ===
+            String(book.phaseId && (book.phaseId._id || book.phaseId)),
+        );
+      const trackFor = (book) =>
+        readingTracks.find(
+          (track) =>
+            String(track._id) ===
+            String(book.trackId && (book.trackId._id || book.trackId)),
+        );
+      function populateBookFilters() {
+        const bookFilter = document.getElementById("bookFilter");
+        const oldValue = bookFilter.value;
+        bookFilter.innerHTML =
+          '<option value="ALL">All Books</option>' +
+          readingBooks
+            .map(
+              (book) =>
+                `<option value="${escapeHtml(book._id)}">${escapeHtml(book.title)}</option>`,
+            )
+            .join("");
+        if ([...bookFilter.options].some((option) => option.value === oldValue))
+          bookFilter.value = oldValue;
+        [
+          [
+            "phaseFilter",
+            "All Phases",
+            [
+              ...new Set(
+                readingPhases
+                  .filter((phase) => phase.status !== "archived")
+                  .map((phase) => phase.title),
+              ),
+            ],
+          ],
+          [
+            "authorFilter",
+            "All Authors",
+            [
+              ...new Set(
+                readingBooks.map((book) => book.author).filter(Boolean),
+              ),
+            ],
+          ],
+          [
+            "categoryFilter",
+            "All Categories",
+            [
+              ...new Set(
+                readingBooks.map((book) => book.category).filter(Boolean),
+              ),
+            ],
+          ],
+        ].forEach(([id, label, values]) => {
+          const node = document.getElementById(id),
+            selected = node.value;
+          node.innerHTML =
+            `<option value="ALL">${label}</option>` +
+            values
+              .sort()
+              .map(
+                (value) =>
+                  `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`,
+              )
+              .join("");
+          if ([...node.options].some((option) => option.value === selected))
+            node.value = selected;
+        });
+        const bookSelect = document.getElementById("readingBookSelect");
+        bookSelect.innerHTML =
+          '<option value="">Choose an available bookâ€¦</option>' +
+          readingBooks
+            .filter((book) => ["available", "reading"].includes(book.status))
+            .map(
+              (book) =>
+                `<option value="${escapeHtml(book._id)}">${escapeHtml(book.title)} â€” ${escapeHtml(book.author)}</option>`,
+            )
+            .join("") +
+          '<option value="custom">Other / custom title</option>';
+      }
+      function renderRoadmap() {
+        const phases = readingPhases
+          .filter(
+            (phase) => phase.sequence !== 99 && phase.status !== "archived",
+          )
+          .sort((a, b) => a.sequence - b.sequence);
+        const card = (book) => {
+          const track = trackFor(book),
+            phase = phaseFor(book),
+            pct = Math.max(0, Math.min(100, Number(book.readingProgress) || 0));
+          let actions = "";
+          if (book.status === "available")
+            actions = `<button class="btn btn-primary btn-sm" data-book-action="start" data-id="${book._id}">Start reading</button><button class="btn btn-outline btn-sm" data-book-action="log" data-id="${book._id}">Log session</button>`;
+          else if (book.status === "reading")
+            actions = `<button class="btn btn-primary btn-sm" data-book-action="log" data-id="${book._id}">Log session</button><button class="btn btn-outline btn-sm" data-book-action="complete" data-id="${book._id}">Mark completed</button><button class="btn btn-outline btn-sm" data-book-action="pause" data-id="${book._id}">Pause</button>`;
+          else if (book.status === "paused")
+            actions = `<button class="btn btn-outline btn-sm" data-book-action="resume" data-id="${book._id}">Resume</button>`;
+          else
+            actions = `<span class="text-xs text-subtle">${book.status === "upcoming" ? "Available after the previous book is completed." : book.status}</span>`;
+          if (book.status !== "archived")
+            actions += `<button class="btn btn-outline btn-sm" data-book-action="edit-book" data-id="${book._id}">Edit details</button><button class="btn btn-outline btn-sm" data-book-action="archive" data-id="${book._id}">Archive</button>`;
+          if (!allLogs.some((log) => String(log.bookId) === String(book._id)))
+            actions += `<button class="btn btn-outline btn-sm" data-book-action="remove-book" data-id="${book._id}">Remove empty book</button>`;
+          if (book.status !== "completed" && book.status !== "archived")
+            actions += `<button class="btn btn-outline btn-sm" data-book-action="book-up" data-id="${book._id}" aria-label="Move book earlier">↑ Order</button><button class="btn btn-outline btn-sm" data-book-action="book-down" data-id="${book._id}" aria-label="Move book later">↓ Order</button>`;
+          const readPages = Number(book.pagesRead) || 0,
+            remaining = book.totalPages
+              ? Math.max(0, Number(book.totalPages) - readPages)
+              : null;
+          return `<article class="roadmap-book">${book.coverImage ? `<img src="${escapeHtml(book.coverImage)}" alt="" style="width:54px;height:72px;object-fit:cover;float:left;margin-right:.75rem;border-radius:5px">` : ""}<div class="text-xs text-muted">${escapeHtml(phase?.title || "Personal library")} Â· ${escapeHtml(track?.name || "")}</div><h3>${escapeHtml(book.title)}</h3><div class="text-xs text-subtle">${escapeHtml(book.author)}</div><p>${escapeHtml(book.description || "")}</p><div class="text-xs">${book.totalPages ? `Pages completed: ${readPages} / ${Number(book.totalPages)} · ${remaining} remaining · ${pct}%` : `${readPages} pages completed`}</div>${book.totalPages ? `<div class="reading-progress"><span style="width:${pct}%"></span></div>` : ""}<div class="roadmap-actions">${actions}</div></article>`;
+        };
+        document.getElementById("readingRoadmap").innerHTML = phases
+          .map((phase) => {
+            const books = readingBooks.filter(
+              (book) =>
+                String(book.phaseId?._id || book.phaseId) ===
+                  String(phase._id) &&
+                !["completed", "archived"].includes(book.status),
+            );
+            const slots = readingTracks
+              .filter(
+                (track) =>
+                  !["Imported", "Personal library"].includes(track.name),
+              )
+              .sort((a, b) => a.sequence - b.sequence)
+              .map((track) => {
+                const trackBooks = books
+                  .filter(
+                    (item) =>
+                      String(item.trackId?._id || item.trackId) ===
+                      String(track._id),
+                  )
+                  .sort((a, b) => a.sequence - b.sequence);
+                return trackBooks.length
+                  ? `<div class="roadmap-track-list"><div class="text-xs text-muted">${escapeHtml(track.name)}</div>${trackBooks.map(card).join("")}</div>`
+                  : `<div class="roadmap-book"><div class="text-xs text-muted">${escapeHtml(track.name)}</div><p>No book assigned to this track yet.</p></div>`;
+              })
+              .join("");
+            return `<section class="roadmap-phase"><div style="display:flex;justify-content:space-between;gap:1rem;margin-bottom:var(--space-3)"><div><h3>Phase ${phase.sequence} · ${escapeHtml(phase.title)}</h3><p class="text-xs text-subtle">${escapeHtml(phase.description || "")} ${phase.category ? "· " + escapeHtml(phase.category) : ""}</p></div><div class="roadmap-actions"><button class="btn btn-outline btn-sm" data-book-action="reorder-phase-up" data-id="${phase._id}">↑</button><button class="btn btn-outline btn-sm" data-book-action="reorder-phase-down" data-id="${phase._id}">↓</button><button class="btn btn-outline btn-sm" data-book-action="edit-phase" data-id="${phase._id}">Edit phase</button><button class="btn btn-outline btn-sm" data-book-action="add-book" data-id="${phase._id}">Add one book</button></div></div><div class="roadmap-pair">${slots}</div></section>`;
+          })
+          .join("");
+        const active = readingBooks.filter(
+          (book) =>
+            ["available", "reading", "paused"].includes(book.status) &&
+            phaseFor(book)?.sequence !== 99,
+        );
+        document.getElementById("activeReadingBooks").innerHTML = active.length
+          ? active.map(card).join("")
+          : '<div class="roadmap-book">No book is currently available.</div>';
+      }
+      function renderCompletedBooks() {
+        const completed = readingBooks
+          .filter((book) => book.status === "completed")
+          .sort(
+            (a, b) =>
+              new Date(b.completedAt || 0) - new Date(a.completedAt || 0),
+          );
+        document.getElementById("completedBookCount").textContent =
+          `${completed.length} book${completed.length === 1 ? "" : "s"}`;
+        document.getElementById("completedReadingBooks").innerHTML =
+          completed.length
+            ? completed
+                .map((book) => {
+                  const history = allLogs.filter(
+                    (log) => String(log.bookId) === String(book._id),
+                  );
+                  return `<article class="completed-book"><h3>${escapeHtml(book.title)}</h3><p class="text-sm text-subtle">${escapeHtml(book.author)} Â· ${escapeHtml(phaseFor(book)?.title || "")} Â· ${escapeHtml(trackFor(book)?.name || "")}</p><p class="text-sm">${escapeHtml(book.description || "")}</p><p class="text-xs text-subtle">Completed ${escapeHtml(book.completedAt ? new Date(book.completedAt).toLocaleDateString("en-GB") : "")} Â· ${Number(book.pagesRead) || 0} unique pages Â· ${history.reduce((n, row) => n + Number(row.durationMinutes || 0), 0)} minutes</p><div class="roadmap-actions"><button class="btn btn-outline btn-sm" data-book-action="history" data-id="${book._id}">View complete history (${history.length})</button><button class="btn btn-outline btn-sm" data-book-action="edit-book" data-id="${book._id}">Edit details</button><button class="btn btn-outline btn-sm" data-book-action="archive" data-id="${book._id}">Archive</button><button class="btn btn-outline btn-sm" data-book-action="restore" data-id="${book._id}">Reopen</button></div><div class="completed-history" id="book-history-${book._id}">${history.map((row) => `<article class="session-item"><strong>${escapeHtml(formatReadingDate(row.date))} Â· pp. ${row.startPage}â€“${row.endPage}</strong><div>${escapeHtml(row.keyTakeaways || "")}</div><div>${escapeHtml(row.practicalApplication || "")}</div><span>${escapeHtml(formatMinutes(row.durationMinutes || 0))}</span></article>`).join("") || '<p class="text-subtle">No reading sessions logged.</p>'}</div></article>`;
+                })
+                .join("")
+            : '<div class="roadmap-book">Completed books will remain in this archive.</div>';
+      }
+      function renderArchivedBooks() {
+        const archived = readingBooks.filter(
+          (book) => book.status === "archived",
+        );
+        document.getElementById("archivedReadingBooks").innerHTML =
+          archived.length
+            ? archived
+                .map(
+                  (book) =>
+                    `<article class="completed-book"><strong>${escapeHtml(book.title)}</strong><div class="text-xs text-subtle">${escapeHtml(book.author)} · ${Number(book.pagesRead) || 0} unique pages</div><div class="roadmap-actions"><button class="btn btn-outline btn-sm" data-book-action="history" data-id="${book._id}">View history</button><button class="btn btn-outline btn-sm" data-book-action="edit-book" data-id="${book._id}">Edit details</button><button class="btn btn-outline btn-sm" data-book-action="restore" data-id="${book._id}">Restore</button></div><div class="completed-history" id="archived-history-${book._id}">${allLogs
+                      .filter((log) => String(log.bookId) === String(book._id))
+                      .map(
+                        (log) =>
+                          `<div class="session-item"><strong>${escapeHtml(formatReadingDate(log.date))} · pp. ${log.startPage}–${log.endPage}</strong><div>${escapeHtml(log.keyTakeaways || "")}</div><div>${escapeHtml(log.practicalApplication || "")}</div></div>`,
+                      )
+                      .join("")}</div></article>`,
+                )
+                .join("")
+            : '<p class="text-xs text-subtle">No archived books.</p>';
+      }
+
+      function renderLogs() {
+        const container = document.getElementById("sessionsContainer");
+        let filteredLogs = allLogs.filter((log) => {
+          const book = readingBooks.find(
+            (item) => String(item._id) === String(log.bookId),
+          );
+          const phase = book && phaseFor(book);
+          const from = document.getElementById("dateFromFilter").value,
+            to = document.getElementById("dateToFilter").value;
+          return (
+            (document.getElementById("bookFilter").value === "ALL" ||
+              String(log.bookId) ===
+                document.getElementById("bookFilter").value) &&
+            (document.getElementById("phaseFilter").value === "ALL" ||
+              phase?.title === document.getElementById("phaseFilter").value) &&
+            (document.getElementById("authorFilter").value === "ALL" ||
+              book?.author === document.getElementById("authorFilter").value) &&
+            (document.getElementById("categoryFilter").value === "ALL" ||
+              book?.category ===
+                document.getElementById("categoryFilter").value) &&
+            (document.getElementById("statusFilter").value === "ALL" ||
+              book?.status === document.getElementById("statusFilter").value) &&
+            (!from || log.date >= from) &&
+            (!to || log.date <= to)
+          );
+        });
+
+        if (filteredLogs.length === 0) {
+          container.innerHTML =
+            '<div class="empty-book">' +
+            (allLogs.length
+              ? "No sessions match these filters."
+              : "Your session log is ready whenever you want to save a session.") +
+            "</div>";
+          return;
+        }
+        if (currentViewMode === "card") {
+          renderCardView(filteredLogs, container);
         } else {
-          container.innerHTML = `
-            <div style="text-align: center; padding: var(--space-8) var(--space-4); background-color: var(--color-bg-base); border-radius: var(--radius-md);">
-              <p class="text-subtle text-sm">No sessions match the selected filter "${escapeHtml(filterVal)}".</p>
-            </div>
-          `;
+          renderTableView(filteredLogs, container);
         }
-        return;
       }
 
-      if (currentViewMode === 'card') {
-        renderCardView(filteredLogs, container);
-      } else {
-        renderTableView(filteredLogs, container);
-      }
-    }
+      function renderCardView(logs, container) {
+        container.innerHTML = logs
+          .map((log) => {
+            const pages =
+              Number(log.pagesRead) ||
+              Math.max(
+                0,
+                (Number(log.endPage) || 0) - (Number(log.startPage) || 0),
+              );
+            const durationFormatted = formatMinutes(log.durationMinutes || 35);
+            const hasPagesRange =
+              log.startPage !== undefined &&
+              log.endPage !== undefined &&
+              log.endPage > 0;
 
-    function renderCardView(logs, container) {
-      container.innerHTML = logs.map(log => {
-        const pages = Number(log.pagesRead) || Math.max(0, (Number(log.endPage) || 0) - (Number(log.startPage) || 0));
-        const durationFormatted = formatMinutes(log.durationMinutes || 35);
-        const hasPagesRange = (log.startPage !== undefined && log.endPage !== undefined && log.endPage > 0);
-
-        return `
+            return `
           <div class="session-item">
             <div class="session-header">
               <div>
                 <div class="session-title">${escapeHtml(log.bookTitle)}</div>
-                ${log.author ? `<div class="session-author">${escapeHtml(log.author)}</div>` : ''}
+                ${log.author ? `<div class="session-author">${escapeHtml(log.author)}</div>` : ""}
               </div>
               <div class="session-meta-badges">
-                <span class="badge badge-neutral">${escapeHtml(log.date)}</span>
+                <span class="badge badge-neutral">${escapeHtml(formatReadingDate(log.date))}</span>
                 <span class="badge badge-neutral">${durationFormatted}</span>
                 <span class="badge badge-neutral" style="color: var(--color-primary); font-weight: 700;">
-                  ${hasPagesRange ? `pp. ${log.startPage}–${log.endPage} (${pages}p)` : `${pages} pages`}
+                  ${hasPagesRange ? `pp. ${log.startPage}â€“${log.endPage} (${pages}p)` : `${pages} pages`}
                 </span>
               </div>
             </div>
 
-            ${log.keyTakeaways ? `
+            ${
+              log.keyTakeaways
+                ? `
               <div class="notes-block">
                 <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--color-muted); margin-bottom: 2px;">Key Takeaways:</div>
                 <div style="white-space: pre-wrap;">${escapeHtml(log.keyTakeaways)}</div>
               </div>
-            ` : ''}
+            `
+                : ""
+            }
 
-            ${log.practicalApplication ? `
+            ${
+              log.practicalApplication
+                ? `
               <div class="practical-application-block">
                 <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--color-primary); margin-bottom: 2px;">Practical Application:</div>
                 <div style="white-space: pre-wrap;">${escapeHtml(log.practicalApplication)}</div>
               </div>
-            ` : ''}
+            `
+                : ""
+            }
+            <div class="session-actions"><button class="btn btn-outline btn-sm" data-session-action="edit-session" data-id="${escapeHtml(log._id)}">Edit</button><button class="btn btn-outline btn-sm" data-session-action="delete-session" data-id="${escapeHtml(log._id)}">Delete</button></div>
           </div>
         `;
-      }).join('');
-    }
+          })
+          .join("");
+      }
 
-    function renderTableView(logs, container) {
-      container.innerHTML = `
+      function renderTableView(logs, container) {
+        container.innerHTML = `
         <div class="table-container">
           <table class="table" style="width: 100%;">
             <thead>
@@ -518,171 +1206,584 @@
                 <th style="min-width: 90px;">Duration</th>
                 <th style="min-width: 220px;">Key Takeaways</th>
                 <th style="min-width: 220px;">Practical Application</th>
+              <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              ${logs.map(log => {
-                const pages = Number(log.pagesRead) || Math.max(0, (Number(log.endPage) || 0) - (Number(log.startPage) || 0));
-                const pageLabel = (log.endPage && log.endPage > 0) ? `pp. ${log.startPage}–${log.endPage} (${pages}p)` : `${pages}p`;
-                return `
+              ${logs
+                .map((log) => {
+                  const pages =
+                    Number(log.pagesRead) ||
+                    Math.max(
+                      0,
+                      (Number(log.endPage) || 0) - (Number(log.startPage) || 0),
+                    );
+                  const pageLabel =
+                    log.endPage && log.endPage > 0
+                      ? `pp. ${log.startPage}â€“${log.endPage} (${pages}p)`
+                      : `${pages}p`;
+                  return `
                   <tr>
-                    <td><strong>${escapeHtml(log.date)}</strong></td>
+                    <td><strong>${escapeHtml(formatReadingDate(log.date))}</strong></td>
                     <td>
                       <div style="font-weight: 600; color: var(--color-ink);">${escapeHtml(log.bookTitle)}</div>
-                      ${log.author ? `<div class="text-xs text-subtle">${escapeHtml(log.author)}</div>` : ''}
+                      ${log.author ? `<div class="text-xs text-subtle">${escapeHtml(log.author)}</div>` : ""}
                     </td>
                     <td><span class="badge badge-neutral">${pageLabel}</span></td>
                     <td>${formatMinutes(log.durationMinutes || 35)}</td>
-                    <td style="font-size: 0.8125rem; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(log.keyTakeaways || '—')}</td>
-                    <td style="font-size: 0.8125rem; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(log.practicalApplication || '—')}</td>
+                    <td style="font-size: 0.8125rem; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(log.keyTakeaways || "â€”")}</td>
+                    <td style="font-size: 0.8125rem; line-height: 1.4; white-space: pre-wrap;">${escapeHtml(log.practicalApplication || "â€”")}</td>
+                    <td><button class="btn btn-outline btn-sm" data-session-action="edit-session" data-id="${escapeHtml(log._id)}">Edit</button> <button class="btn btn-outline btn-sm" data-session-action="delete-session" data-id="${escapeHtml(log._id)}">Delete</button></td>
                   </tr>
                 `;
-              }).join('')}
+                })
+                .join("")}
             </tbody>
           </table>
         </div>
       `;
-    }
-
-    function updatePagesReadPreview() {
-      const start = Number(document.getElementById('startPageInput').value) || 0;
-      const end = Number(document.getElementById('endPageInput').value) || 0;
-      const diff = Math.max(0, end - start);
-      document.getElementById('pagesReadCalc').textContent = `${diff} page${diff === 1 ? '' : 's'}`;
-    }
-
-    function openModal(preset = {}) {
-      if (preset.title) {
-        document.getElementById('bookTitleInput').value = preset.title;
       }
-      if (preset.author) {
-        document.getElementById('authorInput').value = preset.author;
+
+      function updatePagesReadPreview() {
+        const start =
+          Number(document.getElementById("startPageInput").value) || 0;
+        const end = Number(document.getElementById("endPageInput").value) || 0;
+        const diff = Math.max(0, end - start);
+        document.getElementById("pagesReadCalc").textContent =
+          `${diff} page${diff === 1 ? "" : "s"}`;
       }
-      if (!document.getElementById('dateInput').value) {
-        document.getElementById('dateInput').value = getTodayString();
-      }
-      updatePagesReadPreview();
-      document.getElementById('readingModal').classList.remove('hidden');
-    }
 
-    function closeModal() {
-      document.getElementById('readingModal').classList.add('hidden');
-    }
-
-    function setupEvents() {
-      // Modal triggers
-      document.getElementById('logReadingBtn').addEventListener('click', () => {
-        openModal();
-      });
-      document.getElementById('closeReadingModal').addEventListener('click', closeModal);
-      document.getElementById('cancelReadingBtn').addEventListener('click', closeModal);
-
-      // Backdrop click to close
-      document.getElementById('readingModal').addEventListener('click', (e) => {
-        if (e.target.id === 'readingModal') {
-          closeModal();
+      function openModal(preset = {}) {
+        document.getElementById("readingForm").reset();
+        document.getElementById("readingSessionId").value =
+          preset.log?._id || "";
+        document.getElementById("readingBookSelect").disabled = Boolean(
+          preset.log,
+        );
+        document.getElementById("bookTitleInput").disabled = Boolean(
+          preset.log,
+        );
+        document.getElementById("authorInput").disabled = Boolean(preset.log);
+        document.getElementById("readingBookSelect").value =
+          preset.book?._id || "";
+        document.getElementById("readingBookId").value =
+          preset.book?._id || preset.log?.bookId || "";
+        if (preset.title) {
+          document.getElementById("bookTitleInput").value = preset.title;
         }
-      });
+        if (preset.log) {
+          document.getElementById("bookTitleInput").value =
+            preset.log.bookTitle || "";
+          document.getElementById("authorInput").value =
+            preset.log.author || "";
+          document.getElementById("dateInput").value = preset.log.date;
+          document.getElementById("startPageInput").value =
+            preset.log.startPage;
+          document.getElementById("endPageInput").value = preset.log.endPage;
+          document.getElementById("durationMinutesInput").value =
+            preset.log.durationMinutes;
+          document.getElementById("keyTakeawaysInput").value =
+            preset.log.keyTakeaways || "";
+          document.getElementById("practicalApplicationInput").value =
+            preset.log.practicalApplication || "";
+        }
+        if (preset.book) {
+          document.getElementById("bookTitleInput").value = preset.book.title;
+          document.getElementById("authorInput").value = preset.book.author;
+          document.getElementById("startPageInput").value =
+            preset.book.currentPage || 0;
+          document.getElementById("endPageInput").value =
+            preset.book.currentPage || 0;
+        }
+        if (preset.author) {
+          document.getElementById("authorInput").value = preset.author;
+        }
+        if (!document.getElementById("dateInput").value) {
+          document.getElementById("dateInput").value = getTodayString();
+        }
+        updatePagesReadPreview();
+        document.getElementById("readingModal").classList.remove("hidden");
+      }
 
-      // Quick Shelf Action Buttons
-      document.getElementById('quickLogSpinBtn').addEventListener('click', () => {
-        openModal({ title: 'SPIN Selling', author: 'Neil Rackham' });
-      });
-      document.getElementById('quickLogInfluenceBtn').addEventListener('click', () => {
-        openModal({ title: 'Influence: The Psychology of Persuasion', author: 'Robert B. Cialdini' });
-      });
+      function closeModal() {
+        document.getElementById("readingModal").classList.add("hidden");
+        document.getElementById("readingBookSelect").disabled = false;
+        document.getElementById("bookTitleInput").disabled = false;
+        document.getElementById("authorInput").disabled = false;
+      }
 
-      // Preset Chip Buttons in Modal
-      document.getElementById('chipSpinSelling').addEventListener('click', () => {
-        document.getElementById('bookTitleInput').value = 'SPIN Selling';
-        document.getElementById('authorInput').value = 'Neil Rackham';
-      });
-      document.getElementById('chipInfluence').addEventListener('click', () => {
-        document.getElementById('bookTitleInput').value = 'Influence: The Psychology of Persuasion';
-        document.getElementById('authorInput').value = 'Robert B. Cialdini';
-      });
-      document.getElementById('chipClearBook').addEventListener('click', () => {
-        document.getElementById('bookTitleInput').value = '';
-        document.getElementById('authorInput').value = '';
-        document.getElementById('bookTitleInput').focus();
-      });
+      function setupEvents() {
+        // Modal triggers
+        document
+          .getElementById("logReadingBtn")
+          .addEventListener("click", () => {
+            openModal();
+          });
+        document
+          .getElementById("addReadingPairBtn")
+          .addEventListener("click", () =>
+            document.getElementById("addPairModal").classList.remove("hidden"),
+          );
+        document
+          .getElementById("closePairModal")
+          .addEventListener("click", () =>
+            document.getElementById("addPairModal").classList.add("hidden"),
+          );
+        document
+          .getElementById("cancelPairModal")
+          .addEventListener("click", () =>
+            document.getElementById("addPairModal").classList.add("hidden"),
+          );
+        document.getElementById("pairBTitle").required = true;
+        document.getElementById("pairBAuthor").required = true;
+        document
+          .getElementById("includePairB")
+          .addEventListener("change", (event) => {
+            document.getElementById("pairBFields").style.display = event.target
+              .checked
+              ? "block"
+              : "none";
+            document.getElementById("pairBTitle").required =
+              event.target.checked;
+            document.getElementById("pairBAuthor").required =
+              event.target.checked;
+          });
+        document
+          .getElementById("addPairForm")
+          .addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const button = event.submitter;
+            button.disabled = true;
+            const books = [
+              {
+                track: "Track A",
+                title: document.getElementById("pairATitle").value,
+                author: document.getElementById("pairAAuthor").value,
+                description: document.getElementById("pairADescription").value,
+                category: document.getElementById("pairACategory").value,
+                totalPages: document.getElementById("pairAPages").value,
+                coverImage: document.getElementById("pairACover").value,
+              },
+            ];
+            if (document.getElementById("includePairB").checked)
+              books.push({
+                track: "Track B",
+                title: document.getElementById("pairBTitle").value,
+                author: document.getElementById("pairBAuthor").value,
+                description: document.getElementById("pairBDescription").value,
+                category: document.getElementById("pairBCategory").value,
+                totalPages: document.getElementById("pairBPages").value,
+                coverImage: document.getElementById("pairBCover").value,
+              });
+            try {
+              await api.post("/personal/reading/phases", {
+                title: document.getElementById("newPhaseTitle").value,
+                description: document.getElementById("newPhaseDescription")
+                  .value,
+                category: document.getElementById("newPhaseCategory").value,
+                books,
+              });
+              document.getElementById("addPairModal").classList.add("hidden");
+              event.target.reset();
+              document.getElementById("includePairB").checked = true;
+              document.getElementById("pairBFields").style.display = "block";
+              showToast("Phase and books saved.", "success");
+              await loadReadingLogs();
+            } catch (error) {
+              showToast(error.message || "Could not save phase.", "error");
+            } finally {
+              button.disabled = false;
+            }
+          });
+        document
+          .getElementById("closeReadingModal")
+          .addEventListener("click", closeModal);
+        document
+          .getElementById("cancelReadingBtn")
+          .addEventListener("click", closeModal);
 
-      // Dynamic calculation for start & end page
-      document.getElementById('startPageInput').addEventListener('input', updatePagesReadPreview);
-      document.getElementById('endPageInput').addEventListener('input', updatePagesReadPreview);
-
-      // View toggle buttons
-      document.getElementById('viewCardBtn').addEventListener('click', () => {
-        currentViewMode = 'card';
-        document.getElementById('viewCardBtn').classList.add('active');
-        document.getElementById('viewTableBtn').classList.remove('active');
-        renderLogs();
-      });
-      document.getElementById('viewTableBtn').addEventListener('click', () => {
-        currentViewMode = 'table';
-        document.getElementById('viewTableBtn').classList.add('active');
-        document.getElementById('viewCardBtn').classList.remove('active');
-        renderLogs();
-      });
-
-      // Filter change
-      document.getElementById('bookFilter').addEventListener('change', () => {
-        renderLogs();
-      });
-
-      // Form submission
-      document.getElementById('readingForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const saveBtn = document.getElementById('saveReadingBtn');
-        saveBtn.disabled = true;
-        saveBtn.textContent = 'Saving...';
-
-        const bookTitle = document.getElementById('bookTitleInput').value.trim();
-        const author = document.getElementById('authorInput').value.trim();
-        const date = document.getElementById('dateInput').value;
-        const startPage = Number(document.getElementById('startPageInput').value) || 0;
-        const endPage = Number(document.getElementById('endPageInput').value) || 0;
-        const durationMinutes = Number(document.getElementById('durationMinutesInput').value) || 35;
-        const keyTakeaways = document.getElementById('keyTakeawaysInput').value.trim();
-        const practicalApplication = document.getElementById('practicalApplicationInput').value.trim();
-
-        try {
-          const res = await api.post('/personal/reading', {
-            bookTitle,
-            author,
-            date,
-            startPage,
-            endPage,
-            durationMinutes,
-            keyTakeaways,
-            practicalApplication
+        // Backdrop click to close
+        document
+          .getElementById("readingModal")
+          .addEventListener("click", (e) => {
+            if (e.target.id === "readingModal") {
+              closeModal();
+            }
           });
 
-          if (!res.success) {
-            throw new Error(res.error || 'Failed to save reading session');
-          }
+        document
+          .getElementById("readingBookSelect")
+          .addEventListener("change", (event) => {
+            const book = readingBooks.find(
+              (item) => String(item._id) === String(event.target.value),
+            );
+            document.getElementById("readingBookId").value = book
+              ? book._id
+              : "";
+            if (book) {
+              document.getElementById("bookTitleInput").value = book.title;
+              document.getElementById("authorInput").value = book.author;
+              document.getElementById("startPageInput").value =
+                book.currentPage || 0;
+              document.getElementById("endPageInput").value =
+                book.currentPage || 0;
+            } else if (event.target.value === "custom") {
+              document.getElementById("bookTitleInput").value = "";
+              document.getElementById("authorInput").value = "";
+            }
+            updatePagesReadPreview();
+          });
+        // Dynamic calculation for start & end page
+        document
+          .getElementById("startPageInput")
+          .addEventListener("input", updatePagesReadPreview);
+        document
+          .getElementById("endPageInput")
+          .addEventListener("input", updatePagesReadPreview);
 
-          showToast('Reading session logged successfully!', 'success');
-          closeModal();
-          document.getElementById('readingForm').reset();
-          document.getElementById('dateInput').value = getTodayString();
-          document.getElementById('durationMinutesInput').value = 35;
-          document.getElementById('startPageInput').value = 0;
-          document.getElementById('endPageInput').value = 0;
-          updatePagesReadPreview();
+        // View toggle buttons
+        document.getElementById("viewCardBtn").addEventListener("click", () => {
+          currentViewMode = "card";
+          document.getElementById("viewCardBtn").classList.add("active");
+          document.getElementById("viewTableBtn").classList.remove("active");
+          renderLogs();
+        });
+        document
+          .getElementById("viewTableBtn")
+          .addEventListener("click", () => {
+            currentViewMode = "table";
+            document.getElementById("viewTableBtn").classList.add("active");
+            document.getElementById("viewCardBtn").classList.remove("active");
+            renderLogs();
+          });
 
-          await loadReadingLogs();
-        } catch (err) {
-          console.error('Error saving reading session:', err);
-          showToast(err.message || 'Error saving session', 'error');
-        } finally {
-          saveBtn.disabled = false;
-          saveBtn.textContent = 'Save Reading Session';
+        // Filter change
+        document.getElementById("bookFilter").addEventListener("change", () => {
+          renderLogs();
+        });
+        [
+          "phaseFilter",
+          "authorFilter",
+          "categoryFilter",
+          "statusFilter",
+          "dateFromFilter",
+          "dateToFilter",
+        ].forEach((id) =>
+          document.getElementById(id).addEventListener("change", renderLogs),
+        );
+        [
+          "readingRoadmap",
+          "activeReadingBooks",
+          "completedReadingBooks",
+          "sessionsContainer",
+        ].forEach((id) =>
+          document.getElementById(id).addEventListener("click", (event) => {
+            const button = event.target.closest(
+              "[data-book-action],[data-session-action]",
+            );
+            if (!button) return;
+            handleReadingAction(
+              button.dataset.bookAction || button.dataset.sessionAction,
+              button.dataset.id,
+            ).catch((error) =>
+              showToast(error.message || "Reading action failed.", "error"),
+            );
+          }),
+        );
+
+        // Form submission
+        document
+          .getElementById("readingForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const saveBtn = document.getElementById("saveReadingBtn");
+            saveBtn.disabled = true;
+            saveBtn.textContent = "Saving...";
+
+            const bookTitle = document
+              .getElementById("bookTitleInput")
+              .value.trim();
+            const author = document.getElementById("authorInput").value.trim();
+            const date = document.getElementById("dateInput").value;
+            const startPage =
+              Number(document.getElementById("startPageInput").value) || 0;
+            const endPage =
+              Number(document.getElementById("endPageInput").value) || 0;
+            const durationMinutes =
+              Number(document.getElementById("durationMinutesInput").value) ||
+              35;
+            const keyTakeaways = document
+              .getElementById("keyTakeawaysInput")
+              .value.trim();
+            const practicalApplication = document
+              .getElementById("practicalApplicationInput")
+              .value.trim();
+
+            try {
+              const payload = {
+                bookId:
+                  document.getElementById("readingBookId").value || undefined,
+                bookTitle,
+                author,
+                date,
+                startPage,
+                endPage,
+                durationMinutes,
+                keyTakeaways,
+                practicalApplication,
+              };
+              const sessionId =
+                document.getElementById("readingSessionId").value;
+              const res = sessionId
+                ? await api.put(
+                    "/personal/reading/sessions/" + sessionId,
+                    payload,
+                  )
+                : await api.post("/personal/reading", payload);
+
+              if (!res.success) {
+                throw new Error(res.error || "Failed to save reading session");
+              }
+
+              showToast(
+                sessionId
+                  ? "Reading session updated."
+                  : "Reading session logged successfully!",
+                "success",
+              );
+              closeModal();
+              document.getElementById("readingForm").reset();
+              document.getElementById("dateInput").value = getTodayString();
+              document.getElementById("durationMinutesInput").value = 35;
+              document.getElementById("startPageInput").value = 0;
+              document.getElementById("endPageInput").value = 0;
+              updatePagesReadPreview();
+
+              await loadReadingLogs();
+            } catch (err) {
+              console.error("Error saving reading session:", err);
+              showToast(err.message || "Error saving session", "error");
+            } finally {
+              saveBtn.disabled = false;
+              saveBtn.textContent = "Save Reading Session";
+            }
+          });
+      }
+
+      async function handleReadingAction(action, id) {
+        if (action === "history") {
+          (
+            document.getElementById("book-history-" + id) ||
+            document.getElementById("archived-history-" + id)
+          )?.classList.toggle("open");
+          return;
         }
-      });
-    }
+        if (action === "log") {
+          const book = readingBooks.find(
+            (item) => String(item._id) === String(id),
+          );
+          if (book) openModal({ title: book.title, author: book.author, book });
+          return;
+        }
+        if (action === "add-book") {
+          const title = window.prompt("Book title");
+          if (!title) return;
+          const author = window.prompt("Author name");
+          if (!author) return;
+          const phase = readingPhases.find(
+            (item) => String(item._id) === String(id),
+          );
+          const track = window.prompt(
+            "Track A, Track B, or a new track name",
+            "Track A",
+          );
+          const description = window.prompt("Short book description", "") || "";
+          const category = window.prompt("Category", "") || "";
+          const totalPages = window.prompt("Total pages (optional)", "");
+          const coverImage =
+            window.prompt("Cover image URL (optional)", "") || "";
+          await api.post("/personal/reading/books", {
+            phaseId: id,
+            title,
+            author,
+            track: track || "Track A",
+            description,
+            category,
+            totalPages: totalPages || undefined,
+            coverImage,
+          });
+          showToast(
+            "Book added to " + (phase ? phase.title : "the phase") + ".",
+            "success",
+          );
+          await loadReadingLogs();
+          return;
+        }
+        if (action === "edit-phase") {
+          const phase = readingPhases.find(
+            (item) => String(item._id) === String(id),
+          );
+          if (!phase) return;
+          const title = window.prompt("Phase name", phase.title);
+          if (title === null) return;
+          const description = window.prompt(
+            "Phase description",
+            phase.description || "",
+          );
+          if (description === null) return;
+          const category = window.prompt("Category", phase.category || "");
+          if (category === null) return;
+          await api.put("/personal/reading/phases/" + id, {
+            title,
+            description,
+            category,
+          });
+          await loadReadingLogs();
+          return;
+        }
+        if (action === "edit-book") {
+          const book = readingBooks.find(
+            (item) => String(item._id) === String(id),
+          );
+          if (!book) return;
+          const title = window.prompt("Book title", book.title);
+          if (title === null) return;
+          const author = window.prompt("Author", book.author);
+          if (author === null) return;
+          const description = window.prompt(
+            "Description",
+            book.description || "",
+          );
+          if (description === null) return;
+          const category = window.prompt("Category", book.category || "");
+          if (category === null) return;
+          const totalPages = window.prompt(
+            "Total pages (leave blank if unknown)",
+            book.totalPages || "",
+          );
+          const coverImage = window.prompt(
+            "Cover image URL (optional)",
+            book.coverImage || "",
+          );
+          if (coverImage === null) return;
+          await api.put("/personal/reading/books/" + id, {
+            title,
+            author,
+            description,
+            category,
+            totalPages: totalPages ? Number(totalPages) : undefined,
+            coverImage,
+          });
+          showToast("Book details updated.", "success");
+          await loadReadingLogs();
+          return;
+        }
+        if (action === "reorder-phase-up" || action === "reorder-phase-down") {
+          const phases = readingPhases
+            .filter(
+              (item) => item.sequence !== 99 && item.status !== "archived",
+            )
+            .sort((a, b) => a.sequence - b.sequence);
+          const index = phases.findIndex(
+              (item) => String(item._id) === String(id),
+            ),
+            next = index + (action === "reorder-phase-up" ? -1 : 1);
+          if (index < 0 || next < 0 || next >= phases.length) return;
+          [phases[index], phases[next]] = [phases[next], phases[index]];
+          await api.put("/personal/reading/phases/reorder", {
+            orderedPhaseIds: phases.map((item) => item._id),
+          });
+          await loadReadingLogs();
+          return;
+        }
+        if (action === "book-up" || action === "book-down") {
+          const book = readingBooks.find(
+            (item) => String(item._id) === String(id),
+          );
+          if (!book) return;
+          const trackId = String(book.trackId?._id || book.trackId);
+          const books = readingBooks
+            .filter(
+              (item) => String(item.trackId?._id || item.trackId) === trackId,
+            )
+            .sort((a, b) => a.sequence - b.sequence);
+          const index = books.findIndex(
+              (item) => String(item._id) === String(id),
+            ),
+            next = index + (action === "book-up" ? -1 : 1);
+          if (index < 0 || next < 0 || next >= books.length) return;
+          [books[index], books[next]] = [books[next], books[index]];
+          await api.put("/personal/reading/books/reorder", {
+            trackId,
+            orderedBookIds: books.map((item) => item._id),
+          });
+          await loadReadingLogs();
+          return;
+        }
+        if (action === "edit-session") {
+          const log = allLogs.find((item) => String(item._id) === String(id));
+          if (log) openModal({ log });
+          return;
+        }
+        if (action === "delete-session") {
+          if (
+            !window.confirm(
+              "Delete this session? Book progress and statistics will be recalculated.",
+            )
+          )
+            return;
+          await api.delete("/personal/reading/sessions/" + id);
+          showToast("Session deleted.", "success");
+          await loadReadingLogs();
+          return;
+        }
+        if (action === "remove-book") {
+          if (
+            !window.confirm(
+              "Remove this book? This is allowed only when it has no reading sessions.",
+            )
+          )
+            return;
+          await api.delete("/personal/reading/books/" + id);
+          showToast("Empty book removed.", "success");
+          await loadReadingLogs();
+          return;
+        }
+        if (action === "archive-phase") {
+          if (
+            !window.confirm(
+              "Archive this phase and its active books? Reading history will remain saved.",
+            )
+          )
+            return;
+          await api.put("/personal/reading/phases/" + id, {
+            action: "archive",
+          });
+          await loadReadingLogs();
+          return;
+        }
+        if (
+          action === "archive" &&
+          !window.confirm(
+            "Archive this book? Its reading history will remain saved.",
+          )
+        )
+          return;
+        const result = await api.put("/personal/reading/books/" + id, {
+          action,
+        });
+        if (!result?.success)
+          throw new Error(result?.error || "Could not update this book.");
+        showToast(
+          action === "complete"
+            ? "Book completed and moved to your history."
+            : "Book updated.",
+          "success",
+        );
+        await loadReadingLogs();
+      }
 
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
-</body>
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
 </html>
