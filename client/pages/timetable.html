@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Timetable & Conflicts — SARTHI (सारथी)</title>
+  <title>Timetable & Schedule Templates — SARTHI (सारथी)</title>
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
   <link rel="stylesheet" href="../assets/css/variables.css">
   <link rel="stylesheet" href="../assets/css/reset.css">
@@ -16,29 +16,68 @@
       align-items: center;
       justify-content: space-between;
       padding: var(--space-3) var(--space-4);
-      background-color: var(--color-bg-paper);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-sm);
+      background-color: var(--bg-surface);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-md);
       margin-bottom: var(--space-2);
       transition: all var(--transition-fast);
+      box-shadow: var(--shadow-sm);
     }
     .block-card:hover {
       transform: translateX(3px);
-      box-shadow: var(--shadow-sm);
+      box-shadow: var(--shadow-md);
       border-color: #94A3B8;
     }
-    .block-card.study {
+    .block-card.study, .block-card.webdev, .block-card.dsa, .block-card.oratory, .block-card.exploration {
       border-left: 4px solid var(--accent-blue);
     }
     .block-card.college {
       border-left: 4px solid var(--text-ink);
     }
-    .block-card.gym {
+    .block-card.gym, .block-card.routine {
       border-left: 4px solid var(--accent-green);
     }
     .block-card.rest {
       border-left: 4px solid #64748B;
-      background-color: var(--color-bg-base);
+      background-color: var(--bg-subtle);
+    }
+    .block-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-top: var(--space-1);
+    }
+    .block-btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--text-subtle);
+      font-size: 0.8125rem;
+      padding: 2px 6px;
+      border-radius: var(--radius-sm);
+      transition: background var(--transition-fast), color var(--transition-fast);
+    }
+    .block-btn-icon:hover {
+      background-color: var(--bg-subtle);
+      color: var(--text-ink);
+    }
+    .block-btn-icon.delete:hover {
+      background-color: #FEE2E2;
+      color: #DC2626;
+    }
+    .exception-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-2) var(--space-3);
+      border: 1px solid var(--border-hairline);
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      margin-bottom: var(--space-2);
+      font-size: 0.875rem;
+    }
+    .exception-item:last-child {
+      margin-bottom: 0;
     }
   </style>
 </head>
@@ -59,11 +98,12 @@
         <!-- Conflict Alerts Banner -->
         <div id="conflictAlertsContainer"></div>
 
-        <!-- Template Tabs -->
-        <div class="tab-group">
+        <!-- Template Tabs (4 Permanent Weekly + Exam Mode) -->
+        <div class="tab-group" style="flex-wrap: wrap;">
           <button class="tab-btn active" data-type="weekday">Monday–Friday (College)</button>
           <button class="tab-btn" data-type="saturday">Saturday</button>
           <button class="tab-btn" data-type="sunday">Sunday (Oratory & Deep Work)</button>
+          <button class="tab-btn" data-type="holiday">Holiday / Exam Leave</button>
           <button class="tab-btn" data-type="exam">Exam Mode Schedule</button>
         </div>
 
@@ -71,10 +111,17 @@
           <!-- Main Timetable Column -->
           <div>
             <div class="card">
-              <div class="card-header">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-3);">
                 <div>
-                  <div class="card-title" id="templateTitle">Schedule Template</div>
+                  <div style="display: flex; align-items: center; gap: var(--space-2);">
+                    <div class="card-title" id="templateTitle">Schedule Template</div>
+                    <span class="badge badge-neutral text-xs" id="templateVersionBadge">v1</span>
+                  </div>
                   <div class="text-subtle text-sm">Timezone: Asia/Kolkata · Fixed & Study Blocks</div>
+                </div>
+                <div style="display: flex; gap: var(--space-2);">
+                  <button class="btn btn-outline btn-sm" id="btnNewVersion" title="Create a future semester schedule version with an effective start date">+ New Version</button>
+                  <button class="btn btn-primary btn-sm" id="btnAddBlock">+ Add Block</button>
                 </div>
               </div>
               <div id="blocksContainer">
@@ -109,12 +156,26 @@
               </div>
             </div>
 
+            <!-- Single-Day Schedule Exceptions -->
+            <div class="card">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div class="card-title">Date Exceptions</div>
+                  <div class="text-subtle text-xs">Overrides for specific dates</div>
+                </div>
+                <button class="btn btn-outline btn-sm" id="btnLogException">+ Exception</button>
+              </div>
+              <div id="exceptionsContainer" style="display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-2);">
+                <p class="text-muted text-xs">No active date overrides.</p>
+              </div>
+            </div>
+
             <div class="card">
               <div class="card-header">
                 <div class="card-title">Schedule Principle</div>
               </div>
               <p class="text-sm text-subtle" style="line-height: 1.6;">
-                Schedules must reflect reality. Never schedule tasks inside your sleep window. A template change updates future planning capacity without modifying historical execution records.
+                Schedules must reflect reality. Never schedule tasks inside your sleep window. Single-day exceptions adapt your daily capacity dynamically without changing recurring weekly templates.
               </p>
             </div>
           </div>
@@ -123,20 +184,205 @@
     </main>
   </div>
 
+  <!-- Add/Edit Block Modal -->
+  <div class="modal-backdrop hidden" id="blockModalBackdrop">
+    <div class="modal-box" style="max-width: 480px; width: 100%;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+        <h3 class="modal-title" id="blockModalTitle" style="margin: 0; font-size: 1.125rem;">Add Schedule Block</h3>
+        <button class="block-btn-icon" id="btnCloseBlockModal" style="font-size: 1.25rem;">✕</button>
+      </div>
+      <form id="blockForm" style="display: flex; flex-direction: column; gap: var(--space-3);">
+        <input type="hidden" id="modalBlockId" value="">
+        <div>
+          <label class="form-label" for="blockLabel">Block Label / Activity Name *</label>
+          <input type="text" class="form-input" id="blockLabel" placeholder="e.g. Deep Study (DSA Practice)" required>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
+          <div>
+            <label class="form-label" for="blockStartTime">Start Time *</label>
+            <input type="time" class="form-input" id="blockStartTime" required>
+          </div>
+          <div>
+            <label class="form-label" for="blockEndTime">End Time *</label>
+            <input type="time" class="form-input" id="blockEndTime" required>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
+          <div>
+            <label class="form-label" for="blockCategory">Category</label>
+            <select class="form-select" id="blockCategory">
+              <option value="study">Study / Execution</option>
+              <option value="college">College / Lectures / Commute</option>
+              <option value="gym">Gym / Physical Workout</option>
+              <option value="routine">Routine / Meals / Grooming</option>
+              <option value="rest">Sleep / Rest</option>
+              <option value="exploration">Exploration / Research</option>
+              <option value="other">Other / Personal</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" for="blockType">Time Architecture Type</label>
+            <select class="form-select" id="blockType">
+              <option value="learning">Learning Course</option>
+              <option value="fixed_routine">Fixed Routine (Sleep, Meal, College)</option>
+              <option value="actionable_routine">Actionable Routine (Gym, Habit)</option>
+              <option value="exploration">Flexible Exploration</option>
+              <option value="deadline">Deadline / Submission</option>
+            </select>
+          </div>
+        </div>
+        <div id="blockCourseContainer">
+          <label class="form-label" for="blockCourseSlug">Linked Active Course</label>
+          <select class="form-select" id="blockCourseSlug">
+            <option value="">-- None / General Allocation --</option>
+          </select>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-1);">
+          <div style="display: flex; align-items: center; gap: var(--space-2);">
+            <input type="checkbox" id="blockIsProtected" style="width: 16px; height: 16px; accent-color: var(--accent-blue);">
+            <label for="blockIsProtected" class="text-sm" style="font-weight: 500; cursor: pointer;">
+              Protected Block (Do not compress during adaptive replanning)
+            </label>
+          </div>
+          <div style="display: flex; align-items: center; gap: var(--space-2);">
+            <input type="checkbox" id="blockIsTrackable" style="width: 16px; height: 16px; accent-color: var(--accent-blue);">
+            <label for="blockIsTrackable" class="text-sm" style="font-weight: 500; cursor: pointer;">
+              Track in Today (Shows actionable checkbox / logging button)
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="form-label" for="blockNotes">Notes (Optional)</label>
+          <input type="text" class="form-input" id="blockNotes" placeholder="e.g. No phone notifications">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-3);">
+          <button type="button" class="btn btn-outline btn-sm" id="btnCancelBlockModal">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="btnSaveBlock">Save Block</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Date Exception Modal -->
+  <div class="modal-backdrop hidden" id="exceptionModalBackdrop">
+    <div class="modal-box" style="max-width: 480px; width: 100%;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+        <h3 class="modal-title" style="margin: 0; font-size: 1.125rem;">Log Single-Day Schedule Exception</h3>
+        <button class="block-btn-icon" id="btnCloseExceptionModal" style="font-size: 1.25rem;">✕</button>
+      </div>
+      <form id="exceptionForm" style="display: flex; flex-direction: column; gap: var(--space-3);">
+        <div>
+          <label class="form-label" for="excDate">Date *</label>
+          <input type="date" class="form-input" id="excDate" required>
+        </div>
+        <div>
+          <label class="form-label" for="excType">Exception Type</label>
+          <select class="form-select" id="excType">
+            <option value="college_holiday">College Holiday (Full Free Day)</option>
+            <option value="exam_leave">Preparation / Exam Leave</option>
+            <option value="sick_day">Sick Day / Recovery</option>
+            <option value="family_event">Family Event / Travel</option>
+            <option value="custom">Custom Schedule Override</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="excTemplateOverride">Schedule Template to Apply</label>
+          <select class="form-select" id="excTemplateOverride">
+            <option value="holiday">Holiday / Exam Leave Schedule</option>
+            <option value="saturday">Saturday Schedule</option>
+            <option value="sunday">Sunday Schedule</option>
+            <option value="weekday">Weekday Schedule</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="excExtraMinutes">Extra Available Study Minutes</label>
+          <input type="number" class="form-input" id="excExtraMinutes" value="0" min="0" step="15" placeholder="e.g. 180">
+        </div>
+        <div>
+          <label class="form-label" for="excNotes">Reason / Description</label>
+          <input type="text" class="form-input" id="excNotes" placeholder="e.g. Diwali break or University prep leave">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-3);">
+          <button type="button" class="btn btn-outline btn-sm" id="btnCancelExceptionModal">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="btnSaveException">Apply Exception</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Future Schedule Version Modal -->
+  <div class="modal-backdrop hidden" id="versionModalBackdrop">
+    <div class="modal-box" style="max-width: 480px; width: 100%;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+        <h3 class="modal-title" style="margin: 0; font-size: 1.125rem;">New Future Schedule Version</h3>
+        <button class="block-btn-icon" id="btnCloseVersionModal" style="font-size: 1.25rem;">✕</button>
+      </div>
+      <p class="text-subtle text-sm" style="margin-bottom: var(--space-3);">
+        Create an effective-dated schedule version for an upcoming semester without overwriting your historical or current timetable blocks.
+      </p>
+      <form id="versionForm" style="display: flex; flex-direction: column; gap: var(--space-3);">
+        <div>
+          <label class="form-label" for="verDayType">Day Type *</label>
+          <select class="form-select" id="verDayType">
+            <option value="weekday">Monday–Friday (Weekday)</option>
+            <option value="saturday">Saturday</option>
+            <option value="sunday">Sunday</option>
+            <option value="holiday">Holiday / Exam Leave</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label" for="verEffectiveFrom">Effective From Date (YYYY-MM-DD) *</label>
+          <input type="date" class="form-input" id="verEffectiveFrom" required>
+        </div>
+        <div>
+          <label class="form-label" for="verTitle">Schedule Title *</label>
+          <input type="text" class="form-input" id="verTitle" placeholder="e.g. Semester 4 Weekday Schedule" required>
+        </div>
+        <p class="text-xs text-subtle" style="margin: 0;">
+          * New versions inherit current blocks by default so you can easily modify only the changing college/lab periods.
+        </p>
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-3);">
+          <button type="button" class="btn btn-outline btn-sm" id="btnCancelVersionModal">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="btnSaveVersion">Create Version</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script type="module">
     import { checkAuth } from '../assets/js/auth.js';
     import { renderLayout } from '../assets/js/nav.js';
     import { api } from '../assets/js/api.js';
-    import { formatMinutes, formatTime12, formatTimeRange } from '../assets/js/utils.js';
+    import { formatMinutes, formatTime12, formatTimeRange, getTodayString } from '../assets/js/utils.js';
     import { showToast } from '../assets/js/toast.js';
 
     let currentDayType = 'weekday';
+    let currentTemplateData = null;
+    let userCourses = [];
+
+    async function loadCourses() {
+      try {
+        const res = await api.get('/courses');
+        if (res.success && res.courses) {
+          userCourses = res.courses;
+          const select = document.getElementById('blockCourseSlug');
+          if (select) {
+            select.innerHTML = '<option value="">-- None / General Allocation --</option>' +
+              userCourses.map(c => `<option value="${c.slug}">${c.title} (${c.category || 'course'})</option>`).join('');
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load courses for selector:', err);
+      }
+    }
 
     async function init() {
       const user = await checkAuth();
       if (!user) return;
       renderLayout('timetable');
+      await loadCourses();
       await loadTemplate(currentDayType);
+      await loadExceptions();
       await checkConflicts(currentDayType);
       setupEvents();
     }
@@ -145,33 +391,54 @@
       try {
         const res = await api.get(`/timetable/templates/${dayType}`);
         if (!res.success) return;
+        currentTemplateData = res.template;
         const t = res.template;
 
         document.getElementById('templateTitle').textContent = t.title;
+        const vBadge = document.getElementById('templateVersionBadge');
+        if (vBadge) {
+          vBadge.textContent = `v${t.version || 1}${t.effectiveFrom ? ` (from ${t.effectiveFrom})` : ''}`;
+        }
 
         // Render Blocks
         const container = document.getElementById('blocksContainer');
         if (!t.blocks || t.blocks.length === 0) {
-          container.innerHTML = '<p class="text-muted text-sm">No blocks defined for this schedule.</p>';
-          return;
-        }
+          container.innerHTML = '<p class="text-muted text-sm" style="padding: var(--space-4); text-align: center;">No blocks defined for this schedule. Click "+ Add Block" above to create one.</p>';
+        } else {
+          container.innerHTML = t.blocks.map(b => `
+            <div class="block-card ${b.category}" data-block-id="${b.blockId}">
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 700; font-size: 0.9375rem; color: var(--text-ink);">${formatTimeRange(b.startTime, b.endTime)}</div>
+                <div style="color: var(--text-muted); font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  ${b.label}
+                  ${b.courseSlug ? `<span class="badge badge-sky text-xs" style="margin-left: 6px;">${b.courseSlug.toUpperCase()}</span>` : ''}
+                  ${b.blockType === 'fixed_routine' ? `<span class="badge badge-neutral text-xs" style="margin-left: 6px;">Fixed</span>` : ''}
+                  ${b.blockType === 'actionable_routine' ? `<span class="badge badge-sage text-xs" style="margin-left: 6px;">Trackable</span>` : ''}
+                </div>
+                <div class="block-actions">
+                  <button type="button" class="block-btn-icon btn-edit-block" data-block-id="${b.blockId}">Edit</button>
+                  <button type="button" class="block-btn-icon delete btn-delete-block" data-block-id="${b.blockId}">Delete</button>
+                </div>
+              </div>
+              <div style="text-align: right; margin-left: var(--space-3); flex-shrink: 0;">
+                <span class="badge ${b.isProtected ? 'badge-p1' : 'badge-neutral'}">${b.durationMinutes}m</span>
+                <div class="text-subtle text-xs" style="margin-top: 4px; text-transform: capitalize;">${b.category}</div>
+              </div>
+            </div>
+          `).join('');
 
-        container.innerHTML = t.blocks.map(b => `
-          <div class="block-card ${b.category}">
-            <div>
-              <div style="font-weight: 700; font-size: 0.9375rem;">${formatTimeRange(b.startTime, b.endTime)}</div>
-              <div style="color: var(--color-ink); font-size: 0.875rem;">${b.label}</div>
-            </div>
-            <div style="text-align: right;">
-              <span class="badge ${b.isProtected ? 'badge-p1' : 'badge-neutral'}">${b.durationMinutes}m</span>
-              <div class="text-subtle text-xs" style="margin-top: 2px;">${b.category}</div>
-            </div>
-          </div>
-        `).join('');
+          // Wire Block Edit & Delete Buttons
+          container.querySelectorAll('.btn-edit-block').forEach(btn => {
+            btn.addEventListener('click', () => openEditBlockModal(btn.dataset.blockId));
+          });
+          container.querySelectorAll('.btn-delete-block').forEach(btn => {
+            btn.addEventListener('click', () => deleteBlock(btn.dataset.blockId));
+          });
+        }
 
         // Calculate Breakdown
         let study = 0, college = 0, gym = 0, rest = 0;
-        for (const b of t.blocks) {
+        for (const b of (t.blocks || [])) {
           if (['study', 'webdev', 'dsa', 'oratory', 'exploration'].includes(b.category)) study += b.durationMinutes;
           else if (b.category === 'college') college += b.durationMinutes;
           else if (['gym', 'routine'].includes(b.category)) gym += b.durationMinutes;
@@ -187,6 +454,46 @@
       }
     }
 
+    async function loadExceptions() {
+      try {
+        const res = await api.get('/timetable/exceptions');
+        const container = document.getElementById('exceptionsContainer');
+        if (!res.success || !res.exceptions || res.exceptions.length === 0) {
+          container.innerHTML = '<p class="text-muted text-xs">No active date overrides logged.</p>';
+          return;
+        }
+
+        container.innerHTML = res.exceptions.map(exc => `
+          <div class="exception-item">
+            <div>
+              <div style="font-weight: 600; color: var(--text-ink);">${exc.date}</div>
+              <div class="text-subtle text-xs">${exc.notes || exc.exceptionType.replace('_', ' ')} (${exc.templateOverride})</div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-2);">
+              <span class="badge badge-ember text-xs">+${exc.extraAvailableMinutes || 0}m</span>
+              <button type="button" class="block-btn-icon delete btn-del-exception" data-id="${exc._id}">✕</button>
+            </div>
+          </div>
+        `).join('');
+
+        container.querySelectorAll('.btn-del-exception').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            if (confirm('Remove this schedule exception?')) {
+              try {
+                await api.delete(`/timetable/exceptions/${btn.dataset.id}`);
+                showToast('Schedule exception removed.', 'info');
+                await loadExceptions();
+              } catch (err) {
+                showToast(err.message, 'error');
+              }
+            }
+          });
+        });
+      } catch (err) {
+        console.warn('Could not load exceptions:', err.message);
+      }
+    }
+
     async function checkConflicts(dayType) {
       try {
         const res = await api.get('/timetable/conflicts', { dayType });
@@ -199,7 +506,7 @@
           html += res.conflicts.map(c => {
             const formatSlot = (slot) => slot && slot.includes('-') ? formatTimeRange(...slot.split('-')) : formatTime12(slot);
             return `
-            <div class="alert alert-danger">
+            <div class="alert alert-danger" style="margin-bottom: var(--space-3);">
               <strong>Time Overlap Detected:</strong> ${c.message} (${formatSlot(c.time1)} vs ${formatSlot(c.time2)})
             </div>
             `;
@@ -208,7 +515,7 @@
 
         if (res.warnings && res.warnings.length > 0) {
           html += res.warnings.map(w => `
-            <div class="alert alert-warning">
+            <div class="alert alert-warning" style="margin-bottom: var(--space-3);">
               <strong>Notice:</strong> ${w.message}
             </div>
           `).join('');
@@ -218,7 +525,64 @@
       } catch (err) {}
     }
 
+    function openAddBlockModal() {
+      document.getElementById('blockModalTitle').textContent = `Add Block to ${document.getElementById('templateTitle').textContent}`;
+      document.getElementById('modalBlockId').value = '';
+      document.getElementById('blockLabel').value = '';
+      document.getElementById('blockStartTime').value = '18:00';
+      document.getElementById('blockEndTime').value = '19:30';
+      document.getElementById('blockCategory').value = 'study';
+      document.getElementById('blockType').value = 'learning';
+      document.getElementById('blockCourseSlug').value = '';
+      document.getElementById('blockIsProtected').checked = false;
+      document.getElementById('blockIsTrackable').checked = false;
+      document.getElementById('blockNotes').value = '';
+      document.getElementById('blockModalBackdrop').classList.remove('hidden');
+    }
+
+    function openEditBlockModal(blockId) {
+      if (!currentTemplateData || !currentTemplateData.blocks) return;
+      const b = currentTemplateData.blocks.find(blk => blk.blockId === blockId);
+      if (!b) return;
+
+      document.getElementById('blockModalTitle').textContent = `Edit Block — ${b.label}`;
+      document.getElementById('modalBlockId').value = b.blockId;
+      document.getElementById('blockLabel').value = b.label || '';
+      document.getElementById('blockStartTime').value = b.startTime || '';
+      document.getElementById('blockEndTime').value = b.endTime || '';
+      document.getElementById('blockCategory').value = b.category || 'study';
+      document.getElementById('blockType').value = b.blockType || (
+        b.courseSlug ? 'learning' :
+        ['study', 'dsa', 'webdev', 'oratory'].includes(b.category) ? 'learning' :
+        b.category === 'exploration' ? 'exploration' :
+        ['routine', 'rest', 'college'].includes(b.category) ? (b.isTrackable ? 'actionable_routine' : 'fixed_routine') :
+        'learning'
+      );
+      document.getElementById('blockCourseSlug').value = b.courseSlug || '';
+      document.getElementById('blockIsProtected').checked = Boolean(b.isProtected);
+      document.getElementById('blockIsTrackable').checked = Boolean(b.isTrackable);
+      document.getElementById('blockNotes').value = b.notes || '';
+      document.getElementById('blockModalBackdrop').classList.remove('hidden');
+    }
+
+    function closeBlockModal() {
+      document.getElementById('blockModalBackdrop').classList.add('hidden');
+    }
+
+    async function deleteBlock(blockId) {
+      if (!confirm('Are you sure you want to delete this block?')) return;
+      try {
+        await api.delete(`/timetable/templates/${currentDayType}/blocks/${blockId}`);
+        showToast('Block deleted successfully.', 'success');
+        await loadTemplate(currentDayType);
+        await checkConflicts(currentDayType);
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    }
+
     function setupEvents() {
+      // Tab Switching
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', async () => {
           document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -227,6 +591,118 @@
           await loadTemplate(currentDayType);
           await checkConflicts(currentDayType);
         });
+      });
+
+      // Version Modal Events
+      const verBackdrop = document.getElementById('versionModalBackdrop');
+      document.getElementById('btnNewVersion')?.addEventListener('click', () => {
+        document.getElementById('verDayType').value = currentDayType;
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 30);
+        document.getElementById('verEffectiveFrom').value = tomorrow.toISOString().split('T')[0];
+        document.getElementById('verTitle').value = `Semester 4 ${currentDayType.charAt(0).toUpperCase() + currentDayType.slice(1)} Schedule`;
+        verBackdrop.classList.remove('hidden');
+      });
+      document.getElementById('btnCloseVersionModal')?.addEventListener('click', () => verBackdrop.classList.add('hidden'));
+      document.getElementById('btnCancelVersionModal')?.addEventListener('click', () => verBackdrop.classList.add('hidden'));
+      verBackdrop?.addEventListener('click', (e) => {
+        if (e.target.id === 'versionModalBackdrop') verBackdrop.classList.add('hidden');
+      });
+
+      document.getElementById('versionForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          dayType: document.getElementById('verDayType').value,
+          effectiveFrom: document.getElementById('verEffectiveFrom').value,
+          title: document.getElementById('verTitle').value.trim()
+        };
+
+        try {
+          const res = await api.post('/timetable/templates/version', payload);
+          showToast(`New schedule version (v${res.template.version}) created effective ${res.template.effectiveFrom}!`, 'success');
+          verBackdrop.classList.add('hidden');
+          currentDayType = payload.dayType;
+          await loadTemplate(currentDayType);
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      // Block Modal Events
+      document.getElementById('btnAddBlock').addEventListener('click', openAddBlockModal);
+      document.getElementById('btnCloseBlockModal').addEventListener('click', closeBlockModal);
+      document.getElementById('btnCancelBlockModal').addEventListener('click', closeBlockModal);
+      document.getElementById('blockModalBackdrop').addEventListener('click', (e) => {
+        if (e.target.id === 'blockModalBackdrop') closeBlockModal();
+      });
+
+      // Block Form Submission
+      document.getElementById('blockForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const blockId = document.getElementById('modalBlockId').value;
+        const payload = {
+          label: document.getElementById('blockLabel').value.trim(),
+          startTime: document.getElementById('blockStartTime').value,
+          endTime: document.getElementById('blockEndTime').value,
+          category: document.getElementById('blockCategory').value,
+          blockType: document.getElementById('blockType').value,
+          courseSlug: document.getElementById('blockCourseSlug').value || null,
+          isTrackable: document.getElementById('blockIsTrackable').checked,
+          isProtected: document.getElementById('blockIsProtected').checked,
+          notes: document.getElementById('blockNotes').value.trim()
+        };
+
+        try {
+          if (blockId) {
+            await api.put(`/timetable/templates/${currentDayType}/blocks/${blockId}`, payload);
+            showToast('Block updated successfully.', 'success');
+          } else {
+            await api.post(`/timetable/templates/${currentDayType}/blocks`, payload);
+            showToast('Block added successfully.', 'success');
+          }
+          closeBlockModal();
+          await loadTemplate(currentDayType);
+          await checkConflicts(currentDayType);
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
+      });
+
+      // Exception Modal Events
+      const excBackdrop = document.getElementById('exceptionModalBackdrop');
+      document.getElementById('btnLogException').addEventListener('click', () => {
+        document.getElementById('excDate').value = getTodayString ? getTodayString() : new Date().toISOString().split('T')[0];
+        document.getElementById('excType').value = 'college_holiday';
+        document.getElementById('excTemplateOverride').value = 'holiday';
+        document.getElementById('excExtraMinutes').value = '180';
+        document.getElementById('excNotes').value = '';
+        excBackdrop.classList.remove('hidden');
+      });
+      document.getElementById('btnCloseExceptionModal').addEventListener('click', () => excBackdrop.classList.add('hidden'));
+      document.getElementById('btnCancelExceptionModal').addEventListener('click', () => excBackdrop.classList.add('hidden'));
+      excBackdrop.addEventListener('click', (e) => {
+        if (e.target.id === 'exceptionModalBackdrop') excBackdrop.classList.add('hidden');
+      });
+
+      // Exception Form Submission
+      document.getElementById('exceptionForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          date: document.getElementById('excDate').value,
+          exceptionType: document.getElementById('excType').value,
+          templateOverride: document.getElementById('excTemplateOverride').value,
+          extraAvailableMinutes: parseInt(document.getElementById('excExtraMinutes').value, 10) || 0,
+          notes: document.getElementById('excNotes').value.trim()
+        };
+
+        try {
+          await api.post('/timetable/exceptions', payload);
+          showToast(`Schedule exception saved for ${payload.date}.`, 'success');
+          excBackdrop.classList.add('hidden');
+          await loadExceptions();
+        } catch (err) {
+          showToast(err.message, 'error');
+        }
       });
     }
 
