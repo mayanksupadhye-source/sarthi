@@ -73,6 +73,18 @@ web_modules/
 # Privacy: User Profile Seeds
 server/seed/profile.seed.json
 
+# Private reference documents
+/docs/ANTIGRAVITY_BUILD_PROMPT.md
+/docs/COURSE_CURRICULA.md
+/docs/DEFAULT_TIMETABLE.md
+/docs/DESIGN_SYSTEM.md
+/docs/EMOTIONAL_LAYER.md
+/docs/source/DSA_COURSE_SOURCE.md
+/docs/source/ORATORY_PROGRAM_SOURCE.md
+/docs/source/WEB_DEVELOPMENT_COURSE_SOURCE.md
+*.pdf
+*.PDF
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
