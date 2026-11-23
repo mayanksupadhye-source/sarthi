@@ -38,4 +38,18 @@ describe('SARTHI Academic Attendance Engine', () => {
     assert.equal(forecast.projectedPercent, 77.8);
   });
 
+  it('4. Reports undefined percentage before any conducted sessions', () => {
+    const res = AttendanceEngine.calculateAttendanceStatus(0, 0, 85);
+    assert.equal(res.currentPercent, null);
+    assert.equal(res.classesNeededToTarget, 0);
+    assert.equal(res.recoveryPossible, true);
+  });
+
+  it('5. Reports a 100% attendance target as unreachable after an absence', () => {
+    const res = AttendanceEngine.calculateAttendanceStatus(4, 5, 100);
+    assert.equal(res.currentPercent, 80);
+    assert.equal(res.classesNeededToTarget, null);
+    assert.equal(res.recoveryPossible, false);
+  });
+
 });
