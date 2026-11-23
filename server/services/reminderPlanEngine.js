@@ -12,6 +12,7 @@ import { Reward } from '../models/Reward.js';
 import { Setting } from '../models/Setting.js';
 import { UserProfile } from '../models/UserProfile.js';
 import { formatTime12 } from '../utils/timeFormat.js';
+import { removeJournalHistorySchedule } from './journalScheduleMigration.js';
 
 /**
  * Deterministic 32-bit integer hash from string key.
@@ -79,6 +80,7 @@ export async function generateReminderPlan({
   now = new Date()
 }) {
   const timezone = 'Asia/Kolkata';
+  await removeJournalHistorySchedule(userId);
 
   // Read user settings & profile for quiet hours and notification preferences
   const [setting, userProfile] = await Promise.all([
@@ -230,25 +232,53 @@ export async function generateReminderPlan({
   // 4. Hackathon Stages
   const hackathons = await Hackathon.find({ userId }).lean().catch(() => []);
   for (const hack of hackathons) {
-    if (Array.isArray(hack.stages)) {
-      for (const stage of hack.stages) {
-        if (stage.status !== 'completed' && stage.deadline && dateList.includes(stage.deadline)) {
-          if (!isQuietTime('11:00', quietStart, quietEnd)) {
-            const at = kolkataToISO(stage.deadline, '11:00');
-            const key = `hackathon-${hack._id.toString()}-${(stage.name || 'stage').toLowerCase().replace(/[^a-z0-9]/g, '-')}-${stage.deadline}`;
-            reminders.push({
-              id: hashKeyToId(key),
-              key,
-              at,
-              title: `Hackathon Milestone: ${stage.name}`,
-              body: `${hack.title} stage deliverable due today: ${stage.deliverable || stage.name}.`,
-              route: 'pages/hackathons.html',
-              channel: 'deadlines',
-              kind: 'deadline'
-            });
-          }
+    if (['submitted', 'completed'].includes(hack.submissionStatus) || hack.submittedAt || hack.completedAt) continue;
+    if (!Array.isArray(hack.stages)) continue;
+
+    const addHackathonReminder = (stage, eventType, date, title, body) => {
+      if (!date || !dateList.includes(date) || isQuietTime('11:00', quietStart, quietEnd)) return;
+      const at = kolkataToISO(date, '11:00');
+      const key = `hackathon-${hack._id}-${stage.key || stage.name}-${eventType}-${date}`;
+      reminders.push({
+        id: hashKeyToId(key), key, at, title, body,
+        route: 'pages/hackathons.html', channel: 'deadlines', kind: 'deadline'
+      });
+    };
+
+    for (const stage of hack.stages) {
+      if (!stage.key && stage.status !== 'completed' && stage.deadline && dateList.includes(stage.deadline)) {
+        if (!isQuietTime('11:00', quietStart, quietEnd)) {
+          const key = `hackathon-${hack._id}-${(stage.name || 'stage').toLowerCase().replace(/[^a-z0-9]/g, '-')}-${stage.deadline}`;
+          reminders.push({
+            id: hashKeyToId(key), key, at:kolkataToISO(stage.deadline, '11:00'),
+            title:`Hackathon Milestone: ${stage.name}`,
+            body:`${hack.title} stage deliverable due today: ${stage.deliverable || stage.name}.`,
+            route:'pages/hackathons.html', channel:'deadlines', kind:'deadline'
+          });
         }
+        continue;
       }
+      if (stage.availability !== 'scheduled' || !stage.startDate || !stage.endDate) continue;
+      addHackathonReminder(stage, 'start', stage.startDate,
+        `${hack.title}: ${stage.name} starts`, `${stage.name} is scheduled to begin today.`);
+      const dueInThreeDays = new Date(`${stage.endDate}T00:00:00.000Z`);
+      dueInThreeDays.setUTCDate(dueInThreeDays.getUTCDate() - 3);
+      const dueSoonDate = dueInThreeDays.toISOString().slice(0, 10);
+      addHackathonReminder(stage, 'deadline-soon', dueSoonDate,
+        `${hack.title}: ${stage.name} deadline soon`, `${stage.name} is due in three days, on ${stage.endDate}.`);
+      if (stage.key !== 'pitch') {
+        addHackathonReminder(stage, 'end', stage.endDate,
+          `${hack.title}: ${stage.name} ends`, `${stage.name} reaches its scheduled end date today.`);
+      }
+    }
+
+    for (const days of [7, 3, 1, 0]) {
+      const date = new Date(`${hack.endDate}T00:00:00.000Z`);
+      date.setUTCDate(date.getUTCDate() - days);
+      const reminderDate = date.toISOString().slice(0, 10);
+      addHackathonReminder({ key: 'final', name: 'Final submission' }, `final-${days}`, reminderDate,
+        `${hack.title}: final submission ${days === 0 ? 'due today' : 'approaching'}`,
+        `The final hackathon submission is due ${days === 0 ? 'today' : `in ${days} day${days === 1 ? '' : 's'}`} (${hack.endDate}).`);
     }
   }
 

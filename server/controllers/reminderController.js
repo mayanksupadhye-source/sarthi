@@ -1,4 +1,4 @@
-import { generateReminderPlan } from '../services/reminderPlanEngine.js';
+import { generateReminderPlan } from "../services/reminderPlanEngine.js";
 
 export async function getReminderPlan(req, res, next) {
   try {
@@ -9,15 +9,15 @@ export async function getReminderPlan(req, res, next) {
       userId,
       from,
       to,
-      now: new Date()
+      now: new Date(),
     });
 
     return res.json({
       success: true,
       count: plan.length,
-      timezone: 'Asia/Kolkata',
+      timezone: "Asia/Kolkata",
       reminders: plan,
-      generatedAt: new Date().toISOString()
+      generatedAt: new Date().toISOString(),
     });
   } catch (err) {
     next(err);
