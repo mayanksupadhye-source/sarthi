@@ -1,575 +1,1134 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Design System & Style Guide — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <style>
-    .swatch-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      gap: var(--space-4);
-      margin-bottom: var(--space-6);
-    }
-    .swatch-item {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-hairline);
-      border-radius: var(--radius-sm);
-      padding: var(--space-3);
-    }
-    .swatch-color {
-      height: 48px;
-      border-radius: var(--radius-xs);
-      margin-bottom: var(--space-2);
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .component-row {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: var(--space-4);
-      margin-bottom: var(--space-5);
-    }
-  </style>
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">Design System · Polished Execution Theme</div>
-        </div>
-        <div class="topbar-right">
-          <button id="themeToggleBtn" class="btn btn-outline btn-sm">🌙 Switch to Night Mode</button>
-          <a href="dashboard.html" class="btn btn-primary btn-sm">← Back to Today</a>
-        </div>
-      </header>
-
-      <div class="page-container" style="max-width: 1040px; margin: 0 auto; padding-bottom: var(--space-12);">
-        
-        <!-- Philosophy Header -->
-        <div class="card card-hero" style="margin-bottom: var(--space-6); border-left: 4px solid var(--accent-blue);">
-          <div class="text-xs" style="color: var(--accent-blue); font-weight: 700; margin-bottom: var(--space-1);">SARTHI DESIGN SYSTEM 2.0</div>
-          <h2>Polished Light Theme — Blueprint Blue & Botanical Green</h2>
-          <p class="text-lead" style="margin-bottom: 0;">
-            A refined, focused operating system built for personal execution. Crisp light surfaces, high-contrast typography, disciplined blueprint blue and botanical green accents, and restrained, subtle gradients.
-          </p>
-        </div>
-
-        <!-- 1. Palette Swatches -->
-        <h3 style="margin-bottom: var(--space-3);">1. Palette & Surface Tokens</h3>
-        <div class="swatch-grid">
-          <div class="swatch-item">
-            <div class="swatch-color" style="background: var(--bg-canvas);"></div>
-            <div style="font-weight: 700; font-size: 0.8125rem;">Canvas</div>
-            <div class="text-subtle text-xs">#F8FAFC</div>
-          </div>
-          <div class="swatch-item">
-            <div class="swatch-color" style="background: var(--bg-surface);"></div>
-            <div style="font-weight: 700; font-size: 0.8125rem;">Surface</div>
-            <div class="text-subtle text-xs">#FFFFFF</div>
-          </div>
-          <div class="swatch-item">
-            <div class="swatch-color" style="background: var(--bg-subtle);"></div>
-            <div style="font-weight: 700; font-size: 0.8125rem;">Recessed Track</div>
-            <div class="text-subtle text-xs">#F1F5F9</div>
-          </div>
-          <div class="swatch-item">
-            <div class="swatch-color" style="background: var(--accent-blue);"></div>
-            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--accent-blue);">Blueprint Blue</div>
-            <div class="text-subtle text-xs">#1D4ED8</div>
-          </div>
-          <div class="swatch-item">
-            <div class="swatch-color" style="background: var(--accent-green);"></div>
-            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--accent-green);">Botanical Green</div>
-            <div class="text-subtle text-xs">#059669</div>
-          </div>
-          <div class="swatch-item">
-            <div class="swatch-color" style="background: var(--accent-amber);"></div>
-            <div style="font-weight: 700; font-size: 0.8125rem; color: var(--accent-amber);">Solar Amber</div>
-            <div class="text-subtle text-xs">#D97706</div>
-          </div>
-          <div class="swatch-item">
-            <div class="swatch-color" style="background: var(--accent-academic);"></div>
-            <div style="font-weight: 700; font-size: 0.8125rem;">Indigo Scholar</div>
-            <div class="text-subtle text-xs">#4F46E5</div>
-          </div>
-          <div class="swatch-item">
-            <div class="swatch-color" style="background: var(--accent-dsa);"></div>
-            <div style="font-weight: 700; font-size: 0.8125rem;">Teal Logic</div>
-            <div class="text-subtle text-xs">#0D9488</div>
-          </div>
-        </div>
-
-        <!-- 2. Typography & Big Numerals -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">2. Typography & Signature Numerals</h3>
-          <div style="display: flex; gap: var(--space-8); align-items: baseline; flex-wrap: wrap; margin-bottom: var(--space-4);">
-            <div>
-              <div class="text-subtle text-xs">STREAK COUNT (DISPLAY XL)</div>
-              <div class="text-display-xl" style="color: var(--accent-ember);">36</div>
-            </div>
-            <div>
-              <div class="text-subtle text-xs">TIMER COUNTDOWN (DISPLAY LG)</div>
-              <div class="text-display-lg">25:00</div>
-            </div>
-            <div>
-              <div class="text-subtle text-xs">SCHEDULE TIME (12-HOUR FORMAT)</div>
-              <div class="text-display-lg" style="color: var(--accent-blue);">02:30 PM</div>
-            </div>
-            <div>
-              <div class="text-subtle text-xs">ATTENDANCE METRIC</div>
-              <div class="text-display-lg" style="color: var(--color-success);">84.6%</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Design System & Style Guide — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .swatch-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
+      }
+      .swatch-item {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-sm);
+        padding: var(--space-3);
+      }
+      .swatch-color {
+        height: 48px;
+        border-radius: var(--radius-xs);
+        margin-bottom: var(--space-2);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .component-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: var(--space-4);
+        margin-bottom: var(--space-5);
+      }
+      @media (max-width: 600px) {
+        .swatch-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 10px;
+        }
+        .component-row {
+          gap: 10px !important;
+        }
+        .heat-strip {
+          max-width: 100%;
+          overflow-x: auto;
+          flex-wrap: nowrap !important;
+          padding-bottom: 8px;
+          overscroll-behavior-x: contain;
+        }
+        .heat-tile {
+          flex: 0 0 11px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">
+              Design System · Polished Execution Theme
             </div>
           </div>
-          <p>
-            Body line length is strictly constrained under 75 characters for fatigue-free reading across journals and long lecture syllabi. Tabular numerals (<code>font-variant-numeric: tabular-nums</code>) eliminate jitter across countdown clocks and percentage displays.
-          </p>
-        </div>
+          <div class="topbar-right">
+            <button id="themeToggleBtn" class="btn btn-outline btn-sm">
+              🌙 Switch to Night Mode
+            </button>
+            <a href="dashboard.html" class="btn btn-primary btn-sm"
+              >← Back to Today</a
+            >
+          </div>
+        </header>
 
-        <!-- 3. Streak Flame Tiers -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">3. The Streak Flame Tiers (SVG Engine)</h3>
-          <p class="text-subtle text-sm">Custom-drawn SVG layered flame that responds to verified show-up runs. No stock emojis.</p>
-          <div class="component-row" style="gap: var(--space-8);">
-            <div style="text-align: center;">
-              <div class="flame-spark" style="display: inline-block;">
-                <svg width="32" height="38" viewBox="0 0 24 30" fill="none">
-                  <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="#FF5722"/>
-                  <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="#FFD54F"/>
-                </svg>
+        <div
+          class="page-container"
+          style="
+            max-width: 1040px;
+            margin: 0 auto;
+            padding-bottom: var(--space-12);
+          "
+        >
+          <!-- Philosophy Header -->
+          <div
+            class="card card-hero"
+            style="
+              margin-bottom: var(--space-6);
+              border-left: 4px solid var(--accent-blue);
+            "
+          >
+            <div
+              class="text-xs"
+              style="
+                color: var(--accent-blue);
+                font-weight: 700;
+                margin-bottom: var(--space-1);
+              "
+            >
+              SARTHI DESIGN SYSTEM 2.0
+            </div>
+            <h2>Polished Light Theme — Blueprint Blue & Botanical Green</h2>
+            <p class="text-lead" style="margin-bottom: 0">
+              A refined, focused operating system built for personal execution.
+              Crisp light surfaces, high-contrast typography, disciplined
+              blueprint blue and botanical green accents, and restrained, subtle
+              gradients.
+            </p>
+          </div>
+
+          <!-- 1. Palette Swatches -->
+          <h3 style="margin-bottom: var(--space-3)">
+            1. Palette & Surface Tokens
+          </h3>
+          <div class="swatch-grid">
+            <div class="swatch-item">
+              <div
+                class="swatch-color"
+                style="background: var(--bg-canvas)"
+              ></div>
+              <div style="font-weight: 700; font-size: 0.8125rem">Canvas</div>
+              <div class="text-subtle text-xs">#F8FAFC</div>
+            </div>
+            <div class="swatch-item">
+              <div
+                class="swatch-color"
+                style="background: var(--bg-surface)"
+              ></div>
+              <div style="font-weight: 700; font-size: 0.8125rem">Surface</div>
+              <div class="text-subtle text-xs">#FFFFFF</div>
+            </div>
+            <div class="swatch-item">
+              <div
+                class="swatch-color"
+                style="background: var(--bg-subtle)"
+              ></div>
+              <div style="font-weight: 700; font-size: 0.8125rem">
+                Recessed Track
               </div>
-              <div class="text-xs" style="margin-top: var(--space-2);">Spark (Day 1-2)</div>
+              <div class="text-subtle text-xs">#F1F5F9</div>
             </div>
-
-            <div style="text-align: center;">
-              <div class="flame-steady" style="display: inline-block;">
-                <svg width="36" height="42" viewBox="0 0 24 30" fill="none">
-                  <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="#FF5722"/>
-                  <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="#FFD54F"/>
-                </svg>
+            <div class="swatch-item">
+              <div
+                class="swatch-color"
+                style="background: var(--accent-blue)"
+              ></div>
+              <div
+                style="
+                  font-weight: 700;
+                  font-size: 0.8125rem;
+                  color: var(--accent-blue);
+                "
+              >
+                Blueprint Blue
               </div>
-              <div class="text-xs" style="margin-top: var(--space-2);">Steady (3-6)</div>
+              <div class="text-subtle text-xs">#1D4ED8</div>
             </div>
-
-            <div style="text-align: center;">
-              <div class="flame-strong" style="display: inline-block;">
-                <svg width="40" height="46" viewBox="0 0 24 30" fill="none">
-                  <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="#FF5722"/>
-                  <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="#FFD54F"/>
-                </svg>
+            <div class="swatch-item">
+              <div
+                class="swatch-color"
+                style="background: var(--accent-green)"
+              ></div>
+              <div
+                style="
+                  font-weight: 700;
+                  font-size: 0.8125rem;
+                  color: var(--accent-green);
+                "
+              >
+                Botanical Green
               </div>
-              <div class="text-xs" style="margin-top: var(--space-2);">Strong (7-13)</div>
+              <div class="text-subtle text-xs">#059669</div>
             </div>
-
-            <div style="text-align: center;">
-              <div class="flame-roaring" style="display: inline-block;">
-                <svg width="44" height="50" viewBox="0 0 24 30" fill="none">
-                  <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="#FF5722"/>
-                  <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="#FFD54F"/>
-                </svg>
+            <div class="swatch-item">
+              <div
+                class="swatch-color"
+                style="background: var(--accent-amber)"
+              ></div>
+              <div
+                style="
+                  font-weight: 700;
+                  font-size: 0.8125rem;
+                  color: var(--accent-amber);
+                "
+              >
+                Solar Amber
               </div>
-              <div class="text-xs" style="margin-top: var(--space-2); color: var(--accent-ember);">Roaring (14-29)</div>
+              <div class="text-subtle text-xs">#D97706</div>
             </div>
-
-            <div style="text-align: center;">
-              <div class="flame-blaze" style="display: inline-block;">
-                <svg width="48" height="54" viewBox="0 0 24 30" fill="none">
-                  <path d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z" fill="#FF7043"/>
-                  <path d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z" fill="#FFEE58"/>
-                </svg>
+            <div class="swatch-item">
+              <div
+                class="swatch-color"
+                style="background: var(--accent-academic)"
+              ></div>
+              <div style="font-weight: 700; font-size: 0.8125rem">
+                Indigo Scholar
               </div>
-              <div class="text-xs" style="margin-top: var(--space-2); color: #FF7043;">Blaze (30+)</div>
+              <div class="text-subtle text-xs">#4F46E5</div>
+            </div>
+            <div class="swatch-item">
+              <div
+                class="swatch-color"
+                style="background: var(--accent-dsa)"
+              ></div>
+              <div style="font-weight: 700; font-size: 0.8125rem">
+                Teal Logic
+              </div>
+              <div class="text-subtle text-xs">#0D9488</div>
             </div>
           </div>
-        </div>
 
-        <!-- 4. Interactive Controls & Buttons -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">4. Buttons & Interactive States</h3>
-          <div class="component-row">
-            <button class="btn btn-primary">Primary Action</button>
-            <button class="btn btn-secondary">Secondary Panel</button>
-            <button class="btn btn-outline">Outline Action</button>
-            <button class="btn btn-ghost">Ghost Action</button>
-            <button class="btn btn-danger">Destructive</button>
-            <button class="btn btn-primary btn-sm">Small Button</button>
-            <button class="btn btn-primary" disabled>Disabled State</button>
-          </div>
-          <p class="text-subtle text-sm">Every button guarantees a minimum 44×44px interactive hitbox on mobile and high-contrast visible focus rings on keyboard tab.</p>
-        </div>
-
-        <!-- 5. Badges & Conic Progress -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">5. Badges, Priority Signals & Conic Rings</h3>
-          <div class="component-row">
-            <span class="badge badge-p1">P1 Essential</span>
-            <span class="badge badge-p2">P2 Core</span>
-            <span class="badge badge-p3">P3 Optional</span>
-            <span class="badge badge-success">Banked</span>
-            <span class="badge badge-warning">Slack Shield</span>
-            <span class="badge badge-ember">Pilot Active</span>
-          </div>
-
-          <div class="component-row" style="margin-top: var(--space-4); gap: var(--space-6);">
-            <div style="display: flex; align-items: center; gap: var(--space-3);">
-              <div class="progress-ring" style="--percent: 75;">
-                <span class="progress-ring-text">75%</span>
+          <!-- 2. Typography & Big Numerals -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 style="margin-bottom: var(--space-4)">
+              2. Typography & Signature Numerals
+            </h3>
+            <div
+              style="
+                display: flex;
+                gap: var(--space-8);
+                align-items: baseline;
+                flex-wrap: wrap;
+                margin-bottom: var(--space-4);
+              "
+            >
+              <div>
+                <div class="text-subtle text-xs">STREAK COUNT (DISPLAY XL)</div>
+                <div class="text-display-xl" style="color: var(--accent-ember)">
+                  36
+                </div>
               </div>
               <div>
-                <div style="font-weight: 700; font-size: 0.875rem;">WebDev Section 4</div>
-                <div class="text-subtle text-xs">Conic Gradient Ring</div>
-              </div>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: var(--space-3);">
-              <div class="progress-ring" style="--percent: 42; background: conic-gradient(var(--accent-dsa) 42%, var(--border-hairline) 0deg);">
-                <span class="progress-ring-text">42%</span>
+                <div class="text-subtle text-xs">
+                  TIMER COUNTDOWN (DISPLAY LG)
+                </div>
+                <div class="text-display-lg">25:00</div>
               </div>
               <div>
-                <div style="font-weight: 700; font-size: 0.875rem;">DSA Binary Search</div>
-                <div class="text-subtle text-xs">Module Accent Ring</div>
+                <div class="text-subtle text-xs">
+                  SCHEDULE TIME (12-HOUR FORMAT)
+                </div>
+                <div class="text-display-lg" style="color: var(--accent-blue)">
+                  02:30 PM
+                </div>
+              </div>
+              <div>
+                <div class="text-subtle text-xs">ATTENDANCE METRIC</div>
+                <div
+                  class="text-display-lg"
+                  style="color: var(--color-success)"
+                >
+                  84.6%
+                </div>
+              </div>
+            </div>
+            <p>
+              Body line length is strictly constrained under 75 characters for
+              fatigue-free reading across journals and long lecture syllabi.
+              Tabular numerals (<code>font-variant-numeric: tabular-nums</code>)
+              eliminate jitter across countdown clocks and percentage displays.
+            </p>
+          </div>
+
+          <!-- 3. Streak Flame Tiers -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 style="margin-bottom: var(--space-4)">
+              3. The Streak Flame Tiers (SVG Engine)
+            </h3>
+            <p class="text-subtle text-sm">
+              Custom-drawn SVG layered flame that responds to verified show-up
+              runs. No stock emojis.
+            </p>
+            <div class="component-row" style="gap: var(--space-8)">
+              <div style="text-align: center">
+                <div class="flame-spark" style="display: inline-block">
+                  <svg width="32" height="38" viewBox="0 0 24 30" fill="none">
+                    <path
+                      d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z"
+                      fill="#FF5722"
+                    />
+                    <path
+                      d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z"
+                      fill="#FFD54F"
+                    />
+                  </svg>
+                </div>
+                <div class="text-xs" style="margin-top: var(--space-2)">
+                  Spark (Day 1-2)
+                </div>
+              </div>
+
+              <div style="text-align: center">
+                <div class="flame-steady" style="display: inline-block">
+                  <svg width="36" height="42" viewBox="0 0 24 30" fill="none">
+                    <path
+                      d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z"
+                      fill="#FF5722"
+                    />
+                    <path
+                      d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z"
+                      fill="#FFD54F"
+                    />
+                  </svg>
+                </div>
+                <div class="text-xs" style="margin-top: var(--space-2)">
+                  Steady (3-6)
+                </div>
+              </div>
+
+              <div style="text-align: center">
+                <div class="flame-strong" style="display: inline-block">
+                  <svg width="40" height="46" viewBox="0 0 24 30" fill="none">
+                    <path
+                      d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z"
+                      fill="#FF5722"
+                    />
+                    <path
+                      d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z"
+                      fill="#FFD54F"
+                    />
+                  </svg>
+                </div>
+                <div class="text-xs" style="margin-top: var(--space-2)">
+                  Strong (7-13)
+                </div>
+              </div>
+
+              <div style="text-align: center">
+                <div class="flame-roaring" style="display: inline-block">
+                  <svg width="44" height="50" viewBox="0 0 24 30" fill="none">
+                    <path
+                      d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z"
+                      fill="#FF5722"
+                    />
+                    <path
+                      d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z"
+                      fill="#FFD54F"
+                    />
+                  </svg>
+                </div>
+                <div
+                  class="text-xs"
+                  style="margin-top: var(--space-2); color: var(--accent-ember)"
+                >
+                  Roaring (14-29)
+                </div>
+              </div>
+
+              <div style="text-align: center">
+                <div class="flame-blaze" style="display: inline-block">
+                  <svg width="48" height="54" viewBox="0 0 24 30" fill="none">
+                    <path
+                      d="M12 2C12 2 15 7 15 11C15 13 14 14.5 13 15C13 13 12 11 10 10C10 14 7 16 7 20C7 24 10 27 14 27C18.5 27 21 23.5 21 19C21 12 12 2 12 2Z"
+                      fill="#FF7043"
+                    />
+                    <path
+                      d="M13 18C13 18 14.5 19 14.5 21C14.5 22.5 13.5 24 12 24C10.5 24 9.5 23 9.5 21.5C9.5 19.5 11.5 18 13 18Z"
+                      fill="#FFEE58"
+                    />
+                  </svg>
+                </div>
+                <div
+                  class="text-xs"
+                  style="margin-top: var(--space-2); color: #ff7043"
+                >
+                  Blaze (30+)
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- 6. Emotional Layer: Block Rescue Bar -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">6. Emotional Intelligence: Block Rescue Bar</h3>
-          <div class="block-rescue-bar">
-            <div>
-              <div style="font-weight: 700; font-size: 0.9375rem; color: var(--text-ink);">
-                ⚡ Web Development block began 8 minutes ago
-              </div>
-              <div class="text-subtle text-sm">
-                52 minutes are still yours. Start the smallest slice.
-              </div>
+          <!-- 4. Interactive Controls & Buttons -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 style="margin-bottom: var(--space-4)">
+              4. Buttons & Interactive States
+            </h3>
+            <div class="component-row">
+              <button class="btn btn-primary">Primary Action</button>
+              <button class="btn btn-secondary">Secondary Panel</button>
+              <button class="btn btn-outline">Outline Action</button>
+              <button class="btn btn-ghost">Ghost Action</button>
+              <button class="btn btn-danger">Destructive</button>
+              <button class="btn btn-primary btn-sm">Small Button</button>
+              <button class="btn btn-primary" disabled>Disabled State</button>
             </div>
-            <button class="btn btn-primary btn-sm">Start 10-Min Slice</button>
+            <p class="text-subtle text-sm">
+              Every button guarantees a minimum 44×44px interactive hitbox on
+              mobile and high-contrast visible focus rings on keyboard tab.
+            </p>
           </div>
-        </div>
 
-        <!-- 7. Year-View Heat Strip -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-2);">7. Challenge Heat Strip (Nov 16, 2026 – Apr 25, 2027)</h3>
-          <p class="text-subtle text-sm" style="margin-bottom: var(--space-4);">True historical representation of show-ups, slack shields, and intentional rest.</p>
-          <div class="heat-strip" id="heatStripDemo"></div>
-          <div style="display: flex; gap: var(--space-4); margin-top: var(--space-3); font-size: 0.75rem; color: var(--text-subtle);">
-            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 10px; height: 10px; background: var(--accent-ember);"></div> Show-up</div>
-            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 10px; height: 10px; background: var(--color-warning);"></div> Slack Shield</div>
-            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 10px; height: 10px; background: #38BDF8;"></div> Rest Approved</div>
-            <div style="display: flex; align-items: center; gap: 4px;"><div style="width: 10px; height: 10px; background: #17243B;"></div> Future / Pending</div>
-          </div>
-        </div>
-
-        <!-- 8. Single Next Action Spotlight -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">8. Single Next Action Spotlight (Today Screen)</h3>
-          <div class="card-spotlight">
-            <div class="spotlight-eyebrow">
-              <span class="spotlight-badge">● NOW ACTIVE · 45 MIN SLICE</span>
+          <!-- 5. Badges & Conic Progress -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 style="margin-bottom: var(--space-4)">
+              5. Badges, Priority Signals & Conic Rings
+            </h3>
+            <div class="component-row">
               <span class="badge badge-p1">P1 Essential</span>
+              <span class="badge badge-p2">P2 Core</span>
+              <span class="badge badge-p3">P3 Optional</span>
+              <span class="badge badge-success">Banked</span>
+              <span class="badge badge-warning">Slack Shield</span>
+              <span class="badge badge-ember">Pilot Active</span>
             </div>
-            <div class="spotlight-title">C++ DSA 136 — Implement Graph BFS & Cycle Detection</div>
-            <div class="spotlight-meta">
-              <span>⏱ Estimated: 45 min</span>
-              <span>📚 Topic: Graphs (Cluster 7)</span>
-              <span>🎯 Target: 2 Problems Solved</span>
-            </div>
-            <div class="spotlight-actions">
-              <a href="focus.html" class="btn btn-primary">Start Focus Session (45m)</a>
-              <button class="btn btn-secondary">Break into 10m Micro-Slice</button>
-            </div>
-          </div>
-        </div>
 
-        <!-- 9. Evidence Locker ("Receipts") -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-2);">9. Evidence Locker ("Receipts")</h3>
-          <p class="text-subtle text-sm" style="margin-bottom: var(--space-4);">Immutable proof of what has already been proven under pressure.</p>
-          <div class="evidence-grid" style="margin-top: 0;">
-            <div class="receipt-card">
-              <div>
-                <div class="receipt-card-header">
-                  <span class="receipt-tag streak">36-Day Streak</span>
-                  <span class="receipt-verified-stamp">✓ Verified Record</span>
+            <div
+              class="component-row"
+              style="margin-top: var(--space-4); gap: var(--space-6)"
+            >
+              <div
+                style="display: flex; align-items: center; gap: var(--space-3)"
+              >
+                <div class="progress-ring" style="--percent: 75">
+                  <span class="progress-ring-text">75%</span>
                 </div>
-                <div class="receipt-title">The Longest Consistent Run</div>
-                <div class="receipt-metric">36 DAYS</div>
-                <div class="receipt-quote">"Consistent, quiet momentum without skipping, proving that showing up daily is an established ability."</div>
-              </div>
-              <div class="receipt-footer">
-                <span>Personal Best</span>
-                <span>Verified Historical Run</span>
-              </div>
-            </div>
-
-            <div class="receipt-card">
-              <div>
-                <div class="receipt-card-header">
-                  <span class="receipt-tag hackathon">Hackathon Lead</span>
-                  <span class="receipt-verified-stamp">✓ Verified Win</span>
+                <div>
+                  <div style="font-weight: 700; font-size: 0.875rem">
+                    WebDev Section 4
+                  </div>
+                  <div class="text-subtle text-xs">Conic Gradient Ring</div>
                 </div>
-                <div class="receipt-title">36-Hour Hackathon Championship</div>
-                <div class="receipt-metric">1st PLACE</div>
-                <div class="receipt-quote">"Led a 4-person team under 36-hour deadline pressure, coordinated live pitch demo, and shipped working product."</div>
               </div>
-              <div class="receipt-footer">
-                <span>Team Leadership</span>
-                <span>Inter-College Tech Fest</span>
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <!-- 10. Hackathon Command Centre Components -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">10. Hackathon Command Centre</h3>
-          <div class="thermometer-strip">
-            <div class="thermometer-header">
-              <div>
-                <span class="text-xs" style="color: var(--accent-hackathon); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Smart India Hackathon · Finale Sprint</span>
-                <div style="font-weight: 700; font-size: 1.125rem; color: var(--text-ink);">Deadline Thermometer</div>
-              </div>
-              <div class="thermometer-countdown">14h 22m LEFT</div>
-            </div>
-            <div class="thermometer-track">
-              <div class="thermometer-bar" style="width: 65%;"></div>
-            </div>
-            <div class="thermometer-milestones">
-              <span>Ideation Locked (T+0)</span>
-              <span>Code Freeze (T-4h)</span>
-              <span>Final Pitch (T-0)</span>
-            </div>
-          </div>
-
-          <div class="block-guard-banner">
-            <div>
-              <strong style="color: var(--color-danger);">⚠️ Block Guard Active:</strong>
-              <span style="font-size: 0.875rem; color: var(--text-ink); margin-left: 6px;">You have Web Dev & DSA scheduled for 6:00 PM. Don't compromise core coursework for unassigned hackathon tasks.</span>
-            </div>
-            <button class="btn btn-secondary btn-sm">Protect Schedule</button>
-          </div>
-        </div>
-
-        <!-- 11. Reward Vault & Summit Trek -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">11. Reward Vault & Summit Trek</h3>
-          <div class="summit-trek-card milestone-active">
-            <div class="trek-header">
-              <div>
-                <span class="text-xs" style="color: var(--accent-rewards); font-weight: 700; text-transform: uppercase;">Kedarkantha Summit Expedition</span>
-                <div style="font-size: 1.25rem; font-weight: 700; color: var(--text-ink);">The Mountain Trek Fund</div>
-              </div>
-              <div class="trek-elevation-metric">₹4,000 <span style="font-size: 1rem; color: var(--text-muted); font-weight: 500;">/ ₹15,000</span></div>
-            </div>
-            <div class="progress-bar" style="height: 10px; margin-bottom: var(--space-3);">
-              <div class="progress-fill" style="width: 27%; background-color: var(--accent-rewards);"></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; color: var(--text-muted);">
-              <span>Base Camp: ₹0</span>
-              <span>Current Savings: ₹4,000 (Base unlocked)</span>
-              <span>Summit: ₹15,000</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 12. Signature Wave Forms & Expressive Motion -->
-        <div class="card" style="margin-bottom: var(--space-6);">
-          <div class="card-header">
-            <div>
-              <h3>12. Signature Wave Forms & Expressive Motion</h3>
-              <p class="text-subtle text-sm">Atmospheric fluid motion representing daily rhythm and flow state. Honors <code>prefers-reduced-motion</code>.</p>
-            </div>
-          </div>
-
-          <!-- Hero Wave Demo -->
-          <div style="margin-bottom: var(--space-6);">
-            <div class="form-label" style="margin-bottom: var(--space-2);">A. Hero Wave Surface (.card-hero-wave)</div>
-            <div class="card-hero-wave" style="min-height: 140px; display: flex; flex-direction: column; justify-content: center;">
-              <span class="badge badge-primary" style="align-self: flex-start; margin-bottom: var(--space-2);">FLOW STATE SURFACE</span>
-              <h4 style="font-size: 1.25rem; color: var(--text-ink); margin-bottom: var(--space-1);">Atmospheric Rhythm</h4>
-              <p class="text-subtle text-sm" style="margin: 0; max-width: 600px;">Multi-layer SVG waves drift gently in Blueprint Blue and Botanical Green tints, establishing calm depth without visual noise.</p>
-              <div class="sarthi-wave-container" aria-hidden="true">
-                <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                  <path d="M0,45 C200,95 400,10 600,55 C800,100 1000,20 1200,60 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.08)"></path>
-                </svg>
-                <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                  <path d="M0,70 C250,20 500,85 750,45 C1000,15 1100,75 1200,50 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.06)"></path>
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty State Demo -->
-          <div style="margin-bottom: var(--space-6);">
-            <div class="form-label" style="margin-bottom: var(--space-2);">B. Clear Horizon Empty State (.wave-empty-state)</div>
-            <div class="wave-empty-state">
-              <svg class="wave-empty-svg" viewBox="0 0 380 48" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M0,24 Q95,8 190,24 T380,24" fill="none" stroke="rgba(29, 78, 216, 0.28)" stroke-width="2" stroke-linecap="round"></path>
-                <path d="M0,32 Q95,44 190,32 T380,32" fill="none" stroke="rgba(5, 150, 105, 0.22)" stroke-width="2" stroke-linecap="round"></path>
-              </svg>
-              <p class="text-muted text-sm" style="margin-bottom: var(--space-3); font-weight: 500;">Clear horizon. No obligations or pending deadlines.</p>
-              <button class="btn btn-outline btn-sm">+ Schedule New Block</button>
-            </div>
-          </div>
-
-          <!-- Signature Moment 1 Demo -->
-          <div style="margin-bottom: var(--space-6);">
-            <div class="form-label" style="margin-bottom: var(--space-2);">C. Signature Moment 1: Daily Plan Completion Wave Crest (.wave-completion-crest)</div>
-            <div class="wave-completion-crest">
-              <div style="position: relative; z-index: 2; max-width: 82%;">
-                <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1);">
-                  <span class="badge badge-success">Daily Target Reached</span>
-                  <span class="text-xs" style="color: var(--accent-green); font-weight: 700;">100% EXECUTED</span>
+              <div
+                style="display: flex; align-items: center; gap: var(--space-3)"
+              >
+                <div
+                  class="progress-ring"
+                  style="
+                    --percent: 42;
+                    background: conic-gradient(
+                      var(--accent-dsa) 42%,
+                      var(--border-hairline) 0deg
+                    );
+                  "
+                >
+                  <span class="progress-ring-text">42%</span>
                 </div>
-                <h3 style="font-size: 1.125rem; font-weight: 700; color: #064E3B; margin-bottom: var(--space-1);">
-                  Day's planned execution complete. The horizon is clear.
-                </h3>
-                <p class="text-subtle text-sm" style="color: #047857; margin: 0;">
-                  All scheduled commitments have been honored. Rest or engage in creative exploration without cognitive baggage.
+                <div>
+                  <div style="font-weight: 700; font-size: 0.875rem">
+                    DSA Binary Search
+                  </div>
+                  <div class="text-subtle text-xs">Module Accent Ring</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Emotional Layer: Block Rescue Bar -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 style="margin-bottom: var(--space-4)">
+              6. Emotional Intelligence: Block Rescue Bar
+            </h3>
+            <div class="block-rescue-bar">
+              <div>
+                <div
+                  style="
+                    font-weight: 700;
+                    font-size: 0.9375rem;
+                    color: var(--text-ink);
+                  "
+                >
+                  ⚡ Web Development block began 8 minutes ago
+                </div>
+                <div class="text-subtle text-sm">
+                  52 minutes are still yours. Start the smallest slice.
+                </div>
+              </div>
+              <button class="btn btn-primary btn-sm">Start 10-Min Slice</button>
+            </div>
+          </div>
+
+          <!-- 7. Year-View Heat Strip -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 style="margin-bottom: var(--space-2)">
+              7. Challenge Heat Strip (Nov 16, 2026 – Apr 25, 2027)
+            </h3>
+            <p
+              class="text-subtle text-sm"
+              style="margin-bottom: var(--space-4)"
+            >
+              True historical representation of show-ups, slack shields, and
+              intentional rest.
+            </p>
+            <div class="heat-strip" id="heatStripDemo"></div>
+            <div
+              style="
+                display: flex;
+                gap: var(--space-4);
+                margin-top: var(--space-3);
+                font-size: 0.75rem;
+                color: var(--text-subtle);
+              "
+            >
+              <div style="display: flex; align-items: center; gap: 4px">
+                <div
+                  style="
+                    width: 10px;
+                    height: 10px;
+                    background: var(--accent-ember);
+                  "
+                ></div>
+                Show-up
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px">
+                <div
+                  style="
+                    width: 10px;
+                    height: 10px;
+                    background: var(--color-warning);
+                  "
+                ></div>
+                Slack Shield
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px">
+                <div
+                  style="width: 10px; height: 10px; background: #38bdf8"
+                ></div>
+                Rest Approved
+              </div>
+              <div style="display: flex; align-items: center; gap: 4px">
+                <div
+                  style="width: 10px; height: 10px; background: #17243b"
+                ></div>
+                Future / Pending
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. Single Next Action Spotlight -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 style="margin-bottom: var(--space-4)">
+              8. Single Next Action Spotlight (Today Screen)
+            </h3>
+            <div class="card-spotlight">
+              <div class="spotlight-eyebrow">
+                <span class="spotlight-badge">● NOW ACTIVE · 45 MIN SLICE</span>
+                <span class="badge badge-p1">P1 Essential</span>
+              </div>
+              <div class="spotlight-title">
+                C++ DSA 136 — Implement Graph BFS & Cycle Detection
+              </div>
+              <div class="spotlight-meta">
+                <span>⏱ Estimated: 45 min</span>
+                <span>📚 Topic: Graphs (Cluster 7)</span>
+                <span>🎯 Target: 2 Problems Solved</span>
+              </div>
+              <div class="spotlight-actions">
+                <a href="focus.html" class="btn btn-primary"
+                  >Start Focus Session (45m)</a
+                >
+                <button class="btn btn-secondary">
+                  Break into 10m Micro-Slice
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 9. Evidence Locker ("Receipts") -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 style="margin-bottom: var(--space-2)">
+              9. Evidence Locker ("Receipts")
+            </h3>
+            <p
+              class="text-subtle text-sm"
+              style="margin-bottom: var(--space-4)"
+            >
+              Immutable proof of what has already been proven under pressure.
+            </p>
+            <div class="evidence-grid" style="margin-top: 0">
+              <div class="receipt-card">
+                <div>
+                  <div class="receipt-card-header">
+                    <span class="receipt-tag streak">36-Day Streak</span>
+                    <span class="receipt-verified-stamp"
+                      >✓ Verified Record</span
+                    >
+                  </div>
+                  <div class="receipt-title">The Longest Consistent Run</div>
+                  <div class="receipt-metric">36 DAYS</div>
+                  <div class="receipt-quote">
+                    "Consistent, quiet momentum without skipping, proving that
+                    showing up daily is an established ability."
+                  </div>
+                </div>
+                <div class="receipt-footer">
+                  <span>Personal Best</span>
+                  <span>Verified Historical Run</span>
+                </div>
+              </div>
+
+              <div class="receipt-card">
+                <div>
+                  <div class="receipt-card-header">
+                    <span class="receipt-tag hackathon">Hackathon Lead</span>
+                    <span class="receipt-verified-stamp">✓ Verified Win</span>
+                  </div>
+                  <div class="receipt-title">
+                    36-Hour Hackathon Championship
+                  </div>
+                  <div class="receipt-metric">1st PLACE</div>
+                  <div class="receipt-quote">
+                    "Led a 4-person team under 36-hour deadline pressure,
+                    coordinated live pitch demo, and shipped working product."
+                  </div>
+                </div>
+                <div class="receipt-footer">
+                  <span>Team Leadership</span>
+                  <span>Inter-College Tech Fest</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 10. Hackathon Command Centre Components -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 style="margin-bottom: var(--space-4)">
+              10. Hackathon Command Centre
+            </h3>
+            <div class="thermometer-strip">
+              <div class="thermometer-header">
+                <div>
+                  <span
+                    class="text-xs"
+                    style="
+                      color: var(--accent-hackathon);
+                      text-transform: uppercase;
+                      font-weight: 700;
+                      letter-spacing: 0.05em;
+                    "
+                    >Smart India Hackathon · Finale Sprint</span
+                  >
+                  <div
+                    style="
+                      font-weight: 700;
+                      font-size: 1.125rem;
+                      color: var(--text-ink);
+                    "
+                  >
+                    Deadline Thermometer
+                  </div>
+                </div>
+                <div class="thermometer-countdown">14h 22m LEFT</div>
+              </div>
+              <div class="thermometer-track">
+                <div class="thermometer-bar" style="width: 65%"></div>
+              </div>
+              <div class="thermometer-milestones">
+                <span>Ideation Locked (T+0)</span>
+                <span>Code Freeze (T-4h)</span>
+                <span>Final Pitch (T-0)</span>
+              </div>
+            </div>
+
+            <div class="block-guard-banner">
+              <div>
+                <strong style="color: var(--color-danger)"
+                  >⚠️ Block Guard Active:</strong
+                >
+                <span
+                  style="
+                    font-size: 0.875rem;
+                    color: var(--text-ink);
+                    margin-left: 6px;
+                  "
+                  >You have Web Dev & DSA scheduled for 6:00 PM. Don't
+                  compromise core coursework for unassigned hackathon
+                  tasks.</span
+                >
+              </div>
+              <button class="btn btn-secondary btn-sm">Protect Schedule</button>
+            </div>
+          </div>
+
+          <!-- 11. Reward Vault & Summit Trek -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <h3 style="margin-bottom: var(--space-4)">
+              11. Reward Vault & Summit Trek
+            </h3>
+            <div class="summit-trek-card milestone-active">
+              <div class="trek-header">
+                <div>
+                  <span
+                    class="text-xs"
+                    style="
+                      color: var(--accent-rewards);
+                      font-weight: 700;
+                      text-transform: uppercase;
+                    "
+                    >Kedarkantha Summit Expedition</span
+                  >
+                  <div
+                    style="
+                      font-size: 1.25rem;
+                      font-weight: 700;
+                      color: var(--text-ink);
+                    "
+                  >
+                    The Mountain Trek Fund
+                  </div>
+                </div>
+                <div class="trek-elevation-metric">
+                  ₹4,000
+                  <span
+                    style="
+                      font-size: 1rem;
+                      color: var(--text-muted);
+                      font-weight: 500;
+                    "
+                    >/ ₹15,000</span
+                  >
+                </div>
+              </div>
+              <div
+                class="progress-bar"
+                style="height: 10px; margin-bottom: var(--space-3)"
+              >
+                <div
+                  class="progress-fill"
+                  style="width: 27%; background-color: var(--accent-rewards)"
+                ></div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  font-size: 0.8125rem;
+                  color: var(--text-muted);
+                "
+              >
+                <span>Base Camp: ₹0</span>
+                <span>Current Savings: ₹4,000 (Base unlocked)</span>
+                <span>Summit: ₹15,000</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 12. Signature Wave Forms & Expressive Motion -->
+          <div class="card" style="margin-bottom: var(--space-6)">
+            <div class="card-header">
+              <div>
+                <h3>12. Signature Wave Forms & Expressive Motion</h3>
+                <p class="text-subtle text-sm">
+                  Atmospheric fluid motion representing daily rhythm and flow
+                  state. Honors <code>prefers-reduced-motion</code>.
                 </p>
               </div>
-              <svg class="crest-svg" viewBox="0 0 320 120" preserveAspectRatio="none" aria-hidden="true">
-                <path d="M0,80 Q80,20 160,60 T320,40 L320,120 L0,120 Z" fill="rgba(5, 150, 105, 0.16)"></path>
-                <path d="M0,95 Q100,45 200,80 T320,65 L320,120 L0,120 Z" fill="rgba(29, 78, 216, 0.09)"></path>
-              </svg>
             </div>
-          </div>
 
-          <!-- Signature Moment 2 Demo -->
-          <div style="margin-bottom: var(--space-6);">
-            <div class="form-label" style="margin-bottom: var(--space-2);">D. Signature Moment 2: Focus Session Completion Ripple (.focus-completion-ripple)</div>
-            <div style="text-align: center; padding: var(--space-8); background: var(--bg-surface); border: 1px solid var(--border-hairline); border-radius: var(--radius-sm);">
-              <div class="focus-completion-ripple-wrapper" style="margin-bottom: var(--space-4);">
-                <div style="font-size: 3rem; font-weight: 800; color: var(--text-ink); font-variant-numeric: tabular-nums;">25:00</div>
-                <div id="demoRippleContainer" style="display: none;"></div>
+            <!-- Hero Wave Demo -->
+            <div style="margin-bottom: var(--space-6)">
+              <div class="form-label" style="margin-bottom: var(--space-2)">
+                A. Hero Wave Surface (.card-hero-wave)
               </div>
-              <div>
-                <button id="triggerRippleDemoBtn" class="btn btn-success btn-sm">▶ Test Focus Completion Ripple</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section Wave Divider Demo -->
-          <div style="margin-bottom: var(--space-6);">
-            <div class="form-label" style="margin-bottom: var(--space-2);">E. Section Wave Divider (.wave-divider)</div>
-            <div class="wave-divider" aria-hidden="true">
-              <svg viewBox="0 0 1200 24" preserveAspectRatio="none">
-                <path d="M0,0 Q300,24 600,12 T1200,0 L1200,24 L0,24 Z" fill="rgba(29, 78, 216, 0.08)"></path>
-                <path d="M0,8 Q400,24 800,16 T1200,8 L1200,24 L0,24 Z" fill="rgba(5, 150, 105, 0.05)"></path>
-              </svg>
-            </div>
-          </div>
-
-          <!-- Interactive Water Level Gauge Demo -->
-          <div style="margin-bottom: var(--space-6);">
-            <div class="form-label" style="margin-bottom: var(--space-2);">F. Water Level Wave Gauge (.wave-water-gauge)</div>
-            <div style="display: flex; flex-direction: column; gap: var(--space-3);">
-              <div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 4px;">
-                  <span>Safe Attendance Level (Theory: 86%)</span>
-                  <span class="badge badge-success">Safe</span>
-                </div>
-                <div class="wave-water-gauge">
-                  <div class="wave-water-fill safe" style="width: 86%;"></div>
-                </div>
-              </div>
-              <div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 4px;">
-                  <span>Near-Threshold Warning (76% vs 75% Target)</span>
-                  <span class="badge badge-warning">Caution</span>
-                </div>
-                <div class="wave-water-gauge">
-                  <div class="wave-water-fill warning" style="width: 76%;"></div>
-                </div>
-              </div>
-              <div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 4px;">
-                  <span>Critical Shortage (62% — 5 consecutive sessions needed)</span>
-                  <span class="badge badge-danger">Shortage</span>
-                </div>
-                <div class="wave-water-gauge">
-                  <div class="wave-water-fill danger" style="width: 62%;"></div>
+              <div
+                class="card-hero-wave"
+                style="
+                  min-height: 140px;
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: center;
+                "
+              >
+                <span
+                  class="badge badge-primary"
+                  style="align-self: flex-start; margin-bottom: var(--space-2)"
+                  >FLOW STATE SURFACE</span
+                >
+                <h4
+                  style="
+                    font-size: 1.25rem;
+                    color: var(--text-ink);
+                    margin-bottom: var(--space-1);
+                  "
+                >
+                  Atmospheric Rhythm
+                </h4>
+                <p
+                  class="text-subtle text-sm"
+                  style="margin: 0; max-width: 600px"
+                >
+                  Multi-layer SVG waves drift gently in Blueprint Blue and
+                  Botanical Green tints, establishing calm depth without visual
+                  noise.
+                </p>
+                <div class="sarthi-wave-container" aria-hidden="true">
+                  <svg
+                    class="sarthi-wave-layer sarthi-wave-layer-1"
+                    viewBox="0 0 1200 120"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M0,45 C200,95 400,10 600,55 C800,100 1000,20 1200,60 L1200,120 L0,120 Z"
+                      fill="rgba(29, 78, 216, 0.08)"
+                    ></path>
+                  </svg>
+                  <svg
+                    class="sarthi-wave-layer sarthi-wave-layer-2"
+                    viewBox="0 0 1200 120"
+                    preserveAspectRatio="none"
+                  >
+                    <path
+                      d="M0,70 C250,20 500,85 750,45 C1000,15 1100,75 1200,50 L1200,120 L0,120 Z"
+                      fill="rgba(5, 150, 105, 0.06)"
+                    ></path>
+                  </svg>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Shimmering Skeleton Loading Waves Demo -->
-          <div>
-            <div class="form-label" style="margin-bottom: var(--space-2);">G. Shimmering Skeleton Wave (.skeleton-wave)</div>
-            <div style="display: flex; flex-direction: column; gap: var(--space-2); max-width: 480px;">
-              <div class="skeleton-wave" style="width: 65%; height: 22px;"></div>
-              <div class="skeleton-wave" style="width: 100%; height: 16px;"></div>
-              <div class="skeleton-wave" style="width: 80%; height: 16px;"></div>
+            <!-- Empty State Demo -->
+            <div style="margin-bottom: var(--space-6)">
+              <div class="form-label" style="margin-bottom: var(--space-2)">
+                B. Clear Horizon Empty State (.wave-empty-state)
+              </div>
+              <div class="wave-empty-state">
+                <svg
+                  class="wave-empty-svg"
+                  viewBox="0 0 380 48"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M0,24 Q95,8 190,24 T380,24"
+                    fill="none"
+                    stroke="rgba(29, 78, 216, 0.28)"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  ></path>
+                  <path
+                    d="M0,32 Q95,44 190,32 T380,32"
+                    fill="none"
+                    stroke="rgba(5, 150, 105, 0.22)"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  ></path>
+                </svg>
+                <p
+                  class="text-muted text-sm"
+                  style="margin-bottom: var(--space-3); font-weight: 500"
+                >
+                  Clear horizon. No obligations or pending deadlines.
+                </p>
+                <button class="btn btn-outline btn-sm">
+                  + Schedule New Block
+                </button>
+              </div>
+            </div>
+
+            <!-- Signature Moment 1 Demo -->
+            <div style="margin-bottom: var(--space-6)">
+              <div class="form-label" style="margin-bottom: var(--space-2)">
+                C. Signature Moment 1: Daily Plan Completion Wave Crest
+                (.wave-completion-crest)
+              </div>
+              <div class="wave-completion-crest">
+                <div style="position: relative; z-index: 2; max-width: 82%">
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: var(--space-2);
+                      margin-bottom: var(--space-1);
+                    "
+                  >
+                    <span class="badge badge-success"
+                      >Daily Target Reached</span
+                    >
+                    <span
+                      class="text-xs"
+                      style="color: var(--accent-green); font-weight: 700"
+                      >100% EXECUTED</span
+                    >
+                  </div>
+                  <h3
+                    style="
+                      font-size: 1.125rem;
+                      font-weight: 700;
+                      color: #064e3b;
+                      margin-bottom: var(--space-1);
+                    "
+                  >
+                    Day's planned execution complete. The horizon is clear.
+                  </h3>
+                  <p
+                    class="text-subtle text-sm"
+                    style="color: #047857; margin: 0"
+                  >
+                    All scheduled commitments have been honored. Rest or engage
+                    in creative exploration without cognitive baggage.
+                  </p>
+                </div>
+                <svg
+                  class="crest-svg"
+                  viewBox="0 0 320 120"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M0,80 Q80,20 160,60 T320,40 L320,120 L0,120 Z"
+                    fill="rgba(5, 150, 105, 0.16)"
+                  ></path>
+                  <path
+                    d="M0,95 Q100,45 200,80 T320,65 L320,120 L0,120 Z"
+                    fill="rgba(29, 78, 216, 0.09)"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Signature Moment 2 Demo -->
+            <div style="margin-bottom: var(--space-6)">
+              <div class="form-label" style="margin-bottom: var(--space-2)">
+                D. Signature Moment 2: Focus Session Completion Ripple
+                (.focus-completion-ripple)
+              </div>
+              <div
+                style="
+                  text-align: center;
+                  padding: var(--space-8);
+                  background: var(--bg-surface);
+                  border: 1px solid var(--border-hairline);
+                  border-radius: var(--radius-sm);
+                "
+              >
+                <div
+                  class="focus-completion-ripple-wrapper"
+                  style="margin-bottom: var(--space-4)"
+                >
+                  <div
+                    style="
+                      font-size: 3rem;
+                      font-weight: 800;
+                      color: var(--text-ink);
+                      font-variant-numeric: tabular-nums;
+                    "
+                  >
+                    25:00
+                  </div>
+                  <div id="demoRippleContainer" style="display: none"></div>
+                </div>
+                <div>
+                  <button
+                    id="triggerRippleDemoBtn"
+                    class="btn btn-success btn-sm"
+                  >
+                    ▶ Test Focus Completion Ripple
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Wave Divider Demo -->
+            <div style="margin-bottom: var(--space-6)">
+              <div class="form-label" style="margin-bottom: var(--space-2)">
+                E. Section Wave Divider (.wave-divider)
+              </div>
+              <div class="wave-divider" aria-hidden="true">
+                <svg viewBox="0 0 1200 24" preserveAspectRatio="none">
+                  <path
+                    d="M0,0 Q300,24 600,12 T1200,0 L1200,24 L0,24 Z"
+                    fill="rgba(29, 78, 216, 0.08)"
+                  ></path>
+                  <path
+                    d="M0,8 Q400,24 800,16 T1200,8 L1200,24 L0,24 Z"
+                    fill="rgba(5, 150, 105, 0.05)"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Interactive Water Level Gauge Demo -->
+            <div style="margin-bottom: var(--space-6)">
+              <div class="form-label" style="margin-bottom: var(--space-2)">
+                F. Water Level Wave Gauge (.wave-water-gauge)
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: var(--space-3);
+                "
+              >
+                <div>
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: space-between;
+                      font-size: 0.8125rem;
+                      margin-bottom: 4px;
+                    "
+                  >
+                    <span>Safe Attendance Level (Theory: 86%)</span>
+                    <span class="badge badge-success">Safe</span>
+                  </div>
+                  <div class="wave-water-gauge">
+                    <div class="wave-water-fill safe" style="width: 86%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: space-between;
+                      font-size: 0.8125rem;
+                      margin-bottom: 4px;
+                    "
+                  >
+                    <span>Near-Threshold Warning (76% vs 75% Target)</span>
+                    <span class="badge badge-warning">Caution</span>
+                  </div>
+                  <div class="wave-water-gauge">
+                    <div
+                      class="wave-water-fill warning"
+                      style="width: 76%"
+                    ></div>
+                  </div>
+                </div>
+                <div>
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: space-between;
+                      font-size: 0.8125rem;
+                      margin-bottom: 4px;
+                    "
+                  >
+                    <span
+                      >Critical Shortage (62% — 5 consecutive sessions
+                      needed)</span
+                    >
+                    <span class="badge badge-danger">Shortage</span>
+                  </div>
+                  <div class="wave-water-gauge">
+                    <div
+                      class="wave-water-fill danger"
+                      style="width: 62%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shimmering Skeleton Loading Waves Demo -->
+            <div>
+              <div class="form-label" style="margin-bottom: var(--space-2)">
+                G. Shimmering Skeleton Wave (.skeleton-wave)
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  gap: var(--space-2);
+                  max-width: 480px;
+                "
+              >
+                <div
+                  class="skeleton-wave"
+                  style="width: 65%; height: 22px"
+                ></div>
+                <div
+                  class="skeleton-wave"
+                  style="width: 100%; height: 16px"
+                ></div>
+                <div
+                  class="skeleton-wave"
+                  style="width: 80%; height: 16px"
+                ></div>
+              </div>
             </div>
           </div>
         </div>
+      </main>
+    </div>
 
-      </div>
-    </main>
-  </div>
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import { renderLayout } from "../assets/js/nav.js";
 
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
+      document.addEventListener("DOMContentLoaded", () => {
+        checkAuth();
+        renderLayout("settings");
 
-    document.addEventListener('DOMContentLoaded', () => {
-      checkAuth();
-      renderLayout('settings');
+        // Theme toggle demo
+        const themeBtn = document.getElementById("themeToggleBtn");
+        themeBtn?.addEventListener("click", () => {
+          const isDark =
+            document.documentElement.getAttribute("data-theme") === "dark";
+          if (isDark) {
+            document.documentElement.removeAttribute("data-theme");
+            themeBtn.textContent = "🌙 Switch to Night Mode";
+          } else {
+            document.documentElement.setAttribute("data-theme", "dark");
+            themeBtn.textContent = "☀ Switch to Light Mode";
+          }
+        });
 
-      // Theme toggle demo
-      const themeBtn = document.getElementById('themeToggleBtn');
-      themeBtn?.addEventListener('click', () => {
-        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        if (isDark) {
-          document.documentElement.removeAttribute('data-theme');
-          themeBtn.textContent = '🌙 Switch to Night Mode';
-        } else {
-          document.documentElement.setAttribute('data-theme', 'dark');
-          themeBtn.textContent = '☀ Switch to Light Mode';
+        // Generate demo heat strip
+        const strip = document.getElementById("heatStripDemo");
+        if (strip) {
+          let html = "";
+          for (let i = 0; i < 90; i++) {
+            let cls = "heat-tile";
+            if (i < 20) cls += " show-up";
+            else if (i === 20) cls += " slack-shield";
+            else if (i === 21) cls += " rest-day";
+            else if (i < 36) cls += " show-up";
+            html += `<div class="${cls}" title="Day ${i + 1}"></div>`;
+          }
+          strip.innerHTML = html;
         }
-      });
-
-      // Generate demo heat strip
-      const strip = document.getElementById('heatStripDemo');
-      if (strip) {
-        let html = '';
-        for (let i = 0; i < 90; i++) {
-          let cls = 'heat-tile';
-          if (i < 20) cls += ' show-up';
-          else if (i === 20) cls += ' slack-shield';
-          else if (i === 21) cls += ' rest-day';
-          else if (i < 36) cls += ' show-up';
-          html += `<div class="${cls}" title="Day ${i + 1}"></div>`;
-        }
-        strip.innerHTML = html;
-      }
-      // Demo ripple button
-      const rippleBtn = document.getElementById('triggerRippleDemoBtn');
-      rippleBtn?.addEventListener('click', () => {
-        const container = document.getElementById('demoRippleContainer');
-        if (!container) return;
-        container.style.display = 'block';
-        container.innerHTML = `
+        // Demo ripple button
+        const rippleBtn = document.getElementById("triggerRippleDemoBtn");
+        rippleBtn?.addEventListener("click", () => {
+          const container = document.getElementById("demoRippleContainer");
+          if (!container) return;
+          container.style.display = "block";
+          container.innerHTML = `
           <div class="focus-completion-ripple"></div>
           <div class="focus-completion-ripple delayed"></div>
         `;
-        setTimeout(() => {
-          container.style.display = 'none';
-          container.innerHTML = '';
-        }, 2200);
+          setTimeout(() => {
+            container.style.display = "none";
+            container.innerHTML = "";
+          }, 2200);
+        });
       });
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>

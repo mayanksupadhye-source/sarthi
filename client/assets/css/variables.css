@@ -6,106 +6,118 @@
      ========================================================================== */
 
   /* Surface & Canvas Layering (Light, Crisp, High Contrast) */
-  --bg-canvas: #F8FAFC;           /* Slate 50 — Clean student execution canvas */
-  --bg-surface: #FFFFFF;          /* Pure White — Standard containers, cards */
-  --bg-elevated: #FFFFFF;         /* Pure White — Modals, popovers, dropdowns */
-  --bg-subtle: #F1F5F9;           /* Slate 100 — Recessed tracks, table headers */
-  --bg-input: #FFFFFF;            /* Pure White — Form field surface */
+  --bg-canvas: #f8fafc; /* Slate 50 — Clean student execution canvas */
+  --bg-surface: #ffffff; /* Pure White — Standard containers, cards */
+  --bg-elevated: #ffffff; /* Pure White — Modals, popovers, dropdowns */
+  --bg-subtle: #f1f5f9; /* Slate 100 — Recessed tracks, table headers */
+  --bg-input: #ffffff; /* Pure White — Form field surface */
 
   /* Hairline Structural Borders (Architectural & Precise) */
-  --border-hairline: #E2E8F0;     /* Slate 200 — Structural 1px boundary */
-  --border-subtle: #F1F5F9;       /* Slate 100 — Minor dividers */
-  --border-focus: #1D4ED8;        /* Royal Blue — Accessible focus ring */
+  --border-hairline: #e2e8f0; /* Slate 200 — Structural 1px boundary */
+  --border-subtle: #f1f5f9; /* Slate 100 — Minor dividers */
+  --border-focus: #1d4ed8; /* Royal Blue — Accessible focus ring */
 
   /* High-Contrast Typography (WCAG AAA >= 7:1 for body) */
-  --text-ink: #0F172A;            /* Slate 900 — Deep legible ink (14.5:1 ratio) */
-  --text-muted: #475569;          /* Slate 600 — Secondary descriptive prose (6.2:1 ratio) */
-  --text-subtle: #64748B;         /* Slate 500 — Inactive metadata & timestamps (4.6:1 ratio) */
-  --text-on-accent: #FFFFFF;      /* Text overlaid on solid accent buttons */
+  --text-ink: #0f172a; /* Slate 900 — Deep legible ink (14.5:1 ratio) */
+  --text-muted: #475569; /* Slate 600 — Secondary descriptive prose (6.2:1 ratio) */
+  --text-subtle: #64748b; /* Slate 500 — Inactive metadata & timestamps (4.6:1 ratio) */
+  --text-on-accent: #ffffff; /* Text overlaid on solid accent buttons */
 
   /* Primary Accent: Blueprint Blue (Steady Execution & Focus) */
-  --accent-blue: #1D4ED8;         /* Blue 700 — Primary interactive accent */
-  --accent-blue-deep: #1E40AF;    /* Blue 800 — Brand headers & key buttons */
-  --accent-blue-hover: #1E40AF;   /* Hover state */
-  --accent-blue-subtle: rgba(29, 78, 216, 0.08); /* Active pill / subtle highlight */
+  --accent-blue: #1d4ed8; /* Blue 700 — Primary interactive accent */
+  --accent-blue-deep: #1e40af; /* Blue 800 — Brand headers & key buttons */
+  --accent-blue-hover: #1e40af; /* Hover state */
+  --accent-blue-subtle: rgba(
+    29,
+    78,
+    216,
+    0.08
+  ); /* Active pill / subtle highlight */
 
   /* Secondary Accent: Botanical Green (Health, Vitality, Completed Habits) */
-  --accent-green: #059669;        /* Emerald 600 — Positive progress & vitality */
-  --accent-green-hover: #047857;  /* Emerald 700 */
+  --accent-green: #059669; /* Emerald 600 — Positive progress & vitality */
+  --accent-green-hover: #047857; /* Emerald 700 */
   --accent-green-subtle: rgba(5, 150, 105, 0.08); /* Success tint */
 
   /* Signature Pilot Light & Streaks: Warm Solar Amber */
-  --accent-amber: #D97706;        /* Amber 600 — Streak flame & milestone alert */
-  --accent-amber-hover: #B45309;  /* Amber 700 */
-  --accent-amber-subtle: rgba(217, 119, 6, 0.10);
-  --accent-ember: #D97706;        /* Flame accent mapped to warm solar amber */
-  --accent-ember-hover: #B45309;
-  --accent-ember-glow: rgba(217, 119, 6, 0.20);
-  --accent-ember-subtle: rgba(217, 119, 6, 0.10);
+  --accent-amber: #d97706; /* Amber 600 — Streak flame & milestone alert */
+  --accent-amber-hover: #b45309; /* Amber 700 */
+  --accent-amber-subtle: rgba(217, 119, 6, 0.1);
+  --accent-ember: #d97706; /* Flame accent mapped to warm solar amber */
+  --accent-ember-hover: #b45309;
+  --accent-ember-glow: rgba(217, 119, 6, 0.2);
+  --accent-ember-subtle: rgba(217, 119, 6, 0.1);
 
   /* Per-Module Identity Signals (Harmonized with Blue & Green System) */
-  --accent-web: #2563EB;          /* Web Development (Cobalt Blueprint) */
-  --accent-dsa: #0D9488;          /* C++ DSA 136 (Teal Logic) */
-  --accent-oratory: #B45309;      /* Oratory Program (Amber Resonance) */
-  --accent-academic: #4F46E5;     /* Academics & Exams (Indigo Scholar) */
-  --accent-hackathon: #C2410C;    /* Hackathon Hub (Sprint Ochre) */
-  --accent-fitness: #059669;      /* Gym & Weight (Emerald Vitality) */
-  --accent-rewards: #B45309;      /* Trek & Rewards (Golden Summit) */
-  --accent-reset: #475569;        /* Reset Room (Slate Grounding) */
+  --accent-web: #2563eb; /* Web Development (Cobalt Blueprint) */
+  --accent-dsa: #0d9488; /* C++ DSA 136 (Teal Logic) */
+  --accent-oratory: #b45309; /* Oratory Program (Amber Resonance) */
+  --accent-academic: #4f46e5; /* Academics & Exams (Indigo Scholar) */
+  --accent-hackathon: #c2410c; /* Hackathon Hub (Sprint Ochre) */
+  --accent-fitness: #059669; /* Gym & Weight (Emerald Vitality) */
+  --accent-rewards: #b45309; /* Trek & Rewards (Golden Summit) */
+  --accent-reset: #475569; /* Reset Room (Slate Grounding) */
 
   /* Priority Status Signals (Calm, Clear, Non-Shaming) */
-  --color-p1: #DC2626;            /* Essential Priority (Red 600) */
+  --color-p1: #dc2626; /* Essential Priority (Red 600) */
   --color-p1-bg: rgba(220, 38, 38, 0.08);
-  --color-p2: #D97706;            /* Core Target (Amber 600) */
+  --color-p2: #d97706; /* Core Target (Amber 600) */
   --color-p2-bg: rgba(217, 119, 6, 0.08);
-  --color-p3: #64748B;            /* Optional / If Energy Allows (Slate 500) */
+  --color-p3: #64748b; /* Optional / If Energy Allows (Slate 500) */
   --color-p3-bg: rgba(100, 116, 139, 0.08);
 
   /* Semantic State Signals */
   --color-success: #059669;
   --color-success-bg: rgba(5, 150, 105, 0.08);
-  --color-warning: #D97706;
+  --color-warning: #d97706;
   --color-warning-bg: rgba(217, 119, 6, 0.08);
-  --color-danger: #DC2626;
+  --color-danger: #dc2626;
   --color-danger-bg: rgba(220, 38, 38, 0.08);
-  --color-info: #1D4ED8;
+  --color-info: #1d4ed8;
   --color-info-bg: rgba(29, 78, 216, 0.08);
 
   /* Typography Stacks (Self-hosted ready with Devanagari fallbacks) */
-  --font-display: "Syne", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-body: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Devanagari", sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  --font-display:
+    "Syne", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body:
+    "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Noto Sans Devanagari", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   /* Typography Scale */
-  --type-display-xl: 3.25rem;     /* 52px — Streak Count, Big Timers */
-  --type-display-lg: 2.25rem;     /* 36px — Page Headline */
-  --type-title: 1.25rem;          /* 20px — Section Headers */
-  --type-body: 0.9375rem;         /* 15px — Standard Prose (<75ch max-width) */
-  --type-caption: 0.8125rem;      /* 13px — Metadata, Badges */
-  --type-small: 0.75rem;          /* 12px — Tiny labels */
+  --type-display-xl: 3.25rem; /* 52px — Streak Count, Big Timers */
+  --type-display-lg: 2.25rem; /* 36px — Page Headline */
+  --type-title: 1.25rem; /* 20px — Section Headers */
+  --type-body: 0.9375rem; /* 15px — Standard Prose (<75ch max-width) */
+  --type-caption: 0.8125rem; /* 13px — Metadata, Badges */
+  --type-small: 0.75rem; /* 12px — Tiny labels */
 
   /* Spatial Scale (4px base) */
-  --space-1: 0.25rem;             /* 4px */
-  --space-2: 0.5rem;              /* 8px */
-  --space-3: 0.75rem;             /* 12px */
-  --space-4: 1rem;                /* 16px */
-  --space-5: 1.25rem;             /* 20px */
-  --space-6: 1.5rem;              /* 24px */
-  --space-8: 2rem;                /* 32px */
-  --space-10: 2.5rem;             /* 40px */
-  --space-12: 3rem;               /* 48px */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.25rem; /* 20px */
+  --space-6: 1.5rem; /* 24px */
+  --space-8: 2rem; /* 32px */
+  --space-10: 2.5rem; /* 40px */
+  --space-12: 3rem; /* 48px */
 
   /* Purposeful Geometry */
   --radius-xs: 2px;
-  --radius-sm: 4px;               /* Tight mechanical controls */
-  --radius-md: 6px;               /* Structured panels */
-  --radius-lg: 8px;               /* Bounded dialogs */
-  --radius-full: 9999px;          /* Rings & pills */
+  --radius-sm: 4px; /* Tight mechanical controls */
+  --radius-md: 6px; /* Structured panels */
+  --radius-lg: 8px; /* Bounded dialogs */
+  --radius-full: 9999px; /* Rings & pills */
 
   /* Crisp Shadows (Refined, architectural depth for light backgrounds) */
   --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
-  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+  --shadow-md:
+    0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+  --shadow-lg:
+    0 10px 15px -3px rgba(15, 23, 42, 0.08),
+    0 4px 6px -4px rgba(15, 23, 42, 0.04);
 
   /* Transitions & Motion */
   --transition-fast: 140ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -117,7 +129,7 @@
 
   /* Legacy variable mappings for 100% backward compatibility */
   --color-ink: var(--text-ink);
-  --color-slate-dark: #F1F5F9;
+  --color-slate-dark: #f1f5f9;
   --color-charcoal: var(--text-ink);
   --color-muted: var(--text-muted);
   --color-subtle: var(--text-subtle);
@@ -138,41 +150,43 @@
    ========================================================================== */
 [data-theme="dark"],
 [data-theme="night"] {
-  --bg-canvas: #080D1A;
-  --bg-surface: #10182B;
-  --bg-elevated: #16223B;
-  --bg-subtle: #0D1424;
-  --bg-input: #0B1120;
+  --bg-canvas: #080d1a;
+  --bg-surface: #10182b;
+  --bg-elevated: #16223b;
+  --bg-subtle: #0d1424;
+  --bg-input: #0b1120;
 
-  --border-hairline: #1D2A45;
-  --border-subtle: #18233A;
-  --border-focus: #3B82F6;
+  --border-hairline: #1d2a45;
+  --border-subtle: #18233a;
+  --border-focus: #3b82f6;
 
-  --text-ink: #EDE8DF;
-  --text-muted: #9BA7B9;
+  --text-ink: #ede8df;
+  --text-muted: #9ba7b9;
   --text-subtle: #637287;
-  --text-on-accent: #FFFFFF;
+  --text-on-accent: #ffffff;
 
-  --accent-blue: #3B82F6;
-  --accent-blue-deep: #2563EB;
-  --accent-blue-hover: #60A5FA;
+  --accent-blue: #3b82f6;
+  --accent-blue-deep: #2563eb;
+  --accent-blue-hover: #60a5fa;
   --accent-blue-subtle: rgba(59, 130, 246, 0.12);
 
-  --accent-green: #10B981;
+  --accent-green: #10b981;
   --accent-green-hover: #059669;
   --accent-green-subtle: rgba(16, 185, 129, 0.12);
 
-  --accent-amber: #F59E0B;
-  --accent-amber-hover: #D97706;
+  --accent-amber: #f59e0b;
+  --accent-amber-hover: #d97706;
   --accent-amber-subtle: rgba(245, 158, 11, 0.12);
-  --accent-ember: #FF5722;
-  --accent-ember-hover: #F44336;
+  --accent-ember: #ff5722;
+  --accent-ember-hover: #f44336;
   --accent-ember-glow: rgba(255, 87, 34, 0.22);
   --accent-ember-subtle: rgba(255, 87, 34, 0.12);
 
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.35);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.45), 0 2px 4px -1px rgba(0, 0, 0, 0.25);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -2px rgba(0, 0, 0, 0.35);
+  --shadow-md:
+    0 4px 6px -1px rgba(0, 0, 0, 0.45), 0 2px 4px -1px rgba(0, 0, 0, 0.25);
+  --shadow-lg:
+    0 10px 15px -3px rgba(0, 0, 0, 0.55), 0 4px 6px -2px rgba(0, 0, 0, 0.35);
 
   --color-ink: var(--text-ink);
   --color-slate-dark: var(--bg-elevated);
