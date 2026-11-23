@@ -17,6 +17,53 @@
   z-index: 100;
   border-right: 1px solid var(--border-hairline);
   overflow-y: auto;
+  transition: width var(--transition-normal);
+}
+.sidebar-collapse-toggle {
+  margin-left: auto;
+  border: 1px solid var(--border-hairline);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-ink);
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+body.sidebar-collapsed .app-sidebar {
+  display: none;
+}
+body.sidebar-collapsed .app-main {
+  margin-left: 0;
+}
+body.sidebar-collapsed .page-wave-backdrop {
+  left: 0;
+}
+.sidebar-reopen-toggle {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 110;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #0e7490;
+  border-radius: 8px;
+  background: #123b67;
+  color: #fff;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.2);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.sidebar-reopen-toggle:hover {
+  background: #0e7490;
+}
+.sidebar-reopen-toggle:focus-visible {
+  outline: 3px solid #67e8f9;
+  outline-offset: 2px;
+}
+.sidebar-reopen-toggle[hidden] {
+  display: none;
 }
 
 .sidebar-brand {
@@ -30,15 +77,10 @@
 .brand-monogram {
   width: 36px;
   height: 36px;
-  background-color: var(--accent-blue-deep);
-  color: #FFFFFF;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1.125rem;
-  letter-spacing: -0.05em;
+  border-radius: 50%;
+  display: block;
+  object-fit: cover;
+  flex: 0 0 36px;
   box-shadow: 0 1px 3px rgba(30, 64, 175, 0.25);
 }
 
@@ -98,7 +140,10 @@
   font-size: 0.875rem;
   font-weight: 500;
   position: relative;
-  transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast);
 }
 
 .nav-item a:hover {
@@ -177,7 +222,9 @@
   top: 0;
   z-index: 90;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.02);
-  transition: box-shadow var(--transition-fast), background-color var(--transition-fast);
+  transition:
+    box-shadow var(--transition-fast),
+    background-color var(--transition-fast);
 }
 
 [data-theme="dark"] .app-topbar {
@@ -230,7 +277,7 @@
 .timer-pill.running {
   background-color: var(--accent-blue);
   border-color: var(--accent-blue);
-  color: #FFFFFF;
+  color: #ffffff;
   box-shadow: 0 0 12px rgba(29, 78, 216, 0.35);
   animation: timer-pulse 2s ease-in-out infinite alternate;
 }
@@ -238,7 +285,7 @@
 .timer-pill.paused {
   background-color: var(--accent-amber);
   border-color: var(--accent-amber);
-  color: #FFFFFF;
+  color: #ffffff;
 }
 
 @keyframes timer-pulse {
@@ -264,10 +311,166 @@
 }
 
 @media (max-width: 768px) {
+  body.sidebar-collapsed .sidebar-reopen-toggle {
+    top: 8px;
+    left: 8px;
+  }
   .page-wave-backdrop {
     left: 0;
     bottom: 56px;
     height: 80px;
+  }
+}
+
+/* Native multi-page navigation stays intact; Chromium can animate same-origin
+   document changes while older WebViews keep their normal page transition. */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: sarthi-page-out 140ms ease both;
+}
+::view-transition-new(root) {
+  animation: sarthi-page-in 190ms ease both;
+}
+@keyframes sarthi-page-out {
+  to {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+@keyframes sarthi-page-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body[data-section="dashboard"] {
+  --section-accent: #2563eb;
+}
+body[data-section="courses"],
+body[data-section="webdev"],
+body[data-section="dsa"] {
+  --section-accent: #2563eb;
+}
+body[data-section="reading"] {
+  --section-accent: #0f766e;
+}
+body[data-section="explore"] {
+  --section-accent: #7c3aed;
+}
+body[data-section="oratory"] {
+  --section-accent: #b45309;
+}
+body[data-section="academics"] {
+  --section-accent: #4f46e5;
+}
+body[data-section="fitness"] {
+  --section-accent: #059669;
+}
+
+.app-topbar .page-headline::after {
+  content: "";
+  display: block;
+  width: 24px;
+  height: 2px;
+  margin-top: 4px;
+  border-radius: 2px;
+  background: var(--section-accent, var(--accent-blue));
+  opacity: 0.8;
+}
+.page-container {
+  animation: sarthi-content-arrive 180ms ease-out both;
+}
+@keyframes sarthi-content-arrive {
+  from {
+    opacity: 0.7;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body[data-section="courses"] .course-card {
+  border-top: 2px solid var(--section-accent);
+  scroll-margin-top: 88px;
+}
+body[data-section="reading"] .roadmap-book,
+body[data-section="reading"] .completed-book {
+  border-top: 2px solid var(--section-accent);
+}
+body[data-section="academics"] .subject-card {
+  transition:
+    border-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+body[data-section="academics"] .subject-card:hover {
+  border-color: var(--section-accent);
+  transform: translateY(-1px);
+}
+body[data-section="explore"] .card:hover,
+body[data-section="oratory"] .card:hover {
+  border-color: var(--section-accent);
+}
+body[data-section="dashboard"] .hero-banner {
+  border-left-color: var(--section-accent);
+}
+
+.nav-course-group {
+  list-style: none;
+  padding: 4px 0 2px;
+}
+.nav-course-group[hidden] {
+  display: none;
+}
+.nav-course-label {
+  display: block;
+  padding: 4px 12px 2px;
+  color: var(--text-subtle);
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.nav-course-list {
+  gap: 1px;
+}
+.nav-course-list .nav-item a {
+  padding-top: 0.35rem;
+  padding-bottom: 0.35rem;
+  padding-left: 1rem;
+  font-size: 0.8rem;
+}
+.nav-course-list .nav-item a span {
+  color: var(--section-accent, var(--accent-blue));
+}
+.nav-course-group-completed .nav-course-label {
+  color: var(--text-subtle);
+}
+.bounded-scroll-container {
+  max-height: 620px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding-right: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+  .page-container {
+    animation: none;
+  }
+  body[data-section="academics"] .subject-card {
+    transition: none;
   }
 }
 
@@ -315,7 +518,8 @@
 
 /* Responsive Media Queries */
 @media (max-width: 1024px) {
-  .grid-asymmetric, .grid-3 {
+  .grid-asymmetric,
+  .grid-3 {
     grid-template-columns: 1fr;
   }
 }
@@ -343,7 +547,136 @@
     padding-bottom: 88px; /* Offset for persistent mobile bottom navigation bar */
   }
 
-  .grid-2, .grid-4 {
+  .grid-2,
+  .grid-4 {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Compact, readable layouts for phones and narrow Capacitor WebViews. */
+@media (max-width: 768px) {
+  .app-layout,
+  .app-main,
+  .page-container,
+  .page-container > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .app-topbar {
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    padding: 10px 12px;
+  }
+
+  .topbar-left {
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .topbar-right {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .topbar-right > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+  .app-topbar .page-headline {
+    font-size: clamp(1rem, 4.4vw, 1.2rem);
+  }
+
+  .page-container {
+    padding: 14px 12px calc(76px + env(safe-area-inset-bottom));
+  }
+
+  .page-container h1 {
+    font-size: clamp(1.55rem, 6vw, 1.9rem);
+  }
+  .page-container h2 {
+    font-size: clamp(1.3rem, 5vw, 1.55rem);
+  }
+  .page-container h3 {
+    font-size: clamp(1.1rem, 4.2vw, 1.25rem);
+  }
+
+  .card,
+  .card-hero {
+    padding: 16px;
+  }
+
+  .card-header {
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .page-container table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-container {
+    max-width: 100%;
+    overscroll-behavior-x: contain;
+  }
+  .modal-backdrop {
+    padding: 10px;
+  }
+  .modal-box {
+    max-height: calc(100dvh - 20px);
+    padding: 16px;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea,
+  input:not([type="checkbox"]):not([type="radio"]),
+  select,
+  textarea {
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  .btn-sm {
+    min-height: 44px;
+    padding: 0.4rem 0.7rem;
+  }
+  form [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+  .app-bottom-bar {
+    height: calc(60px + env(safe-area-inset-bottom));
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .bottom-bar-item {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 430px) {
+  .page-container {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+  .card,
+  .card-hero {
+    padding: 14px;
+  }
+  .app-topbar {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+  .topbar-right {
+    gap: 6px;
   }
 }
