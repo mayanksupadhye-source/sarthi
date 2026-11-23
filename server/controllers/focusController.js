@@ -1,11 +1,18 @@
-import { FocusSession } from '../models/FocusSession.js';
-import { Task } from '../models/Task.js';
+import mongoose from "mongoose";
+import { FocusSession } from "../models/FocusSession.js";
+import { Task } from "../models/Task.js";
+import {
+  getFocusHistoryFilter,
+  normalizeFocusHistoryPagination,
+  FOCUS_HISTORY_PERIODS,
+  validateFocusReflection,
+} from "../services/focusHistory.js";
 
 export async function getActiveSession(req, res, next) {
   try {
     const session = await FocusSession.findOne({
       userId: req.user.id,
-      status: { $in: ['active', 'paused'] }
+      status: { $in: ["active", "paused"] },
     }).sort({ startTime: -1 });
 
     if (!session) {
@@ -27,8 +34,8 @@ export async function getActiveSession(req, res, next) {
         pauses: session.pauses,
         taskId: session.taskId,
         courseSlug: session.courseSlug,
-        lectureId: session.lectureId
-      }
+        lectureId: session.lectureId,
+      },
     });
   } catch (err) {
     next(err);
@@ -37,21 +44,31 @@ export async function getActiveSession(req, res, next) {
 
 export async function startSession(req, res, next) {
   try {
-    const { title, targetMinutes = 25, taskId, courseSlug, lectureId, category = 'general' } = req.body;
+    const {
+      title,
+      targetMinutes = 25,
+      taskId,
+      courseSlug,
+      lectureId,
+      category = "general",
+    } = req.body;
 
     if (!title || !title.trim()) {
-      return res.status(400).json({ success: false, error: 'Focus session title is required.' });
+      return res
+        .status(400)
+        .json({ success: false, error: "Focus session title is required." });
     }
 
     // End any lingering active session
     const existing = await FocusSession.findOne({
       userId: req.user.id,
-      status: { $in: ['active', 'paused'] }
+      status: { $in: ["active", "paused"] },
     });
     if (existing) {
-      existing.status = 'cancelled';
-      existing.endTime = new Date();
-      existing.calculateActualDuration();
+      const cancelledAt = new Date();
+      existing.endTime = cancelledAt;
+      existing.calculateActualDuration(cancelledAt);
+      existing.status = "cancelled";
       await existing.save();
     }
 
@@ -64,7 +81,7 @@ export async function startSession(req, res, next) {
       lectureId: lectureId || null,
       category,
       startTime: new Date(),
-      status: 'active'
+      status: "active",
     });
 
     return res.status(201).json({ success: true, session });
@@ -77,14 +94,19 @@ export async function pauseSession(req, res, next) {
   try {
     const session = await FocusSession.findOne({
       userId: req.user.id,
-      status: 'active'
+      status: "active",
     });
 
     if (!session) {
-      return res.status(404).json({ success: false, error: 'No active focus session found to pause.' });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          error: "No active focus session found to pause.",
+        });
     }
 
-    session.status = 'paused';
+    session.status = "paused";
     session.interruptionsCount = (session.interruptionsCount || 0) + 1;
     session.pauses.push({ pausedAt: new Date() });
     session.calculateActualDuration();
@@ -100,11 +122,16 @@ export async function resumeSession(req, res, next) {
   try {
     const session = await FocusSession.findOne({
       userId: req.user.id,
-      status: 'paused'
+      status: "paused",
     });
 
     if (!session) {
-      return res.status(404).json({ success: false, error: 'No paused focus session found to resume.' });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          error: "No paused focus session found to resume.",
+        });
     }
 
     // Set resumedAt on the last pause
@@ -115,7 +142,7 @@ export async function resumeSession(req, res, next) {
       }
     }
 
-    session.status = 'active';
+    session.status = "active";
     session.calculateActualDuration();
     await session.save();
 
@@ -127,34 +154,49 @@ export async function resumeSession(req, res, next) {
 
 export async function completeSession(req, res, next) {
   try {
-    const { notes } = req.body;
+    const reflection = validateFocusReflection(req.body.notes);
+    if (!reflection.valid)
+      return res.status(400).json({ success: false, error: reflection.error });
+
     const session = await FocusSession.findOne({
       userId: req.user.id,
-      status: { $in: ['active', 'paused'] }
+      status: { $in: ["active", "paused"] },
     });
 
     if (!session) {
-      return res.status(404).json({ success: false, error: 'No active or paused focus session to complete.' });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          error: "No active or paused focus session to complete.",
+        });
     }
 
-    session.endTime = new Date();
-    session.status = 'completed';
-    session.notes = notes || session.notes || '';
-    session.calculateActualDuration();
+    const completedAt = new Date();
+    session.endTime = completedAt;
+    session.calculateActualDuration(completedAt);
+    session.status = "completed";
+    session.notes = reflection.value;
     await session.save();
 
     // If linked to a task, update task's actual minutes and remaining minutes!
     let updatedTask = null;
     if (session.taskId) {
-      const task = await Task.findOne({ _id: session.taskId, userId: req.user.id });
+      const task = await Task.findOne({
+        _id: session.taskId,
+        userId: req.user.id,
+      });
       if (task) {
         task.actualMinutes = (task.actualMinutes || 0) + session.actualMinutes;
-        task.remainingMinutes = Math.max(0, task.estimatedMinutes - task.actualMinutes);
+        task.remainingMinutes = Math.max(
+          0,
+          task.estimatedMinutes - task.actualMinutes,
+        );
         if (task.remainingMinutes === 0) {
-          task.status = 'completed';
+          task.status = "completed";
           task.completedAt = new Date();
         } else {
-          task.status = 'in-progress';
+          task.status = "in-progress";
         }
         await task.save();
         updatedTask = task;
@@ -165,7 +207,7 @@ export async function completeSession(req, res, next) {
       success: true,
       message: `Focus session completed! Logged ${session.actualMinutes} focused minutes.`,
       session,
-      task: updatedTask
+      task: updatedTask,
     });
   } catch (err) {
     next(err);
@@ -176,19 +218,22 @@ export async function cancelSession(req, res, next) {
   try {
     const session = await FocusSession.findOne({
       userId: req.user.id,
-      status: { $in: ['active', 'paused'] }
+      status: { $in: ["active", "paused"] },
     });
 
     if (!session) {
-      return res.status(404).json({ success: false, error: 'No active session to cancel.' });
+      return res
+        .status(404)
+        .json({ success: false, error: "No active session to cancel." });
     }
 
-    session.status = 'cancelled';
-    session.endTime = new Date();
-    session.calculateActualDuration();
+    const cancelledAt = new Date();
+    session.endTime = cancelledAt;
+    session.calculateActualDuration(cancelledAt);
+    session.status = "cancelled";
     await session.save();
 
-    return res.json({ success: true, message: 'Focus session cancelled.' });
+    return res.json({ success: true, message: "Focus session cancelled." });
   } catch (err) {
     next(err);
   }
@@ -196,18 +241,65 @@ export async function cancelSession(req, res, next) {
 
 export async function getFocusHistory(req, res, next) {
   try {
-    const sessions = await FocusSession.find({
-      userId: req.user.id,
-      status: 'completed'
-    }).sort({ createdAt: -1 }).limit(50);
+    const period = req.query.period || "30d";
+    if (!FOCUS_HISTORY_PERIODS.includes(period)) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: `period must be one of: ${FOCUS_HISTORY_PERIODS.join(", ")}.`,
+        });
+    }
 
-    const totalMinutes = sessions.reduce((acc, s) => acc + (s.actualMinutes || 0), 0);
+    const now = new Date();
+    const filter = getFocusHistoryFilter(req.user.id, period, now);
+    const { page: requestedPage, limit } = normalizeFocusHistoryPagination(
+      req.query,
+    );
+    const [totalCount, aggregate] = await Promise.all([
+      FocusSession.countDocuments(filter),
+      FocusSession.aggregate([
+        {
+          $match: {
+            ...filter,
+            userId: new mongoose.Types.ObjectId(req.user.id),
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalMinutes: { $sum: { $ifNull: ["$actualMinutes", 0] } },
+          },
+        },
+      ]),
+    ]);
+    const pages = Math.ceil(totalCount / limit);
+    const page = pages ? Math.min(requestedPage, pages) : 1;
+    const sessions = await FocusSession.find(filter)
+      .sort({ endTime: -1, createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .lean();
+    const totalMinutes = aggregate[0]?.totalMinutes || 0;
+    const start = totalCount ? (page - 1) * limit + 1 : 0;
+    const end = Math.min(page * limit, totalCount);
 
     return res.json({
       success: true,
-      count: sessions.length,
+      period,
+      count: totalCount,
       totalMinutes,
-      sessions
+      sessions,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        pages,
+        start,
+        end,
+        hasPrevious: page > 1,
+        hasNext: page < pages,
+      },
     });
   } catch (err) {
     next(err);
