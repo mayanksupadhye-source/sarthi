@@ -218,6 +218,28 @@ router.post('/evidence', async (req, res, next) => {
   }
 });
 
+router.put('/evidence/:id', async (req, res, next) => {
+  try {
+    const profile = await UserProfile.findOne({ userId: req.user.id });
+    const item = profile?.evidence.id(req.params.id);
+    if (!item || item.archivedAt) return res.status(404).json({ success: false, error: 'Evidence record not found.' });
+    for (const key of ['title','period','note']) if (req.body[key] !== undefined) item[key] = String(req.body[key]).trim();
+    if (req.body.tags !== undefined) item.tags = Array.isArray(req.body.tags) ? req.body.tags.map(x=>String(x).trim()).filter(Boolean) : [String(req.body.tags).trim()].filter(Boolean);
+    item.updatedAt = new Date(); await profile.save();
+    return res.json({ success: true, evidence: item });
+  } catch (err) { next(err); }
+});
+
+router.delete('/evidence/:id', async (req, res, next) => {
+  try {
+    const profile = await UserProfile.findOne({ userId: req.user.id });
+    const item = profile?.evidence.id(req.params.id);
+    if (!item || item.archivedAt) return res.status(404).json({ success: false, error: 'Evidence record not found.' });
+    item.archivedAt = new Date(); await profile.save();
+    return res.json({ success: true, archivedId: req.params.id });
+  } catch (err) { next(err); }
+});
+
 /**
  * POST /api/emotional/feedback
  * Records thumbs-up / thumbs-down on a copy engine message
