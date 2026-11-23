@@ -1,227 +1,963 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hackathons & Projects — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">Hackathon & Project Command Centre</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-          <button id="addHackathonBtn" class="btn btn-primary btn-sm">+ Register Hackathon</button>
-        </div>
-      </header>
-
-      <div class="page-container">
-        <!-- Explainer Card with Sprint Surge Wave -->
-        <div class="card card-hero-wave wave-motif-surge" style="margin-bottom: var(--space-6); border-left: 4px solid var(--accent-hackathon);">
-          <span class="badge badge-primary" style="margin-bottom: var(--space-2); background: rgba(234, 88, 12, 0.12); color: #EA580C;">HIGH-VELOCITY SPRINT</span>
-          <h2 style="font-size: 1.25rem; margin-bottom: var(--space-1);">Project & Competition Execution</h2>
-          <p class="text-subtle text-sm" style="margin: 0; max-width: 650px;">
-            Coordinate milestones, team member roles, deliverable deadlines, and weekly effort budgets without letting hackathons derail academic attendance or sleep windows.
-          </p>
-          <div class="sarthi-wave-container" aria-hidden="true">
-            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,60 C200,20 400,90 600,40 C800,95 1000,30 1200,65 L1200,120 L0,120 Z" fill="rgba(234, 88, 12, 0.07)"></path>
-            </svg>
-            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,75 C250,35 500,80 750,50 C1000,25 1100,75 1200,60 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.04)"></path>
-            </svg>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hackathons & Projects — SARTHI</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .hackathon-intro {
+        border-left: 4px solid var(--accent-hackathon);
+        margin-bottom: var(--space-5);
+      }
+      .hackathon-section {
+        margin: 0 auto var(--space-5);
+        max-width: 1120px;
+      }
+      .hackathon-section-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        margin-bottom: var(--space-3);
+      }
+      .hackathon-card {
+        border-left: 4px solid var(--accent-hackathon);
+        margin-bottom: var(--space-4);
+      }
+      .hackathon-card[data-status="expired"],
+      .hackathon-card[data-status="submitted"],
+      .hackathon-card[data-status="completed"] {
+        border-left-color: var(--text-subtle);
+      }
+      .hackathon-card-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+      }
+      .hackathon-title {
+        margin: var(--space-2) 0 var(--space-1);
+        font-size: 1.25rem;
+      }
+      .hackathon-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2) var(--space-5);
+        margin-top: var(--space-3);
+        color: var(--text-muted);
+        font-size: var(--type-small);
+      }
+      .hackathon-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+      }
+      .hackathon-progress {
+        height: 7px;
+        overflow: hidden;
+        border-radius: 99px;
+        background: var(--bg-subtle);
+        margin: var(--space-4) 0 var(--space-2);
+      }
+      .hackathon-progress > span {
+        display: block;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--accent-hackathon);
+        transition: width 0.2s ease;
+      }
+      .hackathon-stage-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-3);
+        margin-top: var(--space-4);
+      }
+      .hackathon-stage {
+        min-width: 0;
+        padding: var(--space-3);
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-md);
+        background: var(--bg-canvas);
+      }
+      .hackathon-stage.is-current {
+        border-color: var(--accent-hackathon);
+        box-shadow: inset 0 0 0 1px var(--accent-hackathon);
+      }
+      .hackathon-stage-name {
+        font-weight: 700;
+        font-size: var(--type-small);
+      }
+      .hackathon-stage-date {
+        color: var(--text-muted);
+        font-size: var(--type-xs);
+        margin-top: var(--space-2);
+      }
+      .hackathon-stage-state {
+        display: inline-flex;
+        margin-top: var(--space-2);
+        font-size: var(--type-xs);
+        color: var(--text-subtle);
+      }
+      .hackathon-alert-list {
+        display: grid;
+        gap: var(--space-2);
+      }
+      .hackathon-alert {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--space-3);
+        padding: var(--space-3);
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-md);
+      }
+      .hackathon-alert.unread {
+        border-left: 3px solid var(--accent-hackathon);
+        background: var(--bg-canvas);
+      }
+      .hackathon-alert p {
+        margin: var(--space-1) 0 0;
+        color: var(--text-muted);
+        font-size: var(--type-small);
+      }
+      .hackathon-modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        overflow: auto;
+        display: grid;
+        place-items: start center;
+        padding: 4vh 14px;
+        background: rgba(15, 23, 42, 0.55);
+      }
+      .hackathon-modal-backdrop.hidden {
+        display: none;
+      }
+      .hackathon-modal {
+        width: min(900px, 100%);
+        max-height: 92vh;
+        overflow: auto;
+        padding: var(--space-6);
+      }
+      .hackathon-modal-head {
+        position: sticky;
+        top: calc(-1 * var(--space-6));
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-3) 0;
+        background: var(--bg-elevated);
+        border-bottom: 1px solid var(--border-hairline);
+        margin-bottom: var(--space-4);
+      }
+      .hackathon-stage-config {
+        display: grid;
+        grid-template-columns: minmax(140px, 1fr) minmax(125px, 0.75fr) minmax(
+            145px,
+            1fr
+          ) minmax(145px, 1fr);
+        gap: var(--space-3);
+        align-items: end;
+        padding: var(--space-3) 0;
+        border-bottom: 1px solid var(--border-hairline);
+      }
+      .hackathon-stage-config:last-child {
+        border-bottom: 0;
+      }
+      .hackathon-stage-config .form-group {
+        margin: 0;
+      }
+      .hackathon-stage-config-title {
+        align-self: center;
+        font-weight: 700;
+      }
+      .hackathon-stage-config .form-input:disabled,
+      .hackathon-stage-config .form-select:disabled {
+        opacity: 0.65;
+      }
+      .hackathon-alerts-note {
+        margin-top: var(--space-3);
+        color: var(--text-subtle);
+        font-size: var(--type-xs);
+      }
+      .hackathon-priority {
+        font-weight: 800;
+      }
+      .hackathon-priority[data-priority="P1"] {
+        color: var(--color-p1);
+      }
+      .hackathon-priority[data-priority="P2"] {
+        color: var(--accent-hackathon);
+      }
+      .hackathon-priority[data-priority="P3"] {
+        color: var(--text-muted);
+      }
+      @media (max-width: 760px) {
+        .hackathon-stage-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .hackathon-stage-config {
+          grid-template-columns: 1fr 1fr;
+        }
+        .hackathon-stage-config-title {
+          grid-column: 1/-1;
+        }
+        .hackathon-modal {
+          padding: var(--space-4);
+        }
+        .hackathon-modal-head {
+          top: calc(-1 * var(--space-4));
+        }
+      }
+      @media (max-width: 460px) {
+        .hackathon-stage-grid {
+          grid-template-columns: 1fr;
+        }
+        .hackathon-alert {
+          flex-direction: column;
+        }
+        .hackathon-section-heading {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Hackathon & Project Command Centre</div>
           </div>
-        </div>
+          <div class="topbar-right">
+            <div id="topbarFocusWidget"></div>
+            <button id="addHackathonBtn" class="btn btn-primary btn-sm">
+              + Register Hackathon
+            </button>
+          </div>
+        </header>
+        <div class="page-container">
+          <section class="card card-hero-wave wave-motif-surge hackathon-intro">
+            <span
+              class="badge badge-primary"
+              style="
+                margin-bottom: var(--space-2);
+                background: rgba(234, 88, 12, 0.12);
+                color: var(--accent-hackathon);
+              "
+              >HIGH-VELOCITY SPRINT</span
+            >
+            <h2 style="font-size: 1.25rem; margin-bottom: var(--space-1)">
+              Project & Competition Execution
+            </h2>
+            <p class="text-subtle text-sm" style="margin: 0; max-width: 680px">
+              Coordinate stages, submission dates, repository links, and weekly
+              effort while keeping academic attendance and sleep in view.
+            </p>
+          </section>
 
-        <!-- Hackathons List -->
-        <div id="hackathonsList">
-          <p class="text-muted text-sm">Loading hackathons...</p>
-        </div>
-      </div>
-    </main>
-  </div>
+          <section
+            class="card hackathon-section"
+            aria-labelledby="hackathonAlertsHeading"
+          >
+            <div class="hackathon-section-heading">
+              <div>
+                <h2 id="hackathonAlertsHeading" class="card-title">
+                  Upcoming reminders
+                </h2>
+                <p class="text-subtle text-sm">
+                  Stage starts and deadlines from your saved schedules.
+                </p>
+              </div>
+            </div>
+            <div id="hackathonAlerts" class="hackathon-alert-list">
+              <p class="text-subtle text-sm">Loading reminders…</p>
+            </div>
+            <p class="hackathon-alerts-note">
+              These reminders are saved in SARTHI and appear while the app is
+              open. This server does not run a background delivery worker, so it
+              cannot alert you while the app is closed.
+            </p>
+          </section>
 
-  <!-- Create Hackathon Modal -->
-  <div id="hackathonModal" class="modal-backdrop hidden">
-    <div class="modal-box">
-      <div class="card-header">
-        <div class="card-title">Register Hackathon</div>
-        <button id="closeHackathonModal" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <form id="hackathonForm">
-        <div class="form-group">
-          <label class="form-label">Hackathon Title</label>
-          <input type="text" id="hackTitle" class="form-input" placeholder="e.g. Smart India Hackathon / DevFolio Web3" required>
+          <section
+            class="hackathon-section"
+            aria-labelledby="activeHackathonsHeading"
+          >
+            <div class="hackathon-section-heading">
+              <h2 id="activeHackathonsHeading" class="card-title">
+                Active & upcoming
+              </h2>
+            </div>
+            <div id="activeHackathons">
+              <p class="text-subtle text-sm">Loading hackathons…</p>
+            </div>
+          </section>
+          <section
+            class="hackathon-section"
+            aria-labelledby="hackathonHistoryHeading"
+          >
+            <div class="hackathon-section-heading">
+              <h2 id="hackathonHistoryHeading" class="card-title">History</h2>
+            </div>
+            <div id="hackathonHistory">
+              <p class="text-subtle text-sm">Loading history…</p>
+            </div>
+          </section>
         </div>
-        <div class="form-group">
-          <label class="form-label">Project Tagline / Problem Statement</label>
-          <input type="text" id="hackTagline" class="form-input" placeholder="e.g. Adaptive Student OS with AI Planner">
+      </main>
+    </div>
+
+    <div
+      id="hackathonModal"
+      class="hackathon-modal-backdrop hidden"
+      role="presentation"
+    >
+      <section
+        class="card hackathon-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="hackathonModalTitle"
+      >
+        <div class="hackathon-modal-head">
+          <div>
+            <div id="hackathonModalTitle" class="card-title">
+              Register Hackathon
+            </div>
+            <p class="text-subtle text-sm" style="margin: var(--space-1) 0 0">
+              Set the full lifecycle once. Optional rounds can be marked None.
+            </p>
+          </div>
+          <button
+            id="closeHackathonModal"
+            class="btn btn-outline btn-sm"
+            type="button"
+            aria-label="Close"
+          >
+            ✕
+          </button>
         </div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label class="form-label">Start Date</label>
-            <input type="date" id="hackStart" class="form-input" required>
+        <form id="hackathonForm">
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="hackTitle">Hackathon title</label
+              ><input
+                type="text"
+                id="hackTitle"
+                class="form-input"
+                maxlength="120"
+                placeholder="e.g. PZCOE PSIGC"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="hackTagline">Project tagline</label
+              ><input
+                type="text"
+                id="hackTagline"
+                class="form-input"
+                maxlength="240"
+                placeholder="What are you building?"
+              />
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="hackStart"
+                >Overall start date</label
+              ><input type="date" id="hackStart" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="hackEnd"
+                >Final submission date</label
+              ><input type="date" id="hackEnd" class="form-input" required />
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="hackBudget"
+                >Weekly effort budget (hours)</label
+              ><input
+                type="number"
+                id="hackBudget"
+                class="form-input"
+                value="6"
+                min="0.5"
+                max="40"
+                step="0.5"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="hackPriority">Priority</label
+              ><select id="hackPriority" class="form-select">
+                <option value="P1">P1 · High</option>
+                <option value="P2" selected>P2 · Standard</option>
+                <option value="P3">P3 · Low</option>
+              </select>
+            </div>
           </div>
           <div class="form-group">
-            <label class="form-label">End / Submission Date</label>
-            <input type="date" id="hackEnd" class="form-input" required>
+            <label class="form-label" for="hackRepo"
+              >GitHub repository URL</label
+            ><input
+              type="url"
+              id="hackRepo"
+              class="form-input"
+              placeholder="https://github.com/…"
+            />
           </div>
-        </div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label class="form-label">Current Stage</label>
-            <select id="hackStage" class="form-select">
-              <option value="registered">Registered</option>
-              <option value="ideation">Ideation</option>
-              <option value="proposal">Proposal / PPT</option>
-              <option value="prototype">Prototype / Coding</option>
-              <option value="demo">Demo / Video</option>
-              <option value="pitch">Pitch & Presentation</option>
+          <div style="margin: var(--space-5) 0 var(--space-2)">
+            <h3 class="card-title">Six-stage schedule</h3>
+            <p class="text-subtle text-sm">
+              Registered starts with the hackathon. Pitch ends on the final
+              submission date. Dates for the four middle stages are independent.
+            </p>
+          </div>
+          <div id="stageConfigList"></div>
+          <div
+            id="hackathonFormError"
+            role="alert"
+            class="text-sm"
+            style="color: var(--color-danger); margin-top: var(--space-3)"
+          ></div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              flex-wrap: wrap;
+              gap: var(--space-2);
+              margin-top: var(--space-5);
+            "
+          >
+            <button type="button" id="cancelHackBtn" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" id="saveHackathonBtn" class="btn btn-primary">
+              Save Hackathon
+            </button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import { renderLayout } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { showToast } from "../assets/js/toast.js";
+
+      const STAGES = [
+        { key: "registered", name: "Registered", optional: false },
+        { key: "ideation", name: "Ideation", optional: true },
+        { key: "proposal", name: "Proposal / PPT", optional: true },
+        { key: "prototype", name: "Prototype / Coding", optional: true },
+        { key: "demo", name: "Demo / Video", optional: true },
+        { key: "pitch", name: "Pitch / Presentation", optional: false },
+      ];
+      let editingId = null;
+
+      const escapeHtml = (value) =>
+        String(value ?? "").replace(
+          /[&<>"']/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[char],
+        );
+      const stageLabel = (key) =>
+        STAGES.find((stage) => stage.key === key)?.name || "Stage";
+      const dateLabel = (date) =>
+        date
+          ? new Date(`${date}T12:00:00`).toLocaleDateString(undefined, {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })
+          : "—";
+      const todayLocal = () =>
+        new Intl.DateTimeFormat("en-CA", {
+          timeZone: "Asia/Kolkata",
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+        }).format(new Date());
+      const lifecycleLabel = (status) =>
+        ({
+          upcoming: "Upcoming",
+          active: "Active",
+          "submission-due": "Submission due",
+          submitted: "Submitted",
+          completed: "Completed",
+          expired: "Expired",
+        })[status] ||
+        status ||
+        "Active";
+
+      async function init() {
+        const user = await checkAuth();
+        if (!user) return;
+        renderLayout("hackathons");
+        renderStageInputs();
+        setupEvents();
+        await loadHackathons();
+      }
+
+      function renderStageInputs() {
+        document.getElementById("stageConfigList").innerHTML = STAGES.map(
+          (stage) => `
+        <div class="hackathon-stage-config" data-stage-row="${stage.key}">
+          <div class="hackathon-stage-config-title">${stage.name}${stage.optional ? "" : ' <span class="text-subtle text-xs">Required</span>'}</div>
+          <div class="form-group"><label class="form-label" for="${stage.key}Availability">Availability</label>
+            <select class="form-select" id="${stage.key}Availability" data-stage-availability="${stage.key}" ${stage.optional ? "" : "disabled"}>
+              <option value="scheduled">Scheduled</option>${stage.optional ? '<option value="none">None / Not applicable</option>' : ""}
             </select>
           </div>
-          <div class="form-group">
-            <label class="form-label">Weekly Effort Budget (Hours)</label>
-            <input type="number" id="hackBudget" class="form-input" value="10" min="2" max="40">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Repository URL (GitHub)</label>
-          <input type="url" id="hackRepo" class="form-input" placeholder="https://github.com/...">
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
-          <button type="button" id="cancelHackBtn" class="btn btn-outline">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Hackathon</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { showToast } from '../assets/js/toast.js';
-
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-      renderLayout('hackathons');
-      await loadHackathons();
-      setupEvents();
-    }
-
-    async function loadHackathons() {
-      try {
-        const res = await api.get('/hackathons');
-        if (!res.success) return;
-
-        const container = document.getElementById('hackathonsList');
-        if (res.hackathons.length === 0) {
-          container.innerHTML = `
-            <div class="card" style="text-align: center; padding: var(--space-8);">
-              <p class="text-muted" style="margin-bottom: var(--space-4);">No active hackathons or major projects tracked.</p>
-              <button id="addFirstHackBtn" class="btn btn-primary btn-sm">+ Register First Hackathon</button>
-            </div>
-          `;
-          document.getElementById('addFirstHackBtn')?.addEventListener('click', () => {
-            document.getElementById('hackathonModal').classList.remove('hidden');
+          <div class="form-group"><label class="form-label" for="${stage.key}Start">Start</label><input type="date" class="form-input" id="${stage.key}Start" data-stage-start="${stage.key}" required ${stage.key === "registered" ? "readonly" : ""} ${stage.key === "pitch" ? "" : ""}></div>
+          <div class="form-group"><label class="form-label" for="${stage.key}End">End</label><input type="date" class="form-input" id="${stage.key}End" data-stage-end="${stage.key}" required ${stage.key === "pitch" ? "readonly" : ""}></div>
+        </div>`,
+        ).join("");
+        document
+          .querySelectorAll("[data-stage-availability]")
+          .forEach((select) =>
+            select.addEventListener("change", () =>
+              updateStageInputs(select.dataset.stageAvailability),
+            ),
+          );
+        document
+          .getElementById("hackStart")
+          .addEventListener("change", syncOverallDates);
+        document
+          .getElementById("hackEnd")
+          .addEventListener("change", syncOverallDates);
+        document
+          .getElementById("registeredEnd")
+          .addEventListener("input", (event) => {
+            event.target.dataset.autofill = "false";
           });
+        document
+          .getElementById("pitchStart")
+          .addEventListener("input", (event) => {
+            event.target.dataset.autofill = "false";
+          });
+      }
+
+      function syncOverallDates() {
+        const start = document.getElementById("hackStart").value;
+        const end = document.getElementById("hackEnd").value;
+        document.getElementById("registeredStart").value = start;
+        document.getElementById("pitchEnd").value = end;
+        if (
+          !document.getElementById("registeredEnd").value ||
+          document.getElementById("registeredEnd").dataset.autofill === "true"
+        ) {
+          document.getElementById("registeredEnd").value = start;
+          document.getElementById("registeredEnd").dataset.autofill = "true";
+        }
+        if (
+          !document.getElementById("pitchStart").value ||
+          document.getElementById("pitchStart").dataset.autofill === "true"
+        ) {
+          document.getElementById("pitchStart").value = end;
+          document.getElementById("pitchStart").dataset.autofill = "true";
+        }
+        updateStageInputs("registered");
+        updateStageInputs("pitch");
+      }
+
+      function updateStageInputs(key) {
+        const availability = document.querySelector(
+          `[data-stage-availability="${key}"]`,
+        ).value;
+        const disabled = availability === "none";
+        const start = document.querySelector(`[data-stage-start="${key}"]`);
+        const end = document.querySelector(`[data-stage-end="${key}"]`);
+        start.disabled = disabled;
+        end.disabled = disabled;
+        start.required = !disabled;
+        end.required = !disabled;
+        if (!disabled && key === "registered")
+          start.value = document.getElementById("hackStart").value;
+        if (!disabled && key === "pitch")
+          end.value = document.getElementById("hackEnd").value;
+      }
+
+      function resetForm() {
+        editingId = null;
+        document.getElementById("hackathonForm").reset();
+        document.getElementById("hackathonFormError").textContent = "";
+        document.getElementById("hackathonModalTitle").textContent =
+          "Register Hackathon";
+        document.getElementById("saveHackathonBtn").textContent =
+          "Save Hackathon";
+        document.getElementById("hackBudget").value = "6";
+        document.getElementById("hackPriority").value = "P2";
+        document
+          .querySelectorAll("[data-stage-availability]")
+          .forEach((select) => {
+            select.value = "scheduled";
+          });
+        document
+          .querySelectorAll("[data-stage-start], [data-stage-end]")
+          .forEach((input) => {
+            input.value = "";
+            input.disabled = false;
+            input.dataset.autofill = "";
+          });
+        syncOverallDates();
+      }
+
+      function openModal(hackathon = null) {
+        resetForm();
+        if (hackathon) {
+          editingId = hackathon._id;
+          document.getElementById("hackathonModalTitle").textContent =
+            "Edit Hackathon";
+          document.getElementById("saveHackathonBtn").textContent =
+            "Save Changes";
+          document.getElementById("hackTitle").value = hackathon.title || "";
+          document.getElementById("hackTagline").value =
+            hackathon.tagline || "";
+          document.getElementById("hackStart").value =
+            hackathon.startDate || "";
+          document.getElementById("hackEnd").value = hackathon.endDate || "";
+          document.getElementById("hackBudget").value =
+            hackathon.weeklyEffortBudgetHours || 6;
+          document.getElementById("hackPriority").value =
+            hackathon.priority || "P2";
+          document.getElementById("hackRepo").value = hackathon.repoUrl || "";
+          const byKey = Object.fromEntries(
+            (hackathon.stages || []).map((stage) => [stage.key, stage]),
+          );
+          for (const definition of STAGES) {
+            const stage = byKey[definition.key];
+            if (!stage) continue;
+            document.querySelector(
+              `[data-stage-availability="${definition.key}"]`,
+            ).value = stage.availability || "scheduled";
+            document.querySelector(
+              `[data-stage-start="${definition.key}"]`,
+            ).value = stage.startDate || "";
+            document.querySelector(
+              `[data-stage-end="${definition.key}"]`,
+            ).value = stage.endDate || "";
+            document.querySelector(
+              `[data-stage-start="${definition.key}"]`,
+            ).dataset.autofill = "false";
+            document.querySelector(
+              `[data-stage-end="${definition.key}"]`,
+            ).dataset.autofill = "false";
+            updateStageInputs(definition.key);
+          }
+          document.getElementById("registeredStart").value =
+            hackathon.startDate;
+          document.getElementById("pitchEnd").value = hackathon.endDate;
+        }
+        document.getElementById("hackathonModal").classList.remove("hidden");
+      }
+
+      function closeModal() {
+        document.getElementById("hackathonModal").classList.add("hidden");
+      }
+
+      async function loadHackathons() {
+        try {
+          const res = await api.get("/hackathons");
+          if (!res?.success) return;
+          const all = res.hackathons || [];
+          window.hackathonsCache = all;
+          const active = all.filter(
+            (h) =>
+              !["expired", "submitted", "completed"].includes(
+                h.lifecycleStatus,
+              ),
+          );
+          const history = all.filter((h) =>
+            ["expired", "submitted", "completed"].includes(h.lifecycleStatus),
+          );
+          document.getElementById("activeHackathons").innerHTML = active.length
+            ? active.map(renderHackathon).join("")
+            : `<div class="card" style="text-align:center;padding:var(--space-6);"><p class="text-subtle">No active hackathons yet.</p><button class="btn btn-primary btn-sm" data-empty-add>+ Register a hackathon</button></div>`;
+          document.getElementById("hackathonHistory").innerHTML = history.length
+            ? history.map(renderHackathon).join("")
+            : '<p class="text-subtle text-sm">Submitted, completed, or expired hackathons will stay here.</p>';
+          renderAlerts(res.alerts || []);
+          bindCards();
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      }
+
+      function renderHackathon(h) {
+        const stages = STAGES.map(
+          (definition) =>
+            (h.stages || []).find((stage) => stage.key === definition.key) || {
+              ...definition,
+              availability: "none",
+            },
+        );
+        const currentIndex = stages.findIndex(
+          (stage) => stage.key === h.currentStage,
+        );
+        const progress =
+          h.lifecycleStatus === "submitted" || h.lifecycleStatus === "completed"
+            ? 100
+            : Math.max(
+                0,
+                Math.round(((currentIndex + 1) / STAGES.length) * 100),
+              );
+        const current =
+          h.lifecycleStatus === "expired"
+            ? "Deadline passed — submission not recorded"
+            : h.lifecycleStatus === "submitted"
+              ? "Submission recorded"
+              : h.lifecycleStatus === "completed"
+                ? "Marked complete"
+                : h.lifecycleStatus === "upcoming"
+                  ? "Not started"
+                  : stageLabel(h.currentStage);
+        const next = h.nextStage ? stageLabel(h.nextStage) : null;
+        return `<article class="card hackathon-card" data-id="${escapeHtml(h._id)}" data-status="${escapeHtml(h.lifecycleStatus)}">
+        <div class="hackathon-card-head"><div>
+          <span class="badge badge-neutral">${escapeHtml(lifecycleLabel(h.lifecycleStatus))}</span>
+          <span class="hackathon-priority" data-priority="${escapeHtml(h.priority || "P2")}">${escapeHtml(h.priority || "P2")}</span>
+          <h3 class="hackathon-title">${escapeHtml(h.title)}</h3>
+          <p class="text-subtle text-sm">${escapeHtml(h.tagline || "Project coordination workspace")}</p>
+        </div><div class="hackathon-actions">
+          ${h.repoUrl ? `<a class="btn btn-outline btn-sm" href="${escapeHtml(h.repoUrl)}" target="_blank" rel="noopener noreferrer">GitHub ↗</a>` : ""}
+          <button class="btn btn-outline btn-sm" data-edit="${escapeHtml(h._id)}">Edit</button>
+          ${h.lifecycleStatus === "submitted" ? `<button class="btn btn-primary btn-sm" data-mark-status="completed" data-id="${escapeHtml(h._id)}">Mark complete</button><button class="btn btn-outline btn-sm" data-mark-status="not-submitted" data-id="${escapeHtml(h._id)}">Reopen</button>` : h.lifecycleStatus === "completed" ? `<button class="btn btn-outline btn-sm" data-mark-status="not-submitted" data-id="${escapeHtml(h._id)}">Reopen</button>` : `<button class="btn btn-primary btn-sm" data-mark-status="submitted" data-id="${escapeHtml(h._id)}">Mark submitted</button>`}
+          <button class="btn btn-outline btn-sm" data-remove="${escapeHtml(h._id)}">Remove</button>
+        </div></div>
+        <div class="hackathon-meta"><span>Overall: <strong>${dateLabel(h.startDate)} – ${dateLabel(h.endDate)}</strong></span><span>Weekly effort: <strong>${escapeHtml(h.weeklyEffortBudgetHours)}h</strong></span><span>Current: <strong>${escapeHtml(current)}</strong></span>${next ? `<span>Next: <strong>${escapeHtml(next)}</strong></span>` : ""}</div>
+        ${h.lifecycleStatus === "expired" ? '<p class="text-sm" style="color:var(--text-muted);margin-top:var(--space-2);">The final date passed. SARTHI has not assumed that you submitted.</p>' : ""}
+        <div class="hackathon-progress" role="progressbar" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"><span style="width:${progress}%"></span></div>
+        <div class="hackathon-stage-grid">${stages
+          .map((stage) => {
+            const none = stage.availability === "none";
+            const isCurrent =
+              !none &&
+              stage.key === h.currentStage &&
+              !["submitted", "completed", "expired"].includes(
+                h.lifecycleStatus,
+              );
+            const state = none
+              ? "Not applicable"
+              : isCurrent
+                ? "Current stage"
+                : h.lifecycleStatus === "submitted" ||
+                    h.lifecycleStatus === "completed"
+                  ? "Recorded"
+                  : h.lifecycleStatus === "expired"
+                    ? "Schedule ended"
+                    : stage.startDate > todayLocal()
+                      ? "Upcoming"
+                      : "Scheduled";
+            return `<div class="hackathon-stage ${isCurrent ? "is-current" : ""}"><div class="hackathon-stage-name">${escapeHtml(stage.name)}</div><span class="hackathon-stage-state">${state}</span><div class="hackathon-stage-date">${none ? "No dates · no reminders" : `${dateLabel(stage.startDate)} – ${dateLabel(stage.endDate)}`}</div></div>`;
+          })
+          .join("")}</div>
+      </article>`;
+      }
+
+      function renderAlerts(alerts) {
+        const container = document.getElementById("hackathonAlerts");
+        if (!alerts.length) {
+          container.innerHTML =
+            '<p class="text-subtle text-sm">No upcoming reminders in the next 30 days.</p>';
           return;
         }
-
-        container.innerHTML = res.hackathons.map(h => `
-          <div class="card" style="margin-bottom: var(--space-6); border-left: 4px solid var(--color-ink);">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-4);">
-              <div>
-                <span class="badge badge-neutral" style="text-transform: uppercase;">${h.currentStage}</span>
-                <h3 style="font-size: 1.25rem; margin-top: 4px;">${h.title}</h3>
-                <p class="text-subtle text-sm">${h.tagline || 'Project coordination workspace'}</p>
-                <div class="text-subtle text-xs" style="margin-top: var(--space-2);">
-                  Dates: <strong>${h.startDate}</strong> to <strong>${h.endDate}</strong> · Weekly Budget: <strong>${h.weeklyEffortBudgetHours}h</strong>
-                </div>
-              </div>
-              <div style="display: flex; gap: var(--space-2);">
-                ${h.repoUrl ? `<a href="${h.repoUrl}" target="_blank" class="btn btn-outline btn-sm">GitHub ↗</a>` : ''}
-                <button class="btn btn-outline btn-sm delete-hack-btn" data-id="${h._id}">Remove</button>
-              </div>
-            </div>
-
-            <div style="margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--color-border);">
-              <div class="text-xs" style="font-weight: 700; color: var(--color-muted); margin-bottom: var(--space-2);">STAGES & DELIVERABLES</div>
-              <div class="grid-3">
-                ${(h.stages || []).map(st => `
-                  <div style="background: var(--color-bg-base); padding: var(--space-3); border-radius: var(--radius-sm);">
-                    <div style="font-weight: 600; font-size: 0.8125rem;">${st.name}</div>
-                    <span class="badge ${st.status === 'completed' ? 'badge-success' : 'badge-neutral'}" style="margin-top: 4px;">${st.status}</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-        `).join('');
-
-        container.querySelectorAll('.delete-hack-btn').forEach(btn => {
-          btn.addEventListener('click', async () => {
-            if (!confirm('Remove this hackathon?')) return;
+        container.innerHTML = alerts
+          .map(
+            (
+              alert,
+            ) => `<article class="hackathon-alert ${alert.readAt ? "" : "unread"}">
+        <div><strong>${escapeHtml(alert.title)}</strong><p>${escapeHtml(alert.body)} · ${new Date(alert.scheduledFor).toLocaleString()}</p></div>
+        ${alert.readAt ? '<span class="text-subtle text-xs">Read</span>' : `<button class="btn btn-outline btn-sm" data-read-alert="${escapeHtml(alert._id)}">Mark read</button>`}
+      </article>`,
+          )
+          .join("");
+        container.querySelectorAll("[data-read-alert]").forEach((button) =>
+          button.addEventListener("click", async () => {
             try {
-              await api.delete(`/hackathons/${btn.dataset.id}`);
-              showToast('Hackathon removed.');
+              await api.put(
+                `/hackathons/notifications/${button.dataset.readAlert}/read`,
+                {},
+              );
               await loadHackathons();
             } catch (err) {
-              showToast(err.message, 'error');
+              showToast(err.message, "error");
             }
-          });
-        });
-      } catch (err) {
-        showToast(err.message, 'error');
+          }),
+        );
       }
-    }
 
-    function setupEvents() {
-      document.getElementById('addHackathonBtn').addEventListener('click', () => {
-        document.getElementById('hackathonModal').classList.remove('hidden');
-      });
-      document.getElementById('closeHackathonModal').addEventListener('click', () => {
-        document.getElementById('hackathonModal').classList.add('hidden');
-      });
-      document.getElementById('cancelHackBtn').addEventListener('click', () => {
-        document.getElementById('hackathonModal').classList.add('hidden');
-      });
+      function bindCards() {
+        document
+          .querySelectorAll("[data-empty-add]")
+          .forEach((button) =>
+            button.addEventListener("click", () => openModal()),
+          );
+        document.querySelectorAll("[data-edit]").forEach((button) =>
+          button.addEventListener("click", () => {
+            const hackathon = window.hackathonsCache?.find(
+              (item) => item._id === button.dataset.edit,
+            );
+            if (hackathon) openModal(hackathon);
+          }),
+        );
+        document.querySelectorAll("[data-mark-status]").forEach((button) =>
+          button.addEventListener("click", async () => {
+            const action = button.dataset.markStatus;
+            const confirmation =
+              action === "submitted"
+                ? "Record this hackathon as submitted?"
+                : action === "completed"
+                  ? "Mark this hackathon complete?"
+                  : null;
+            const status =
+              confirmation && confirm(confirmation)
+                ? action
+                : action === "not-submitted"
+                  ? action
+                  : null;
+            if (!status) return;
+            try {
+              await api.put(`/hackathons/${button.dataset.id}/status`, {
+                status,
+              });
+              showToast(
+                status === "submitted"
+                  ? "Submission recorded."
+                  : "Hackathon reopened.",
+              );
+              await loadHackathons();
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          }),
+        );
+        document.querySelectorAll("[data-remove]").forEach((button) =>
+          button.addEventListener("click", async () => {
+            if (!confirm("Remove this hackathon and its saved reminders?"))
+              return;
+            try {
+              await api.delete(`/hackathons/${button.dataset.remove}`);
+              showToast("Hackathon removed.");
+              await loadHackathons();
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          }),
+        );
+      }
 
-      document.getElementById('hackathonForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
+      async function submitHackathon(event) {
+        event.preventDefault();
+        const error = document.getElementById("hackathonFormError");
+        error.textContent = "";
+        const startDate = document.getElementById("hackStart").value;
+        const endDate = document.getElementById("hackEnd").value;
+        const stages = STAGES.map((stage) => ({
+          key: stage.key,
+          availability: document.querySelector(
+            `[data-stage-availability="${stage.key}"]`,
+          ).value,
+          startDate: document.querySelector(`[data-stage-start="${stage.key}"]`)
+            .value,
+          endDate: document.querySelector(`[data-stage-end="${stage.key}"]`)
+            .value,
+        }));
+        for (const stage of stages) {
+          if (stage.key === "registered") stage.startDate = startDate;
+          if (stage.key === "pitch") stage.endDate = endDate;
+          if (stage.availability === "none") continue;
+          if (stage.endDate < stage.startDate) {
+            error.textContent = `${stageLabel(stage.key)} end date cannot be before its start date.`;
+            return;
+          }
+          if (stage.startDate < startDate || stage.endDate > endDate) {
+            error.textContent = `${stageLabel(stage.key)} dates must fall within the overall hackathon dates.`;
+            return;
+          }
+        }
+        let previousEnd = startDate;
+        for (const stage of stages) {
+          if (stage.availability === "none") continue;
+          if (stage.startDate < previousEnd) {
+            error.textContent = `${stageLabel(stage.key)} must start on or after the previous scheduled stage ends.`;
+            return;
+          }
+          previousEnd = stage.endDate;
+        }
+        const payload = {
+          title: document.getElementById("hackTitle").value,
+          tagline: document.getElementById("hackTagline").value,
+          startDate,
+          endDate,
+          stages,
+          weeklyEffortBudgetHours: Number(
+            document.getElementById("hackBudget").value,
+          ),
+          priority: document.getElementById("hackPriority").value,
+          repoUrl: document.getElementById("hackRepo").value,
+        };
+        const submit = document.getElementById("saveHackathonBtn");
+        submit.disabled = true;
         try {
-          await api.post('/hackathons', {
-            title: document.getElementById('hackTitle').value,
-            tagline: document.getElementById('hackTagline').value,
-            startDate: document.getElementById('hackStart').value,
-            endDate: document.getElementById('hackEnd').value,
-            currentStage: document.getElementById('hackStage').value,
-            weeklyEffortBudgetHours: document.getElementById('hackBudget').value,
-            repoUrl: document.getElementById('hackRepo').value
-          });
-
-          showToast('Hackathon registered successfully!', 'success');
-          document.getElementById('hackathonModal').classList.add('hidden');
-          document.getElementById('hackathonForm').reset();
+          if (editingId) await api.put(`/hackathons/${editingId}`, payload);
+          else await api.post("/hackathons", payload);
+          showToast(
+            editingId
+              ? "Hackathon updated."
+              : "Hackathon registered successfully!",
+            "success",
+          );
+          closeModal();
           await loadHackathons();
         } catch (err) {
-          showToast(err.message, 'error');
+          error.textContent = err.message;
+        } finally {
+          submit.disabled = false;
         }
-      });
-    }
+      }
 
-    init();
-  </script>
-</body>
+      function setupEvents() {
+        document
+          .getElementById("addHackathonBtn")
+          .addEventListener("click", () => openModal());
+        document
+          .getElementById("closeHackathonModal")
+          .addEventListener("click", closeModal);
+        document
+          .getElementById("cancelHackBtn")
+          .addEventListener("click", closeModal);
+        document
+          .getElementById("hackathonModal")
+          .addEventListener("click", (event) => {
+            if (event.target.id === "hackathonModal") closeModal();
+          });
+        document
+          .getElementById("hackathonForm")
+          .addEventListener("submit", submitHackathon);
+      }
+
+      init();
+    </script>
+  </body>
 </html>
