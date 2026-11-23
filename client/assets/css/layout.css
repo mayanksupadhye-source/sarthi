@@ -525,7 +525,39 @@ body[data-section="dashboard"] .hero-banner {
 }
 
 @media (max-width: 768px) {
+  .sidebar-backdrop[hidden] {
+    display: none;
+  }
+
+  .sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1090;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: rgba(15, 23, 42, 0.42);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    touch-action: manipulation;
+  }
+
+  body.mobile-nav-open {
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   .app-sidebar {
+    z-index: 1100;
+    top: 0;
+    bottom: 0;
+    width: min(320px, 86vw);
+    max-width: 100%;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
     transform: translateX(-100%);
     transition: transform var(--transition-normal);
   }
@@ -536,6 +568,12 @@ body[data-section="dashboard"] .hero-banner {
 
   .app-main {
     margin-left: 0;
+  }
+
+  .sidebar-collapse-toggle {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
   }
 
   .mobile-menu-btn {
@@ -661,6 +699,43 @@ body[data-section="dashboard"] .hero-banner {
     flex: 1 1 0;
     min-width: 0;
   }
+
+  .mobile-menu-btn {
+    min-width: 44px;
+    min-height: 44px;
+    touch-action: manipulation;
+  }
+
+  .app-sidebar .nav-item a,
+  .page-container button,
+  .page-container [role="button"],
+  .bottom-bar-item {
+    min-height: 44px;
+  }
+
+  .page-container img,
+  .page-container video,
+  .page-container canvas,
+  .page-container svg {
+    max-width: 100%;
+  }
+
+  .page-container pre {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+  }
+
+  .page-container :where(button, [role="button"], input[type="button"], input[type="submit"]) {
+    touch-action: manipulation;
+  }
+
+  .modal-box {
+    width: min(100%, 580px);
+    max-height: calc(100dvh - 20px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 @media (max-width: 430px) {
@@ -678,5 +753,10 @@ body[data-section="dashboard"] .hero-banner {
   }
   .topbar-right {
     gap: 6px;
+  }
+
+  .app-topbar .topbar-right .continuity-card {
+    min-width: 0;
+    max-width: 100%;
   }
 }

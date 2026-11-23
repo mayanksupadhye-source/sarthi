@@ -55,7 +55,7 @@ export function renderLayout(activePageKey = "dashboard") {
 
   // 1. Sidebar HTML
   const sidebarHtml = `
-    <aside class="app-sidebar" id="appSidebar">
+    <aside class="app-sidebar" id="appSidebar" aria-label="Primary navigation">
       <div class="sidebar-brand">
         <img class="brand-monogram" src="../assets/sarthi-logo.jpeg" alt="SARTHI logo">
         <div class="brand-text">
@@ -216,6 +216,10 @@ export function renderLayout(activePageKey = "dashboard") {
   const layoutContainer = document.querySelector(".app-layout");
   if (layoutContainer) {
     layoutContainer.insertAdjacentHTML("afterbegin", sidebarHtml);
+    document.getElementById("appSidebar")?.insertAdjacentHTML(
+      "afterend",
+      '<button class="sidebar-backdrop" id="sidebarBackdrop" type="button" aria-label="Close navigation" hidden></button>',
+    );
     layoutContainer.insertAdjacentHTML("beforeend", bottomBarHtml);
     layoutContainer.insertAdjacentHTML(
       "beforeend",
@@ -229,14 +233,45 @@ export function renderLayout(activePageKey = "dashboard") {
     // The sidebar is rebuilt on every page navigation. Restore its previous
     // scroll position so links near the bottom remain reachable across pages.
     const sidebar = document.getElementById("appSidebar");
+    const sidebarBackdrop = document.getElementById("sidebarBackdrop");
     const collapsed =
       localStorage.getItem("sarthi_sidebar_collapsed") === "true";
     const reopenToggle = document.getElementById("sidebarReopenToggle");
+    let menuTrigger = null;
+    const setMobileNavigationState = (isOpen, restoreFocus = false) => {
+      sidebar?.classList.toggle("open", isOpen);
+      document.body.classList.toggle("mobile-nav-open", isOpen);
+      if (sidebarBackdrop) sidebarBackdrop.hidden = !isOpen;
+      const collapseToggle = document.getElementById("sidebarCollapseToggle");
+      collapseToggle?.setAttribute("aria-expanded", String(isOpen));
+      collapseToggle?.setAttribute("aria-controls", "appSidebar");
+      if (
+        collapseToggle &&
+        window.matchMedia("(max-width: 768px)").matches
+      ) {
+        collapseToggle.setAttribute(
+          "aria-label",
+          isOpen ? "Close navigation" : "Open navigation",
+        );
+        collapseToggle.title = isOpen ? "Close navigation" : "Open navigation";
+        collapseToggle.textContent = isOpen ? "×" : "☰";
+      }
+      document.querySelectorAll(".mobile-menu-btn").forEach((button) => {
+        button.setAttribute("aria-expanded", String(isOpen));
+        button.setAttribute("aria-controls", "appSidebar");
+      });
+      if (isOpen) sidebar?.querySelector(".nav-item a")?.focus();
+      else if (restoreFocus) menuTrigger?.focus();
+    };
     if (collapsed) document.body.classList.add("sidebar-collapsed");
     reopenToggle.hidden = !collapsed;
     document
       .getElementById("sidebarCollapseToggle")
       ?.addEventListener("click", () => {
+        if (window.matchMedia("(max-width: 768px)").matches) {
+          setMobileNavigationState(false, true);
+          return;
+        }
         const next = !document.body.classList.contains("sidebar-collapsed");
         document.body.classList.toggle("sidebar-collapsed", next);
         localStorage.setItem("sarthi_sidebar_collapsed", String(next));
@@ -252,6 +287,11 @@ export function renderLayout(activePageKey = "dashboard") {
         toggle.textContent = next ? "›" : "‹";
       });
     const collapseToggle = document.getElementById("sidebarCollapseToggle");
+    if (collapseToggle && window.matchMedia("(max-width: 768px)").matches) {
+      collapseToggle.setAttribute("aria-label", "Close navigation");
+      collapseToggle.title = "Close navigation";
+      collapseToggle.textContent = "×";
+    }
     if (collapseToggle && collapsed) {
       collapseToggle.setAttribute("aria-label", "Expand sidebar");
       collapseToggle.title = "Expand sidebar";
@@ -261,8 +301,11 @@ export function renderLayout(activePageKey = "dashboard") {
       document.body.classList.remove("sidebar-collapsed");
       localStorage.setItem("sarthi_sidebar_collapsed", "false");
       reopenToggle.hidden = true;
-      if (window.matchMedia("(max-width: 768px)").matches)
-        sidebar?.classList.add("open");
+      if (window.matchMedia("(max-width: 768px)").matches) {
+        menuTrigger = reopenToggle;
+        setMobileNavigationState(true);
+        return;
+      }
       collapseToggle?.setAttribute("aria-label", "Collapse sidebar");
       collapseToggle?.setAttribute("aria-expanded", "true");
       if (collapseToggle) collapseToggle.title = "Collapse sidebar";
@@ -279,15 +322,28 @@ export function renderLayout(activePageKey = "dashboard") {
 
     // Mobile menu toggle listeners (topbar button and bottom bar "More")
     document.querySelectorAll(".mobile-menu-btn").forEach((btn) => {
+      btn.setAttribute("aria-expanded", "false");
+      btn.setAttribute("aria-controls", "appSidebar");
       btn.addEventListener("click", () => {
-        const menu = document.getElementById("appSidebar");
         if (document.body.classList.contains("sidebar-collapsed")) {
           document.body.classList.remove("sidebar-collapsed");
           localStorage.setItem("sarthi_sidebar_collapsed", "false");
           reopenToggle.hidden = true;
         }
-        menu?.classList.toggle("open");
+        menuTrigger = btn;
+        setMobileNavigationState(!sidebar?.classList.contains("open"));
       });
+    });
+    sidebarBackdrop?.addEventListener("click", () =>
+      setMobileNavigationState(false, true),
+    );
+    sidebar?.querySelectorAll(".nav-item a").forEach((link) => {
+      link.addEventListener("click", () => setMobileNavigationState(false));
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && sidebar?.classList.contains("open")) {
+        setMobileNavigationState(false, true);
+      }
     });
 
     initNavigationPrefetch();
