@@ -1,318 +1,1009 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>13-Week Oratory Program — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">13-Week Oratory Improvement Program</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-        </div>
-      </header>
-
-      <div class="page-container">
-        <!-- 2-Hour Sunday Workflow Guide with Voice Resonance Wave -->
-        <div class="card card-hero-wave wave-motif-surge" style="margin-bottom: var(--space-6); border-left: 4px solid var(--accent-amber);">
-          <span class="badge badge-primary" style="margin-bottom: var(--space-2); background: rgba(217, 119, 6, 0.12); color: #B45309;">WEEKLY VOCAL RITUAL</span>
-          <h2 style="font-size: 1.25rem; margin-bottom: var(--space-2);">Sunday 2-Hour Fixed Sequence</h2>
-          <div class="grid-4" style="margin-top: var(--space-3); position: relative; z-index: 2;">
-            <div style="background: var(--color-bg-base); padding: var(--space-3); border-radius: var(--radius-sm); border: 1px solid var(--border-hairline);">
-              <strong style="color: var(--accent-amber);">30 min</strong>
-              <div class="text-subtle text-xs" style="margin-top: 2px;">Learn Week's Skill</div>
-            </div>
-            <div style="background: var(--color-bg-base); padding: var(--space-3); border-radius: var(--radius-sm); border: 1px solid var(--border-hairline);">
-              <strong style="color: var(--accent-blue);">30 min</strong>
-              <div class="text-subtle text-xs" style="margin-top: 2px;">Write Speech (Hook → 3 Points → Story)</div>
-            </div>
-            <div style="background: var(--color-bg-base); padding: var(--space-3); border-radius: var(--radius-sm); border: 1px solid var(--border-hairline);">
-              <strong style="color: var(--accent-green);">30 min</strong>
-              <div class="text-subtle text-xs" style="margin-top: 2px;">15m Record 1st + 15m Rubric Score</div>
-            </div>
-            <div style="background: var(--color-bg-base); padding: var(--space-3); border-radius: var(--radius-sm); border: 1px solid var(--border-hairline);">
-              <strong style="color: var(--text-ink);">30 min</strong>
-              <div class="text-subtle text-xs" style="margin-top: 2px;">20m Drill Mistake + 10m Final Record</div>
-            </div>
-          </div>
-          <p class="text-subtle text-xs" style="margin-top: var(--space-3);">
-            Rule: A missed week does not reset week 1. Resume from the next week seamlessly.
-          </p>
-          <div class="sarthi-wave-container" aria-hidden="true">
-            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,60 C200,20 400,90 600,40 C800,95 1000,30 1200,65 L1200,120 L0,120 Z" fill="rgba(217, 119, 6, 0.08)"></path>
-            </svg>
-            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,75 C250,35 500,80 750,50 C1000,25 1100,75 1200,60 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.04)"></path>
-            </svg>
-          </div>
-        </div>
-
-        <!-- Weeks List Container -->
-        <div id="oratoryWeeksContainer">
-          <p class="text-muted text-sm">Loading oratory program...</p>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- Speech Draft & Scoring Modal -->
-  <div id="oratoryModal" class="modal-backdrop hidden">
-    <div class="modal-box" style="max-width: 700px;">
-      <div class="card-header">
-        <div>
-          <div class="card-title" id="modalWeekTitle">Week 1 Practice</div>
-          <div class="text-subtle text-sm" id="modalSkillLabel">Skill</div>
-        </div>
-        <button id="closeOratoryModal" class="btn btn-outline btn-sm">✕</button>
-      </div>
-
-      <form id="oratoryForm">
-        <input type="hidden" id="modalWeekNum">
-
-        <!-- Speech Structure -->
-        <h4 style="margin-bottom: var(--space-3);">1. Speech Structure Draft</h4>
-        <div class="form-group">
-          <label class="form-label">Hook (First 15 seconds — question, provocative quote, or scene)</label>
-          <input type="text" id="draftHook" class="form-input">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Introduction & Thesis</label>
-          <input type="text" id="draftIntro" class="form-input">
-        </div>
-        <div class="grid-3">
-          <div class="form-group">
-            <label class="form-label">Point 1</label>
-            <input type="text" id="draftP1" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Point 2</label>
-            <input type="text" id="draftP2" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Point 3</label>
-            <input type="text" id="draftP3" class="form-input">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Story / Personal Example</label>
-          <input type="text" id="draftStory" class="form-input">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Conclusion & Call to Action</label>
-          <input type="text" id="draftConclusion" class="form-input">
-        </div>
-
-        <!-- Rubric Scores (1-10) -->
-        <h4 style="margin: var(--space-6) 0 var(--space-3);">2. Self-Review Scores (1–10)</h4>
-        <div class="grid-3">
-          <div class="form-group">
-            <label class="form-label">Structure: <span id="scoreValStructure">7</span></label>
-            <input type="range" id="scoreStructure" min="1" max="10" value="7" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Clarity: <span id="scoreValClarity">7</span></label>
-            <input type="range" id="scoreClarity" min="1" max="10" value="7" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Confidence: <span id="scoreValConfidence">7</span></label>
-            <input type="range" id="scoreConfidence" min="1" max="10" value="7" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Voice Modulation: <span id="scoreValVoice">7</span></label>
-            <input type="range" id="scoreVoice" min="1" max="10" value="7" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Gestures: <span id="scoreValGestures">7</span></label>
-            <input type="range" id="scoreGestures" min="1" max="10" value="7" class="form-input">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Persuasion: <span id="scoreValPersuasion">7</span></label>
-            <input type="range" id="scorePersuasion" min="1" max="10" value="7" class="form-input">
-          </div>
-        </div>
-
-        <!-- Drill & Compare -->
-        <h4 style="margin: var(--space-4) 0 var(--space-3);">3. Drill & Final Comparison</h4>
-        <div class="form-group">
-          <label class="form-label">The One Biggest Mistake in Attempt 1</label>
-          <input type="text" id="biggestMistakeInput" class="form-input" placeholder="e.g. Rushed pauses during the historical example">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Drill Notes (20 min focused practice)</label>
-          <input type="text" id="drillNotesInput" class="form-input" placeholder="e.g. Practiced 3-second silence between transitions">
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-6);">
-          <label style="display: flex; align-items: center; gap: var(--space-2); cursor: pointer;">
-            <input type="checkbox" id="markCompletedChk" style="width: 18px; height: 18px;">
-            <strong style="font-size: 0.875rem;">Mark Week's Session Completed</strong>
-          </label>
-          <button type="submit" class="btn btn-primary">Save Session</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { showToast } from '../assets/js/toast.js';
-
-    let weeks = [];
-
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-      renderLayout('oratory');
-      await loadWeeks();
-      setupEvents();
-    }
-
-    async function loadWeeks() {
-      try {
-        const res = await api.get('/courses/oratory/weeks');
-        if (!res.success) return;
-        weeks = res.weeks;
-        renderWeeks(weeks);
-      } catch (err) {
-        showToast(err.message, 'error');
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Oratory & Public Speaking Studio — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      @media (max-width: 640px) {
+        .app-topbar .topbar-right {
+          width: 100%;
+          justify-content: flex-start;
+          flex-wrap: wrap;
+        }
+        .app-topbar .topbar-right .btn {
+          min-height: 42px;
+        }
+        .modal-box {
+          width: calc(100vw - 24px);
+          max-height: calc(100dvh - 24px);
+          overflow-y: auto;
+        }
       }
-    }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Oratory & Speech Mastery</div>
+          </div>
+          <div
+            class="topbar-right"
+            style="display: flex; gap: var(--space-2); align-items: center"
+          >
+            <div id="topbarFocusWidget"></div>
+            <button id="btnOpenOratoryImport" class="btn btn-outline btn-sm">
+              📥 Import CSV
+            </button>
+            <button id="btnOpenAddOratoryModal" class="btn btn-primary btn-sm">
+              + Add Practice Session
+            </button>
+          </div>
+        </header>
 
-    function renderWeeks(weeksList) {
-      const container = document.getElementById('oratoryWeeksContainer');
-      container.innerHTML = weeksList.map(w => {
-        const isDone = w.isCompleted;
-        const avgScore = w.scores ? Math.round((w.scores.structure + w.scores.clarity + w.scores.confidence + w.scores.voice + w.scores.gestures + w.scores.persuasion) / 6 * 10) / 10 : 0;
+        <div class="page-container">
+          <!-- 2-Hour Sunday Workflow Guide with Voice Resonance Wave -->
+          <div
+            class="card card-hero-wave wave-motif-surge"
+            style="
+              margin-bottom: var(--space-6);
+              border-left: 4px solid var(--accent-amber);
+            "
+          >
+            <span
+              class="badge badge-primary"
+              style="
+                margin-bottom: var(--space-2);
+                background: rgba(217, 119, 6, 0.12);
+                color: #b45309;
+              "
+              >WEEKLY VOCAL RITUAL</span
+            >
+            <h2 style="font-size: 1.25rem; margin-bottom: var(--space-2)">
+              Sunday 2-Hour Fixed Sequence
+            </h2>
+            <div
+              class="grid-4"
+              style="margin-top: var(--space-3); position: relative; z-index: 2"
+            >
+              <div
+                style="
+                  background: var(--color-bg-base);
+                  padding: var(--space-3);
+                  border-radius: var(--radius-sm);
+                  border: 1px solid var(--border-hairline);
+                "
+              >
+                <strong style="color: var(--accent-amber)">30 min</strong>
+                <div class="text-subtle text-xs" style="margin-top: 2px">
+                  Learn Week's Skill
+                </div>
+              </div>
+              <div
+                style="
+                  background: var(--color-bg-base);
+                  padding: var(--space-3);
+                  border-radius: var(--radius-sm);
+                  border: 1px solid var(--border-hairline);
+                "
+              >
+                <strong style="color: var(--accent-blue)">30 min</strong>
+                <div class="text-subtle text-xs" style="margin-top: 2px">
+                  Write Speech (Hook → 3 Points → Story)
+                </div>
+              </div>
+              <div
+                style="
+                  background: var(--color-bg-base);
+                  padding: var(--space-3);
+                  border-radius: var(--radius-sm);
+                  border: 1px solid var(--border-hairline);
+                "
+              >
+                <strong style="color: var(--accent-green)">30 min</strong>
+                <div class="text-subtle text-xs" style="margin-top: 2px">
+                  15m Record 1st + 15m Rubric Score
+                </div>
+              </div>
+              <div
+                style="
+                  background: var(--color-bg-base);
+                  padding: var(--space-3);
+                  border-radius: var(--radius-sm);
+                  border: 1px solid var(--border-hairline);
+                "
+              >
+                <strong style="color: var(--text-ink)">30 min</strong>
+                <div class="text-subtle text-xs" style="margin-top: 2px">
+                  20m Drill Mistake + 10m Final Record
+                </div>
+              </div>
+            </div>
+            <p class="text-subtle text-xs" style="margin-top: var(--space-3)">
+              Rule: A missed week does not reset week 1. Resume from the next
+              week seamlessly.
+            </p>
+            <div class="sarthi-wave-container" aria-hidden="true">
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-1"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,60 C200,20 400,90 600,40 C800,95 1000,30 1200,65 L1200,120 L0,120 Z"
+                  fill="rgba(217, 119, 6, 0.08)"
+                ></path>
+              </svg>
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-2"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,75 C250,35 500,80 750,50 C1000,25 1100,75 1200,60 L1200,120 L0,120 Z"
+                  fill="rgba(5, 150, 105, 0.04)"
+                ></path>
+              </svg>
+            </div>
+          </div>
 
-        return `
-          <div class="card" style="margin-bottom: var(--space-4); border-left: 4px solid ${isDone ? 'var(--color-success)' : 'var(--color-primary)'};">
+          <!-- Weeks List Container -->
+          <div id="oratoryWeeksContainer">
+            <p class="text-muted text-sm">Loading oratory program...</p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Speech Draft & Scoring Modal -->
+    <div id="oratoryModal" class="modal-backdrop hidden">
+      <div class="modal-box" style="max-width: 700px">
+        <div class="card-header">
+          <div>
+            <div class="card-title" id="modalWeekTitle">Week 1 Practice</div>
+            <div class="text-subtle text-sm" id="modalSkillLabel">Skill</div>
+          </div>
+          <button id="closeOratoryModal" class="btn btn-outline btn-sm">
+            ✕
+          </button>
+        </div>
+
+        <form id="oratoryForm">
+          <input type="hidden" id="modalWeekNum" />
+
+          <!-- Speech Structure -->
+          <h4 style="margin-bottom: var(--space-3)">
+            1. Speech Structure Draft
+          </h4>
+          <div class="form-group">
+            <label class="form-label"
+              >Hook (First 15 seconds — question, provocative quote, or
+              scene)</label
+            >
+            <input type="text" id="draftHook" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Introduction & Thesis</label>
+            <input type="text" id="draftIntro" class="form-input" />
+          </div>
+          <div class="grid-3">
+            <div class="form-group">
+              <label class="form-label">Point 1</label>
+              <input type="text" id="draftP1" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Point 2</label>
+              <input type="text" id="draftP2" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Point 3</label>
+              <input type="text" id="draftP3" class="form-input" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Story / Personal Example</label>
+            <input type="text" id="draftStory" class="form-input" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Conclusion & Call to Action</label>
+            <input type="text" id="draftConclusion" class="form-input" />
+          </div>
+
+          <!-- Rubric Scores (1-10) -->
+          <h4 style="margin: var(--space-6) 0 var(--space-3)">
+            2. Self-Review Scores (1–10)
+          </h4>
+          <div class="grid-3">
+            <div class="form-group">
+              <label class="form-label"
+                >Structure: <span id="scoreValStructure">7</span></label
+              >
+              <input
+                type="range"
+                id="scoreStructure"
+                min="1"
+                max="10"
+                value="7"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label"
+                >Clarity: <span id="scoreValClarity">7</span></label
+              >
+              <input
+                type="range"
+                id="scoreClarity"
+                min="1"
+                max="10"
+                value="7"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label"
+                >Confidence: <span id="scoreValConfidence">7</span></label
+              >
+              <input
+                type="range"
+                id="scoreConfidence"
+                min="1"
+                max="10"
+                value="7"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label"
+                >Voice Modulation: <span id="scoreValVoice">7</span></label
+              >
+              <input
+                type="range"
+                id="scoreVoice"
+                min="1"
+                max="10"
+                value="7"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label"
+                >Gestures: <span id="scoreValGestures">7</span></label
+              >
+              <input
+                type="range"
+                id="scoreGestures"
+                min="1"
+                max="10"
+                value="7"
+                class="form-input"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label"
+                >Persuasion: <span id="scoreValPersuasion">7</span></label
+              >
+              <input
+                type="range"
+                id="scorePersuasion"
+                min="1"
+                max="10"
+                value="7"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <!-- Drill & Compare -->
+          <h4 style="margin: var(--space-4) 0 var(--space-3)">
+            3. Drill & Final Comparison
+          </h4>
+          <div class="form-group">
+            <label class="form-label"
+              >The One Biggest Mistake in Attempt 1</label
+            >
+            <input
+              type="text"
+              id="biggestMistakeInput"
+              class="form-input"
+              placeholder="e.g. Rushed pauses during the historical example"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label"
+              >Drill Notes (20 min focused practice)</label
+            >
+            <input
+              type="text"
+              id="drillNotesInput"
+              class="form-input"
+              placeholder="e.g. Practiced 3-second silence between transitions"
+            />
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-top: var(--space-6);
+            "
+          >
+            <label
+              style="
+                display: flex;
+                align-items: center;
+                gap: var(--space-2);
+                cursor: pointer;
+              "
+            >
+              <input
+                type="checkbox"
+                id="markCompletedChk"
+                style="width: 18px; height: 18px"
+              />
+              <strong style="font-size: 0.875rem"
+                >Mark Week's Session Completed</strong
+              >
+            </label>
+            <button type="submit" class="btn btn-primary">Save Session</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Oratory Practice Session Modal -->
+    <div id="addOratoryModal" class="modal-backdrop hidden">
+      <div class="modal-box" style="max-width: 520px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Add Oratory Practice Session</div>
+            <div class="text-subtle text-xs">
+              Define a speech topic, focus skill, and practice duration
+            </div>
+          </div>
+          <button
+            id="closeAddOratoryModal"
+            type="button"
+            class="btn btn-outline btn-sm"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form id="addOratoryForm">
+          <div class="form-group">
+            <label class="form-label" for="newOratoryTopic"
+              >Speech Topic / Theme *</label
+            >
+            <input
+              type="text"
+              id="newOratoryTopic"
+              class="form-input"
+              placeholder="e.g. The Power of Intentional Silence or Impromptu Table Topics"
+              required
+            />
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="newOratorySkill"
+                >Primary Skill Focus</label
+              >
+              <input
+                type="text"
+                id="newOratorySkill"
+                class="form-input"
+                placeholder="e.g. Vocal Variety, Eye Contact, Pauses"
+                value="Vocal Resonance & Modulation"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="newOratoryDuration"
+                >Planned Duration (Minutes)</label
+              >
+              <input
+                type="number"
+                id="newOratoryDuration"
+                class="form-input"
+                value="120"
+                min="15"
+                step="15"
+                required
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="newOratoryNotes"
+              >Notes / Prompt</label
+            >
+            <input
+              type="text"
+              id="newOratoryNotes"
+              class="form-input"
+              placeholder="e.g. Focus on eliminating filler words like 'um' and 'basically'"
+            />
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-4);
+            "
+          >
+            <button
+              type="button"
+              id="cancelAddOratoryBtn"
+              class="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Create Session
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Oratory CSV Importer Modal -->
+    <div id="oratoryImportModalBackdrop" class="modal-backdrop hidden">
+      <div class="modal-box" style="max-width: 650px">
+        <div
+          class="modal-header"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+          "
+        >
+          <div>
+            <h3 class="modal-title" style="margin: 0; font-size: 1.125rem">
+              Universal Curriculum Importer — Oratory
+            </h3>
+            <div class="text-subtle text-xs">
+              Import speaking topics via CSV spreadsheet
+            </div>
+          </div>
+          <button
+            class="btn btn-outline btn-sm"
+            id="btnCloseOratoryImportModal"
+            style="padding: 2px 8px"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: var(--space-3)">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              background: var(--bg-subtle);
+              padding: var(--space-3);
+              border-radius: var(--radius-sm);
+            "
+          >
+            <div>
+              <div style="font-weight: 600; font-size: 0.875rem">
+                Need the Oratory CSV format?
+              </div>
+              <div class="text-subtle text-xs">
+                Download template with speech topics and practice skills
+              </div>
+            </div>
+            <a
+              href="/api/courses/oratory/template/csv"
+              download="sarthi_oratory_template.csv"
+              class="btn btn-outline btn-sm"
+              >Download Template</a
+            >
+          </div>
+
+          <div>
+            <label class="form-label" for="oratoryCsvFileInput"
+              >Upload CSV File</label
+            >
+            <input
+              type="file"
+              id="oratoryCsvFileInput"
+              accept=".csv"
+              class="form-input"
+              style="padding: var(--space-2)"
+            />
+          </div>
+
+          <div>
+            <label class="form-label" for="oratoryCsvPasteArea"
+              >Or Paste CSV Content</label
+            >
+            <textarea
+              id="oratoryCsvPasteArea"
+              class="form-input"
+              rows="5"
+              placeholder="week_number,topic,description,focus_areas,duration_minutes&#10;1,Vocal Presence & Posture,Diaphragmatic breathing drills,voice modulation,120&#10;2,Hook & Opening 15 Seconds,Compelling storytelling hooks,speech structure,120"
+            ></textarea>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+            "
+          >
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              id="btnDirectOratoryImport"
+            >
+              📥 Import Directly
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              id="btnPreviewOratoryImport"
+            >
+              Preview Import
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              id="btnCommitOratoryImport"
+              style="display: none"
+            >
+              Commit Syllabus
+            </button>
+          </div>
+
+          <div
+            id="oratoryPreviewSummary"
+            style="
+              font-size: 0.8125rem;
+              font-weight: 600;
+              color: var(--accent-blue);
+            "
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import {
+        renderLayout,
+        notifyCourseNavigationChanged,
+      } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { showToast } from "../assets/js/toast.js";
+
+      let weeks = [];
+
+      async function init() {
+        const user = await checkAuth();
+        if (!user) return;
+        renderLayout("oratory");
+        await loadWeeks();
+        setupEvents();
+      }
+
+      async function loadWeeks() {
+        try {
+          const res = await api.get("/courses/oratory/weeks");
+          if (!res.success) return;
+          weeks = res.weeks;
+          renderWeeks(weeks);
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      }
+
+      let oratoryRecordsToCommit = null;
+
+      function renderWeeks(weeksList) {
+        const container = document.getElementById("oratoryWeeksContainer");
+        if (!weeksList || weeksList.length === 0) {
+          container.innerHTML = `
+          <div class="card" style="text-align: center; padding: var(--space-8);">
+            <div style="font-size: 2.5rem; margin-bottom: var(--space-2);">🎙</div>
+            <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-ink); margin-bottom: var(--space-1);">No Oratory Practice Sessions Yet</h3>
+            <p class="text-muted text-sm" style="max-width: 460px; margin: 0 auto var(--space-4);">
+              SARTHI Oratory is a user-managed vocal mastery system. Define your own speech topics, primary skills, drills, and rubrics, or import a programme via CSV.
+            </p>
+            <div style="display: flex; justify-content: center; gap: var(--space-3);">
+              <button class="btn btn-primary btn-sm" id="btnEmptyAddOratory">+ Add Practice Session</button>
+              <button class="btn btn-outline btn-sm" id="btnEmptyImportOratory">📥 Import CSV</button>
+            </div>
+          </div>
+        `;
+          document
+            .getElementById("btnEmptyAddOratory")
+            ?.addEventListener("click", openAddOratoryModal);
+          document
+            .getElementById("btnEmptyImportOratory")
+            ?.addEventListener("click", openOratoryImportModal);
+          return;
+        }
+
+        container.innerHTML = weeksList
+          .map((w) => {
+            const isDone = w.isCompleted;
+            const avgScore = w.scores
+              ? Math.round(
+                  ((w.scores.structure +
+                    w.scores.clarity +
+                    w.scores.confidence +
+                    w.scores.voice +
+                    w.scores.gestures +
+                    w.scores.persuasion) /
+                    6) *
+                    10,
+                ) / 10
+              : 0;
+
+            return `
+          <div class="card" style="margin-bottom: var(--space-4); border-left: 4px solid ${isDone ? "var(--color-success)" : "var(--color-primary)"};">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-4);">
               <div>
-                <span class="text-xs" style="color: var(--color-primary); font-weight: 800;">WEEK ${w.weekNumber}</span>
-                <h3 style="font-size: 1.125rem; margin-top: 2px;">${w.topic}</h3>
+                <span class="text-xs" style="color: var(--color-primary); font-weight: 800;">SESSION / WEEK ${w.weekNumber}</span>
+                <h3 style="font-size: 1.125rem; margin-top: 2px;">${escapeHtml(w.topic)}</h3>
                 <div class="text-subtle text-sm" style="margin-top: 4px;">
-                  Primary Focus: <strong>${w.primarySkill}</strong>
-                  ${isDone ? `· Average Score: <strong style="color: var(--color-success);">${avgScore}/10</strong>` : ''}
+                  Primary Focus: <strong>${escapeHtml(w.primarySkill)}</strong>
+                  ${isDone ? `· Average Score: <strong style="color: var(--color-success);">${avgScore}/10</strong>` : ""}
                 </div>
               </div>
               <div style="display: flex; gap: var(--space-2); align-items: center;">
-                <button class="btn ${isDone ? 'btn-outline' : 'btn-primary'} btn-sm open-week-btn" data-week="${w.weekNumber}">
-                  ${isDone ? 'Edit Speech & Scores' : 'Open 2-Hr Practice Session'}
+                <button class="btn ${isDone ? "btn-outline" : "btn-primary"} btn-sm open-week-btn" data-week="${w.weekNumber}">
+                  ${isDone ? "Edit Speech & Scores" : "Open Practice Session"}
                 </button>
+                <a href="focus.html?title=${encodeURIComponent("Oratory: " + w.topic)}" class="btn btn-outline btn-sm">🎯 Focus</a>
+                <button class="btn btn-outline btn-sm delete-week-btn" data-week="${w.weekNumber}" title="Delete session" style="color: var(--accent-red);">✕</button>
               </div>
             </div>
           </div>
         `;
-      }).join('');
+          })
+          .join("");
 
-      container.querySelectorAll('.open-week-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const wNum = Number(btn.dataset.week);
-          openWeekModal(wNum);
+        container.querySelectorAll(".open-week-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const wNum = Number(btn.dataset.week);
+            openWeekModal(wNum);
+          });
         });
-      });
-    }
 
-    function openWeekModal(wNum) {
-      const w = weeks.find(x => x.weekNumber === wNum);
-      if (!w) return;
+        container.querySelectorAll(".delete-week-btn").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const wNum = Number(btn.dataset.week);
+            if (confirm(`Delete session ${wNum}?`)) {
+              try {
+                await api.delete(`/courses/oratory/activities/${wNum}`);
+                showToast(`Session ${wNum} deleted.`, "info");
+                await loadWeeks();
+              } catch (err) {
+                showToast(err.message, "error");
+              }
+            }
+          });
+        });
+      }
 
-      document.getElementById('modalWeekNum').value = w.weekNumber;
-      document.getElementById('modalWeekTitle').textContent = `Week ${w.weekNumber}: ${w.topic}`;
-      document.getElementById('modalSkillLabel').textContent = `Primary Skill: ${w.primarySkill}`;
+      function openAddOratoryModal() {
+        document.getElementById("addOratoryModal").classList.remove("hidden");
+        document.getElementById("newOratoryTopic").focus();
+      }
+      function closeAddOratoryModal() {
+        document.getElementById("addOratoryModal").classList.add("hidden");
+      }
 
-      const d = w.speechDraft || {};
-      document.getElementById('draftHook').value = d.hook || '';
-      document.getElementById('draftIntro').value = d.introduction || '';
-      document.getElementById('draftP1').value = d.point1 || '';
-      document.getElementById('draftP2').value = d.point2 || '';
-      document.getElementById('draftP3').value = d.point3 || '';
-      document.getElementById('draftStory').value = d.storyExample || '';
-      document.getElementById('draftConclusion').value = d.conclusion || '';
+      function openOratoryImportModal() {
+        document
+          .getElementById("oratoryImportModalBackdrop")
+          .classList.remove("hidden");
+      }
+      function closeOratoryImportModal() {
+        document
+          .getElementById("oratoryImportModalBackdrop")
+          .classList.add("hidden");
+      }
 
-      const s = w.scores || {};
-      setScoreSlider('scoreStructure', 'scoreValStructure', s.structure || 7);
-      setScoreSlider('scoreClarity', 'scoreValClarity', s.clarity || 7);
-      setScoreSlider('scoreConfidence', 'scoreValConfidence', s.confidence || 7);
-      setScoreSlider('scoreVoice', 'scoreValVoice', s.voice || 7);
-      setScoreSlider('scoreGestures', 'scoreValGestures', s.gestures || 7);
-      setScoreSlider('scorePersuasion', 'scoreValPersuasion', s.persuasion || 7);
+      function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
 
-      document.getElementById('biggestMistakeInput').value = w.biggestMistake || '';
-      document.getElementById('drillNotesInput').value = w.drillNotes || '';
-      document.getElementById('markCompletedChk').checked = Boolean(w.isCompleted);
+      function openWeekModal(wNum) {
+        const w = weeks.find((x) => x.weekNumber === wNum);
+        if (!w) return;
 
-      document.getElementById('oratoryModal').classList.remove('hidden');
-    }
+        document.getElementById("modalWeekNum").value = w.weekNumber;
+        document.getElementById("modalWeekTitle").textContent =
+          `Session ${w.weekNumber}: ${w.topic}`;
+        document.getElementById("modalSkillLabel").textContent =
+          `Primary Skill: ${w.primarySkill}`;
 
-    function setScoreSlider(id, labelId, val) {
-      const el = document.getElementById(id);
-      el.value = val;
-      document.getElementById(labelId).textContent = val;
-      el.oninput = () => {
-        document.getElementById(labelId).textContent = el.value;
-      };
-    }
+        const d = w.speechDraft || {};
+        document.getElementById("draftHook").value = d.hook || "";
+        document.getElementById("draftIntro").value = d.introduction || "";
+        document.getElementById("draftP1").value = d.point1 || "";
+        document.getElementById("draftP2").value = d.point2 || "";
+        document.getElementById("draftP3").value = d.point3 || "";
+        document.getElementById("draftStory").value = d.storyExample || "";
+        document.getElementById("draftConclusion").value = d.conclusion || "";
 
-    function setupEvents() {
-      document.getElementById('closeOratoryModal').addEventListener('click', () => {
-        document.getElementById('oratoryModal').classList.add('hidden');
-      });
+        const s = w.scores || {};
+        setScoreSlider("scoreStructure", "scoreValStructure", s.structure || 7);
+        setScoreSlider("scoreClarity", "scoreValClarity", s.clarity || 7);
+        setScoreSlider(
+          "scoreConfidence",
+          "scoreValConfidence",
+          s.confidence || 7,
+        );
+        setScoreSlider("scoreVoice", "scoreValVoice", s.voice || 7);
+        setScoreSlider("scoreGestures", "scoreValGestures", s.gestures || 7);
+        setScoreSlider(
+          "scorePersuasion",
+          "scoreValPersuasion",
+          s.persuasion || 7,
+        );
 
-      document.getElementById('oratoryForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const weekNum = document.getElementById('modalWeekNum').value;
+        document.getElementById("biggestMistakeInput").value =
+          w.biggestMistake || "";
+        document.getElementById("drillNotesInput").value = w.drillNotes || "";
+        document.getElementById("markCompletedChk").checked = Boolean(
+          w.isCompleted,
+        );
 
-        const payload = {
-          speechDraft: {
-            hook: document.getElementById('draftHook').value,
-            introduction: document.getElementById('draftIntro').value,
-            point1: document.getElementById('draftP1').value,
-            point2: document.getElementById('draftP2').value,
-            point3: document.getElementById('draftP3').value,
-            storyExample: document.getElementById('draftStory').value,
-            conclusion: document.getElementById('draftConclusion').value
-          },
-          scores: {
-            structure: Number(document.getElementById('scoreStructure').value),
-            clarity: Number(document.getElementById('scoreClarity').value),
-            confidence: Number(document.getElementById('scoreConfidence').value),
-            voice: Number(document.getElementById('scoreVoice').value),
-            gestures: Number(document.getElementById('scoreGestures').value),
-            persuasion: Number(document.getElementById('scorePersuasion').value)
-          },
-          biggestMistake: document.getElementById('biggestMistakeInput').value,
-          drillNotes: document.getElementById('drillNotesInput').value,
-          isCompleted: document.getElementById('markCompletedChk').checked
+        document.getElementById("oratoryModal").classList.remove("hidden");
+      }
+
+      function setScoreSlider(id, labelId, val) {
+        const el = document.getElementById(id);
+        el.value = val;
+        document.getElementById(labelId).textContent = val;
+        el.oninput = () => {
+          document.getElementById(labelId).textContent = el.value;
         };
+      }
 
-        try {
-          await api.put(`/courses/oratory/weeks/${weekNum}`, payload);
-          showToast(`Week ${weekNum} session saved!`, 'success');
-          document.getElementById('oratoryModal').classList.add('hidden');
-          await loadWeeks();
-        } catch (err) {
-          showToast(err.message, 'error');
-        }
-      });
-    }
+      function setupEvents() {
+        document
+          .getElementById("closeOratoryModal")
+          .addEventListener("click", () => {
+            document.getElementById("oratoryModal").classList.add("hidden");
+          });
 
-    init();
-  </script>
-</body>
+        // Topbar buttons
+        document
+          .getElementById("btnOpenAddOratoryModal")
+          ?.addEventListener("click", openAddOratoryModal);
+        document
+          .getElementById("closeAddOratoryModal")
+          ?.addEventListener("click", closeAddOratoryModal);
+        document
+          .getElementById("cancelAddOratoryBtn")
+          ?.addEventListener("click", closeAddOratoryModal);
+
+        document
+          .getElementById("btnOpenOratoryImport")
+          ?.addEventListener("click", openOratoryImportModal);
+        document
+          .getElementById("btnCloseOratoryImportModal")
+          ?.addEventListener("click", closeOratoryImportModal);
+
+        // Create session submit
+        document
+          .getElementById("addOratoryForm")
+          ?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const topic = document
+              .getElementById("newOratoryTopic")
+              .value.trim();
+            const primarySkill = document
+              .getElementById("newOratorySkill")
+              .value.trim();
+            const durationMinutes =
+              Number(document.getElementById("newOratoryDuration").value) ||
+              120;
+            const notes = document
+              .getElementById("newOratoryNotes")
+              .value.trim();
+
+            try {
+              await api.post("/courses/oratory/activities", {
+                topic,
+                primarySkill,
+                durationMinutes,
+                notes,
+              });
+              showToast(`Oratory session "${topic}" created!`, "success");
+              closeAddOratoryModal();
+              document.getElementById("addOratoryForm").reset();
+              await loadWeeks();
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        // Oratory CSV Import
+        document
+          .getElementById("oratoryCsvFileInput")
+          ?.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (evt) => {
+                document.getElementById("oratoryCsvPasteArea").value =
+                  evt.target.result;
+              };
+              reader.readAsText(file);
+            }
+          });
+
+        // Direct Import Oratory
+        document
+          .getElementById("btnDirectOratoryImport")
+          ?.addEventListener("click", async () => {
+            const text = document
+              .getElementById("oratoryCsvPasteArea")
+              .value.trim();
+            if (!text) {
+              showToast("Please upload or paste CSV text first.", "error");
+              return;
+            }
+
+            try {
+              const parseRes = await api.post("/courses/import/preview", {
+                csvText: text,
+                courseSlug: "oratory",
+              });
+              if (!parseRes.success)
+                throw new Error(parseRes.error || "Failed to parse CSV");
+
+              const commitRes = await api.post("/courses/import/commit", {
+                courseSlug: "oratory",
+                courseTitle: "Oratory & Public Speaking",
+                records: parseRes.records,
+                category: "oratory",
+              });
+
+              if (commitRes.success) {
+                showToast(
+                  `Direct import complete: ${commitRes.totalActivities} speech sessions committed!`,
+                  "success",
+                );
+                closeOratoryImportModal();
+                await loadWeeks();
+                await notifyCourseNavigationChanged();
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        document
+          .getElementById("btnPreviewOratoryImport")
+          ?.addEventListener("click", async () => {
+            const text = document
+              .getElementById("oratoryCsvPasteArea")
+              .value.trim();
+            if (!text) {
+              showToast("Please upload or paste CSV text first.", "error");
+              return;
+            }
+
+            try {
+              const res = await api.post("/courses/import/preview", {
+                csvText: text,
+              });
+              if (!res.success)
+                throw new Error(res.error || "Failed to preview CSV");
+
+              oratoryRecordsToCommit = res.records;
+              document.getElementById("oratoryPreviewSummary").textContent =
+                `Validated ${res.totalRows} speech activities. Ready to commit.`;
+              document.getElementById("btnCommitOratoryImport").style.display =
+                "inline-block";
+              showToast(
+                `Validated ${res.totalRows} speech activities.`,
+                "success",
+              );
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        document
+          .getElementById("btnCommitOratoryImport")
+          ?.addEventListener("click", async () => {
+            if (!oratoryRecordsToCommit || oratoryRecordsToCommit.length === 0)
+              return;
+            try {
+              const res = await api.post("/courses/import/commit", {
+                courseSlug: "oratory",
+                courseTitle: "Oratory & Public Speaking",
+                records: oratoryRecordsToCommit,
+              });
+
+              if (res.success) {
+                showToast(
+                  `Committed ${res.totalActivities} activities to Oratory!`,
+                  "success",
+                );
+                closeOratoryImportModal();
+                await loadWeeks();
+                await notifyCourseNavigationChanged();
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        // Form save session
+        document
+          .getElementById("oratoryForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const weekNum = document.getElementById("modalWeekNum").value;
+
+            const payload = {
+              speechDraft: {
+                hook: document.getElementById("draftHook").value,
+                introduction: document.getElementById("draftIntro").value,
+                point1: document.getElementById("draftP1").value,
+                point2: document.getElementById("draftP2").value,
+                point3: document.getElementById("draftP3").value,
+                storyExample: document.getElementById("draftStory").value,
+                conclusion: document.getElementById("draftConclusion").value,
+              },
+              scores: {
+                structure: Number(
+                  document.getElementById("scoreStructure").value,
+                ),
+                clarity: Number(document.getElementById("scoreClarity").value),
+                confidence: Number(
+                  document.getElementById("scoreConfidence").value,
+                ),
+                voice: Number(document.getElementById("scoreVoice").value),
+                gestures: Number(
+                  document.getElementById("scoreGestures").value,
+                ),
+                persuasion: Number(
+                  document.getElementById("scorePersuasion").value,
+                ),
+              },
+              biggestMistake: document.getElementById("biggestMistakeInput")
+                .value,
+              drillNotes: document.getElementById("drillNotesInput").value,
+              isCompleted: document.getElementById("markCompletedChk").checked,
+            };
+
+            try {
+              await api.put(`/courses/oratory/weeks/${weekNum}`, payload);
+              showToast(`Session ${weekNum} saved!`, "success");
+              document.getElementById("oratoryModal").classList.add("hidden");
+              await loadWeeks();
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+      }
+
+      init();
+    </script>
+  </body>
 </html>
