@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Evidence Locker — SARTHI</title>
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .evidence-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+      }
+      .evidence-card {
+        padding: 1.1rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        background: var(--color-bg-paper);
+      }
+      .evidence-card h3 {
+        margin: 0 0 0.4rem;
+      }
+      .evidence-card p {
+        white-space: pre-wrap;
+      }
+      .evidence-form {
+        max-width: 680px;
+      }
+      .evidence-form .form-group {
+        margin-bottom: 1rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Evidence Locker</div>
+          </div>
+          <div id="topbarFocusWidget"></div>
+        </header>
+        <div class="page-container">
+          <section class="card evidence-form">
+            <h2>Keep a record of what you’ve done</h2>
+            <p class="text-subtle">
+              Save real milestones, effort, and moments you want to remember.
+            </p>
+            <form id="evidenceForm">
+              <div class="form-group">
+                <label class="form-label" for="evidenceTitle">Title</label
+                ><input
+                  class="form-input"
+                  id="evidenceTitle"
+                  required
+                  maxlength="180"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="evidencePeriod"
+                  >Date or period</label
+                ><input
+                  class="form-input"
+                  id="evidencePeriod"
+                  maxlength="80"
+                  placeholder="e.g. November 2026"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="evidenceNote"
+                  >What happened?</label
+                ><textarea
+                  class="form-input"
+                  id="evidenceNote"
+                  rows="3"
+                  maxlength="2000"
+                ></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="evidenceTags"
+                  >Categories (comma separated)</label
+                ><input
+                  class="form-input"
+                  id="evidenceTags"
+                  placeholder="Learning, health, personal"
+                />
+              </div>
+              <button class="btn btn-primary" type="submit">
+                Save evidence
+              </button>
+            </form>
+          </section>
+          <h2 style="margin: 2rem 0 1rem">Saved evidence</h2>
+          <div id="evidenceList" class="evidence-grid">
+            <p class="text-subtle">Loading…</p>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import { renderLayout } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { showToast } from "../assets/js/toast.js";
+      let profile;
+      let editId = "";
+      async function init() {
+        if (!(await checkAuth())) return;
+        renderLayout("evidence");
+        await load();
+        document
+          .getElementById("evidenceForm")
+          .addEventListener("submit", save);
+      }
+      async function load() {
+        try {
+          const r = await api.get("/emotional/profile");
+          profile = r.profile || {};
+          render();
+        } catch (e) {
+          showToast(e.message, "error");
+        }
+      }
+      function render() {
+        const rows = (profile?.evidence || []).filter((x) => !x.archivedAt);
+        const list = document.getElementById("evidenceList");
+        list.innerHTML = rows.length
+          ? rows
+              .slice()
+              .reverse()
+              .map(
+                (x) =>
+                  `<article class="evidence-card"><div class="text-xs text-subtle">${esc(x.period || "Evidence")} ${x.autoAdded ? "· Recorded automatically" : ""}</div><h3>${esc(x.title)}</h3><p>${esc(x.note || "")}</p><div class="text-xs text-subtle">${(x.tags || []).map(esc).join(" · ")}</div><div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-outline btn-sm evidence-edit" data-id="${x._id}">Edit</button><button class="btn btn-outline btn-sm evidence-archive" data-id="${x._id}">Archive</button></div></article>`,
+              )
+              .join("")
+          : '<div class="card text-subtle">No evidence saved yet. Add a milestone when you have one to keep.</div>';
+        list.querySelectorAll(".evidence-edit").forEach((b) =>
+          b.addEventListener("click", () => {
+            const x = rows.find((i) => i._id === b.dataset.id);
+            editId = x._id;
+            document.getElementById("evidenceTitle").value = x.title;
+            document.getElementById("evidencePeriod").value = x.period || "";
+            document.getElementById("evidenceNote").value = x.note || "";
+            document.getElementById("evidenceTags").value = (x.tags || []).join(
+              ", ",
+            );
+            document.querySelector(
+              "#evidenceForm button[type=submit]",
+            ).textContent = "Update evidence";
+          }),
+        );
+        list.querySelectorAll(".evidence-archive").forEach((b) =>
+          b.addEventListener("click", async () => {
+            if (
+              !confirm(
+                "Archive this evidence? It will be hidden but retained in your profile data.",
+              )
+            )
+              return;
+            try {
+              await api.delete(`/emotional/evidence/${b.dataset.id}`);
+              await load();
+            } catch (e) {
+              showToast(e.message, "error");
+            }
+          }),
+        );
+      }
+      async function save(e) {
+        e.preventDefault();
+        const body = {
+          title: document.getElementById("evidenceTitle").value,
+          period: document.getElementById("evidencePeriod").value,
+          note: document.getElementById("evidenceNote").value,
+          tags: document
+            .getElementById("evidenceTags")
+            .value.split(",")
+            .map((x) => x.trim())
+            .filter(Boolean),
+        };
+        try {
+          await (editId
+            ? api.put(`/emotional/evidence/${editId}`, body)
+            : api.post("/emotional/evidence", body));
+          editId = "";
+          document.getElementById("evidenceForm").reset();
+          document.querySelector(
+            "#evidenceForm button[type=submit]",
+          ).textContent = "Save evidence";
+          await load();
+          showToast("Evidence saved.", "success");
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      }
+      function esc(v) {
+        return String(v ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      }
+      init();
+    </script>
+  </body>
+</html>
