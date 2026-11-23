@@ -109,59 +109,6 @@
       .quick-checkin-item:last-child {
         border-bottom: none;
       }
-      .personal-headline {
-        margin-bottom: var(--space-4);
-        padding: var(--space-3) var(--space-4);
-        border-left: 3px solid var(--accent-blue);
-        border-radius: var(--radius-sm);
-        background: linear-gradient(
-          100deg,
-          var(--accent-blue-subtle),
-          transparent 76%
-        );
-      }
-      .personal-headline-display {
-        display: flex;
-        align-items: center;
-        gap: var(--space-3);
-        min-height: 34px;
-      }
-      .personal-headline-text {
-        margin: 0;
-        color: var(--text-ink);
-        font-family: var(--font-display);
-        font-size: clamp(1rem, 2.2vw, 1.3rem);
-        font-weight: 700;
-        line-height: 1.35;
-      }
-      .personal-headline-text.is-placeholder {
-        color: var(--text-subtle);
-        font-family: var(--font-body);
-        font-size: 0.9rem;
-        font-weight: 500;
-      }
-      .personal-headline-edit {
-        flex: 0 0 auto;
-        padding: 0.25rem 0.45rem;
-        color: var(--text-subtle);
-        font-size: 0.75rem;
-      }
-      .personal-headline-form {
-        display: flex;
-        align-items: center;
-        gap: var(--space-2);
-        margin-top: var(--space-2);
-      }
-      .personal-headline-input {
-        min-width: 0;
-        flex: 1;
-      }
-      .personal-headline-status {
-        min-height: 1em;
-        margin-top: 4px;
-        color: var(--text-subtle);
-        font-size: 0.7rem;
-      }
       .work-item-card {
         border: 1px solid var(--border-hairline);
         border-radius: var(--radius-sm);
@@ -213,17 +160,6 @@
         border-color: var(--accent-blue);
         box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
       }
-      @media (max-width: 520px) {
-        .personal-headline {
-          padding: var(--space-3);
-        }
-        .personal-headline-form {
-          flex-wrap: wrap;
-        }
-        .personal-headline-input {
-          flex-basis: 100%;
-        }
-      }
     </style>
   </head>
   <body>
@@ -243,61 +179,6 @@
         </header>
 
         <div class="page-container">
-          <section class="personal-headline" aria-label="Personal headline">
-            <div class="personal-headline-display" id="personalHeadlineDisplay">
-              <p
-                class="personal-headline-text is-placeholder"
-                id="personalHeadlineText"
-              >
-                Write a headline for this chapter of your life.
-              </p>
-              <button
-                type="button"
-                class="btn btn-outline personal-headline-edit"
-                id="editPersonalHeadline"
-                aria-expanded="false"
-                aria-controls="personalHeadlineForm"
-              >
-                Edit
-              </button>
-            </div>
-            <form
-              class="personal-headline-form"
-              id="personalHeadlineForm"
-              hidden
-            >
-              <input
-                class="form-input personal-headline-input"
-                id="personalHeadlineInput"
-                type="text"
-                maxlength="160"
-                autocomplete="off"
-                aria-label="Personal headline"
-                placeholder="Write a headline for this chapter of your life."
-              />
-              <button
-                type="submit"
-                class="btn btn-primary btn-sm"
-                id="savePersonalHeadline"
-              >
-                Save
-              </button>
-              <button
-                type="button"
-                class="btn btn-outline btn-sm"
-                id="cancelPersonalHeadline"
-              >
-                Cancel
-              </button>
-            </form>
-            <div
-              class="personal-headline-status"
-              id="personalHeadlineStatus"
-              role="status"
-              aria-live="polite"
-            ></div>
-          </section>
-
           <!-- Date Navigator Bar -->
           <div
             class="card"
@@ -1275,7 +1156,6 @@
       import { showToast } from "../assets/js/toast.js";
 
       let currentDayData = null;
-      let savedPersonalHeadline = "";
       const urlParams = new URLSearchParams(window.location.search);
       let selectedDate = urlParams.get("date") || getTodayString();
 
@@ -1308,73 +1188,6 @@
         url.searchParams.set("date", newDate);
         window.history.pushState({}, "", url);
         loadTodayData(selectedDate);
-      }
-
-      function renderPersonalHeadline() {
-        const text = document.getElementById("personalHeadlineText");
-        const placeholder = "Write a headline for this chapter of your life.";
-        text.textContent = savedPersonalHeadline || placeholder;
-        text.classList.toggle("is-placeholder", !savedPersonalHeadline);
-      }
-
-      async function loadPersonalHeadline() {
-        try {
-          const response = await api.get("/settings");
-          savedPersonalHeadline = String(
-            response.settings?.personalHeadline || "",
-          ).trim();
-        } catch {
-          savedPersonalHeadline = "";
-        }
-        renderPersonalHeadline();
-      }
-
-      function setupPersonalHeadline() {
-        const editor = document.getElementById("personalHeadlineForm");
-        const display = document.getElementById("personalHeadlineDisplay");
-        const editButton = document.getElementById("editPersonalHeadline");
-        const input = document.getElementById("personalHeadlineInput");
-        const status = document.getElementById("personalHeadlineStatus");
-        editButton.addEventListener("click", () => {
-          input.value = savedPersonalHeadline;
-          editor.hidden = false;
-          display.hidden = true;
-          editButton.setAttribute("aria-expanded", "true");
-          status.textContent = "";
-          input.focus();
-        });
-        document
-          .getElementById("cancelPersonalHeadline")
-          .addEventListener("click", () => {
-            editor.hidden = true;
-            display.hidden = false;
-            editButton.setAttribute("aria-expanded", "false");
-            status.textContent = "";
-          });
-        editor.addEventListener("submit", async (event) => {
-          event.preventDefault();
-          const saveButton = document.getElementById("savePersonalHeadline");
-          saveButton.disabled = true;
-          status.textContent = "Saving…";
-          try {
-            const response = await api.put("/settings", {
-              personalHeadline: input.value.trim(),
-            });
-            savedPersonalHeadline = String(
-              response.settings?.personalHeadline || "",
-            ).trim();
-            renderPersonalHeadline();
-            editor.hidden = true;
-            display.hidden = false;
-            editButton.setAttribute("aria-expanded", "false");
-            status.textContent = "Saved";
-          } catch (error) {
-            status.textContent =
-              error.message || "Could not save the headline.";
-          } finally {
-            saveButton.disabled = false;
-          }
-        });
       }
 
       function setupDateNavigator() {
@@ -1440,8 +1253,6 @@
         const user = await checkAuth();
         if (!user) return;
         renderLayout("dashboard");
-        setupPersonalHeadline();
-        loadPersonalHeadline();
         setupDateNavigator();
 
         await loadTodayData(selectedDate);
