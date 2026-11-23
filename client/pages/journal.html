@@ -1,256 +1,695 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Journal & Notes — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">Journal & Personal Notes</div>
-        </div>
-        <div class="topbar-right">
-          <div id="topbarFocusWidget"></div>
-          <button id="newNoteBtn" class="btn btn-primary btn-sm">+ New Entry</button>
-        </div>
-      </header>
-
-      <div class="page-container">
-        <!-- Search and Filter -->
-        <div style="display: flex; gap: var(--space-4); margin-bottom: var(--space-6); flex-wrap: wrap;">
-          <input type="text" id="journalSearchInput" class="form-input" placeholder="Search notes and reflections..." style="max-width: 320px;">
-          <select id="typeFilter" class="form-select" style="max-width: 180px;">
-            <option value="">All Types</option>
-            <option value="journal">Daily Journal</option>
-            <option value="reflection">Reflection</option>
-            <option value="history">History Notes</option>
-            <option value="note">General Note</option>
-          </select>
-        </div>
-
-        <div class="grid-asymmetric">
-          <!-- Notes List -->
-          <div>
-            <div id="notesContainer">
-              <p class="text-muted text-sm">Loading notes...</p>
-            </div>
-          </div>
-
-          <!-- Quick Write & Reflection Prompts -->
-          <div style="display: flex; flex-direction: column; gap: var(--space-6);">
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">10-Min Evening Prompt</div>
-              </div>
-              <p class="text-subtle text-sm" style="line-height: 1.6; margin-bottom: var(--space-3);">
-                "What was the single most meaningful action I completed today? Where did my attention wander, and what is my first step tomorrow morning at 5:30 AM?"
-              </p>
-              <button id="quickJournalBtn" class="btn btn-outline btn-sm" style="width: 100%;">Write Today's Journal</button>
-            </div>
-
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">History & Reference</div>
-              </div>
-              <p class="text-subtle text-sm" style="line-height: 1.6;">
-                Saturday evenings (8:30 PM – 10:30 PM) are dedicated to Indian history and contextual learning. Capture key timelines, Chhatrapati Shivaji Maharaj notes, and Golden Age reflections here.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-  </div>
-
-  <!-- Note Modal -->
-  <div id="noteModal" class="modal-backdrop hidden">
-    <div class="modal-box" style="max-width: 650px;">
-      <div class="card-header">
-        <div class="card-title" id="noteModalTitle">New Note Entry</div>
-        <button id="closeNoteModal" class="btn btn-outline btn-sm">✕</button>
-      </div>
-      <form id="noteForm">
-        <input type="hidden" id="editNoteId">
-        <div class="form-group">
-          <label class="form-label">Title</label>
-          <input type="text" id="noteTitle" class="form-input" placeholder="Title or evening prompt..." required>
-        </div>
-        <div class="grid-2">
-          <div class="form-group">
-            <label class="form-label">Type</label>
-            <select id="noteType" class="form-select">
-              <option value="journal">Daily Journal (10m Routine)</option>
-              <option value="reflection">Reflection</option>
-              <option value="history">History Notes</option>
-              <option value="note" selected>General Reference Note</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Tags (comma-separated)</label>
-            <input type="text" id="noteTags" class="form-input" placeholder="e.g. history, reflection, dsa">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Content</label>
-          <textarea id="noteContent" class="form-textarea" style="min-height: 180px;" placeholder="Write freely..."></textarea>
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
-          <button type="button" id="cancelNoteBtn" class="btn btn-outline">Cancel</button>
-          <button type="submit" class="btn btn-primary">Save Entry</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { showToast } from '../assets/js/toast.js';
-
-    let allNotes = [];
-
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-      renderLayout('journal');
-      await loadNotes();
-      setupEvents();
-    }
-
-    async function loadNotes() {
-      try {
-        const res = await api.get('/personal/notes');
-        if (!res.success) return;
-        allNotes = res.notes || [];
-        renderNotes(allNotes);
-      } catch (err) {
-        showToast(err.message, 'error');
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Journal — SARTHI</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .journal-page {
+        --journal-accent: var(--accent-green, #059669);
       }
-    }
-
-    function renderNotes(notes) {
-      const container = document.getElementById('notesContainer');
-      const q = document.getElementById('journalSearchInput').value.toLowerCase().trim();
-      const type = document.getElementById('typeFilter').value;
-
-      const filtered = notes.filter(n => {
-        if (type && n.type !== type) return false;
-        if (q && !n.title.toLowerCase().includes(q) && !(n.content || '').toLowerCase().includes(q)) return false;
-        return true;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="wave-empty-state">
-            <svg class="wave-empty-svg" viewBox="0 0 380 48" preserveAspectRatio="none" aria-hidden="true">
-              <path d="M0,24 Q95,8 190,24 T380,24" fill="none" stroke="rgba(29, 78, 216, 0.28)" stroke-width="2" stroke-linecap="round"></path>
-              <path d="M0,32 Q95,44 190,32 T380,32" fill="none" stroke="rgba(5, 150, 105, 0.22)" stroke-width="2" stroke-linecap="round"></path>
-            </svg>
-            <p class="text-muted text-sm" style="margin-bottom: var(--space-3); font-weight: 500;">Clear journal page. Capture your thoughts or reflections.</p>
-            <button id="emptyNewNoteBtn" class="btn btn-outline btn-sm">+ New Journal Entry</button>
-          </div>
-        `;
-        document.getElementById('emptyNewNoteBtn')?.addEventListener('click', openNoteModal);
-        return;
+      .journal-page .journal-intro {
+        margin-bottom: var(--space-5);
+        border-left: 4px solid var(--journal-accent);
       }
-
-      container.innerHTML = filtered.map(n => `
-        <div class="card" style="margin-bottom: var(--space-4);">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: var(--space-2);">
-            <div>
-              <span class="badge badge-neutral" style="text-transform: uppercase;">${n.type}</span>
-              <h3 style="font-size: 1.125rem; margin-top: 4px;">${n.title}</h3>
-              <div class="text-subtle text-xs" style="margin-top: 2px;">
-                ${new Date(n.createdAt).toLocaleDateString()} ${(n.tags || []).map(t => `#${t}`).join(' ')}
-              </div>
-            </div>
-            <button class="btn btn-outline btn-sm edit-note-btn" data-id="${n._id}">Edit</button>
-          </div>
-          <p class="text-sm" style="white-space: pre-wrap; line-height: 1.6; color: var(--color-charcoal); margin-top: var(--space-3);">
-            ${n.content}
-          </p>
-        </div>
-      `).join('');
-
-      container.querySelectorAll('.edit-note-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const note = allNotes.find(x => x._id === btn.dataset.id);
-          if (!note) return;
-          document.getElementById('editNoteId').value = note._id;
-          document.getElementById('noteTitle').value = note.title;
-          document.getElementById('noteType').value = note.type;
-          document.getElementById('noteTags').value = (note.tags || []).join(', ');
-          document.getElementById('noteContent').value = note.content;
-          document.getElementById('noteModalTitle').textContent = 'Edit Entry';
-          document.getElementById('noteModal').classList.remove('hidden');
-        });
-      });
-    }
-
-    function setupEvents() {
-      document.getElementById('journalSearchInput').addEventListener('input', () => renderNotes(allNotes));
-      document.getElementById('typeFilter').addEventListener('change', () => renderNotes(allNotes));
-
-      document.getElementById('newNoteBtn').addEventListener('click', () => {
-        document.getElementById('noteForm').reset();
-        document.getElementById('editNoteId').value = '';
-        document.getElementById('noteModalTitle').textContent = 'New Note Entry';
-        document.getElementById('noteModal').classList.remove('hidden');
-      });
-
-      document.getElementById('quickJournalBtn').addEventListener('click', () => {
-        document.getElementById('noteForm').reset();
-        document.getElementById('editNoteId').value = '';
-        document.getElementById('noteTitle').value = `Daily Journal — ${new Date().toLocaleDateString()}`;
-        document.getElementById('noteType').value = 'journal';
-        document.getElementById('noteTags').value = 'daily, evening-routine';
-        document.getElementById('noteModalTitle').textContent = 'Evening Journal (10 Min)';
-        document.getElementById('noteModal').classList.remove('hidden');
-      });
-
-      document.getElementById('closeNoteModal').addEventListener('click', () => {
-        document.getElementById('noteModal').classList.add('hidden');
-      });
-      document.getElementById('cancelNoteBtn').addEventListener('click', () => {
-        document.getElementById('noteModal').classList.add('hidden');
-      });
-
-      document.getElementById('noteForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const id = document.getElementById('editNoteId').value;
-        const title = document.getElementById('noteTitle').value.trim();
-        const type = document.getElementById('noteType').value;
-        const content = document.getElementById('noteContent').value;
-        const tags = document.getElementById('noteTags').value.split(',').map(t => t.trim()).filter(Boolean);
-
-        try {
-          if (id) {
-            await api.put(`/personal/notes/${id}`, { title, type, content, tags });
-            showToast('Note updated!', 'success');
-          } else {
-            await api.post('/personal/notes', { title, type, content, tags });
-            showToast('Note saved!', 'success');
-          }
-          document.getElementById('noteModal').classList.add('hidden');
-          await loadNotes();
-        } catch (err) {
-          showToast(err.message, 'error');
+      .journal-page .journal-intro h1 {
+        margin-bottom: var(--space-2);
+        font-size: 1.45rem;
+      }
+      .journal-page .journal-toolbar {
+        display: flex;
+        align-items: flex-end;
+        gap: var(--space-3);
+        flex-wrap: wrap;
+        margin-bottom: var(--space-4);
+      }
+      .journal-page .journal-date-filter {
+        width: min(100%, 260px);
+      }
+      .journal-page .journal-list {
+        display: grid;
+        gap: var(--space-3);
+      }
+      .journal-page .journal-entry {
+        border-left: 3px solid var(--color-border);
+      }
+      .journal-page .journal-entry-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: var(--space-3);
+      }
+      .journal-page .journal-entry-date {
+        font-size: 0.9rem;
+        font-weight: 750;
+        color: var(--color-ink);
+      }
+      .journal-page .journal-entry-content {
+        margin-top: var(--space-3);
+        color: var(--color-charcoal);
+        line-height: 1.7;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      .journal-page .journal-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding-top: var(--space-4);
+      }
+      .journal-page .reflection-partner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--space-4);
+        flex-wrap: wrap;
+        padding: var(--space-4) var(--space-5);
+        margin: var(--space-6) 0 var(--space-4);
+      }
+      .journal-page .reflection-partner h2 {
+        font-size: 1rem;
+        margin-bottom: 2px;
+      }
+      .journal-page .reflection-partner p {
+        color: var(--color-muted);
+        font-size: 0.8125rem;
+      }
+      .journal-page .guide-card {
+        padding: var(--space-4) var(--space-5);
+      }
+      .journal-page .guide-card h2 {
+        font-size: 1rem;
+        margin-bottom: var(--space-3);
+      }
+      .journal-page .guide-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-5);
+      }
+      .journal-page .guide-card ul {
+        padding-left: 1.15rem;
+        color: var(--color-charcoal);
+        font-size: 0.8125rem;
+        line-height: 1.55;
+      }
+      .journal-page .guide-card li + li {
+        margin-top: 0.25rem;
+      }
+      .journal-page .guide-grid > div:first-child {
+        border-left: 3px solid rgba(5, 150, 105, 0.32);
+        padding-left: var(--space-3);
+      }
+      .journal-page .guide-grid > div:last-child {
+        border-left: 3px solid rgba(185, 28, 28, 0.25);
+        padding-left: var(--space-3);
+      }
+      .journal-page .guide-grid > div:first-child h3 {
+        color: #047857;
+      }
+      .journal-page .guide-grid > div:last-child h3 {
+        color: #9f3a3a;
+      }
+      .journal-page .journal-modal {
+        max-width: 720px;
+      }
+      .journal-page .journal-editor {
+        min-height: 260px;
+        line-height: 1.65;
+        resize: vertical;
+      }
+      .journal-page .journal-error {
+        min-height: 1.25rem;
+        color: var(--color-danger, #b91c1c);
+        font-size: 0.8125rem;
+      }
+      .journal-page .journal-status {
+        color: var(--color-muted);
+        font-size: 0.8rem;
+      }
+      .journal-copy-buffer {
+        position: fixed;
+        left: -10000px;
+        top: 0;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+      }
+      @media (max-width: 650px) {
+        .journal-page .guide-grid {
+          grid-template-columns: 1fr;
+          gap: var(--space-4);
         }
-      });
-    }
+        .journal-page .reflection-partner,
+        .journal-page .guide-card {
+          padding: var(--space-4);
+        }
+        .journal-page .journal-modal {
+          width: calc(100vw - 1.5rem);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main journal-page">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Journal</div>
+          </div>
+          <div class="topbar-right">
+            <div id="topbarFocusWidget"></div>
+            <button id="newJournalBtn" class="btn btn-primary btn-sm">
+              + New Journal
+            </button>
+          </div>
+        </header>
+        <div class="page-container">
+          <section class="card journal-intro">
+            <h1>Your daily journal</h1>
+            <p class="text-subtle text-sm">
+              A quiet place to capture what mattered, in your own words.
+            </p>
+          </section>
 
-    init();
-  </script>
-</body>
+          <section aria-label="Journal entries">
+            <div class="journal-toolbar">
+              <div class="journal-date-filter">
+                <label class="form-label" for="journalDateSearch"
+                  >Find entries by date</label
+                ><input type="date" id="journalDateSearch" class="form-input" />
+              </div>
+              <button id="clearDateSearch" class="btn btn-outline btn-sm">
+                Show all dates
+              </button>
+              <span
+                class="journal-status"
+                id="journalResultsStatus"
+                aria-live="polite"
+              ></span>
+            </div>
+            <div id="journalEntries" class="journal-list" aria-live="polite">
+              <p class="text-muted text-sm">Loading journal entries…</p>
+            </div>
+            <div id="journalPagination" class="journal-pagination" hidden>
+              <button id="previousPageBtn" class="btn btn-outline btn-sm">
+                Newer entries
+              </button>
+              <span class="text-subtle text-xs" id="pageSummary"></span>
+              <button id="nextPageBtn" class="btn btn-outline btn-sm">
+                Older entries
+              </button>
+            </div>
+          </section>
+
+          <section
+            class="card reflection-partner"
+            aria-labelledby="reflectionPartnerTitle"
+          >
+            <div>
+              <h2 id="reflectionPartnerTitle">Daily Reflection Partner</h2>
+              <p>
+                Copy your private reflection prompt and use it in ChatGPT when
+                you’re ready.
+              </p>
+            </div>
+            <div>
+              <button id="copyReflectionPrompt" class="btn btn-outline btn-sm">
+                Copy Prompt</button
+              ><span
+                id="copyPromptStatus"
+                class="journal-status"
+                role="status"
+                aria-live="polite"
+                style="display: block; text-align: right; margin-top: 4px"
+              ></span>
+            </div>
+          </section>
+
+          <section class="card guide-card" aria-labelledby="journalGuideTitle">
+            <h2 id="journalGuideTitle">A little guide before you journal</h2>
+            <div class="guide-grid">
+              <div>
+                <h3
+                  class="text-sm font-semibold"
+                  style="margin-bottom: var(--space-2)"
+                >
+                  What to tell
+                </h3>
+                <ul>
+                  <li>
+                    What you did today: meaningful work, study, projects or
+                    responsibilities.
+                  </li>
+                  <li>
+                    What went well and what you accomplished, even if it was
+                    small.
+                  </li>
+                  <li>
+                    Where you lost time, procrastinated, avoided something or
+                    lost focus.
+                  </li>
+                  <li>
+                    Conversations, decisions or situations that affected you.
+                  </li>
+                  <li>
+                    How you felt in important moments and what shaped your
+                    reaction.
+                  </li>
+                  <li>
+                    What you learned, misunderstood or would do differently.
+                  </li>
+                  <li>
+                    What you want to improve tomorrow and your priorities.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h3
+                  class="text-sm font-semibold"
+                  style="margin-bottom: var(--space-2)"
+                >
+                  What not to tell
+                </h3>
+                <ul>
+                  <li>
+                    You don’t need to narrate every minute or repeat the same
+                    event.
+                  </li>
+                  <li>
+                    Skip irrelevant conversations and random details unless they
+                    mattered to you.
+                  </li>
+                  <li>
+                    Don’t invent achievements or hide mistakes to make the day
+                    sound better.
+                  </li>
+                  <li>Don’t wait for perfect English; write naturally.</li>
+                  <li>Don’t force a lesson from every small incident.</li>
+                  <li>
+                    Keep journaling from becoming another task that takes too
+                    long.
+                  </li>
+                  <li>
+                    These are reminders, not restrictions: write freely when
+                    something matters.
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <div
+      id="journalModal"
+      class="modal-backdrop hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="journalModalTitle"
+    >
+      <div class="modal-box journal-modal">
+        <div class="card-header">
+          <div class="card-title" id="journalModalTitle">New journal entry</div>
+          <button
+            id="closeJournalModal"
+            class="btn btn-outline btn-sm"
+            aria-label="Close editor"
+          >
+            ×
+          </button>
+        </div>
+        <form id="journalForm">
+          <input type="hidden" id="journalEntryId" /><input
+            type="hidden"
+            id="journalEntrySource"
+          />
+          <div class="form-group">
+            <label class="form-label" for="journalEntryDate">Journal date</label
+            ><input
+              type="date"
+              id="journalEntryDate"
+              class="form-input"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="journalEntryText">Your journal</label
+            ><textarea
+              id="journalEntryText"
+              class="form-textarea journal-editor"
+              maxlength="30000"
+              placeholder="Write freely about what mattered today…"
+              required
+            ></textarea>
+          </div>
+          <div
+            class="journal-error"
+            id="journalSaveError"
+            role="alert"
+            aria-live="polite"
+          ></div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-3);
+            "
+          >
+            <button type="button" id="cancelJournalBtn" class="btn btn-outline">
+              Close</button
+            ><button type="submit" id="saveJournalBtn" class="btn btn-primary">
+              Save Journal
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <textarea
+      class="journal-copy-buffer"
+      id="journalCopyBuffer"
+      tabindex="-1"
+      aria-hidden="true"
+      readonly
+    ></textarea>
+
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import { renderLayout } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { showToast } from "../assets/js/toast.js";
+      import { getTodayString } from "../assets/js/utils.js";
+      import { DAILY_REFLECTION_PROMPT } from "../assets/js/journalPrompt.js";
+
+      const PAGE_SIZE = 20;
+      let currentPage = 1;
+      let totalEntries = 0;
+      let hasNextPage = false;
+      let activeSubmissionKey = null;
+      let currentEntries = [];
+      const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "UTC",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      const escapeHtml = (value) =>
+        String(value ?? "").replace(
+          /[&<>"']/g,
+          (char) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#039;",
+            })[char],
+        );
+      function displayDate(dateKey) {
+        const match = String(dateKey || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        return match ? `${match[3]}/${match[2]}/${match[1]}` : "—";
+      }
+
+      async function init() {
+        const user = await checkAuth();
+        if (!user) return;
+        renderLayout("journal");
+        setupEvents();
+        await loadEntries(1);
+      }
+
+      async function loadEntries(page = currentPage) {
+        const host = document.getElementById("journalEntries");
+        const params = { page, limit: PAGE_SIZE };
+        const date = document.getElementById("journalDateSearch").value;
+        if (date) params.date = date;
+        try {
+          const result = await api.get("/personal/journals", params);
+          if (!result?.success)
+            throw new Error(
+              result?.error || "Journal entries could not be loaded.",
+            );
+          currentPage = result.pagination.page;
+          totalEntries = result.pagination.total;
+          hasNextPage = result.pagination.hasNext;
+          currentEntries = result.entries || [];
+          renderEntries(currentEntries);
+          renderPagination(result.pagination);
+          document.getElementById("journalResultsStatus").textContent = date
+            ? `${totalEntries} entr${totalEntries === 1 ? "y" : "ies"} on ${displayDate(date)}`
+            : `${totalEntries} journal entr${totalEntries === 1 ? "y" : "ies"}`;
+        } catch (error) {
+          document.getElementById("journalResultsStatus").textContent = "";
+          if (!currentEntries.length)
+            host.innerHTML =
+              '<div class="card"><p class="text-subtle text-sm">Journal entries could not be reached. Check your connection and try again.</p><button id="retryJournalLoad" class="btn btn-outline btn-sm" style="margin-top:var(--space-3)">Retry</button></div>';
+          document
+            .getElementById("retryJournalLoad")
+            ?.addEventListener("click", () => loadEntries(currentPage));
+          showToast(
+            error.message || "Journal entries could not be loaded.",
+            "error",
+          );
+        }
+      }
+
+      function renderEntries(entries) {
+        const host = document.getElementById("journalEntries");
+        if (!entries.length) {
+          host.innerHTML =
+            '<div class="card"><p class="text-subtle text-sm">No entries for this date yet. Your journal is yours to begin whenever you like.</p><button id="emptyNewJournalBtn" class="btn btn-outline btn-sm" style="margin-top:var(--space-3)">Write a journal entry</button></div>';
+          document
+            .getElementById("emptyNewJournalBtn")
+            ?.addEventListener("click", openNewEntry);
+          return;
+        }
+        host.innerHTML = entries
+          .map(
+            (entry) =>
+              `<article class="card journal-entry"><div class="journal-entry-header"><div><div class="journal-entry-date">${displayDate(entry.dateKey)}</div><div class="text-subtle text-xs" style="margin-top:3px">Daily journal</div></div><button class="btn btn-outline btn-sm edit-journal-btn" data-entry-id="${escapeHtml(entry._id)}">Edit</button></div><div class="journal-entry-content">${escapeHtml(entry.content)}</div></article>`,
+          )
+          .join("");
+        host.querySelectorAll(".edit-journal-btn").forEach((button) =>
+          button.addEventListener("click", () => {
+            const entry = currentEntries.find(
+              (item) => item._id === button.dataset.entryId,
+            );
+            if (entry) openEditEntry(entry);
+          }),
+        );
+      }
+
+      function renderPagination(pagination) {
+        const bar = document.getElementById("journalPagination");
+        const visible = pagination.total > PAGE_SIZE || pagination.page > 1;
+        bar.hidden = !visible;
+        document.getElementById("previousPageBtn").disabled =
+          !pagination.hasPrevious;
+        document.getElementById("nextPageBtn").disabled = !pagination.hasNext;
+        const pages = Math.max(
+          1,
+          Math.ceil(pagination.total / pagination.limit),
+        );
+        document.getElementById("pageSummary").textContent =
+          `Page ${pagination.page} of ${pages}`;
+      }
+
+      function openNewEntry() {
+        const form = document.getElementById("journalForm");
+        form.reset();
+        document.getElementById("journalEntryId").value = "";
+        document.getElementById("journalEntrySource").value = "";
+        document.getElementById("journalEntryDate").value = getTodayString();
+        document.getElementById("journalModalTitle").textContent =
+          "New journal entry";
+        document.getElementById("journalSaveError").textContent = "";
+        activeSubmissionKey =
+          globalThis.crypto?.randomUUID?.() ||
+          `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        document.getElementById("journalModal").classList.remove("hidden");
+        setTimeout(
+          () => document.getElementById("journalEntryText").focus(),
+          40,
+        );
+      }
+
+      function openEditEntry(entry) {
+        document.getElementById("journalForm").reset();
+        document.getElementById("journalEntryId").value = entry._id;
+        document.getElementById("journalEntrySource").value =
+          entry.source || "journal";
+        document.getElementById("journalEntryDate").value = entry.dateKey;
+        document.getElementById("journalEntryText").value = entry.content || "";
+        document.getElementById("journalModalTitle").textContent =
+          "Edit journal entry";
+        document.getElementById("journalSaveError").textContent = "";
+        activeSubmissionKey = null;
+        document.getElementById("journalModal").classList.remove("hidden");
+        setTimeout(
+          () => document.getElementById("journalEntryText").focus(),
+          40,
+        );
+      }
+
+      function closeEditor() {
+        document.getElementById("journalModal").classList.add("hidden");
+      }
+
+      async function copyPrompt() {
+        const status = document.getElementById("copyPromptStatus");
+        status.textContent = "";
+        try {
+          let copied = false;
+          if (navigator.clipboard?.writeText) {
+            try {
+              await navigator.clipboard.writeText(DAILY_REFLECTION_PROMPT);
+              copied = true;
+            } catch {
+              copied = false;
+            }
+          }
+          if (!copied) {
+            const buffer = document.getElementById("journalCopyBuffer");
+            buffer.value = DAILY_REFLECTION_PROMPT;
+            buffer.focus();
+            buffer.select();
+            if (!document.execCommand("copy"))
+              throw new Error("Clipboard access was denied by this browser.");
+          }
+          const buffer = document.getElementById("journalCopyBuffer");
+          buffer.value = "";
+          buffer.blur();
+          status.textContent = "Prompt copied successfully.";
+          showToast("Prompt copied successfully.", "success");
+        } catch (error) {
+          status.textContent =
+            "Copy failed. Allow clipboard access and try again.";
+          showToast(
+            "Could not copy the prompt. Please allow clipboard access and retry.",
+            "error",
+          );
+        }
+      }
+
+      function setupEvents() {
+        document
+          .getElementById("newJournalBtn")
+          .addEventListener("click", openNewEntry);
+        document
+          .getElementById("journalDateSearch")
+          .addEventListener("change", () => loadEntries(1));
+        document
+          .getElementById("clearDateSearch")
+          .addEventListener("click", () => {
+            document.getElementById("journalDateSearch").value = "";
+            loadEntries(1);
+          });
+        document
+          .getElementById("previousPageBtn")
+          .addEventListener("click", () => {
+            if (currentPage > 1) loadEntries(currentPage - 1);
+          });
+        document.getElementById("nextPageBtn").addEventListener("click", () => {
+          if (hasNextPage) loadEntries(currentPage + 1);
+        });
+        document
+          .getElementById("copyReflectionPrompt")
+          .addEventListener("click", copyPrompt);
+        document
+          .getElementById("closeJournalModal")
+          .addEventListener("click", closeEditor);
+        document
+          .getElementById("cancelJournalBtn")
+          .addEventListener("click", closeEditor);
+        const modal = document.getElementById("journalModal");
+        modal.addEventListener("click", (event) => {
+          if (event.target === modal) closeEditor();
+        });
+        window.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && !modal.classList.contains("hidden"))
+            closeEditor();
+        });
+        document
+          .getElementById("journalForm")
+          .addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const button = document.getElementById("saveJournalBtn"),
+              error = document.getElementById("journalSaveError");
+            const id = document.getElementById("journalEntryId").value,
+              source = document.getElementById("journalEntrySource").value;
+            const date = document.getElementById("journalEntryDate").value,
+              content = document.getElementById("journalEntryText").value;
+            if (!content.trim()) {
+              error.textContent =
+                "Write a few words before saving your journal.";
+              return;
+            }
+            button.disabled = true;
+            button.textContent = "Saving…";
+            error.textContent = "";
+            try {
+              let result;
+              if (id)
+                result = await api.put(
+                  `/personal/journals/${encodeURIComponent(id)}`,
+                  { date, content, source },
+                );
+              else {
+                activeSubmissionKey ||=
+                  globalThis.crypto?.randomUUID?.() ||
+                  `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+                result = await api.post("/personal/journals", {
+                  date,
+                  content,
+                  submissionKey: activeSubmissionKey,
+                });
+              }
+              if (!result?.success)
+                throw new Error(
+                  result?.error || "Journal save was not confirmed.",
+                );
+              const entry = result.entry;
+              if (!id && entry?.content !== content) {
+                document.getElementById("journalEntryId").value = entry._id;
+                document.getElementById("journalEntrySource").value = "journal";
+                error.textContent =
+                  "A previous version was saved. Your current edits are still here; save again to update that entry.";
+                showToast(
+                  "Previous journal save confirmed. Your newer edits remain open.",
+                  "info",
+                );
+                return;
+              }
+              activeSubmissionKey = null;
+              showToast(
+                id ? "Journal entry updated." : "Journal entry saved.",
+                "success",
+              );
+              closeEditor();
+              currentEntries = [];
+              await loadEntries(1);
+            } catch (saveError) {
+              error.textContent =
+                saveError.message ||
+                "The journal could not be saved. Your writing is still here; please retry.";
+              showToast(error.textContent, "error");
+            } finally {
+              button.disabled = false;
+              button.textContent = "Save Journal";
+            }
+          });
+      }
+
+      init();
+    </script>
+  </body>
 </html>
