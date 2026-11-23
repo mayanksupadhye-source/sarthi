@@ -6,57 +6,83 @@
  * Formats duration in minutes to human readable string (e.g., 45m, 2h 30m)
  */
 export function formatMinutes(mins) {
-  const m = Number(mins) || 0;
+  const m = Math.round(Number(mins) || 0);
   if (m < 60) return `${m}m`;
   const hrs = Math.floor(m / 60);
   const rem = m % 60;
   return rem > 0 ? `${hrs}h ${rem}m` : `${hrs}h`;
 }
 
+/** Make an accidentally stored slug readable without changing its canonical slug. */
+export function formatCourseDisplayTitle(title, slug) {
+  const rawTitle = String(title || "").trim();
+  const rawSlug = String(slug || "")
+    .trim()
+    .toLowerCase();
+  const normalizedTitle = rawTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  if (!rawSlug.includes("-") || normalizedTitle !== rawSlug) return rawTitle;
+  return rawSlug
+    .split("-")
+    .filter(Boolean)
+    .map((word) => word[0].toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 /**
  * Returns formatted Indian date string (e.g., "Wed, Nov 11, 2026")
  */
 export function formatTodayDate() {
-  const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'Asia/Kolkata' };
-  return new Intl.DateTimeFormat('en-IN', options).format(new Date());
+  const options = {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "Asia/Kolkata",
+  };
+  return new Intl.DateTimeFormat("en-IN", options).format(new Date());
 }
 
 /**
  * Returns ISO date string for today (YYYY-MM-DD) strictly aligned to the configured timezone.
  * Uses en-CA format to eliminate midnight UTC boundary shifts.
  */
-export function getTodayString(tz = 'Asia/Kolkata') {
+export function getTodayString(tz = "Asia/Kolkata") {
   try {
-    const formatter = new Intl.DateTimeFormat('en-CA', {
+    const formatter = new Intl.DateTimeFormat("en-CA", {
       timeZone: tz,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
     });
     return formatter.format(new Date());
   } catch {
-    return new Date().toISOString().split('T')[0];
+    return new Date().toISOString().split("T")[0];
   }
 }
 
 /**
  * Converts 24-hour time string ("14:30", "05:00", "00:00", "12:00") or Date
  * into standard 12-hour format with uppercase AM or PM ("2:30 PM", "12:00 AM", "12:00 PM").
- * 
+ *
  * Midnight (00:00) -> 12:00 AM
  * Noon (12:00)     -> 12:00 PM
- * 
- * @param {string|Date} timeVal 
+ *
+ * @param {string|Date} timeVal
  * @param {string} [tz='Asia/Kolkata']
  * @returns {string} e.g. "2:30 PM", "5:00 AM"
  */
-export function formatTime12(timeVal, tz = 'Asia/Kolkata') {
-  if (timeVal === null || timeVal === undefined || timeVal === '') return '';
+export function formatTime12(timeVal, tz = "Asia/Kolkata") {
+  if (timeVal === null || timeVal === undefined || timeVal === "") return "";
 
-  if (typeof timeVal === 'string') {
+  if (typeof timeVal === "string") {
     const trimmed = timeVal.trim();
     // Normalize existing 12-hour string (e.g. "2:30 pm" -> "2:30 PM")
-    const match12 = trimmed.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM|am|pm)$/i);
+    const match12 = trimmed.match(
+      /^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM|am|pm)$/i,
+    );
     if (match12) {
       const h = parseInt(match12[1], 10);
       const m = match12[2];
@@ -69,7 +95,7 @@ export function formatTime12(timeVal, tz = 'Asia/Kolkata') {
     if (match24) {
       let hours = parseInt(match24[1], 10);
       const minutes = match24[2];
-      const period = hours >= 12 ? 'PM' : 'AM';
+      const period = hours >= 12 ? "PM" : "AM";
       hours = hours % 12;
       if (hours === 0) hours = 12;
       return `${hours}:${minutes} ${period}`;
@@ -80,17 +106,17 @@ export function formatTime12(timeVal, tz = 'Asia/Kolkata') {
   const d = timeVal instanceof Date ? timeVal : new Date(timeVal);
   if (!isNaN(d.getTime())) {
     try {
-      const formatter = new Intl.DateTimeFormat('en-US', {
+      const formatter = new Intl.DateTimeFormat("en-US", {
         timeZone: tz,
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
       });
       return formatter.format(d);
     } catch {
       let hours = d.getHours();
-      const minutes = String(d.getMinutes()).padStart(2, '0');
-      const period = hours >= 12 ? 'PM' : 'AM';
+      const minutes = String(d.getMinutes()).padStart(2, "0");
+      const period = hours >= 12 ? "PM" : "AM";
       hours = hours % 12;
       if (hours === 0) hours = 12;
       return `${hours}:${minutes} ${period}`;
@@ -104,8 +130,8 @@ export function formatTime12(timeVal, tz = 'Asia/Kolkata') {
  * Formats a start and end time pair into a clean 12-hour range string.
  * Example: ("14:30", "16:00") -> "2:30 PM – 4:00 PM"
  */
-export function formatTimeRange(startTime, endTime, tz = 'Asia/Kolkata') {
-  if (!startTime && !endTime) return '';
+export function formatTimeRange(startTime, endTime, tz = "Asia/Kolkata") {
+  if (!startTime && !endTime) return "";
   if (!endTime) return formatTime12(startTime, tz);
   if (!startTime) return formatTime12(endTime, tz);
   return `${formatTime12(startTime, tz)} – ${formatTime12(endTime, tz)}`;
@@ -116,9 +142,13 @@ export function formatTimeRange(startTime, endTime, tz = 'Asia/Kolkata') {
  */
 export function getPriorityBadge(priority) {
   switch (priority) {
-    case 'P1': return '<span class="badge badge-p1">P1 Essential</span>';
-    case 'P2': return '<span class="badge badge-p2">P2 Core</span>';
-    case 'P3': return '<span class="badge badge-p3">P3 Optional</span>';
-    default: return `<span class="badge badge-p2">${priority}</span>`;
+    case "P1":
+      return '<span class="badge badge-p1">P1 Essential</span>';
+    case "P2":
+      return '<span class="badge badge-p2">P2 Core</span>';
+    case "P3":
+      return '<span class="badge badge-p3">P3 Optional</span>';
+    default:
+      return `<span class="badge badge-p2">${priority}</span>`;
   }
 }
