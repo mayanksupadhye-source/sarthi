@@ -1,86 +1,206 @@
-import { Course } from '../models/Course.js';
-import { OratoryWeek } from '../models/OratoryWeek.js';
-import { parseWebDevMarkdown, parseDSAMarkdown, getOratoryWeeksSeed } from '../services/courseSeeder.js';
+import { Course } from "../models/Course.js";
+import { OratoryWeek } from "../models/OratoryWeek.js";
+import { CurriculumActivity } from "../models/CurriculumActivity.js";
+import { CurriculumImporter } from "../services/curriculumImporter.js";
+import { ExecutionSyncService } from "../services/executionSyncService.js";
+import {
+  migrateCoursesToActivities,
+  cleanLegacySeededCourses,
+} from "../services/curriculumMigration.js";
+import { Setting } from "../models/Setting.js";
+import {
+  parseWebDevMarkdown,
+  parseDSAMarkdown,
+  getOratoryWeeksSeed,
+} from "../services/courseSeeder.js";
 
 export async function getCourses(req, res, next) {
   try {
-    const courses = await Course.find({ userId: req.user.id }).select('slug title instructor totalLectures completedLectures totalMinutes completedMinutes');
-    return res.json({ success: true, courses });
+    const filter = { userId: req.user.id };
+    if (req.query.category) {
+      filter.category = req.query.category;
+    }
+    const courses = await Course.find(filter).select(
+      "slug title emoji category priority instructor description notes defaultPracticeMultiplier status startDate targetDate totalLectures completedLectures totalMinutes completedMinutes",
+    );
+    return res.json({ success: true, count: courses.length, courses });
   } catch (err) {
     next(err);
   }
 }
 
-export async function getCourseBySlug(req, res, next) {
+export async function createCourse(req, res, next) {
   try {
-    const { slug } = req.params;
-    let course = await Course.findOne({ userId: req.user.id, slug });
-
-    // Auto-seed if missing
-    if (!course) {
-      if (slug === 'web-dev') {
-        const data = parseWebDevMarkdown();
-        if (data) {
-          course = new Course({ ...data, userId: req.user.id });
-          course.recalculateProgress();
-          await course.save();
-        }
-      } else if (slug === 'dsa') {
-        const data = parseDSAMarkdown();
-        if (data) {
-          course = new Course({ ...data, userId: req.user.id });
-          course.recalculateProgress();
-          await course.save();
-        }
-      } else if (slug === 'exploration-lab' || slug === 'explore') {
-        course = new Course({
-          userId: req.user.id,
-          slug: 'exploration-lab',
-          title: 'Exploration Lab (Section X)',
-          instructor: 'Self-Directed Mastery',
-          description: 'Dedicated space for secondary exploratory skills — Advanced Excel, Financial Modelling, PowerPoint Deck Design, Linux Command Line, and emerging tools.',
-          defaultPracticeMultiplier: 1.0,
-          sections: [
-            {
-              sectionNumber: 1,
-              title: 'Advanced Excel & Financial Modelling',
-              lectures: [
-                { lectureNumber: 1, title: 'VLOOKUP vs XLOOKUP in Real Financial Models', videoDurationMinutes: 45, practiceMultiplier: 1.0, totalEffortMinutes: 45 },
-                { lectureNumber: 2, title: 'INDEX-MATCH & Dynamic Array Formulas', videoDurationMinutes: 40, practiceMultiplier: 1.0, totalEffortMinutes: 40 },
-                { lectureNumber: 3, title: 'Pivot Tables, Slicers & Summary Dashboards', videoDurationMinutes: 50, practiceMultiplier: 1.0, totalEffortMinutes: 50 },
-                { lectureNumber: 4, title: 'Discounted Cash Flow (DCF) & Valuation Models', videoDurationMinutes: 60, practiceMultiplier: 1.0, totalEffortMinutes: 60 },
-                { lectureNumber: 5, title: 'Macro Basics & Automation Scripting', videoDurationMinutes: 45, practiceMultiplier: 1.0, totalEffortMinutes: 45 }
-              ]
-            },
-            {
-              sectionNumber: 2,
-              title: 'Executive Presentation & Pitch Decks',
-              lectures: [
-                { lectureNumber: 1, title: 'Information Hierarchy & The 3-Second Rule', videoDurationMinutes: 30, practiceMultiplier: 1.0, totalEffortMinutes: 30 },
-                { lectureNumber: 2, title: 'Typography Systems & Visual Contrast in Slides', videoDurationMinutes: 35, practiceMultiplier: 1.0, totalEffortMinutes: 35 },
-                { lectureNumber: 3, title: 'Visual Storytelling & Chart Simplification', videoDurationMinutes: 40, practiceMultiplier: 1.0, totalEffortMinutes: 40 },
-                { lectureNumber: 4, title: 'Executive Pitch Deck Architecture (10-Slide Deck)', videoDurationMinutes: 45, practiceMultiplier: 1.0, totalEffortMinutes: 45 }
-              ]
-            },
-            {
-              sectionNumber: 3,
-              title: 'Linux & Shell Scripting',
-              lectures: [
-                { lectureNumber: 1, title: 'Essential Bash Navigation, Permissions & File Operations', videoDurationMinutes: 40, practiceMultiplier: 1.0, totalEffortMinutes: 40 },
-                { lectureNumber: 2, title: 'Piping, Redirection & Text Filtering (grep, sed, awk)', videoDurationMinutes: 50, practiceMultiplier: 1.0, totalEffortMinutes: 50 },
-                { lectureNumber: 3, title: 'Writing Resilient Bash Automation Scripts', videoDurationMinutes: 45, practiceMultiplier: 1.0, totalEffortMinutes: 45 },
-                { lectureNumber: 4, title: 'Process Management, SSH & Cron Jobs', videoDurationMinutes: 45, practiceMultiplier: 1.0, totalEffortMinutes: 45 }
-              ]
-            }
-          ]
-        });
-        course.recalculateProgress();
-        await course.save();
-      }
+    const {
+      title,
+      slug,
+      emoji = "📚",
+      instructor = "",
+      description = "",
+      notes = "",
+      category = "course",
+      priority = "P2",
+      defaultPracticeMultiplier = 2.0,
+      startDate,
+      targetDate,
+    } = req.body;
+    if (!title || typeof title !== "string") {
+      return res
+        .status(400)
+        .json({ success: false, error: "Course title is required." });
     }
 
+    const courseSlug = (slug || title)
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    const existing = await Course.findOne({
+      userId: req.user.id,
+      slug: courseSlug,
+    });
+    if (existing) {
+      return res
+        .status(409)
+        .json({
+          success: false,
+          error: `A course with slug "${courseSlug}" already exists.`,
+        });
+    }
+
+    const course = await Course.create({
+      userId: req.user.id,
+      slug: courseSlug,
+      title: title.trim(),
+      emoji: emoji && typeof emoji === "string" ? emoji.trim() : "📚",
+      category: category || "course",
+      priority: ["P1", "P2", "P3"].includes(priority) ? priority : "P2",
+      instructor: instructor.trim(),
+      description: description.trim(),
+      notes: notes && typeof notes === "string" ? notes.trim() : "",
+      defaultPracticeMultiplier: Number(defaultPracticeMultiplier) || 2.0,
+      startDate: startDate || null,
+      targetDate: targetDate || null,
+      status: "active",
+      sections: [],
+    });
+
+    return res.status(201).json({ success: true, course });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateCourse(req, res, next) {
+  try {
+    const { slug } = req.params;
+    const {
+      title,
+      emoji,
+      instructor,
+      description,
+      notes,
+      defaultPracticeMultiplier,
+      priority,
+      status,
+      startDate,
+      targetDate,
+    } = req.body;
+
+    const course = await Course.findOne({ userId: req.user.id, slug });
     if (!course) {
-      return res.status(404).json({ success: false, error: `Course "${slug}" not found.` });
+      return res
+        .status(404)
+        .json({ success: false, error: "Course not found." });
+    }
+
+    if (title !== undefined) course.title = title.trim();
+    if (emoji !== undefined) course.emoji = emoji.trim() || "📚";
+    if (instructor !== undefined) course.instructor = instructor.trim();
+    if (description !== undefined) course.description = description.trim();
+    if (notes !== undefined) course.notes = notes.trim();
+    if (priority !== undefined && ["P1", "P2", "P3"].includes(priority))
+      course.priority = priority;
+    const oldMultiplier = Number(course.defaultPracticeMultiplier) || 2;
+    const newMultiplier =
+      defaultPracticeMultiplier !== undefined
+        ? Number(defaultPracticeMultiplier)
+        : oldMultiplier;
+    const multiplierChanged =
+      defaultPracticeMultiplier !== undefined &&
+      oldMultiplier !== newMultiplier;
+
+    if (defaultPracticeMultiplier !== undefined)
+      course.defaultPracticeMultiplier = newMultiplier;
+    if (
+      status !== undefined &&
+      ["active", "paused", "archived"].includes(status)
+    )
+      course.status = status;
+    if (startDate !== undefined) course.startDate = startDate;
+    if (targetDate !== undefined) course.targetDate = targetDate;
+
+    course.updatedAt = new Date();
+    await course.save();
+
+    if (multiplierChanged) {
+      const future = await CurriculumActivity.find({
+        userId: req.user.id,
+        courseSlug: slug,
+        status: { $ne: "completed" },
+        activityMultiplierOverride: null,
+        activityEffortOverrideMinutes: null,
+      });
+
+      if (future.length > 0) {
+        const bulkOps = future.map((activity) => {
+          const totalEffort = Math.round(
+            (activity.contentDurationMinutes || 0) * newMultiplier,
+          );
+          const remaining = Math.max(
+            0,
+            totalEffort - (activity.actualMinutes || 0),
+          );
+          return {
+            updateOne: {
+              filter: { _id: activity._id },
+              update: {
+                $set: {
+                  practiceMultiplier: newMultiplier,
+                  totalEffortMinutes: totalEffort,
+                  remainingMinutes: remaining,
+                  updatedAt: new Date(),
+                },
+              },
+            },
+          };
+        });
+        await CurriculumActivity.bulkWrite(bulkOps);
+      }
+
+      // Recalculate course totals
+      const allActs = await CurriculumActivity.find({
+        userId: req.user.id,
+        courseSlug: slug,
+      });
+      if (allActs.length > 0) {
+        course.totalLectures = allActs.length;
+        course.completedLectures = allActs.filter(
+          (a) => a.status === "completed",
+        ).length;
+        course.totalMinutes = allActs.reduce(
+          (s, a) => s + (a.totalEffortMinutes || 0),
+          0,
+        );
+        course.completedMinutes = allActs
+          .filter((a) => a.status === "completed")
+          .reduce(
+            (s, a) => s + (a.actualMinutes || a.totalEffortMinutes || 0),
+            0,
+          );
+        await course.save();
+      }
     }
 
     return res.json({ success: true, course });
@@ -89,14 +209,100 @@ export async function getCourseBySlug(req, res, next) {
   }
 }
 
+export async function deleteCourse(req, res, next) {
+  try {
+    const { slug } = req.params;
+    const course = await Course.findOneAndDelete({ userId: req.user.id, slug });
+    if (!course) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Course not found." });
+    }
+
+    // Keep execution history intact, archive pending activities
+    await CurriculumActivity.updateMany(
+      { userId: req.user.id, courseSlug: slug, status: { $ne: "completed" } },
+      { $set: { status: "deferred" } },
+    );
+
+    return res.json({
+      success: true,
+      message: `Course "${course.title}" deleted. Historical execution records preserved.`,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function previewImportDiff(req, res, next) {
+  try {
+    const { courseSlug, records } = req.body;
+    if (!courseSlug || !records || !Array.isArray(records)) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "courseSlug and records array are required.",
+        });
+    }
+    const diff = await CurriculumImporter.previewDiff({
+      userId: req.user.id,
+      courseSlug,
+      records,
+    });
+    return res.json(diff);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getCourseBySlug(req, res, next) {
+  try {
+    const { slug } = req.params;
+    const course = await Course.findOne({ userId: req.user.id, slug });
+
+    if (!course) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          error: `Course "${slug}" not found. You can create or import it in Courses Hub.`,
+        });
+    }
+
+    const activities = await CurriculumActivity.find({
+      userId: req.user.id,
+      courseSlug: slug,
+    }).sort({ sectionNumber: 1, activityNumber: 1 });
+    const hierarchy = CurriculumImporter.buildHierarchyTree(
+      activities,
+      course.defaultPracticeMultiplier || 2,
+    );
+
+    return res.json({ success: true, course, activities, hierarchy });
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function updateLectureProgress(req, res, next) {
   try {
     const { slug, lectureId } = req.params;
-    const { isWatched, isCodeDone, problemsAttempted, problemsSolved, notes, difficulty, confidence } = req.body;
+    const {
+      isWatched,
+      isCodeDone,
+      problemsAttempted,
+      problemsSolved,
+      notes,
+      difficulty,
+      confidence,
+    } = req.body;
 
     const course = await Course.findOne({ userId: req.user.id, slug });
     if (!course) {
-      return res.status(404).json({ success: false, error: 'Course not found.' });
+      return res
+        .status(404)
+        .json({ success: false, error: "Course not found." });
     }
 
     let foundLecture = null;
@@ -109,8 +315,10 @@ export async function updateLectureProgress(req, res, next) {
           lec.isWatched = Boolean(req.body.isCompleted);
           lec.isCodeDone = Boolean(req.body.isCompleted);
         }
-        if (problemsAttempted !== undefined) lec.problemsAttempted = Number(problemsAttempted);
-        if (problemsSolved !== undefined) lec.problemsSolved = Number(problemsSolved);
+        if (problemsAttempted !== undefined)
+          lec.problemsAttempted = Number(problemsAttempted);
+        if (problemsSolved !== undefined)
+          lec.problemsSolved = Number(problemsSolved);
         if (notes !== undefined) lec.notes = notes;
         if (difficulty !== undefined) lec.difficulty = difficulty;
         if (confidence !== undefined) lec.confidence = Number(confidence);
@@ -123,21 +331,65 @@ export async function updateLectureProgress(req, res, next) {
     }
 
     if (!foundLecture) {
-      return res.status(404).json({ success: false, error: 'Lecture not found in course.' });
+      return res
+        .status(404)
+        .json({ success: false, error: "Lecture not found in course." });
     }
 
     course.recalculateProgress();
+    if (
+      course.totalLectures > 0 &&
+      course.completedLectures >= course.totalLectures
+    ) {
+      course.status = "archived";
+    } else if (
+      course.status === "archived" &&
+      course.completedLectures < course.totalLectures
+    ) {
+      course.status = "active";
+    }
     await course.save();
+
+    // Sync to normalized CurriculumActivity if it exists
+    try {
+      const isDone = Boolean(foundLecture.isWatched && foundLecture.isCodeDone);
+      await CurriculumActivity.updateOne(
+        {
+          userId: req.user.id,
+          courseSlug: slug,
+          activityNumber: foundLecture.lectureNumber,
+        },
+        {
+          $set: {
+            isWatched: Boolean(foundLecture.isWatched),
+            isCodeDone: Boolean(foundLecture.isCodeDone),
+            status: isDone ? "completed" : "pending",
+            completedAt: isDone ? foundLecture.completedAt || new Date() : null,
+            ...(confidence !== undefined
+              ? { confidence: Number(confidence) }
+              : {}),
+            ...(difficulty !== undefined ? { difficulty } : {}),
+          },
+        },
+      );
+    } catch (syncErr) {
+      console.warn(
+        "[courseController] CurriculumActivity sync notice:",
+        syncErr.message,
+      );
+    }
 
     return res.json({
       success: true,
-      message: 'Lecture progress updated successfully.',
+      message: "Lecture progress updated successfully.",
       lecture: foundLecture,
       courseProgress: {
         totalLectures: course.totalLectures,
         completedLectures: course.completedLectures,
-        percent: Math.round((course.completedLectures / (course.totalLectures || 1)) * 100)
-      }
+        percent: Math.round(
+          (course.completedLectures / (course.totalLectures || 1)) * 100,
+        ),
+      },
     });
   } catch (err) {
     next(err);
@@ -149,7 +401,9 @@ export async function addCourseSection(req, res, next) {
     const { slug } = req.params;
     const { title, topics = [] } = req.body;
     if (!title || !title.trim()) {
-      return res.status(400).json({ success: false, error: 'Section title is required.' });
+      return res
+        .status(400)
+        .json({ success: false, error: "Section title is required." });
     }
 
     let course = await Course.findOne({ userId: req.user.id, slug });
@@ -157,45 +411,66 @@ export async function addCourseSection(req, res, next) {
       course = new Course({
         userId: req.user.id,
         slug,
-        title: slug === 'exploration-lab' ? 'Exploration Lab (Section X)' : title.trim(),
-        sections: []
+        title:
+          slug === "exploration-lab"
+            ? "Exploration Lab (Section X)"
+            : title.trim(),
+        sections: [],
       });
     }
 
     const nextSecNum = (course.sections.length || 0) + 1;
-    const lectures = Array.isArray(topics) && topics.length > 0
-      ? topics.map((t, idx) => {
-          const topicTitle = typeof t === 'string' ? t.trim() : (t.title || `Topic ${idx + 1}`);
-          const duration = (typeof t === 'object' && t.durationMinutes) || 45;
-          return {
-            lectureNumber: idx + 1,
-            title: topicTitle,
-            videoDurationMinutes: duration,
-            practiceMultiplier: 1.0,
-            totalEffortMinutes: duration,
-            isWatched: false,
-            isCodeDone: false
-          };
-        }).filter(lec => Boolean(lec.title))
-      : [
-          {
-            lectureNumber: 1,
-            title: 'Core Fundamentals & Hands-on Practice',
-            videoDurationMinutes: 45,
-            practiceMultiplier: 1.0,
-            totalEffortMinutes: 45,
-            isWatched: false,
-            isCodeDone: false
-          }
-        ];
+    const lectures =
+      Array.isArray(topics) && topics.length > 0
+        ? topics
+            .map((t, idx) => {
+              const topicTitle =
+                typeof t === "string"
+                  ? t.trim()
+                  : t.title || `Topic ${idx + 1}`;
+              const duration =
+                (typeof t === "object" && t.durationMinutes) || 45;
+              return {
+                lectureNumber: idx + 1,
+                title: topicTitle,
+                videoDurationMinutes: duration,
+                practiceMultiplier: 1.0,
+                totalEffortMinutes: duration,
+                isWatched: false,
+                isCodeDone: false,
+              };
+            })
+            .filter((lec) => Boolean(lec.title))
+        : [
+            {
+              lectureNumber: 1,
+              title: "Core Fundamentals & Hands-on Practice",
+              videoDurationMinutes: 45,
+              practiceMultiplier: 1.0,
+              totalEffortMinutes: 45,
+              isWatched: false,
+              isCodeDone: false,
+            },
+          ];
 
     course.sections.push({
       sectionNumber: nextSecNum,
       title: title.trim(),
-      lectures
+      lectures,
     });
 
     course.recalculateProgress();
+    if (
+      course.totalLectures > 0 &&
+      course.completedLectures >= course.totalLectures
+    ) {
+      course.status = "archived";
+    } else if (
+      course.status === "archived" &&
+      course.completedLectures < course.totalLectures
+    ) {
+      course.status = "active";
+    }
     await course.save();
 
     return res.status(201).json({ success: true, course });
@@ -206,12 +481,268 @@ export async function addCourseSection(req, res, next) {
 
 export async function getOratoryWeeks(req, res, next) {
   try {
-    let weeks = await OratoryWeek.find({ userId: req.user.id }).sort({ weekNumber: 1 });
+    let weeks = await OratoryWeek.find({ userId: req.user.id }).sort({
+      weekNumber: 1,
+    });
     if (weeks.length === 0) {
-      const seed = getOratoryWeeksSeed().map(w => ({ ...w, userId: req.user.id }));
-      weeks = await OratoryWeek.insertMany(seed);
+      // Auto-sync from CurriculumActivity if activities exist
+      const activities = await CurriculumActivity.find({
+        userId: req.user.id,
+        courseSlug: "oratory",
+      }).sort({ activityNumber: 1 });
+      if (activities.length > 0) {
+        for (const act of activities) {
+          await OratoryWeek.findOneAndUpdate(
+            { userId: req.user.id, weekNumber: act.activityNumber },
+            {
+              userId: req.user.id,
+              weekNumber: act.activityNumber,
+              topic: act.title.replace(/^Week \d+:\s*/i, ""),
+              primarySkill:
+                act.description.replace(/^Primary Skill:\s*/i, "") ||
+                "Public Speaking",
+              isCompleted: act.status === "completed",
+              completedAt: act.completedAt,
+            },
+            { upsert: true, new: true },
+          );
+        }
+        weeks = await OratoryWeek.find({ userId: req.user.id }).sort({
+          weekNumber: 1,
+        });
+      }
     }
     return res.json({ success: true, count: weeks.length, weeks });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function createOratoryActivity(req, res, next) {
+  try {
+    const {
+      topic,
+      primarySkill = "Public Speaking",
+      weekNumber,
+      speechDraft,
+      durationMinutes = 120,
+      notes = "",
+    } = req.body;
+    if (!topic || !topic.trim()) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Topic is required." });
+    }
+
+    let targetWeek = Number(weekNumber);
+    if (!targetWeek || targetWeek <= 0) {
+      const latest = await OratoryWeek.findOne({ userId: req.user.id }).sort({
+        weekNumber: -1,
+      });
+      targetWeek = (latest?.weekNumber || 0) + 1;
+    }
+
+    const week = await OratoryWeek.findOneAndUpdate(
+      { userId: req.user.id, weekNumber: targetWeek },
+      {
+        userId: req.user.id,
+        weekNumber: targetWeek,
+        topic: topic.trim(),
+        primarySkill: primarySkill.trim(),
+        speechDraft: speechDraft || {},
+        drillNotes: notes.trim(),
+        updatedAt: new Date(),
+      },
+      { upsert: true, new: true },
+    );
+
+    // Also register or update corresponding CurriculumActivity
+    await CurriculumActivity.findOneAndUpdate(
+      {
+        userId: req.user.id,
+        courseSlug: "oratory",
+        activityNumber: targetWeek,
+      },
+      {
+        userId: req.user.id,
+        courseSlug: "oratory",
+        courseTitle: "Oratory & Public Speaking",
+        sectionNumber: 1,
+        sectionTitle: "Speaking Practices",
+        activityNumber: targetWeek,
+        title: `Week ${targetWeek}: ${topic.trim()}`,
+        description: `Primary Skill: ${primarySkill.trim()}`,
+        contentDurationMinutes: 30,
+        practiceMultiplier: 2.0,
+        totalEffortMinutes: Number(durationMinutes) || 120,
+        remainingMinutes: Number(durationMinutes) || 120,
+        activityType: "speech",
+        priority: "P2",
+        notes: notes.trim(),
+        status: "pending",
+      },
+      { upsert: true, new: true },
+    );
+
+    return res.status(201).json({ success: true, week });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteOratoryActivity(req, res, next) {
+  try {
+    const { weekNumber } = req.params;
+    const week = await OratoryWeek.findOneAndDelete({
+      userId: req.user.id,
+      weekNumber: Number(weekNumber),
+    });
+    if (!week) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Oratory week not found." });
+    }
+    await CurriculumActivity.deleteOne({
+      userId: req.user.id,
+      courseSlug: "oratory",
+      activityNumber: Number(weekNumber),
+    });
+    return res.json({
+      success: true,
+      message: `Oratory Week ${weekNumber} deleted.`,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function createCourseActivity(req, res, next) {
+  try {
+    const { slug } = req.params;
+    const {
+      title,
+      description = "",
+      contentDurationMinutes = 0,
+      estimatedExecutionMinutes,
+      activityType = "lecture",
+      priority = "P2",
+      deadline,
+      notes = "",
+    } = req.body;
+
+    if (!title || !title.trim()) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Activity title is required." });
+    }
+
+    let course = await Course.findOne({ userId: req.user.id, slug });
+    if (!course) {
+      return res
+        .status(404)
+        .json({ success: false, error: `Course "${slug}" not found.` });
+    }
+
+    const latestAct = await CurriculumActivity.findOne({
+      userId: req.user.id,
+      courseSlug: slug,
+    }).sort({ activityNumber: -1 });
+    const activityNumber = (latestAct?.activityNumber || 0) + 1;
+
+    const contentDur = Number(contentDurationMinutes) || 0;
+    const multiplier = course.defaultPracticeMultiplier || 2.0;
+    const estEffort =
+      Number(estimatedExecutionMinutes) ||
+      (contentDur > 0 ? Math.round(contentDur * multiplier) : 45);
+
+    const validTypes = [
+      "lecture",
+      "problem",
+      "project",
+      "reading",
+      "speech",
+      "exercise",
+      "exploration",
+      "research",
+    ];
+    const chosenType = validTypes.includes(activityType.toLowerCase())
+      ? activityType.toLowerCase()
+      : "lecture";
+
+    const activity = await CurriculumActivity.create({
+      userId: req.user.id,
+      courseSlug: slug,
+      courseTitle: course.title,
+      sectionNumber: 1,
+      sectionTitle: "Curriculum Activities",
+      activityNumber,
+      title: title.trim(),
+      description: description.trim(),
+      contentDurationMinutes: contentDur,
+      practiceMultiplier: multiplier,
+      totalEffortMinutes: estEffort,
+      actualMinutes: 0,
+      remainingMinutes: estEffort,
+      activityType: chosenType,
+      priority: ["P1", "P2", "P3"].includes(priority) ? priority : "P2",
+      deadline: deadline || null,
+      notes: notes.trim(),
+      status: "pending",
+    });
+
+    // Update course metadata
+    course.totalLectures = (course.totalLectures || 0) + 1;
+    course.totalMinutes = (course.totalMinutes || 0) + estEffort;
+    await course.save();
+
+    return res.status(201).json({ success: true, activity });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function logCourseSession(req, res, next) {
+  try {
+    const { slug } = req.params;
+    const {
+      minutesSpent,
+      notes = "",
+      date,
+      title,
+      isCompleted = false,
+    } = req.body;
+
+    if (!minutesSpent || Number(minutesSpent) <= 0) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "Valid minutesSpent (> 0) is required.",
+        });
+    }
+
+    const course = await Course.findOne({ userId: req.user.id, slug });
+    if (!course) {
+      return res
+        .status(404)
+        .json({ success: false, error: `Course "${slug}" not found.` });
+    }
+
+    const result = await ExecutionSyncService.recordWork({
+      userId: req.user.id,
+      courseSlug: slug,
+      minutesSpent: Number(minutesSpent),
+      date: date || new Date().toISOString().split("T")[0],
+      type: "regular",
+      notes: notes.trim(),
+      isCompleted: Boolean(isCompleted),
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: `Recorded ${minutesSpent} min of execution on ${course.title}.`,
+      executionRecord: result.executionRecord,
+    });
   } catch (err) {
     next(err);
   }
@@ -224,18 +755,31 @@ export async function updateOratoryWeek(req, res, next) {
     delete updates.userId;
     delete updates.weekNumber;
 
-    const week = await OratoryWeek.findOne({ userId: req.user.id, weekNumber: Number(weekNumber) });
+    const week = await OratoryWeek.findOne({
+      userId: req.user.id,
+      weekNumber: Number(weekNumber),
+    });
     if (!week) {
-      return res.status(404).json({ success: false, error: `Oratory Week ${weekNumber} not found.` });
+      return res
+        .status(404)
+        .json({
+          success: false,
+          error: `Oratory Week ${weekNumber} not found.`,
+        });
     }
 
-    if (updates.speechDraft) week.speechDraft = { ...week.speechDraft, ...updates.speechDraft };
+    if (updates.speechDraft)
+      week.speechDraft = { ...week.speechDraft, ...updates.speechDraft };
     if (updates.scores) week.scores = { ...week.scores, ...updates.scores };
-    if (updates.biggestMistake !== undefined) week.biggestMistake = updates.biggestMistake;
+    if (updates.biggestMistake !== undefined)
+      week.biggestMistake = updates.biggestMistake;
     if (updates.drillNotes !== undefined) week.drillNotes = updates.drillNotes;
-    if (updates.firstRecordingNotes !== undefined) week.firstRecordingNotes = updates.firstRecordingNotes;
-    if (updates.finalRecordingNotes !== undefined) week.finalRecordingNotes = updates.finalRecordingNotes;
-    if (updates.comparisonSummary !== undefined) week.comparisonSummary = updates.comparisonSummary;
+    if (updates.firstRecordingNotes !== undefined)
+      week.firstRecordingNotes = updates.firstRecordingNotes;
+    if (updates.finalRecordingNotes !== undefined)
+      week.finalRecordingNotes = updates.finalRecordingNotes;
+    if (updates.comparisonSummary !== undefined)
+      week.comparisonSummary = updates.comparisonSummary;
     if (updates.isCompleted !== undefined) {
       week.isCompleted = Boolean(updates.isCompleted);
       if (week.isCompleted && !week.completedAt) week.completedAt = new Date();
@@ -245,6 +789,245 @@ export async function updateOratoryWeek(req, res, next) {
     await week.save();
 
     return res.json({ success: true, week });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function downloadCsvTemplate(req, res, next) {
+  try {
+    const kind =
+      req.query.kind ||
+      (req.path && req.path.includes("oratory") ? "oratory" : "course");
+    const csv = CurriculumImporter.generateCsvTemplate(kind);
+    const filename =
+      kind === "oratory"
+        ? "sarthi_oratory_template.csv"
+        : kind === "exploration"
+          ? "sarthi_exploration_template.csv"
+          : "sarthi_curriculum_template.csv";
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    return res.status(200).send(csv);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function previewCsvImport(req, res, next) {
+  try {
+    const { csvText } = req.body;
+    if (!csvText || typeof csvText !== "string") {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "csvText string is required in request body.",
+        });
+    }
+    const { courseSlug, category = "course" } = req.body;
+    const existingCourse = courseSlug
+      ? await Course.findOne({ userId: req.user.id, slug: courseSlug })
+      : null;
+    const setting = existingCourse
+      ? null
+      : await Setting.findOne({ userId: req.user.id });
+    const existingActivities = courseSlug
+      ? await CurriculumActivity.find({ userId: req.user.id, courseSlug })
+          .select("activityNumber")
+          .lean()
+      : [];
+    const multiplier = Number(
+      existingCourse?.defaultPracticeMultiplier ||
+        setting?.defaultPracticeMultiplier ||
+        2,
+    );
+    const result = CurriculumImporter.parseCsv(csvText, multiplier, {
+      existingActivityNumbers: existingActivities.map((a) => a.activityNumber),
+    });
+    if (
+      result.courseName &&
+      existingCourse &&
+      result.courseName !== existingCourse.title
+    )
+      result.warnings.push(
+        `CSV course_name '${result.courseName}' differs from configured course '${existingCourse.title}'; configured course settings are retained.`,
+      );
+    result.category = category;
+    result.courseSlug = courseSlug || null;
+    return res.json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function commitCsvImport(req, res, next) {
+  try {
+    const { courseSlug, courseTitle, records, category = "course" } = req.body;
+    if (!courseSlug || !records || !Array.isArray(records)) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "courseSlug and records array are required.",
+        });
+    }
+    const result = await CurriculumImporter.commitCourse({
+      userId: req.user.id,
+      courseSlug,
+      courseTitle: courseTitle || courseSlug,
+      records,
+      defaultMultiplier:
+        Number(
+          (await Course.findOne({ userId: req.user.id, slug: courseSlug }))
+            ?.defaultPracticeMultiplier,
+        ) ||
+        Number(
+          (await Setting.findOne({ userId: req.user.id }))
+            ?.defaultPracticeMultiplier,
+        ) ||
+        2,
+      category,
+    });
+
+    if (courseSlug === "oratory") {
+      for (const rec of records) {
+        await OratoryWeek.findOneAndUpdate(
+          { userId: req.user.id, weekNumber: rec.serialNumber },
+          {
+            userId: req.user.id,
+            weekNumber: rec.serialNumber,
+            topic: rec.title.replace(/^Week \d+:\s*/i, ""),
+            primarySkill: rec.notes || rec.description || "Public Speaking",
+          },
+          { upsert: true, new: true },
+        );
+      }
+    }
+
+    return res.json({ success: true, ...result });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getCourseActivities(req, res, next) {
+  try {
+    const { slug } = req.params;
+    let activities = await CurriculumActivity.find({
+      userId: req.user.id,
+      courseSlug: slug,
+    }).sort({ sectionNumber: 1, activityNumber: 1 });
+
+    // Auto-migrate if 0 activities exist yet
+    if (activities.length === 0) {
+      await migrateCoursesToActivities(req.user.id);
+      activities = await CurriculumActivity.find({
+        userId: req.user.id,
+        courseSlug: slug,
+      }).sort({ sectionNumber: 1, activityNumber: 1 });
+    }
+
+    const hierarchy = CurriculumImporter.buildHierarchyTree(activities);
+    return res.json({
+      success: true,
+      count: activities.length,
+      activities,
+      hierarchy,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function completeCourseActivity(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { actualMinutes, confidence, status } = req.body;
+
+    if (status === "pending") {
+      const act = await CurriculumActivity.findOne({
+        _id: id,
+        userId: req.user.id,
+      });
+      if (!act)
+        return res
+          .status(404)
+          .json({ success: false, error: "Activity not found." });
+
+      act.status = "pending";
+      act.isWatched = false;
+      act.isCodeDone = false;
+      act.actualMinutes = 0;
+      act.remainingMinutes = act.totalEffortMinutes || 30;
+      act.completedAt = null;
+      await act.save();
+
+      const course = await Course.findOne({
+        userId: req.user.id,
+        slug: act.courseSlug,
+      });
+      if (course) {
+        if (Array.isArray(course.sections)) {
+          for (const sec of course.sections) {
+            if (sec.sectionNumber === act.sectionNumber) {
+              const lec = sec.lectures?.find(
+                (l) => l.lectureNumber === act.activityNumber,
+              );
+              if (lec) {
+                lec.isWatched = false;
+                lec.isCodeDone = false;
+                lec.completedAt = null;
+                break;
+              }
+            }
+          }
+        }
+        const allActs = await CurriculumActivity.find({
+          userId: req.user.id,
+          courseSlug: act.courseSlug,
+        });
+        if (allActs.length > 0) {
+          course.totalLectures = allActs.length;
+          course.completedLectures = allActs.filter(
+            (a) => a.status === "completed" || (a.isWatched && a.isCodeDone),
+          ).length;
+          course.totalMinutes = allActs.reduce(
+            (s, a) => s + (a.totalEffortMinutes || 0),
+            0,
+          );
+          course.completedMinutes = allActs
+            .filter(
+              (a) => a.status === "completed" || (a.isWatched && a.isCodeDone),
+            )
+            .reduce(
+              (s, a) => s + (a.actualMinutes || a.totalEffortMinutes || 0),
+              0,
+            );
+        }
+        if (
+          course.status === "archived" &&
+          course.completedLectures < course.totalLectures
+        ) {
+          course.status = "active";
+        }
+        await course.save();
+      }
+      return res.json({ success: true, activity: act });
+    }
+
+    const activity = await ExecutionSyncService.completeActivity({
+      userId: req.user.id,
+      activityId: id,
+      actualMinutes,
+      confidence,
+    });
+    if (!activity) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Activity not found." });
+    }
+    return res.json({ success: true, activity });
   } catch (err) {
     next(err);
   }
