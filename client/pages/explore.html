@@ -1,833 +1,3238 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exploration Lab — SARTHI (सारथी)</title>
-  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
-  <link rel="stylesheet" href="../assets/css/variables.css">
-  <link rel="stylesheet" href="../assets/css/reset.css">
-  <link rel="stylesheet" href="../assets/css/typography.css">
-  <link rel="stylesheet" href="../assets/css/components.css">
-  <link rel="stylesheet" href="../assets/css/layout.css">
-  <style>
-    .explore-banner {
-      background-color: var(--color-ink);
-      color: #FFFFFF;
-      border-radius: var(--radius-lg);
-      padding: var(--space-6) var(--space-8);
-      margin-bottom: var(--space-6);
-      box-shadow: var(--shadow-sm);
-      position: relative;
-      border: 1px solid var(--color-border);
-    }
-    .explore-banner::after {
-      content: '🔬';
-      position: absolute;
-      right: 2rem;
-      bottom: -0.5rem;
-      font-size: 5rem;
-      opacity: 0.15;
-      pointer-events: none;
-    }
-    .track-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: var(--space-6);
-      margin-bottom: var(--space-8);
-    }
-    .track-card {
-      background: var(--color-bg-paper);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-6);
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
-    }
-    .track-card:hover {
-      box-shadow: var(--shadow-md);
-      border-color: var(--color-primary);
-    }
-    .track-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: var(--space-3);
-      gap: var(--space-2);
-    }
-    .track-title {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: var(--color-ink);
-      line-height: 1.3;
-    }
-    .track-description {
-      font-size: 0.85rem;
-      color: var(--color-muted);
-      margin-bottom: var(--space-4);
-      min-height: 2.4em;
-    }
-    .topic-list {
-      list-style: none;
-      padding: 0;
-      margin: var(--space-4) 0;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-2);
-      flex-grow: 1;
-    }
-    .topic-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--space-2) var(--space-3);
-      border-radius: var(--radius-sm);
-      background: var(--color-bg-base);
-      border: 1px solid var(--color-border);
-      font-size: 0.85rem;
-      transition: background-color var(--transition-fast);
-    }
-    .topic-item:hover {
-      background: var(--color-bg-subtle);
-    }
-    .topic-item.completed {
-      background-color: var(--color-bg-subtle);
-      border-color: var(--color-border);
-    }
-    .topic-item.completed .topic-name {
-      text-decoration: line-through;
-      color: var(--color-muted);
-    }
-    .topic-left {
-      display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      cursor: pointer;
-      user-select: none;
-      flex-grow: 1;
-    }
-    .topic-checkbox {
-      width: 17px;
-      height: 17px;
-      cursor: pointer;
-      accent-color: var(--color-success);
-    }
-    .topic-focus-btn {
-      opacity: 0.6;
-      font-size: 0.75rem;
-      padding: 2px 6px;
-      border-radius: var(--radius-sm);
-      color: var(--color-charcoal);
-      border: 1px solid var(--color-border);
-      background: var(--color-bg-paper);
-      cursor: pointer;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 3px;
-    }
-    .topic-focus-btn:hover {
-      opacity: 1;
-      border-color: var(--color-primary);
-      color: var(--color-primary);
-    }
-    .track-footer {
-      border-top: 1px solid var(--color-border);
-      padding-top: var(--space-4);
-      margin-top: var(--space-4);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: var(--space-3);
-    }
-    .synthesis-section {
-      background: var(--color-bg-paper);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: var(--space-6);
-      margin-top: var(--space-8);
-    }
-    .note-item {
-      padding: var(--space-3) var(--space-4);
-      background: var(--color-bg-base);
-      border-radius: var(--radius-md);
-      border-left: 3px solid var(--color-primary);
-      margin-bottom: var(--space-3);
-    }
-  </style>
-</head>
-<body>
-  <div class="app-layout">
-    <main class="app-main">
-      <!-- Topbar -->
-      <header class="app-topbar">
-        <div class="topbar-left">
-          <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
-          <div class="page-headline">Exploration Lab (Section X)</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Exploration Lab — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .explore-banner {
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        color: var(--text-ink);
+        border-radius: var(--radius-lg);
+        padding: var(--space-6) var(--space-8);
+        margin-bottom: var(--space-6);
+        box-shadow: var(--shadow-sm);
+        position: relative;
+        border: 1px solid var(--border-hairline);
+        border-left: 4px solid var(--accent-blue);
+        overflow: hidden;
+      }
+      .explore-banner::after {
+        content: "🔬";
+        position: absolute;
+        right: 2rem;
+        bottom: -0.5rem;
+        font-size: 5rem;
+        opacity: 0.12;
+        pointer-events: none;
+      }
+      .track-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: var(--space-6);
+        margin-bottom: var(--space-8);
+      }
+      .track-card {
+        background: var(--color-bg-paper);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-6);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition:
+          transform var(--transition-fast),
+          box-shadow var(--transition-fast),
+          border-color var(--transition-fast);
+      }
+      .track-card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--color-primary);
+      }
+      .track-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--space-3);
+        gap: var(--space-2);
+      }
+      .track-title {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--color-ink);
+        line-height: 1.3;
+      }
+      .track-description {
+        font-size: 0.85rem;
+        color: var(--color-muted);
+        margin-bottom: var(--space-4);
+        min-height: 2.4em;
+      }
+      .topic-list {
+        list-style: none;
+        padding: 0;
+        margin: var(--space-4) 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+        flex-grow: 1;
+        max-height: 300px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        padding-right: 4px;
+      }
+      #singleExpActivitiesContainer {
+        max-height: 520px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        padding-right: 4px;
+      }
+      /* 3-Level Hierarchy Visual Styles for Exploration */
+      .exp-hierarchy-level-1 {
+        border: 1px solid var(--border-hairline);
+        border-left: 4px solid var(--color-primary, #4f46e5);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-3);
+        background: var(--color-bg-paper);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+      }
+      .exp-node-header {
+        padding: var(--space-3) var(--space-4);
+        background: var(--color-bg-base);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border-hairline);
+        user-select: none;
+        transition: background-color var(--transition-fast);
+      }
+      .exp-node-header:hover {
+        background: rgba(0, 0, 0, 0.02);
+      }
+      .exp-hierarchy-level-2 {
+        margin: var(--space-2) 0 var(--space-2) var(--space-4);
+        border-left: 3px solid #64748b;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-hairline);
+        background: #ffffff;
+        overflow: hidden;
+      }
+      .exp-hierarchy-level-2 .exp-node-header {
+        padding: var(--space-2) var(--space-3);
+        background: rgba(241, 245, 249, 0.6);
+        font-size: 0.875rem;
+      }
+      .exp-hierarchy-level-3 {
+        margin: var(--space-2) 0 var(--space-2) var(--space-4);
+        border-left: 2px solid #94a3b8;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-hairline);
+        background: #fafafa;
+        overflow: hidden;
+      }
+      .exp-hierarchy-level-3 .exp-node-header {
+        padding: var(--space-2) var(--space-3);
+        background: #f8fafc;
+        font-size: 0.8125rem;
+      }
+      .tree-chevron {
+        font-size: 0.75rem;
+        transition: transform var(--transition-fast);
+        color: var(--text-subtle);
+        display: inline-block;
+      }
+      .tree-chevron.expanded {
+        transform: rotate(180deg);
+      }
+      .topic-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-sm);
+        background: var(--color-bg-base);
+        border: 1px solid var(--color-border);
+        font-size: 0.85rem;
+        transition: background-color var(--transition-fast);
+      }
+      .topic-item:hover {
+        background: var(--color-bg-subtle);
+      }
+      .topic-item.completed {
+        background-color: var(--color-bg-subtle);
+        border-color: var(--color-border);
+      }
+      .topic-item.completed .topic-name {
+        text-decoration: line-through;
+        color: var(--color-muted);
+      }
+      .topic-left {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        cursor: pointer;
+        user-select: none;
+        flex-grow: 1;
+      }
+      .topic-checkbox {
+        width: 17px;
+        height: 17px;
+        cursor: pointer;
+        accent-color: var(--color-success);
+      }
+      .topic-focus-btn {
+        opacity: 0.6;
+        font-size: 0.75rem;
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        color: var(--color-charcoal);
+        border: 1px solid var(--color-border);
+        background: var(--color-bg-paper);
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+      }
+      .topic-focus-btn:hover {
+        opacity: 1;
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+      }
+      .track-footer {
+        border-top: 1px solid var(--color-border);
+        padding-top: var(--space-4);
+        margin-top: var(--space-4);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--space-3);
+      }
+      .synthesis-section {
+        background: var(--color-bg-paper);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-6);
+        margin-top: var(--space-8);
+      }
+      .note-item {
+        padding: var(--space-3) var(--space-4);
+        background: var(--color-bg-base);
+        border-radius: var(--radius-md);
+        border-left: 3px solid var(--color-primary);
+        margin-bottom: var(--space-3);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <!-- Topbar -->
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Exploration Lab (Section X)</div>
+          </div>
+          <div
+            class="topbar-right"
+            style="display: flex; align-items: center; gap: var(--space-3)"
+          >
+            <div id="topbarFocusWidget"></div>
+            <button
+              id="btnOpenExploreImportModal"
+              class="btn btn-outline btn-sm"
+            >
+              📥 Import CSV
+            </button>
+            <button id="openNewExplorationBtn" class="btn btn-primary btn-sm">
+              <span>+</span> New Exploration
+            </button>
+          </div>
+        </header>
+
+        <div class="page-container">
+          <!-- Hub Overview View -->
+          <div id="hubOverviewView">
+            <!-- Section X Banner -->
+            <div class="explore-banner card-hero-wave wave-motif-logic">
+              <div style="max-width: 820px; position: relative; z-index: 2">
+                <div
+                  style="
+                    font-size: 0.75rem;
+                    text-transform: uppercase;
+                    letter-spacing: 0.1em;
+                    color: var(--accent-blue);
+                    font-weight: 700;
+                    margin-bottom: var(--space-2);
+                  "
+                >
+                  SECTION X · ADAPTIVE CURRICULUM
+                </div>
+                <h1
+                  style="
+                    font-size: 1.35rem;
+                    font-weight: 800;
+                    margin-bottom: var(--space-2);
+                    color: var(--text-ink);
+                    line-height: 1.3;
+                  "
+                >
+                  Section X: Dedicated space for secondary exploratory skills —
+                  Advanced Excel, Financial Modelling, PowerPoint Deck Design,
+                  Linux Command Line, and emerging tools. Low pressure,
+                  consistent mastery.
+                </h1>
+                <p
+                  style="
+                    font-size: 0.875rem;
+                    color: var(--text-muted);
+                    margin-top: var(--space-2);
+                    line-height: 1.5;
+                  "
+                >
+                  Complement core engineering with multiplier micro-skills. Pick
+                  a focus topic, start a timed immersion sprint, and track your
+                  steady growth.
+                </p>
+              </div>
+              <div class="sarthi-wave-container" aria-hidden="true">
+                <svg
+                  class="sarthi-wave-layer sarthi-wave-layer-1"
+                  viewBox="0 0 1200 120"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,120 L0,120 Z"
+                    fill="rgba(29, 78, 216, 0.07)"
+                  ></path>
+                </svg>
+                <svg
+                  class="sarthi-wave-layer sarthi-wave-layer-2"
+                  viewBox="0 0 1200 120"
+                  preserveAspectRatio="none"
+                >
+                  <path
+                    d="M0,70 Q200,40 400,70 T800,70 T1200,70 L1200,120 L0,120 Z"
+                    fill="rgba(5, 150, 105, 0.05)"
+                  ></path>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Summary Metric Ribbon -->
+            <div class="grid-4" style="margin-bottom: var(--space-6)">
+              <div class="card" style="padding: var(--space-4)">
+                <div
+                  class="text-subtle text-xs"
+                  style="font-weight: 700; text-transform: uppercase"
+                >
+                  Active Tracks
+                </div>
+                <div
+                  style="
+                    font-size: 1.75rem;
+                    font-weight: 800;
+                    color: var(--color-ink);
+                  "
+                  id="statActiveTracks"
+                >
+                  3
+                </div>
+                <div class="text-subtle text-xs" id="statTrackSub">
+                  Customizable Tracks
+                </div>
+              </div>
+              <div class="card" style="padding: var(--space-4)">
+                <div
+                  class="text-subtle text-xs"
+                  style="font-weight: 700; text-transform: uppercase"
+                >
+                  Topics Mastered
+                </div>
+                <div
+                  style="
+                    font-size: 1.75rem;
+                    font-weight: 800;
+                    color: var(--color-primary);
+                  "
+                  id="statTopicsDone"
+                >
+                  0 / 13
+                </div>
+                <div class="text-subtle text-xs" id="statTopicsPct">
+                  0% Completed
+                </div>
+              </div>
+              <div class="card" style="padding: var(--space-4)">
+                <div
+                  class="text-subtle text-xs"
+                  style="font-weight: 700; text-transform: uppercase"
+                >
+                  Est. Total Time
+                </div>
+                <div
+                  style="
+                    font-size: 1.75rem;
+                    font-weight: 800;
+                    color: var(--color-ink);
+                  "
+                  id="statTotalHours"
+                >
+                  9.8h
+                </div>
+                <div class="text-subtle text-xs">Self-paced micro sprints</div>
+              </div>
+              <div class="card" style="padding: var(--space-4)">
+                <div
+                  class="text-subtle text-xs"
+                  style="font-weight: 700; text-transform: uppercase"
+                >
+                  Quick Focus Action
+                </div>
+                <div style="margin-top: var(--space-2)">
+                  <a
+                    href="focus.html?title=Exploration%20Lab%20Sprint"
+                    class="btn btn-outline btn-sm"
+                    style="width: 100%; font-weight: 700"
+                  >
+                    🎯 Start Deep Focus
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <!-- Learning Tracks Section -->
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: var(--space-4);
+                flex-wrap: wrap;
+                gap: var(--space-2);
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: var(--space-3);
+                  flex-wrap: wrap;
+                "
+              >
+                <h2
+                  style="
+                    font-size: 1.25rem;
+                    font-weight: 700;
+                    color: var(--color-ink);
+                    margin: 0;
+                  "
+                >
+                  Mastery Tracks
+                </h2>
+                <div class="tab-group" style="margin: 0">
+                  <button
+                    type="button"
+                    class="tab-btn active"
+                    id="tabFilterActiveExps"
+                  >
+                    Active (<span id="countActiveExps">0</span>)
+                  </button>
+                  <button
+                    type="button"
+                    class="tab-btn"
+                    id="tabFilterCompletedExps"
+                  >
+                    Completed (<span id="countCompletedExps">0</span>)
+                  </button>
+                  <button type="button" class="tab-btn" id="tabFilterAllExps">
+                    All (<span id="countAllExps">0</span>)
+                  </button>
+                </div>
+              </div>
+              <span class="text-subtle text-xs" id="syncStatus"
+                >Synced with SARTHI OS</span
+              >
+            </div>
+
+            <div class="bounded-scroll-container">
+              <div id="tracksContainer" class="track-grid">
+                <!-- Dynamically populated -->
+              </div>
+            </div>
+
+            <!-- Quick Synthesis & Key Takeaways Section -->
+            <div class="synthesis-section">
+              <div
+                class="card-header"
+                style="
+                  margin-bottom: var(--space-4);
+                  border-bottom: none;
+                  padding-bottom: 0;
+                "
+              >
+                <div>
+                  <div class="card-title">🔬 Notes & Quick Synthesis</div>
+                  <p
+                    class="text-subtle text-xs"
+                    style="margin-top: var(--space-1)"
+                  >
+                    Capture insights, mental models, formula cheatsheets, and
+                    command snippets from your exploration sprints.
+                  </p>
+                </div>
+              </div>
+
+              <form
+                id="synthesisForm"
+                style="
+                  display: flex;
+                  gap: var(--space-3);
+                  margin-bottom: var(--space-5);
+                  flex-wrap: wrap;
+                "
+              >
+                <input
+                  type="text"
+                  id="synthesisTitle"
+                  class="form-input"
+                  placeholder="Title (e.g. XLOOKUP vs INDEX-MATCH cheat sheet)"
+                  style="flex: 1 1 240px"
+                  required
+                />
+                <input
+                  type="text"
+                  id="synthesisContent"
+                  class="form-input"
+                  placeholder="Key takeaway or reflection note..."
+                  style="flex: 2 1 320px"
+                  required
+                />
+                <select
+                  id="synthesisTrack"
+                  class="form-select"
+                  style="width: 200px"
+                >
+                  <option value="General">General Exploration</option>
+                  <option value="Excel">Excel & Financial</option>
+                  <option value="Presentations">Executive Decks</option>
+                  <option value="Linux">Linux & Shell</option>
+                </select>
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  style="font-weight: 700"
+                >
+                  Add Takeaway
+                </button>
+              </form>
+
+              <div id="synthesisList">
+                <p class="text-subtle text-sm">
+                  No takeaways recorded yet. Add your first insight above!
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dedicated Exploration Tracker View (Visible when ?slug=... is present) -->
+          <div
+            id="singleTrackView"
+            class="hidden"
+            style="margin-top: var(--space-2)"
+          >
+            <div
+              style="
+                margin-bottom: var(--space-4);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: var(--space-2);
+              "
+            >
+              <a href="explore.html" class="btn btn-outline btn-sm"
+                >‹ All Explorations</a
+              >
+              <span class="text-subtle text-xs" id="singleExpTrackCategory"
+                >EXPLORATION TRACK</span
+              >
+            </div>
+
+            <div
+              class="card card-hero"
+              style="
+                margin-bottom: var(--space-6);
+                position: relative;
+                overflow: hidden;
+                border-left: 4px solid var(--accent-purple, #7c3aed);
+                padding: var(--space-6);
+              "
+            >
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: flex-start;
+                  flex-wrap: wrap;
+                  gap: var(--space-4);
+                "
+              >
+                <div style="max-width: 680px">
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: var(--space-2);
+                      margin-bottom: var(--space-2);
+                    "
+                  >
+                    <span class="badge badge-neutral text-xs">EXPLORATION</span>
+                    <span
+                      id="singleExpPriorityBadge"
+                      class="badge badge-neutral text-xs"
+                      >P3</span
+                    >
+                    <span
+                      id="singleExpStatusBadge"
+                      class="badge badge-success text-xs"
+                      >Active</span
+                    >
+                  </div>
+                  <h1
+                    id="singleExpTitle"
+                    style="
+                      font-size: 1.5rem;
+                      font-weight: 800;
+                      color: var(--text-ink);
+                      margin-bottom: var(--space-2);
+                      display: flex;
+                      align-items: center;
+                      gap: var(--space-2);
+                    "
+                  >
+                    <span>🔬</span> Exploration Title
+                  </h1>
+                  <p
+                    id="singleExpDesc"
+                    class="text-muted text-sm"
+                    style="margin-bottom: var(--space-3); line-height: 1.5"
+                  >
+                    Description
+                  </p>
+                  <div
+                    id="singleExpNotesContainer"
+                    class="hidden"
+                    style="
+                      background: var(--bg-subtle);
+                      border-left: 3px solid var(--accent-blue);
+                      padding: var(--space-2) var(--space-3);
+                      border-radius: var(--radius-sm);
+                      margin-bottom: var(--space-3);
+                    "
+                  >
+                    <div
+                      class="text-subtle text-xs"
+                      style="font-weight: 700; text-transform: uppercase"
+                    >
+                      Personal Goal / Objective
+                    </div>
+                    <div
+                      id="singleExpNotes"
+                      class="text-sm"
+                      style="color: var(--text-ink); margin-top: 2px"
+                    ></div>
+                  </div>
+                  <div
+                    class="text-subtle text-xs"
+                    style="display: flex; gap: var(--space-4); flex-wrap: wrap"
+                  >
+                    <span id="singleExpMultiplier"
+                      >Practice: 1.0× multiplier</span
+                    >
+                    <span id="singleExpTargetDate">Target: Self-paced</span>
+                    <span id="singleExpInstructor">Self-Directed</span>
+                  </div>
+                </div>
+                <div
+                  style="display: flex; gap: var(--space-2); flex-wrap: wrap"
+                >
+                  <button
+                    id="btnEditSingleExp"
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                  >
+                    ⚙ Edit Settings
+                  </button>
+                  <button
+                    id="btnDeleteSingleExp"
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                    style="
+                      color: var(--color-danger, #dc2626);
+                      border-color: rgba(220, 38, 38, 0.4);
+                    "
+                    title="Delete Exploration"
+                  >
+                    🗑 Delete
+                  </button>
+                  <button
+                    id="btnLogSingleExp"
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                  >
+                    ⚡ Log Session
+                  </button>
+                  <button
+                    id="btnAddSingleActivity"
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                  >
+                    + Activity
+                  </button>
+                  <button
+                    id="btnImportSingleExpCsv"
+                    type="button"
+                    class="btn btn-outline btn-sm"
+                  >
+                    📥 Import CSV
+                  </button>
+                  <a
+                    id="btnFocusSingleExp"
+                    href="focus.html"
+                    class="btn btn-primary btn-sm"
+                    style="font-weight: 700"
+                    >▶ Focus</a
+                  >
+                </div>
+              </div>
+
+              <!-- Progress Ribbon -->
+              <div
+                style="
+                  margin-top: var(--space-5);
+                  padding-top: var(--space-4);
+                  border-top: 1px solid var(--border-hairline);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-bottom: var(--space-2);
+                    font-size: 0.8125rem;
+                  "
+                >
+                  <span
+                    id="singleExpProgressText"
+                    class="text-muted font-medium"
+                    >0 / 0 activities completed (0%)</span
+                  >
+                  <span id="singleExpTimeText" class="text-subtle font-tabular"
+                    >0m completed · 0m remaining</span
+                  >
+                </div>
+                <div class="progress-bar" style="height: 8px">
+                  <div
+                    id="singleExpProgressBar"
+                    class="progress-fill accent"
+                    style="width: 0%"
+                  ></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Activities Section -->
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: var(--space-3);
+              "
+            >
+              <h2
+                style="
+                  font-size: 1.15rem;
+                  font-weight: 700;
+                  color: var(--text-ink);
+                  margin: 0;
+                "
+              >
+                Exploration Activities & Milestones
+              </h2>
+              <span class="text-subtle text-xs" id="singleExpActivitiesCount"
+                >0 Activities</span
+              >
+            </div>
+
+            <div
+              id="singleExpActivitiesContainer"
+              style="margin-bottom: var(--space-8)"
+            >
+              <!-- Populated dynamically -->
+            </div>
+          </div>
         </div>
-        <div class="topbar-right" style="display: flex; align-items: center; gap: var(--space-3);">
-          <div id="topbarFocusWidget"></div>
-          <button id="openAddTrackBtn" class="btn btn-primary btn-sm">
-            <span>+</span> Add Learning Track
+      </main>
+    </div>
+
+    <!-- Add Exploration Modal -->
+    <div id="addExplorationModal" class="modal-backdrop hidden">
+      <div class="modal-box" style="max-width: 560px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">New Exploration</div>
+            <div class="text-subtle text-xs">
+              Define a user-managed exploration topic (Excel, Quantum, Markets,
+              etc.)
+            </div>
+          </div>
+          <button
+            id="closeAddExplorationModal"
+            type="button"
+            class="btn btn-outline btn-sm"
+          >
+            ✕
           </button>
         </div>
-      </header>
 
-      <div class="page-container">
-        <!-- Section X Banner -->
-        <div class="explore-banner card-hero-wave wave-motif-logic">
-          <div style="max-width: 820px; position: relative; z-index: 2;">
-            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent-blue); font-weight: 700; margin-bottom: var(--space-2);">
-              SECTION X · ADAPTIVE CURRICULUM
+        <form id="addExplorationForm">
+          <div class="form-group">
+            <label class="form-label" for="newExpTitle"
+              >Exploration Title *</label
+            >
+            <input
+              type="text"
+              id="newExpTitle"
+              class="form-input"
+              placeholder="e.g. Learning Excel, Financial Modelling, Quantum Computing"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="newExpEmoji">Icon / Emoji</label>
+            <div
+              style="
+                display: flex;
+                gap: var(--space-2);
+                align-items: center;
+                flex-wrap: wrap;
+              "
+            >
+              <input
+                type="text"
+                id="newExpEmoji"
+                class="form-input"
+                style="width: 55px; text-align: center; font-size: 1.25rem"
+                value="🔬"
+                maxlength="4"
+              />
+              <div style="display: flex; gap: 4px; flex-wrap: wrap">
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm exp-emoji-pick"
+                  data-emoji="🔬"
+                >
+                  🔬
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm exp-emoji-pick"
+                  data-emoji="💡"
+                >
+                  💡
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm exp-emoji-pick"
+                  data-emoji="📊"
+                >
+                  📊
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm exp-emoji-pick"
+                  data-emoji="⚡"
+                >
+                  ⚡
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm exp-emoji-pick"
+                  data-emoji="🧠"
+                >
+                  🧠
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm exp-emoji-pick"
+                  data-emoji="🚀"
+                >
+                  🚀
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm exp-emoji-pick"
+                  data-emoji="🎨"
+                >
+                  🎨
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm exp-emoji-pick"
+                  data-emoji="💻"
+                >
+                  💻
+                </button>
+              </div>
             </div>
-            <h1 style="font-size: 1.35rem; font-weight: 800; margin-bottom: var(--space-2); color: var(--text-ink); line-height: 1.3;">
-              Section X: Dedicated space for secondary exploratory skills — Advanced Excel, Financial Modelling, PowerPoint Deck Design, Linux Command Line, and emerging tools. Low pressure, consistent mastery.
-            </h1>
-            <p style="font-size: 0.875rem; color: var(--text-muted); margin-top: var(--space-2); line-height: 1.5;">
-              Complement core engineering with multiplier micro-skills. Pick a focus topic, start a timed immersion sprint, and track your steady growth.
-            </p>
           </div>
-          <div class="sarthi-wave-container" aria-hidden="true">
-            <svg class="sarthi-wave-layer sarthi-wave-layer-1" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,120 L0,120 Z" fill="rgba(29, 78, 216, 0.07)"></path>
-            </svg>
-            <svg class="sarthi-wave-layer sarthi-wave-layer-2" viewBox="0 0 1200 120" preserveAspectRatio="none">
-              <path d="M0,70 Q200,40 400,70 T800,70 T1200,70 L1200,120 L0,120 Z" fill="rgba(5, 150, 105, 0.05)"></path>
-            </svg>
-          </div>
-        </div>
 
-        <!-- Summary Metric Ribbon -->
-        <div class="grid-4" style="margin-bottom: var(--space-6);">
-          <div class="card" style="padding: var(--space-4);">
-            <div class="text-subtle text-xs" style="font-weight: 700; text-transform: uppercase;">Active Tracks</div>
-            <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-ink);" id="statActiveTracks">3</div>
-            <div class="text-subtle text-xs" id="statTrackSub">Customizable Tracks</div>
+          <div class="form-group">
+            <label class="form-label" for="newExpDesc">Short Description</label>
+            <input
+              type="text"
+              id="newExpDesc"
+              class="form-input"
+              placeholder="e.g. Formulas, pivot tables, financial models, and dashboard design"
+            />
           </div>
-          <div class="card" style="padding: var(--space-4);">
-            <div class="text-subtle text-xs" style="font-weight: 700; text-transform: uppercase;">Topics Mastered</div>
-            <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-primary);" id="statTopicsDone">0 / 13</div>
-            <div class="text-subtle text-xs" id="statTopicsPct">0% Completed</div>
+          <div class="form-group">
+            <label class="form-label" for="newExpMultiplier"
+              >Effort multiplier</label
+            ><input
+              type="number"
+              id="newExpMultiplier"
+              class="form-input"
+              value="2"
+              min="0.1"
+              max="10"
+              step="0.1"
+            /><span class="text-xs text-subtle"
+              >Applied to original content duration unless an activity has its
+              own override.</span
+            >
           </div>
-          <div class="card" style="padding: var(--space-4);">
-            <div class="text-subtle text-xs" style="font-weight: 700; text-transform: uppercase;">Est. Total Time</div>
-            <div style="font-size: 1.75rem; font-weight: 800; color: var(--color-ink);" id="statTotalHours">9.8h</div>
-            <div class="text-subtle text-xs">Self-paced micro sprints</div>
-          </div>
-          <div class="card" style="padding: var(--space-4);">
-            <div class="text-subtle text-xs" style="font-weight: 700; text-transform: uppercase;">Quick Focus Action</div>
-            <div style="margin-top: var(--space-2);">
-              <a href="focus.html?title=Exploration%20Lab%20Sprint" class="btn btn-outline btn-sm" style="width: 100%; font-weight: 700;">
-                🎯 Start Deep Focus
-              </a>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="newExpPriority">Priority</label>
+              <select id="newExpPriority" class="form-select">
+                <option value="P1">P1 — High Focus</option>
+                <option value="P2" selected>P2 — Regular Exploration</option>
+                <option value="P3">P3 — Low Pressure / Curiosity</option>
+              </select>
             </div>
-          </div>
-        </div>
-
-        <!-- Learning Tracks Section -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
-          <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--color-ink);">Mastery Tracks</h2>
-          <span class="text-subtle text-xs" id="syncStatus">Synced with SARTHI OS</span>
-        </div>
-
-        <div id="tracksContainer" class="track-grid">
-          <!-- Dynamically populated -->
-        </div>
-
-        <!-- Quick Synthesis & Key Takeaways Section -->
-        <div class="synthesis-section">
-          <div class="card-header" style="margin-bottom: var(--space-4); border-bottom: none; padding-bottom: 0;">
-            <div>
-              <div class="card-title">🔬 Notes & Quick Synthesis</div>
-              <p class="text-subtle text-xs" style="margin-top: var(--space-1);">
-                Capture insights, mental models, formula cheatsheets, and command snippets from your exploration sprints.
-              </p>
+            <div class="form-group">
+              <label class="form-label" for="newExpTargetDate"
+                >Target Completion Date (Optional)</label
+              >
+              <input type="date" id="newExpTargetDate" class="form-input" />
             </div>
           </div>
 
-          <form id="synthesisForm" style="display: flex; gap: var(--space-3); margin-bottom: var(--space-5); flex-wrap: wrap;">
-            <input type="text" id="synthesisTitle" class="form-input" placeholder="Title (e.g. XLOOKUP vs INDEX-MATCH cheat sheet)" style="flex: 1 1 240px;" required>
-            <input type="text" id="synthesisContent" class="form-input" placeholder="Key takeaway or reflection note..." style="flex: 2 1 320px;" required>
-            <select id="synthesisTrack" class="form-select" style="width: 200px;">
-              <option value="General">General Exploration</option>
-              <option value="Excel">Excel & Financial</option>
-              <option value="Presentations">Executive Decks</option>
-              <option value="Linux">Linux & Shell</option>
-            </select>
-            <button type="submit" class="btn btn-primary" style="font-weight: 700;">
-              Add Takeaway
+          <div class="form-group">
+            <label class="form-label" for="newExpNotes"
+              >Personal Notes / Learning Objectives</label
+            >
+            <textarea
+              id="newExpNotes"
+              class="form-textarea"
+              rows="2"
+              placeholder="e.g. Goal is to build a full dynamic DCF model and automate reporting"
+            ></textarea>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-3);
+              margin-top: var(--space-4);
+            "
+          >
+            <button type="button" id="cancelExpBtn" class="btn btn-outline">
+              Cancel
             </button>
-          </form>
+            <button type="submit" class="btn btn-primary">
+              Create Exploration
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
-          <div id="synthesisList">
-            <p class="text-subtle text-sm">No takeaways recorded yet. Add your first insight above!</p>
+    <!-- Edit Exploration Modal -->
+    <div id="editExplorationModal" class="modal-backdrop hidden">
+      <div class="modal-box" style="max-width: 560px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Edit Exploration Settings</div>
+            <div class="text-subtle text-xs">
+              Update exploration metadata, objectives, multiplier, or status
+            </div>
+          </div>
+          <button
+            id="closeEditExplorationModal"
+            type="button"
+            class="btn btn-outline btn-sm"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form id="editExplorationForm">
+          <input type="hidden" id="editExpSlug" />
+          <div class="form-group">
+            <label class="form-label" for="editExpTitle"
+              >Exploration Title *</label
+            >
+            <input type="text" id="editExpTitle" class="form-input" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editExpEmoji">Icon / Emoji</label>
+            <div
+              style="
+                display: flex;
+                gap: var(--space-2);
+                align-items: center;
+                flex-wrap: wrap;
+              "
+            >
+              <input
+                type="text"
+                id="editExpEmoji"
+                class="form-input"
+                style="width: 55px; text-align: center; font-size: 1.25rem"
+                maxlength="4"
+              />
+              <div style="display: flex; gap: 4px; flex-wrap: wrap">
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm edit-exp-emoji-pick"
+                  data-emoji="🔬"
+                >
+                  🔬
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm edit-exp-emoji-pick"
+                  data-emoji="⌨️"
+                >
+                  ⌨️
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm edit-exp-emoji-pick"
+                  data-emoji="💡"
+                >
+                  💡
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm edit-exp-emoji-pick"
+                  data-emoji="📊"
+                >
+                  📊
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm edit-exp-emoji-pick"
+                  data-emoji="⚡"
+                >
+                  ⚡
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm edit-exp-emoji-pick"
+                  data-emoji="🧠"
+                >
+                  🧠
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm edit-exp-emoji-pick"
+                  data-emoji="🚀"
+                >
+                  🚀
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm edit-exp-emoji-pick"
+                  data-emoji="💻"
+                >
+                  💻
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editExpDesc"
+              >Short Description</label
+            >
+            <input type="text" id="editExpDesc" class="form-input" />
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="editExpMultiplier"
+                >Effort Multiplier</label
+              >
+              <input
+                type="number"
+                id="editExpMultiplier"
+                class="form-input"
+                min="0.1"
+                max="10"
+                step="0.1"
+                required
+              />
+              <span class="text-xs text-subtle"
+                >Recalculates remaining effort without altering base content
+                duration.</span
+              >
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="editExpPriority">Priority</label>
+              <select id="editExpPriority" class="form-select">
+                <option value="P1">P1 — High Focus</option>
+                <option value="P2">P2 — Regular Exploration</option>
+                <option value="P3">P3 — Low Pressure / Curiosity</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="editExpStatus">Status</label>
+              <select id="editExpStatus" class="form-select">
+                <option value="active">Active</option>
+                <option value="paused">Paused</option>
+                <option value="archived">Completed / Archived</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="editExpTargetDate"
+                >Target Completion Date</label
+              >
+              <input type="date" id="editExpTargetDate" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="editExpNotes"
+              >Personal Notes / Learning Objectives</label
+            >
+            <textarea
+              id="editExpNotes"
+              class="form-textarea"
+              rows="2"
+              placeholder="e.g. Master touch typing speed to 60+ WPM on TypingClub"
+            ></textarea>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-3);
+              margin-top: var(--space-4);
+              align-items: center;
+            "
+          >
+            <button
+              type="button"
+              id="btnDeleteExp"
+              class="btn btn-outline btn-sm"
+              style="
+                color: var(--color-danger, #dc2626);
+                border-color: var(--color-danger, #dc2626);
+                margin-right: auto;
+              "
+            >
+              🗑 Delete Exploration
+            </button>
+            <button type="button" id="cancelEditExpBtn" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add Activity to Exploration Modal -->
+    <div id="addActivityModal" class="modal-backdrop hidden">
+      <div class="modal-box" style="max-width: 520px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Add Activity to Exploration</div>
+            <div class="text-subtle text-xs" id="addActivityModalSub">-</div>
+          </div>
+          <button
+            id="closeAddActivityModal"
+            type="button"
+            class="btn btn-outline btn-sm"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form id="addActivityForm">
+          <input type="hidden" id="activityExpSlug" />
+          <div class="form-group">
+            <label class="form-label">Activity Name *</label>
+            <input
+              type="text"
+              id="activityTitle"
+              class="form-input"
+              placeholder="e.g. Understand Pivot Tables & Slicers"
+              required
+            />
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Content Duration (min)</label>
+              <input
+                type="number"
+                id="activityContentMin"
+                class="form-input"
+                value="30"
+                min="0"
+                step="5"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Estimated Effort (min)</label>
+              <input
+                type="number"
+                id="activityEffortMin"
+                class="form-input"
+                value="60"
+                min="5"
+                step="5"
+                required
+              />
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label">Type</label>
+              <select id="activityTypeInput" class="form-select">
+                <option value="exploration" selected>
+                  Exploration / Practice
+                </option>
+                <option value="lecture">Lecture / Video</option>
+                <option value="project">Project / Hands-on</option>
+                <option value="reading">Reading / Research</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priority</label>
+              <select id="activityPriorityInput" class="form-select">
+                <option value="P1">P1</option>
+                <option value="P2" selected>P2</option>
+                <option value="P3">P3</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes (Optional)</label>
+            <input
+              type="text"
+              id="activityNotes"
+              class="form-input"
+              placeholder="e.g. Practice on financial sample dataset"
+            />
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-4);
+            "
+          >
+            <button
+              type="button"
+              id="cancelActivityBtn"
+              class="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Add Activity</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Direct Session Logger Modal -->
+    <div id="logSessionModal" class="modal-backdrop hidden">
+      <div class="modal-box" style="max-width: 460px">
+        <div class="card-header">
+          <div>
+            <div class="card-title">Record Exploration Session</div>
+            <div class="text-subtle text-xs" id="logSessionModalSub">
+              Log real time spent directly on this subject
+            </div>
+          </div>
+          <button
+            id="closeLogSessionModal"
+            type="button"
+            class="btn btn-outline btn-sm"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form id="logSessionForm">
+          <input type="hidden" id="logSessionSlug" />
+          <div class="form-group">
+            <label class="form-label">Actual Minutes Spent *</label>
+            <input
+              type="number"
+              id="logSessionMinutes"
+              class="form-input"
+              value="30"
+              min="5"
+              step="5"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Notes / What you explored</label>
+            <input
+              type="text"
+              id="logSessionNotes"
+              class="form-input"
+              placeholder="e.g. Practised XLOOKUP and created dynamic summary report"
+            />
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-4);
+            "
+          >
+            <button
+              type="button"
+              id="cancelLogSessionBtn"
+              class="btn btn-outline"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">
+              Save Execution Record
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Universal CSV Syllabus Importer Modal for Section X -->
+    <div class="modal-backdrop hidden" id="exploreImportModalBackdrop">
+      <div class="modal-box" style="max-width: 680px; width: 100%">
+        <div
+          class="modal-header"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+          "
+        >
+          <div>
+            <h3 class="modal-title" style="margin: 0; font-size: 1.125rem">
+              Universal Curriculum Importer — Exploration Hub
+            </h3>
+            <div class="text-subtle text-xs">
+              Import a custom exploration syllabus via CSV spreadsheet
+            </div>
+          </div>
+          <button
+            class="btn btn-outline btn-sm"
+            id="btnCloseExploreImportModal"
+            style="padding: 2px 8px"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: var(--space-3)">
+          <div>
+            <label class="form-label" for="importTargetExploration"
+              >Target Exploration *</label
+            >
+            <select id="importTargetExploration" class="form-select"></select>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              background: var(--bg-subtle);
+              padding: var(--space-3);
+              border-radius: var(--radius-sm);
+            "
+          >
+            <div>
+              <div style="font-weight: 600; font-size: 0.875rem">
+                Universal 3-Level CSV Template
+              </div>
+              <div class="text-subtle text-xs">
+                Main Section → Subsection → Sub-subsection → Activities (all 3
+                hierarchy levels supported).
+              </div>
+            </div>
+            <button
+              type="button"
+              id="btnDownloadExploreCsvTemplate"
+              class="btn btn-outline btn-sm"
+            >
+              Download Template
+            </button>
+          </div>
+
+          <div>
+            <label class="form-label" for="exploreCsvFileInput"
+              >Upload CSV File</label
+            >
+            <input
+              type="file"
+              id="exploreCsvFileInput"
+              accept=".csv"
+              class="form-input"
+              style="padding: var(--space-2)"
+            />
+          </div>
+
+          <div>
+            <label class="form-label" for="exploreCsvPasteArea"
+              >Or Paste CSV Content</label
+            >
+            <textarea
+              id="exploreCsvPasteArea"
+              class="form-input"
+              rows="5"
+              placeholder="main_section_id,main_section_name,main_section_description,main_section_order,main_section_total_content_minutes,main_section_total_effort_minutes,subsection_id,subsection_name,subsection_description,subsection_order,subsection_total_content_minutes,subsection_total_effort_minutes,sub_subsection_id,sub_subsection_name,sub_subsection_description,sub_subsection_order,sub_subsection_total_content_minutes,sub_subsection_total_effort_minutes,serial_number,activity_name,description,content_duration_minutes,estimated_execution_minutes,activity_type,priority,dependencies,optional_deadline,notes,course_name,activity_multiplier_override&#10;touch-typing-mastery,Touch Typing Mastery,Master touch typing,1,90,90,home-row,Home Row Foundations,Correct resting position,1,45,45,reference-keys,Reference Keys,Locate bumps,1,20,20,1,Practise F and J Positioning,Find reference keys,20,20,exploration,P3,,,Typing Practice,1.0"
+            ></textarea>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+            "
+          >
+            <button
+              type="button"
+              class="btn btn-outline btn-sm"
+              id="btnPreviewExploreImport"
+            >
+              Preview Import
+            </button>
+          </div>
+
+          <!-- Preview Area -->
+          <div
+            id="explorePreviewContainer"
+            style="
+              display: none;
+              border-top: 1px solid var(--border-hairline);
+              padding-top: var(--space-3);
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: var(--space-2);
+              "
+            >
+              <div
+                id="explorePreviewSummary"
+                style="font-weight: 600; font-size: 0.875rem"
+              ></div>
+              <button
+                type="button"
+                class="btn btn-primary btn-sm"
+                id="btnCommitExploreImport"
+              >
+                Commit to Exploration
+              </button>
+            </div>
+            <div
+              id="explorePreviewWarnings"
+              style="
+                color: var(--accent-amber);
+                font-size: 0.75rem;
+                margin-top: var(--space-1);
+                background: rgba(245, 158, 11, 0.08);
+                padding: var(--space-2);
+                border-radius: var(--radius-sm);
+                border: 1px solid rgba(245, 158, 11, 0.3);
+                display: none;
+              "
+            ></div>
+            <div
+              style="
+                max-height: 220px;
+                overflow-y: auto;
+                margin-top: var(--space-2);
+                border: 1px solid var(--border-hairline);
+                border-radius: var(--radius-sm);
+              "
+            >
+              <table
+                style="
+                  width: 100%;
+                  border-collapse: collapse;
+                  font-size: 0.8125rem;
+                "
+              >
+                <thead>
+                  <tr style="background: var(--bg-subtle)">
+                    <th
+                      style="
+                        padding: 6px;
+                        border: 1px solid var(--border-hairline);
+                        text-align: left;
+                      "
+                    >
+                      Level / #
+                    </th>
+                    <th
+                      style="
+                        padding: 6px;
+                        border: 1px solid var(--border-hairline);
+                        text-align: left;
+                      "
+                    >
+                      Name / Activity
+                    </th>
+                    <th
+                      style="
+                        padding: 6px;
+                        border: 1px solid var(--border-hairline);
+                        text-align: left;
+                      "
+                    >
+                      Content
+                    </th>
+                    <th
+                      style="
+                        padding: 6px;
+                        border: 1px solid var(--border-hairline);
+                        text-align: left;
+                      "
+                    >
+                      Effort
+                    </th>
+                    <th
+                      style="
+                        padding: 6px;
+                        border: 1px solid var(--border-hairline);
+                        text-align: left;
+                      "
+                    >
+                      Status / Count
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="explorePreviewTableBody"></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
-    </main>
-  </div>
-
-  <!-- Add Learning Track Modal -->
-  <div id="addTrackModal" class="modal-backdrop hidden">
-    <div class="modal-box" style="max-width: 560px;">
-      <div class="card-header">
-        <div>
-          <div class="card-title">Add New Learning Track</div>
-          <div class="text-subtle text-xs">Define a custom Section X track for any micro-skill</div>
-        </div>
-        <button id="closeAddTrackModal" type="button" class="btn btn-outline btn-sm">✕</button>
-      </div>
-
-      <form id="addTrackForm">
-        <div class="form-group">
-          <label class="form-label" for="newTrackTitle">Track Title *</label>
-          <input type="text" id="newTrackTitle" class="form-input" placeholder="e.g. Docker & Cloud Architecture or AI Prompt Engineering" required>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="newTrackDesc">Short Description</label>
-          <input type="text" id="newTrackDesc" class="form-input" placeholder="e.g. Containerizing microservices, docker-compose, and deployment pipelines">
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="newTrackTopics">Topics / Milestones (One per line) *</label>
-          <textarea id="newTrackTopics" class="form-textarea" rows="4" placeholder="Container fundamentals & Dockerfile basics&#10;Multi-stage builds & image optimization&#10;Docker Compose networking & volumes&#10;Deploying containers on AWS/GCP" required></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="newTrackDuration">Target Duration Per Topic (Minutes)</label>
-          <input type="number" id="newTrackDuration" class="form-input" value="45" min="15" max="180">
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: var(--space-3); margin-top: var(--space-5);">
-          <button type="button" id="cancelTrackBtn" class="btn btn-outline">Cancel</button>
-          <button type="submit" class="btn btn-primary">Create Track</button>
-        </div>
-      </form>
     </div>
-  </div>
 
-  <script type="module">
-    import { checkAuth } from '../assets/js/auth.js';
-    import { renderLayout } from '../assets/js/nav.js';
-    import { api } from '../assets/js/api.js';
-    import { showToast } from '../assets/js/toast.js';
+    <!-- Delete Confirmation Modal with Prominent Warning -->
+    <div id="deleteConfirmModal" class="modal-backdrop hidden">
+      <div
+        class="modal-box"
+        style="
+          max-width: 480px;
+          border-top: 4px solid var(--color-danger, #dc2626);
+        "
+      >
+        <div
+          class="modal-header"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-3);
+          "
+        >
+          <div>
+            <h3
+              style="
+                margin: 0;
+                font-size: 1.15rem;
+                color: var(--color-danger, #dc2626);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+            >
+              <span>⚠️</span>
+              <span id="deleteModalHeadline">Delete Exploration</span>
+            </h3>
+            <div class="text-subtle text-xs" style="margin-top: 2px">
+              This action removes the exploration curriculum roadmap
+            </div>
+          </div>
+          <button
+            type="button"
+            class="btn btn-outline btn-sm"
+            id="btnCloseDeleteConfirmModal"
+            style="padding: 2px 8px"
+          >
+            ✕
+          </button>
+        </div>
+        <div
+          style="
+            background: rgba(220, 38, 38, 0.06);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            border-radius: var(--radius-sm);
+            padding: var(--space-3);
+            margin-bottom: var(--space-4);
+          "
+        >
+          <div
+            style="
+              font-weight: 700;
+              font-size: 0.875rem;
+              color: #991b1b;
+              margin-bottom: 4px;
+            "
+          >
+            Warning: Irreversible Deletion
+          </div>
+          <p
+            style="
+              font-size: 0.8125rem;
+              color: #7f1d1d;
+              margin: 0;
+              line-height: 1.4;
+            "
+            id="deleteModalWarningText"
+          >
+            Are you sure you want to delete this exploration? Its activities,
+            topics, and pending practice will be permanently removed.
+          </p>
+          <div
+            style="
+              font-size: 0.75rem;
+              color: #166534;
+              background: #dcfce7;
+              padding: 4px 8px;
+              border-radius: 4px;
+              margin-top: var(--space-2);
+              font-weight: 600;
+            "
+          >
+            🛡 Historical execution records and actual completed minutes are
+            safely preserved.
+          </div>
+        </div>
+        <div
+          style="display: flex; justify-content: flex-end; gap: var(--space-2)"
+        >
+          <button
+            type="button"
+            class="btn btn-outline btn-sm"
+            id="btnCancelDeleteConfirm"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm"
+            id="btnExecuteDeleteConfirm"
+            style="background: #dc2626; color: #ffffff; font-weight: 700"
+          >
+            Yes, Delete Permanently
+          </button>
+        </div>
+      </div>
+    </div>
 
-    const STORAGE_KEY = 'sarthi_exploration_lab_v1';
-    const NOTES_STORAGE_KEY = 'sarthi_exploration_notes_v1';
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import {
+        renderLayout,
+        notifyCourseNavigationChanged,
+      } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import { showToast } from "../assets/js/toast.js";
+      import { formatMinutes } from "../assets/js/utils.js";
 
-    // Default Seed Data matching prompt specifications
-    const DEFAULT_TRACKS = [
-      {
-        id: 'track-excel',
-        sectionNumber: 1,
-        title: 'Advanced Excel & Financial Modelling',
-        description: 'Master lookup formulas, multi-dimensional pivot tables, dynamic financial projections, and macro automation.',
-        lectures: [
-          { id: 'ex-1', lectureNumber: 1, title: 'VLOOKUP vs Modern XLOOKUP', isCompleted: false, videoDurationMinutes: 45 },
-          { id: 'ex-2', lectureNumber: 2, title: 'INDEX-MATCH & Dynamic Array Formulas', isCompleted: false, videoDurationMinutes: 40 },
-          { id: 'ex-3', lectureNumber: 3, title: 'Pivot Tables, Slicers & Summary Dashboards', isCompleted: false, videoDurationMinutes: 50 },
-          { id: 'ex-4', lectureNumber: 4, title: 'Discounted Cash Flow (DCF) & Valuation Models', isCompleted: false, videoDurationMinutes: 60 },
-          { id: 'ex-5', lectureNumber: 5, title: 'Macro Basics & Automation Scripting', isCompleted: false, videoDurationMinutes: 45 }
-        ]
-      },
-      {
-        id: 'track-decks',
-        sectionNumber: 2,
-        title: 'Executive Presentation & Pitch Decks',
-        description: 'Information hierarchy, visual typography systems, chart simplification, and persuasive narrative structure.',
-        lectures: [
-          { id: 'dk-1', lectureNumber: 1, title: 'Information Hierarchy & The 3-Second Rule', isCompleted: false, videoDurationMinutes: 30 },
-          { id: 'dk-2', lectureNumber: 2, title: 'Typography Systems & Visual Contrast in Slides', isCompleted: false, videoDurationMinutes: 35 },
-          { id: 'dk-3', lectureNumber: 3, title: 'Visual Storytelling & Chart Simplification', isCompleted: false, videoDurationMinutes: 40 },
-          { id: 'dk-4', lectureNumber: 4, title: 'Executive Pitch Deck Architecture (10-Slide Deck)', isCompleted: false, videoDurationMinutes: 45 }
-        ]
-      },
-      {
-        id: 'track-linux',
-        sectionNumber: 3,
-        title: 'Linux & Shell Scripting',
-        description: 'Master standard Unix command-line utilities, I/O piping, text transformation streams, and automation scripts.',
-        lectures: [
-          { id: 'lx-1', lectureNumber: 1, title: 'Essential Bash Navigation, Permissions & File Operations', isCompleted: false, videoDurationMinutes: 40 },
-          { id: 'lx-2', lectureNumber: 2, title: 'Piping, Redirection & Text Filtering (grep, sed, awk)', isCompleted: false, videoDurationMinutes: 50 },
-          { id: 'lx-3', lectureNumber: 3, title: 'Writing Resilient Bash Automation Scripts', isCompleted: false, videoDurationMinutes: 45 },
-          { id: 'lx-4', lectureNumber: 4, title: 'Process Management, SSH & Cron Jobs', isCompleted: false, videoDurationMinutes: 45 }
-        ]
+      let currentExplorations = [];
+      let currentExpFilter = "active";
+      let explorationActivitiesMap = new Map();
+      let explorationHierarchyMap = new Map();
+      let synthesisNotes = [];
+      let exploreRecordsToCommit = null;
+      let currentSingleSlug = null;
+      let expToDelete = null;
+
+      function promptDeleteExp(slug, title) {
+        if (!slug) return;
+        expToDelete = { slug, title: title || slug };
+        document.getElementById("deleteModalHeadline").textContent =
+          `Delete Exploration — ${expToDelete.title}`;
+        document.getElementById("deleteModalWarningText").textContent =
+          `Are you sure you want to delete exploration "${expToDelete.title}"? Its curriculum roadmap, activities, and pending practice will be permanently removed.`;
+        document
+          .getElementById("deleteConfirmModal")
+          .classList.remove("hidden");
       }
-    ];
 
-    let currentTracks = [];
-    let explorationCourseId = null;
-    let synthesisNotes = [];
+      function closeDeleteConfirmModal() {
+        expToDelete = null;
+        document.getElementById("deleteConfirmModal").classList.add("hidden");
+      }
 
-    async function init() {
-      const user = await checkAuth();
-      if (!user) return;
-
-      renderLayout('explore');
-      setupEventListeners();
-
-      await loadTracks();
-      await loadSynthesisNotes();
-    }
-
-    // Load learning tracks from API or fallback to localStorage
-    async function loadTracks() {
-      let loadedFromApi = false;
-      try {
-        const res = await api.get('/courses/exploration-lab');
-        if (res && res.success && res.course) {
-          explorationCourseId = res.course._id;
-          if (res.course.sections && res.course.sections.length > 0) {
-            currentTracks = res.course.sections.map(sec => ({
-              id: sec._id || `sec-${sec.sectionNumber}`,
-              sectionNumber: sec.sectionNumber,
-              title: sec.title,
-              description: getTrackDescription(sec.title),
-              lectures: sec.lectures.map(lec => ({
-                id: lec._id,
-                lectureNumber: lec.lectureNumber,
-                title: lec.title,
-                isCompleted: Boolean(lec.isWatched && lec.isCodeDone),
-                videoDurationMinutes: lec.videoDurationMinutes || 45
-              }))
-            }));
-            loadedFromApi = true;
-          }
+      window.toggleNode = function (headerEl) {
+        const body = headerEl.nextElementSibling;
+        if (!body) return;
+        const isClosed = body.style.display === "none" || !body.style.display;
+        body.style.display = isClosed ? "block" : "none";
+        const chevron = headerEl.querySelector(".tree-chevron");
+        if (chevron) {
+          chevron.textContent = isClosed ? "▲" : "▼";
+          chevron.classList.toggle("expanded", isClosed);
         }
-      } catch (err) {
-        console.warn('Exploration lab API fetch fallback to local store:', err.message);
+      };
+
+      function setActiveExpTab(filter) {
+        currentExpFilter = filter;
+        document
+          .getElementById("tabFilterActiveExps")
+          ?.classList.toggle("active", filter === "active");
+        document
+          .getElementById("tabFilterCompletedExps")
+          ?.classList.toggle("active", filter === "completed");
+        document
+          .getElementById("tabFilterAllExps")
+          ?.classList.toggle("active", filter === "all");
+        renderExplorations();
       }
 
-      if (!loadedFromApi) {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-          try {
-            currentTracks = JSON.parse(stored);
-          } catch (e) {
-            currentTracks = DEFAULT_TRACKS;
-          }
-        } else {
-          currentTracks = DEFAULT_TRACKS;
-          saveLocalTracks();
+      async function init() {
+        const user = await checkAuth();
+        if (!user) return;
+
+        renderLayout("explore");
+        setupEventListeners();
+
+        await loadExplorations();
+        await loadSynthesisNotes();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        currentSingleSlug = urlParams.get("slug");
+        if (currentSingleSlug) {
+          window.location.replace(
+            `tracker.html?slug=${encodeURIComponent(currentSingleSlug)}`,
+          );
+          return;
+        }
+        showHubOverviewView();
+      }
+
+      async function loadExplorations() {
+        try {
+          const res = await api.get("/courses?category=exploration");
+          currentExplorations =
+            res && res.success && Array.isArray(res.courses) ? res.courses : [];
+
+          // For each exploration, fetch its activities in parallel
+          await Promise.all(
+            currentExplorations.map(async (exp) => {
+              try {
+                const actRes = await api.get(`/courses/${exp.slug}/activities`);
+                if (
+                  actRes &&
+                  actRes.success &&
+                  Array.isArray(actRes.activities)
+                ) {
+                  explorationActivitiesMap.set(exp.slug, actRes.activities);
+                } else {
+                  explorationActivitiesMap.set(exp.slug, []);
+                }
+              } catch {
+                explorationActivitiesMap.set(exp.slug, []);
+              }
+            }),
+          );
+
+          renderExplorations();
+          updateMetrics();
+          populateImportSelect();
+        } catch (err) {
+          showToast(err.message || "Failed to load explorations", "error");
         }
       }
 
-      renderTracks();
-      updateMetrics();
-    }
-
-    function getTrackDescription(title) {
-      if (title.toLowerCase().includes('excel')) {
-        return 'Master lookup formulas, multi-dimensional pivot tables, dynamic financial projections, and macro automation.';
+      function showHubOverviewView() {
+        currentSingleSlug = null;
+        const hubView = document.getElementById("hubOverviewView");
+        const singleView = document.getElementById("singleTrackView");
+        if (hubView) hubView.classList.remove("hidden");
+        if (singleView) singleView.classList.add("hidden");
+        const topbarHeadline = document.querySelector(
+          ".app-topbar .page-headline",
+        );
+        if (topbarHeadline)
+          topbarHeadline.textContent = "Exploration Lab (Section X)";
+        document.title = "Exploration Lab — SARTHI";
       }
-      if (title.toLowerCase().includes('presentation') || title.toLowerCase().includes('pitch')) {
-        return 'Information hierarchy, visual typography systems, chart simplification, and persuasive narrative structure.';
-      }
-      if (title.toLowerCase().includes('linux') || title.toLowerCase().includes('shell')) {
-        return 'Master standard Unix command-line utilities, I/O piping, text transformation streams, and automation scripts.';
-      }
-      return 'Self-directed micro-course track for rapid skill acquisition and applied projects.';
-    }
 
-    function saveLocalTracks() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(currentTracks));
-    }
+      async function renderSingleExplorationView(targetSlug) {
+        currentSingleSlug = targetSlug;
+        let exp = currentExplorations.find((e) => e.slug === targetSlug);
+        try {
+          const res = await api.get(
+            `/courses/${encodeURIComponent(targetSlug)}`,
+          );
+          if (res && res.success && res.course) {
+            exp = res.course;
+            if (res.activities) {
+              explorationActivitiesMap.set(exp.slug, res.activities);
+            }
+            if (res.hierarchy) {
+              explorationHierarchyMap.set(exp.slug, res.hierarchy);
+            }
+          }
+        } catch {}
 
-    function renderTracks() {
-      const container = document.getElementById('tracksContainer');
-      if (!currentTracks.length) {
-        container.innerHTML = `
-          <div class="card" style="grid-column: 1 / -1; text-align: center; padding: var(--space-8);">
-            <p class="text-muted">No tracks added yet. Click "+ Add Learning Track" to create your first track!</p>
+        const hubView = document.getElementById("hubOverviewView");
+        const singleView = document.getElementById("singleTrackView");
+        if (hubView) hubView.classList.add("hidden");
+        if (singleView) singleView.classList.remove("hidden");
+
+        if (!exp) {
+          document.title = "Exploration Not Found — SARTHI";
+          singleView.innerHTML = `
+          <div style="margin-bottom: var(--space-4);">
+            <a href="explore.html" class="btn btn-outline btn-sm">‹ All Explorations</a>
+          </div>
+          <div class="card" style="text-align: center; padding: var(--space-8);">
+            <div style="font-size: 2.5rem; margin-bottom: var(--space-2);">🔍</div>
+            <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: var(--space-2);">Exploration Not Found</h3>
+            <p class="text-muted text-sm" style="max-width: 480px; margin: 0 auto var(--space-4);">
+              Could not find an exploration matching "${escapeHtml(targetSlug)}".
+            </p>
+            <div style="display: flex; justify-content: center; gap: var(--space-3); margin-top: var(--space-3);">
+              <a href="explore.html" class="btn btn-primary btn-sm">‹ Return to Exploration Lab</a>
+            </div>
           </div>
         `;
-        return;
-      }
-
-      container.innerHTML = currentTracks.map(track => {
-        const total = track.lectures.length;
-        const done = track.lectures.filter(l => l.isCompleted).length;
-        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-        
-        let statusBadge = '<span class="badge badge-p3">Not Started</span>';
-        if (pct === 100) {
-          statusBadge = '<span class="badge badge-success">✓ Mastered</span>';
-        } else if (pct > 0) {
-          statusBadge = `<span class="badge badge-warning">${pct}% In Progress</span>`;
+          return;
         }
 
-        const topicsHtml = track.lectures.map(lec => `
-          <li class="topic-item ${lec.isCompleted ? 'completed' : ''}">
-            <label class="topic-left">
-              <input type="checkbox" 
-                     class="topic-checkbox" 
-                     data-track-id="${track.id}" 
-                     data-lecture-id="${lec.id}"
-                     ${lec.isCompleted ? 'checked' : ''}>
-              <span class="topic-name">${escapeHtml(lec.title)}</span>
+        const emoji = exp.emoji || "🔬";
+        document.title = `${exp.title} — Exploration Tracker`;
+
+        const topbarHeadline = document.querySelector(
+          ".app-topbar .page-headline",
+        );
+        if (topbarHeadline) {
+          topbarHeadline.innerHTML = `<span>${emoji}</span> ${escapeHtml(exp.title)}`;
+        }
+
+        // Populate hero card
+        document.getElementById("singleExpTitle").innerHTML =
+          `<span>${emoji}</span> ${escapeHtml(exp.title)}`;
+        document.getElementById("singleExpDesc").textContent =
+          exp.description || "Self-directed exploration workspace.";
+
+        const priorityBadge = document.getElementById("singleExpPriorityBadge");
+        if (priorityBadge) {
+          priorityBadge.textContent = exp.priority || "P2";
+        }
+
+        const statusBadge = document.getElementById("singleExpStatusBadge");
+        if (statusBadge) {
+          const isArchived = exp.status === "archived";
+          statusBadge.textContent = isArchived
+            ? "✓ Completed"
+            : exp.status === "paused"
+              ? "Paused"
+              : "Active";
+          statusBadge.className =
+            "badge text-xs " +
+            (isArchived
+              ? "badge-neutral"
+              : exp.status === "paused"
+                ? "badge-amber"
+                : "badge-success");
+        }
+
+        const notesCont = document.getElementById("singleExpNotesContainer");
+        const notesEl = document.getElementById("singleExpNotes");
+        if (exp.notes && exp.notes.trim()) {
+          notesEl.textContent = exp.notes;
+          notesCont?.classList.remove("hidden");
+        } else {
+          notesCont?.classList.add("hidden");
+        }
+
+        const multiplier = Number(exp.defaultPracticeMultiplier) || 1.0;
+        document.getElementById("singleExpMultiplier").textContent =
+          `Practice: ${multiplier.toFixed(1)}× multiplier`;
+        document.getElementById("singleExpTargetDate").textContent =
+          exp.targetDate
+            ? `Target: ${formatDate(exp.targetDate)}`
+            : "Target: Self-paced";
+        document.getElementById("singleExpInstructor").textContent =
+          exp.instructor || "Self-Directed";
+
+        // Activities & Progress
+        const activities = explorationActivitiesMap.get(exp.slug) || [];
+        const total = activities.length;
+        const done = activities.filter((a) => a.status === "completed").length;
+        const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+        const completedMin = Math.round(
+          activities
+            .filter((a) => a.status === "completed")
+            .reduce(
+              (s, a) => s + (a.actualMinutes || a.totalEffortMinutes || 0),
+              0,
+            ),
+        );
+        const totalMin = Math.round(
+          activities.reduce((s, a) => s + (a.totalEffortMinutes || 0), 0),
+        );
+        const remMin = Math.max(0, totalMin - completedMin);
+
+        document.getElementById("singleExpProgressText").textContent =
+          `${done} / ${total} activities completed (${pct}%)`;
+        document.getElementById("singleExpTimeText").textContent =
+          `${formatMinutes(completedMin)} completed · ${formatMinutes(remMin)} remaining`;
+        const pBar = document.getElementById("singleExpProgressBar");
+        if (pBar) pBar.style.width = `${pct}%`;
+        document.getElementById("singleExpActivitiesCount").textContent =
+          `${total} Activities`;
+
+        // Render 3-Level Collapsible Hierarchy
+        const actContainer = document.getElementById(
+          "singleExpActivitiesContainer",
+        );
+        if (!activities.length) {
+          actContainer.innerHTML = `
+          <div class="card" style="text-align: center; padding: var(--space-8);">
+            <div style="font-size: 2rem; margin-bottom: var(--space-2);">📋</div>
+            <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: var(--space-2);">No Activities Yet</h3>
+            <p class="text-muted text-sm" style="max-width: 440px; margin: 0 auto var(--space-4);">
+              Import a CSV syllabus for <strong>${escapeHtml(exp.title)}</strong>, or add individual practice activities.
+            </p>
+            <div style="display: flex; justify-content: center; gap: var(--space-2);">
+              <button class="btn btn-primary btn-sm" id="btnSingleEmptyImport">📥 Import CSV</button>
+              <button class="btn btn-outline btn-sm" id="btnSingleEmptyAdd">+ Add Activity</button>
+            </div>
+          </div>
+        `;
+          document
+            .getElementById("btnSingleEmptyImport")
+            ?.addEventListener("click", () => openImportModalForExp(exp.slug));
+          document
+            .getElementById("btnSingleEmptyAdd")
+            ?.addEventListener("click", () =>
+              openAddActivityModal(exp.slug, exp.title),
+            );
+        } else {
+          let hierarchy = explorationHierarchyMap.get(exp.slug) || [];
+          if (!hierarchy.length) {
+            const secMap = new Map();
+            for (const act of activities) {
+              const mId = act.mainSectionId || act.sectionId || "general";
+              const mName =
+                act.mainSectionName || act.sectionTitle || "Practice Modules";
+              const mDesc = act.mainSectionDescription || "";
+              const mOrder =
+                Number(act.mainSectionOrder || act.sectionNumber) || 1;
+              if (!secMap.has(mId)) {
+                secMap.set(mId, {
+                  id: mId,
+                  name: mName,
+                  description: mDesc,
+                  order: mOrder,
+                  totalContentMinutes: 0,
+                  totalEffortMinutes: 0,
+                  completedActivitiesCount: 0,
+                  totalActivitiesCount: 0,
+                  hasSubsections: false,
+                  directActivities: [],
+                  subsections: [],
+                });
+              }
+              const node = secMap.get(mId);
+              node.directActivities.push(act);
+              const cMin = Math.round(act.contentDurationMinutes || 0);
+              const eMin = Math.round(
+                act.totalEffortMinutes || (cMin ? cMin * multiplier : 45),
+              );
+              node.totalContentMinutes += cMin;
+              node.totalEffortMinutes += eMin;
+              node.totalActivitiesCount += 1;
+              if (act.status === "completed") {
+                node.completedActivitiesCount += 1;
+              }
+            }
+            hierarchy = [...secMap.values()].sort((a, b) => a.order - b.order);
+          }
+
+          let html = "";
+          for (const m of hierarchy) {
+            const mTotal = m.totalActivitiesCount || 0;
+            const mDone = m.completedActivitiesCount || 0;
+            const mPct = mTotal > 0 ? Math.round((mDone / mTotal) * 100) : 0;
+            const mDur = m.totalContentMinutes
+              ? `${m.totalContentMinutes}m content · ${m.totalEffortMinutes}m effort`
+              : `${m.totalEffortMinutes}m effort`;
+
+            html += `
+            <div class="exp-hierarchy-level-1" data-main-id="${escapeHtml(m.id)}">
+              <div class="exp-node-header main-header" onclick="toggleNode(this)">
+                <div style="flex-grow: 1; padding-right: var(--space-3);">
+                  <strong style="font-size: 0.9375rem; color: var(--color-ink);">${String(m.order).padStart(2, "0")}. ${escapeHtml(m.name)}</strong>
+                  ${m.description ? `<div class="text-subtle text-xs" style="margin-top: 2px;">${escapeHtml(m.description)}</div>` : ""}
+                  <div class="text-subtle text-xs" style="margin-top: 2px; font-variant-numeric: tabular-nums;">
+                    ${mDur}
+                  </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0;">
+                  <span class="badge ${mDone === mTotal && mTotal > 0 ? "badge-success" : "badge-neutral"} text-xs">
+                    ${mDone} / ${mTotal} (${mPct}%)
+                  </span>
+                  <span class="tree-chevron">▼</span>
+                </div>
+              </div>
+              <!-- Collapsed by default -->
+              <div class="exp-main-body" style="display: none; padding: var(--space-2);">
+          `;
+
+            if (m.hasSubsections && m.subsections && m.subsections.length > 0) {
+              for (const s of m.subsections) {
+                const sTotal = s.totalActivitiesCount || 0;
+                const sDone = s.completedActivitiesCount || 0;
+                const sDur = s.totalContentMinutes
+                  ? `${s.totalContentMinutes}m content · ${s.totalEffortMinutes}m effort`
+                  : `${s.totalEffortMinutes}m effort`;
+
+                html += `
+                <div class="exp-hierarchy-level-2" data-sub-id="${escapeHtml(s.id)}">
+                  <div class="exp-node-header sub-header" onclick="toggleNode(this)">
+                    <div style="flex-grow: 1; padding-right: var(--space-2);">
+                      <strong style="color: var(--color-ink); font-size: 0.875rem;">${String(s.order).padStart(2, "0")}. ${escapeHtml(s.name)}</strong>
+                      ${s.description ? `<div class="text-subtle text-xs" style="margin-top: 1px;">${escapeHtml(s.description)}</div>` : ""}
+                      <div class="text-subtle text-xs" style="margin-top: 1px;">${sDur}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0;">
+                      <span class="badge ${sDone === sTotal && sTotal > 0 ? "badge-success" : "badge-neutral"} text-xs">
+                        ${sDone} / ${sTotal}
+                      </span>
+                      <span class="tree-chevron">▼</span>
+                    </div>
+                  </div>
+                  <div class="exp-sub-body" style="display: none; padding: var(--space-2);">
+              `;
+
+                if (
+                  s.hasSubSubsections &&
+                  s.subSubsections &&
+                  s.subSubsections.length > 0
+                ) {
+                  for (const ss of s.subSubsections) {
+                    const ssTotal = ss.totalActivitiesCount || 0;
+                    const ssDone = ss.completedActivitiesCount || 0;
+                    const ssDur = ss.totalContentMinutes
+                      ? `${ss.totalContentMinutes}m content · ${ss.totalEffortMinutes}m effort`
+                      : `${ss.totalEffortMinutes}m effort`;
+
+                    html += `
+                    <div class="exp-hierarchy-level-3" data-subsub-id="${escapeHtml(ss.id)}">
+                      <div class="exp-node-header subsub-header" onclick="toggleNode(this)">
+                        <div style="flex-grow: 1; padding-right: var(--space-2);">
+                          <strong style="color: var(--color-ink); font-size: 0.8125rem;">▸ ${escapeHtml(ss.name)}</strong>
+                          ${ss.description ? `<div class="text-subtle text-xs" style="margin-top: 1px;">${escapeHtml(ss.description)}</div>` : ""}
+                          <div class="text-subtle text-xs" style="margin-top: 1px;">${ssDur}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0;">
+                          <span class="badge ${ssDone === ssTotal && ssTotal > 0 ? "badge-success" : "badge-neutral"} text-xs">
+                            ${ssDone} / ${ssTotal}
+                          </span>
+                          <span class="tree-chevron">▼</span>
+                        </div>
+                      </div>
+                      <div class="exp-subsub-body" style="display: none; padding: var(--space-1);">
+                        <ul class="topic-list" style="margin: 0; padding: 0;">
+                          ${renderSingleExpActivityList(ss.activities || [], exp, multiplier)}
+                        </ul>
+                      </div>
+                    </div>
+                  `;
+                  }
+                }
+
+                if (s.directActivities && s.directActivities.length > 0) {
+                  html += `
+                  <ul class="topic-list" style="margin: 0; padding: 0;">
+                    ${renderSingleExpActivityList(s.directActivities, exp, multiplier)}
+                  </ul>
+                `;
+                }
+
+                html += `
+                  </div>
+                </div>
+              `;
+              }
+            }
+
+            if (m.directActivities && m.directActivities.length > 0) {
+              html += `
+              <ul class="topic-list" style="margin: 0; padding: 0;">
+                ${renderSingleExpActivityList(m.directActivities, exp, multiplier)}
+              </ul>
+            `;
+            }
+
+            html += `
+              </div>
+            </div>
+          `;
+          }
+
+          actContainer.innerHTML = html;
+
+          // Wire activity checkboxes
+          actContainer
+            .querySelectorAll(".single-exp-act-chk")
+            .forEach((chk) => {
+              chk.addEventListener("change", async (e) => {
+                const actId = e.target.dataset.id;
+                const effort = Number(e.target.dataset.effort) || 45;
+                const isChecked = e.target.checked;
+                try {
+                  if (isChecked) {
+                    await api.put(`/courses/activities/${actId}/complete`, {
+                      actualMinutes: effort,
+                    });
+                    showToast("Activity marked completed!", "success");
+                  } else {
+                    await api.put(`/courses/activities/${actId}/complete`, {
+                      actualMinutes: 0,
+                      status: "pending",
+                    });
+                    showToast("Activity marked pending", "success");
+                  }
+                  await reloadSingleExpData(exp.slug);
+                } catch (err) {
+                  showToast(err.message, "error");
+                }
+              });
+            });
+        }
+
+        // Wire action buttons
+        const btnEdit = document.getElementById("btnEditSingleExp");
+        if (btnEdit) btnEdit.onclick = () => openEditExpModal(exp);
+
+        const btnDeleteSingle = document.getElementById("btnDeleteSingleExp");
+        if (btnDeleteSingle)
+          btnDeleteSingle.onclick = () => promptDeleteExp(exp.slug, exp.title);
+
+        const btnLog = document.getElementById("btnLogSingleExp");
+        if (btnLog)
+          btnLog.onclick = () => openLogSessionModal(exp.slug, exp.title);
+
+        const btnAdd = document.getElementById("btnAddSingleActivity");
+        if (btnAdd)
+          btnAdd.onclick = () => openAddActivityModal(exp.slug, exp.title);
+
+        const btnImport = document.getElementById("btnImportSingleExpCsv");
+        if (btnImport)
+          btnImport.onclick = () => openImportModalForExp(exp.slug);
+
+        const btnFocus = document.getElementById("btnFocusSingleExp");
+        if (btnFocus)
+          btnFocus.href = `focus.html?title=${encodeURIComponent(exp.title + " Sprint")}`;
+      }
+
+      function renderSingleExpActivityList(activities, exp, multiplier) {
+        return activities
+          .map((act, idx) => {
+            const isCompleted = act.status === "completed";
+            const contentMin = Math.round(act.contentDurationMinutes || 0);
+            const effortMin = Math.round(
+              act.totalEffortMinutes ||
+                (contentMin ? contentMin * multiplier : 45),
+            );
+            const durText = contentMin
+              ? `${contentMin}m content · ${effortMin}m effort`
+              : `${effortMin}m effort`;
+            const actNum = act.activityNumber || idx + 1;
+
+            return `
+          <li class="topic-item ${isCompleted ? "completed" : ""}" style="padding: var(--space-2) var(--space-3); margin-bottom: 4px; border-radius: var(--radius-sm); border: 1px solid var(--border-hairline); background: #FFFFFF;">
+            <label class="topic-left" style="cursor: pointer; display: flex; align-items: center; gap: var(--space-2); flex-grow: 1;">
+              <input type="checkbox"
+                     class="single-exp-act-chk"
+                     data-slug="${exp.slug}"
+                     data-id="${act._id}"
+                     data-effort="${effortMin}"
+                     ${isCompleted ? "checked" : ""}
+                     style="width: 17px; height: 17px; accent-color: var(--color-success, #16A34A);">
+              <div>
+                <div style="display: flex; align-items: center; gap: var(--space-2);">
+                  <span class="badge badge-neutral text-xs" style="font-size: 0.7rem;">#${actNum}</span>
+                  <strong class="topic-name" style="font-size: 0.9rem;">${escapeHtml(act.title)}</strong>
+                </div>
+                ${act.description || act.notes ? `<div class="text-subtle text-xs" style="margin-top: 2px;">${escapeHtml(act.description || act.notes)}</div>` : ""}
+              </div>
             </label>
-            <div style="display: flex; align-items: center; gap: var(--space-2);">
-              <span class="text-subtle text-xs" style="font-variant-numeric: tabular-nums;">${lec.videoDurationMinutes || 45}m</span>
-              <a href="focus.html?title=${encodeURIComponent(track.title + ' — ' + lec.title)}" 
-                 class="topic-focus-btn" 
-                 title="Focus sprint on this topic">
+            <div style="display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0;">
+              <span class="text-subtle text-xs" style="font-variant-numeric: tabular-nums;">${durText}</span>
+              <a href="focus.html?title=${encodeURIComponent(exp.title + " — " + act.title)}"
+                 class="topic-focus-btn"
+                 title="Start focused sprint">
                 🎯 Focus
               </a>
             </div>
           </li>
-        `).join('');
+        `;
+          })
+          .join("");
+      }
 
-        return `
-          <div class="track-card" data-track-id="${track.id}">
+      async function reloadSingleExpData(slug) {
+        try {
+          const actRes = await api.get(`/courses/${slug}/activities`);
+          if (actRes && actRes.success && Array.isArray(actRes.activities)) {
+            explorationActivitiesMap.set(slug, actRes.activities);
+          }
+          if (actRes && actRes.hierarchy) {
+            explorationHierarchyMap.set(slug, actRes.hierarchy);
+          }
+          await loadExplorations();
+          renderSingleExplorationView(slug);
+        } catch (err) {
+          showToast(err.message, "error");
+        }
+      }
+
+      function openImportModalForExp(slug) {
+        populateImportSelect();
+        const select = document.getElementById("importTargetExploration");
+        if (select && slug) select.value = slug;
+        document
+          .getElementById("exploreImportModalBackdrop")
+          ?.classList.remove("hidden");
+      }
+
+      function formatDate(dateStr) {
+        if (!dateStr) return "";
+        try {
+          const [y, m, d] = dateStr.split("-");
+          const date = new Date(Number(y), Number(m) - 1, Number(d));
+          return date.toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          });
+        } catch {
+          return dateStr;
+        }
+      }
+
+      function openEditExpModal(exp) {
+        document.getElementById("editExpSlug").value = exp.slug;
+        document.getElementById("editExpTitle").value = exp.title || "";
+        document.getElementById("editExpEmoji").value = exp.emoji || "🔬";
+        document.getElementById("editExpDesc").value = exp.description || "";
+        document.getElementById("editExpMultiplier").value =
+          exp.defaultPracticeMultiplier || 1.0;
+        document.getElementById("editExpPriority").value = exp.priority || "P2";
+        document.getElementById("editExpStatus").value = exp.status || "active";
+        document.getElementById("editExpTargetDate").value =
+          exp.targetDate || "";
+        document.getElementById("editExpNotes").value = exp.notes || "";
+        document
+          .getElementById("editExplorationModal")
+          ?.classList.remove("hidden");
+      }
+
+      function closeEditExpModal() {
+        document
+          .getElementById("editExplorationModal")
+          ?.classList.add("hidden");
+      }
+
+      function renderExplorations() {
+        const container = document.getElementById("tracksContainer");
+        const isExpCompleted = (e) => {
+          if (e.status === "archived") return true;
+          const acts = explorationActivitiesMap.get(e.slug) || [];
+          if (acts.length > 0 && acts.every((a) => a.status === "completed"))
+            return true;
+          if (
+            Number(e.totalLectures) > 0 &&
+            Number(e.completedLectures) >= Number(e.totalLectures)
+          )
+            return true;
+          return false;
+        };
+
+        const activeList = currentExplorations.filter(
+          (e) => !isExpCompleted(e),
+        );
+        const completedList = currentExplorations.filter((e) =>
+          isExpCompleted(e),
+        );
+
+        if (document.getElementById("countActiveExps"))
+          document.getElementById("countActiveExps").textContent =
+            activeList.length;
+        if (document.getElementById("countCompletedExps"))
+          document.getElementById("countCompletedExps").textContent =
+            completedList.length;
+        if (document.getElementById("countAllExps"))
+          document.getElementById("countAllExps").textContent =
+            currentExplorations.length;
+
+        const filtered =
+          currentExpFilter === "completed"
+            ? completedList
+            : currentExpFilter === "all"
+              ? [...activeList, ...completedList]
+              : activeList;
+
+        // Active / pending explorations appear first; completed explorations appear at the last of the list
+        filtered.sort((a, b) => {
+          const aDone = isExpCompleted(a);
+          const bDone = isExpCompleted(b);
+          if (aDone !== bDone) return aDone ? 1 : -1;
+          return (a.title || "").localeCompare(b.title || "");
+        });
+
+        if (!filtered.length) {
+          const emptyMsg =
+            currentExpFilter === "completed"
+              ? "No completed explorations yet. Active explorations will appear here when marked completed."
+              : "SARTHI Exploration Hub is a clean, user-managed workspace. Explore any subject over time — Learning Excel, Financial Modelling, Quantum Computing, or AI tools.";
+          container.innerHTML = `
+          <div class="card" style="grid-column: 1 / -1; text-align: center; padding: var(--space-8);">
+            <div style="font-size: 2.5rem; margin-bottom: var(--space-2);">🔬</div>
+            <h3 style="font-size: 1.125rem; font-weight: 700; color: var(--text-ink); margin-bottom: var(--space-1);">${currentExpFilter === "completed" ? "No Completed Explorations" : "No Active Explorations"}</h3>
+            <p class="text-muted text-sm" style="max-width: 480px; margin: 0 auto var(--space-4);">
+              ${emptyMsg}
+            </p>
+            <div style="display: flex; justify-content: center; gap: var(--space-3);">
+              <button class="btn btn-primary btn-sm" id="btnEmptyNewExp">+ New Exploration</button>
+              <button class="btn btn-outline btn-sm" id="btnEmptyImportExp">📥 Import CSV</button>
+            </div>
+          </div>
+        `;
+          document
+            .getElementById("btnEmptyNewExp")
+            ?.addEventListener("click", openNewExpModal);
+          document
+            .getElementById("btnEmptyImportExp")
+            ?.addEventListener("click", openImportModal);
+          return;
+        }
+
+        container.innerHTML = filtered
+          .map((exp) => {
+            const activities = explorationActivitiesMap.get(exp.slug) || [];
+            const total = activities.length;
+            const done = activities.filter(
+              (a) => a.status === "completed",
+            ).length;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            const isCompleted = isExpCompleted(exp);
+            const completedMin = Math.round(
+              activities
+                .filter((a) => a.status === "completed")
+                .reduce(
+                  (s, a) => s + (a.actualMinutes || a.totalEffortMinutes || 0),
+                  0,
+                ),
+            );
+            const totalMin = Math.round(
+              activities.reduce((s, a) => s + (a.totalEffortMinutes || 0), 0),
+            );
+            const remMin = Math.max(0, totalMin - completedMin);
+
+            let statusBadge = isCompleted
+              ? '<span class="badge badge-neutral text-xs" style="background: rgba(100, 116, 139, 0.12); color: #475569;" title="Completed and retained in exploration history">✓ Completed</span>'
+              : pct === 100 && total > 0
+                ? '<span class="badge badge-success text-xs">✓ Mastered</span>'
+                : '<span class="badge badge-p3 text-xs">Active</span>';
+
+            const trackerLink = `tracker.html?slug=${encodeURIComponent(exp.slug)}`;
+
+            return `
+          <div class="track-card" data-slug="${exp.slug}">
             <div>
               <div class="track-header">
                 <div>
-                  <h3 class="track-title">${escapeHtml(track.title)}</h3>
-                  <div class="text-subtle text-xs" style="margin-top: 2px;">Track #${track.sectionNumber || 1}</div>
+                  <div style="display: flex; align-items: center; gap: var(--space-2);">
+                    <h3 class="track-title">
+                      <a href="${trackerLink}" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 6px;" title="Open Dedicated Exploration Tracker">
+                        <span>${exp.emoji || "🔬"}</span>${escapeHtml(exp.title)}
+                      </a>
+                    </h3>
+                    <span class="badge badge-neutral text-xs">${exp.priority || "P2"}</span>
+                  </div>
+                  <div class="text-subtle text-xs" style="margin-top: 2px;">${exp.instructor || "Self-Directed Exploration"}</div>
                 </div>
                 <div>${statusBadge}</div>
               </div>
 
-              <p class="track-description">${escapeHtml(track.description || '')}</p>
+              <p class="track-description">${escapeHtml(exp.description || "Self-directed exploration workspace.")}</p>
 
-              <!-- Progress bar -->
+              <!-- Progress bar & metrics -->
               <div style="margin-bottom: var(--space-3);">
                 <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 4px;">
-                  <span class="text-subtle">${done} of ${total} topics mastered</span>
+                  <span class="text-subtle">${done} of ${total} activities completed</span>
                   <span style="font-weight: 700; color: var(--color-ink);">${pct}%</span>
                 </div>
-                <div class="progress-bar">
-                  <div class="progress-fill ${pct === 100 ? 'success' : 'accent'}" style="width: ${pct}%;"></div>
+                <div class="progress-bar" style="margin-bottom: var(--space-2);">
+                  <div class="progress-fill ${pct === 100 || isCompleted ? "success" : "accent"}" style="width: ${pct}%;"></div>
+                </div>
+                <div class="text-subtle text-xs" style="display: flex; justify-content: space-between;">
+                  <span>${formatMinutes(completedMin)} completed</span>
+                  <span>${formatMinutes(remMin)} remaining</span>
                 </div>
               </div>
-
-              <!-- Topics Checklist -->
-              <ul class="topic-list">
-                ${topicsHtml}
-              </ul>
             </div>
 
             <!-- Footer actions -->
-            <div class="track-footer">
-              <a href="focus.html?title=${encodeURIComponent(track.title + ' Focus Sprint')}" 
-                 class="btn btn-outline btn-sm" 
-                 style="font-weight: 600;">
-                ▶ Start Focus Session
+            <div class="track-footer" style="flex-wrap: wrap; gap: var(--space-2);">
+              <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                <button class="btn btn-outline btn-sm btn-import-exp" data-slug="${exp.slug}" data-title="${escapeHtml(exp.title)}" title="Import structured syllabus CSV">
+                  📥 Import CSV
+                </button>
+                <button class="btn btn-outline btn-sm btn-edit-exp" data-slug="${exp.slug}" title="Edit exploration settings">
+                  ⚙ Settings
+                </button>
+                <button class="btn btn-outline btn-sm btn-delete-exp" data-slug="${exp.slug}" data-title="${escapeHtml(exp.title)}" style="color: var(--color-danger, #dc2626); border-color: rgba(220, 38, 38, 0.4);" title="Delete exploration">
+                  🗑 Delete
+                </button>
+                <button class="btn btn-outline btn-sm btn-log-session" data-slug="${exp.slug}" data-title="${escapeHtml(exp.title)}" title="Record real exploration time directly">
+                  ⚡ Log
+                </button>
+                ${
+                  isCompleted
+                    ? `<button class="btn btn-outline btn-sm btn-reopen-exp" data-slug="${exp.slug}" title="Reopen exploration">↺ Reopen</button>`
+                    : `<button class="btn btn-outline btn-sm btn-complete-exp" data-slug="${exp.slug}" title="Mark completed and archive">✓ Complete</button>`
+                }
+              </div>
+              <a href="${trackerLink}" 
+                 class="btn btn-primary btn-sm" 
+                 style="font-weight: 600; margin-left: auto;">
+                View Tracker →
               </a>
-              <button class="btn btn-outline btn-sm add-topic-btn" data-track-id="${track.id}">
-                + Topic
-              </button>
             </div>
           </div>
         `;
-      }).join('');
+          })
+          .join("");
 
-      // Attach topic checkbox listeners
-      container.querySelectorAll('.topic-checkbox').forEach(cb => {
-        cb.addEventListener('change', async (e) => {
-          const trackId = e.target.dataset.trackId;
-          const lectureId = e.target.dataset.lectureId;
-          const isChecked = e.target.checked;
-          await toggleTopic(trackId, lectureId, isChecked);
+        // Wire exploration card action buttons
+        container.querySelectorAll(".btn-edit-exp").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const exp = currentExplorations.find(
+              (e) => e.slug === btn.dataset.slug,
+            );
+            if (exp) openEditExpModal(exp);
+          });
         });
-      });
-
-      // Attach add-topic listeners
-      container.querySelectorAll('.add-topic-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const trackId = e.target.dataset.trackId;
-          promptAddTopic(trackId);
+        container.querySelectorAll(".btn-import-exp").forEach((btn) => {
+          btn.addEventListener("click", () =>
+            openImportModalForExp(btn.dataset.slug),
+          );
         });
-      });
-    }
-
-    async function toggleTopic(trackId, lectureId, isCompleted) {
-      // Find local track & lecture
-      const track = currentTracks.find(t => t.id === trackId || String(t.sectionNumber) === String(trackId));
-      if (track) {
-        const lec = track.lectures.find(l => String(l.id) === String(lectureId));
-        if (lec) {
-          lec.isCompleted = isCompleted;
-          saveLocalTracks();
-          renderTracks();
-          updateMetrics();
-        }
-      }
-
-      // Sync with API if possible
-      try {
-        await api.put(`/courses/exploration-lab/lecture/${lectureId}`, {
-          isCompleted: Boolean(isCompleted),
-          isWatched: Boolean(isCompleted),
-          isCodeDone: Boolean(isCompleted)
+        container.querySelectorAll(".btn-delete-exp").forEach((btn) => {
+          btn.addEventListener("click", () =>
+            promptDeleteExp(btn.dataset.slug, btn.dataset.title),
+          );
         });
-        showToast(isCompleted ? 'Topic completed! Keep pushing.' : 'Topic marked incomplete.', 'success');
-      } catch (err) {
-        console.warn('API update failed, local state preserved:', err.message);
-        showToast(isCompleted ? 'Topic completed (Saved locally).' : 'Topic marked incomplete.', 'info');
-      }
-    }
 
-    async function promptAddTopic(trackId) {
-      const topicName = prompt('Enter new topic or milestone name:');
-      if (!topicName || !topicName.trim()) return;
-
-      const track = currentTracks.find(t => t.id === trackId);
-      if (!track) return;
-
-      const newId = 'lec-' + Date.now();
-      const newTopic = {
-        id: newId,
-        lectureNumber: track.lectures.length + 1,
-        title: topicName.trim(),
-        isCompleted: false,
-        videoDurationMinutes: 45
-      };
-
-      track.lectures.push(newTopic);
-      saveLocalTracks();
-      renderTracks();
-      updateMetrics();
-      showToast(`Added topic to ${track.title}`, 'success');
-    }
-
-    function updateMetrics() {
-      let totalTopics = 0;
-      let completedTopics = 0;
-      let totalMinutes = 0;
-
-      for (const track of currentTracks) {
-        for (const lec of track.lectures) {
-          totalTopics++;
-          totalMinutes += (lec.videoDurationMinutes || 45);
-          if (lec.isCompleted) completedTopics++;
-        }
-      }
-
-      const pct = totalTopics > 0 ? Math.round((completedTopics / totalTopics) * 100) : 0;
-      const hours = (totalMinutes / 60).toFixed(1);
-
-      document.getElementById('statActiveTracks').textContent = currentTracks.length;
-      document.getElementById('statTrackSub').textContent = `${currentTracks.length} Learning Modules`;
-      document.getElementById('statTopicsDone').textContent = `${completedTopics} / ${totalTopics}`;
-      document.getElementById('statTopicsPct').textContent = `${pct}% Mastered`;
-      document.getElementById('statTotalHours').textContent = `${hours}h`;
-    }
-
-    // Notes and Quick Synthesis
-    async function loadSynthesisNotes() {
-      let apiNotesLoaded = false;
-      try {
-        const res = await api.get('/personal/notes', { type: 'exploration' });
-        if (res && res.success && Array.isArray(res.notes)) {
-          synthesisNotes = res.notes.map(n => ({
-            id: n._id,
-            title: n.title,
-            content: n.content,
-            tags: n.tags || ['Exploration'],
-            date: n.createdAt ? new Date(n.createdAt).toLocaleDateString() : 'Today'
-          }));
-          apiNotesLoaded = true;
-        }
-      } catch (err) {
-        console.warn('Notes API fallback to local store:', err.message);
-      }
-
-      if (!apiNotesLoaded) {
-        const local = localStorage.getItem(NOTES_STORAGE_KEY);
-        if (local) {
-          try { synthesisNotes = JSON.parse(local); } catch (e) { synthesisNotes = []; }
-        } else {
-          synthesisNotes = [
-            {
-              id: 'init-1',
-              title: 'XLOOKUP Advantage',
-              content: 'XLOOKUP defaults to exact match, searches top-to-bottom or bottom-to-top, and handles matrix returns natively.',
-              tags: ['Excel'],
-              date: new Date().toLocaleDateString()
-            },
-            {
-              id: 'init-2',
-              title: 'Slide Hierarchy Rule',
-              content: 'Limit each executive slide to 1 key takeaway headline and maximum 3 supporting evidence cards.',
-              tags: ['Presentations'],
-              date: new Date().toLocaleDateString()
+        // Wire complete/reopen exploration buttons
+        container.querySelectorAll(".btn-complete-exp").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            try {
+              await api.put(`/courses/${btn.dataset.slug}`, {
+                status: "archived",
+              });
+              showToast("Exploration completed & archived!", "success");
+              await loadExplorations();
+              await notifyCourseNavigationChanged();
+            } catch (err) {
+              showToast(err.message, "error");
             }
-          ];
-          saveLocalNotes();
+          });
+        });
+
+        container.querySelectorAll(".btn-reopen-exp").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            try {
+              await api.put(`/courses/${btn.dataset.slug}`, {
+                status: "active",
+              });
+              showToast("Exploration reopened to active!", "success");
+              await loadExplorations();
+              await notifyCourseNavigationChanged();
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+        });
+
+        // Wire activity checkboxes
+        container.querySelectorAll(".exp-activity-checkbox").forEach((chk) => {
+          chk.addEventListener("change", async (e) => {
+            const actId = e.target.dataset.id;
+            const isChecked = e.target.checked;
+            try {
+              if (isChecked) {
+                await api.put(`/courses/activities/${actId}/complete`, {
+                  actualMinutes: 45,
+                });
+                showToast("Exploration activity completed!", "success");
+              }
+              await loadExplorations();
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+        });
+
+        // Wire Add Activity buttons
+        container.querySelectorAll(".btn-add-activity").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            openAddActivityModal(btn.dataset.slug, btn.dataset.title);
+          });
+        });
+
+        // Wire Log Session buttons
+        container.querySelectorAll(".btn-log-session").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            openLogSessionModal(btn.dataset.slug, btn.dataset.title);
+          });
+        });
+      }
+
+      function populateImportSelect() {
+        const select = document.getElementById("importTargetExploration");
+        if (!select) return;
+        select.innerHTML = currentExplorations
+          .map(
+            (e) => `
+        <option value="${e.slug}">${escapeHtml(e.title)}</option>
+      `,
+          )
+          .join("");
+      }
+
+      function updateMetrics() {
+        let totalActs = 0;
+        let completedActs = 0;
+        let totalMinutes = 0;
+
+        for (const exp of currentExplorations) {
+          const acts = explorationActivitiesMap.get(exp.slug) || [];
+          for (const act of acts) {
+            totalActs++;
+            totalMinutes += act.totalEffortMinutes || 45;
+            if (act.status === "completed") completedActs++;
+          }
         }
+
+        const pct =
+          totalActs > 0 ? Math.round((completedActs / totalActs) * 100) : 0;
+        const hours = (totalMinutes / 60).toFixed(1);
+
+        document.getElementById("statActiveTracks").textContent =
+          currentExplorations.length;
+        document.getElementById("statTrackSub").textContent =
+          `${currentExplorations.length} Active Explorations`;
+        document.getElementById("statTopicsDone").textContent =
+          `${completedActs} / ${totalActs}`;
+        document.getElementById("statTopicsPct").textContent =
+          `${pct}% Mastered`;
+        document.getElementById("statTotalHours").textContent = `${hours}h`;
       }
 
-      renderSynthesisNotes();
-    }
-
-    function saveLocalNotes() {
-      localStorage.setItem(NOTES_STORAGE_KEY, JSON.stringify(synthesisNotes));
-    }
-
-    function renderSynthesisNotes() {
-      const listEl = document.getElementById('synthesisList');
-      if (!synthesisNotes.length) {
-        listEl.innerHTML = `<p class="text-subtle text-sm">No takeaways recorded yet. Add your first insight above!</p>`;
-        return;
+      function openNewExpModal() {
+        document
+          .getElementById("addExplorationModal")
+          .classList.remove("hidden");
+        document.getElementById("newExpTitle").focus();
+      }
+      function closeNewExpModal() {
+        document.getElementById("addExplorationModal").classList.add("hidden");
       }
 
-      listEl.innerHTML = synthesisNotes.map(n => `
+      function openAddActivityModal(slug, title) {
+        document.getElementById("activityExpSlug").value = slug;
+        document.getElementById("addActivityModalSub").textContent =
+          `Target: ${title}`;
+        document.getElementById("activityTitle").value = "";
+        document.getElementById("addActivityModal").classList.remove("hidden");
+        document.getElementById("activityTitle").focus();
+      }
+      function closeAddActivityModal() {
+        document.getElementById("addActivityModal").classList.add("hidden");
+      }
+
+      function openLogSessionModal(slug, title) {
+        document.getElementById("logSessionSlug").value = slug;
+        document.getElementById("logSessionModalSub").textContent =
+          `Target: ${title}`;
+        document.getElementById("logSessionMinutes").value = "30";
+        document.getElementById("logSessionNotes").value = "";
+        document.getElementById("logSessionModal").classList.remove("hidden");
+      }
+      function closeLogSessionModal() {
+        document.getElementById("logSessionModal").classList.add("hidden");
+      }
+
+      function openImportModal() {
+        populateImportSelect();
+        document
+          .getElementById("exploreImportModalBackdrop")
+          .classList.remove("hidden");
+      }
+
+      // Notes and Quick Synthesis
+      async function loadSynthesisNotes() {
+        try {
+          const res = await api.get("/personal/notes", { type: "exploration" });
+          if (res && res.success && Array.isArray(res.notes)) {
+            synthesisNotes = res.notes.map((n) => ({
+              id: n._id,
+              title: n.title,
+              content: n.content,
+              tags: n.tags || ["Exploration"],
+              date: n.createdAt
+                ? new Date(n.createdAt).toLocaleDateString()
+                : "Today",
+            }));
+          } else {
+            synthesisNotes = [];
+          }
+        } catch {
+          synthesisNotes = [];
+        }
+        renderSynthesisNotes();
+      }
+
+      function renderSynthesisNotes() {
+        const listEl = document.getElementById("synthesisList");
+        if (!synthesisNotes.length) {
+          listEl.innerHTML = `<p class="text-subtle text-sm">No takeaways recorded yet. Add your first insight above!</p>`;
+          return;
+        }
+
+        listEl.innerHTML = synthesisNotes
+          .map(
+            (n) => `
         <div class="note-item" data-note-id="${n.id}">
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
             <div style="font-weight: 700; font-size: 0.95rem; color: var(--color-ink);">
               ${escapeHtml(n.title)}
             </div>
             <div style="display: flex; gap: var(--space-2); align-items: center;">
-              <span class="badge badge-p2" style="font-size: 0.7rem;">${escapeHtml(n.tags && n.tags[0] ? n.tags[0] : 'Note')}</span>
-              <span class="text-subtle text-xs">${n.date || 'Today'}</span>
-              <button class="btn btn-outline btn-icon btn-sm delete-note-btn" data-id="${n.id}" style="padding: 1px 5px; font-size: 0.75rem;" title="Delete note">✕</button>
+              <span class="badge badge-p2" style="font-size: 0.7rem;">${escapeHtml(n.tags && n.tags[0] ? n.tags[0] : "Note")}</span>
+              <span class="text-subtle text-xs">${n.date || "Today"}</span>
             </div>
           </div>
           <p style="font-size: 0.85rem; color: var(--color-charcoal); line-height: 1.4; margin: 0;">
             ${escapeHtml(n.content)}
           </p>
         </div>
-      `).join('');
+      `,
+          )
+          .join("");
+      }
 
-      listEl.querySelectorAll('.delete-note-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const id = e.currentTarget.dataset.id;
-          synthesisNotes = synthesisNotes.filter(n => n.id !== id);
-          saveLocalNotes();
-          renderSynthesisNotes();
+      function setupEventListeners() {
+        // Tab filter buttons
+        document
+          .getElementById("tabFilterActiveExps")
+          ?.addEventListener("click", () => setActiveExpTab("active"));
+        document
+          .getElementById("tabFilterCompletedExps")
+          ?.addEventListener("click", () => setActiveExpTab("completed"));
+        document
+          .getElementById("tabFilterAllExps")
+          ?.addEventListener("click", () => setActiveExpTab("all"));
+
+        // Emoji quick pickers
+        document.querySelectorAll(".exp-emoji-pick").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const input = document.getElementById("newExpEmoji");
+            if (input) input.value = btn.dataset.emoji;
+          });
         });
-      });
-    }
 
-    function setupEventListeners() {
-      // Modal handlers
-      const modal = document.getElementById('addTrackModal');
-      const openBtn = document.getElementById('openAddTrackBtn');
-      const closeBtn = document.getElementById('closeAddTrackModal');
-      const cancelBtn = document.getElementById('cancelTrackBtn');
-
-      openBtn.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-        document.getElementById('newTrackTitle').focus();
-      });
-
-      const closeModal = () => modal.classList.add('hidden');
-      closeBtn.addEventListener('click', closeModal);
-      cancelBtn.addEventListener('click', closeModal);
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) closeModal();
-      });
-
-      // Add track form submit
-      const addForm = document.getElementById('addTrackForm');
-      addForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const title = document.getElementById('newTrackTitle').value.trim();
-        const description = document.getElementById('newTrackDesc').value.trim();
-        const topicsRaw = document.getElementById('newTrackTopics').value.trim();
-        const duration = parseInt(document.getElementById('newTrackDuration').value, 10) || 45;
-
-        if (!title || !topicsRaw) {
-          showToast('Please provide track title and at least one topic', 'error');
-          return;
-        }
-
-        const topics = topicsRaw.split('\n')
-          .map(t => t.trim())
-          .filter(t => t.length > 0)
-          .map((topicTitle, idx) => ({
-            id: 'lec-' + Date.now() + '-' + idx,
-            lectureNumber: idx + 1,
-            title: topicTitle,
-            isCompleted: false,
-            videoDurationMinutes: duration
-          }));
-
-        const newTrack = {
-          id: 'track-' + Date.now(),
-          sectionNumber: currentTracks.length + 1,
-          title,
-          description: description || 'Self-directed learning module.',
-          lectures: topics
-        };
-
-        currentTracks.push(newTrack);
-        saveLocalTracks();
-        renderTracks();
-        updateMetrics();
-
-        // Try syncing to API
-        try {
-          await api.post('/courses/exploration-lab/section', {
-            title,
-            topics: topics.map(t => ({ title: t.title, durationMinutes: t.videoDurationMinutes }))
+        // Edit Emoji quick pickers
+        document.querySelectorAll(".edit-exp-emoji-pick").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const input = document.getElementById("editExpEmoji");
+            if (input) input.value = btn.dataset.emoji;
           });
-        } catch (err) {
-          console.warn('Failed to save track to server, preserved locally:', err.message);
-        }
+        });
 
-        showToast(`Learning track "${title}" created!`, 'success');
-        addForm.reset();
-        closeModal();
-      });
+        // Edit Exploration
+        document
+          .getElementById("closeEditExplorationModal")
+          ?.addEventListener("click", closeEditExpModal);
+        document
+          .getElementById("cancelEditExpBtn")
+          ?.addEventListener("click", closeEditExpModal);
+        document
+          .getElementById("editExplorationForm")
+          ?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const slug = document.getElementById("editExpSlug").value;
+            const title = document.getElementById("editExpTitle").value.trim();
+            const emoji =
+              document.getElementById("editExpEmoji").value.trim() || "🔬";
+            const description = document
+              .getElementById("editExpDesc")
+              .value.trim();
+            const defaultPracticeMultiplier =
+              parseFloat(document.getElementById("editExpMultiplier").value) ||
+              1.0;
+            const priority = document.getElementById("editExpPriority").value;
+            const status = document.getElementById("editExpStatus").value;
+            const targetDate =
+              document.getElementById("editExpTargetDate").value || null;
+            const notes = document.getElementById("editExpNotes").value.trim();
 
-      // Quick synthesis form submit
-      const synthesisForm = document.getElementById('synthesisForm');
-      synthesisForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const title = document.getElementById('synthesisTitle').value.trim();
-        const content = document.getElementById('synthesisContent').value.trim();
-        const tag = document.getElementById('synthesisTrack').value;
-
-        if (!title || !content) return;
-
-        const newNote = {
-          id: 'note-' + Date.now(),
-          title,
-          content,
-          tags: [tag, 'Exploration'],
-          date: new Date().toLocaleDateString()
-        };
-
-        synthesisNotes.unshift(newNote);
-        saveLocalNotes();
-        renderSynthesisNotes();
-
-        // Try syncing to backend
-        try {
-          await api.post('/personal/notes', {
-            title,
-            content,
-            type: 'exploration',
-            tags: [tag, 'exploration', 'section-x']
+            try {
+              const res = await api.put(
+                `/courses/${encodeURIComponent(slug)}`,
+                {
+                  title,
+                  emoji,
+                  description,
+                  defaultPracticeMultiplier,
+                  priority,
+                  status,
+                  targetDate,
+                  notes,
+                },
+              );
+              if (!res.success)
+                throw new Error(res.error || "Failed to update exploration");
+              showToast(`Exploration "${title}" updated!`, "success");
+              closeEditExpModal();
+              await notifyCourseNavigationChanged();
+              await loadExplorations();
+              if (currentSingleSlug === slug) {
+                await reloadSingleExpData(slug);
+              }
+            } catch (err) {
+              showToast(err.message || "Error updating exploration", "error");
+            }
           });
-        } catch (err) {
-          console.warn('Note API sync failed, preserved locally:', err.message);
-        }
 
-        showToast('Takeaway recorded successfully!', 'success');
-        document.getElementById('synthesisTitle').value = '';
-        document.getElementById('synthesisContent').value = '';
-      });
-    }
+        // Delete Confirmation Modal Controls
+        document
+          .getElementById("btnCloseDeleteConfirmModal")
+          ?.addEventListener("click", closeDeleteConfirmModal);
+        document
+          .getElementById("btnCancelDeleteConfirm")
+          ?.addEventListener("click", closeDeleteConfirmModal);
+        document
+          .getElementById("deleteConfirmModal")
+          ?.addEventListener("click", (e) => {
+            if (e.target.id === "deleteConfirmModal") closeDeleteConfirmModal();
+          });
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    }
+        document
+          .getElementById("btnExecuteDeleteConfirm")
+          ?.addEventListener("click", async () => {
+            if (!expToDelete?.slug) return;
+            const { slug, title } = expToDelete;
+            const btn = document.getElementById("btnExecuteDeleteConfirm");
+            btn.disabled = true;
+            btn.textContent = "Deleting...";
+            try {
+              const res = await api.delete(
+                `/courses/${encodeURIComponent(slug)}`,
+              );
+              if (!res.success)
+                throw new Error(res.error || "Failed to delete exploration");
+              showToast(
+                `Exploration "${title}" deleted permanently.`,
+                "success",
+              );
+              closeDeleteConfirmModal();
+              closeEditExpModal();
+              await notifyCourseNavigationChanged();
+              if (currentSingleSlug === slug) {
+                window.location.href = "explore.html";
+              } else {
+                await loadExplorations();
+              }
+            } catch (err) {
+              showToast(err.message || "Error deleting exploration", "error");
+            } finally {
+              btn.disabled = false;
+              btn.textContent = "Yes, Delete Permanently";
+            }
+          });
 
-    init();
-  </script>
-</body>
+        // Delete Exploration Trigger in Edit Settings Modal
+        document
+          .getElementById("btnDeleteExp")
+          ?.addEventListener("click", () => {
+            const slug = document.getElementById("editExpSlug").value;
+            const title = document.getElementById("editExpTitle").value;
+            if (!slug) return;
+            promptDeleteExp(slug, title);
+          });
+
+        // Exploration creation
+        document
+          .getElementById("openNewExplorationBtn")
+          ?.addEventListener("click", openNewExpModal);
+        document
+          .getElementById("closeAddExplorationModal")
+          ?.addEventListener("click", closeNewExpModal);
+        document
+          .getElementById("cancelExpBtn")
+          ?.addEventListener("click", closeNewExpModal);
+
+        document
+          .getElementById("addExplorationForm")
+          ?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            try {
+              const title = document.getElementById("newExpTitle").value.trim();
+              const emoji =
+                document.getElementById("newExpEmoji")?.value.trim() || "🔬";
+              const description = document
+                .getElementById("newExpDesc")
+                .value.trim();
+              const priority = document.getElementById("newExpPriority").value;
+              const targetDate =
+                document.getElementById("newExpTargetDate").value || null;
+              const notes =
+                document.getElementById("newExpNotes")?.value.trim() || "";
+
+              const createRes = await api.post("/courses", {
+                title,
+                emoji,
+                description,
+                notes,
+                category: "exploration",
+                priority,
+                defaultPracticeMultiplier:
+                  Number(document.getElementById("newExpMultiplier").value) ||
+                  2,
+                targetDate,
+              });
+              await notifyCourseNavigationChanged();
+
+              showToast(
+                `Exploration "${title}" created successfully!`,
+                "success",
+              );
+              closeNewExpModal();
+              document.getElementById("addExplorationForm").reset();
+              await loadExplorations();
+
+              // Immediately navigate to dedicated tracker page
+              const createdCourse =
+                createRes?.course ||
+                currentExplorations.find((e) => e.title === title);
+              if (createdCourse && createdCourse.slug) {
+                window.location.href = `tracker.html?slug=${encodeURIComponent(createdCourse.slug)}`;
+              } else {
+                await loadExplorations();
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        // Add Activity
+        document
+          .getElementById("closeAddActivityModal")
+          ?.addEventListener("click", closeAddActivityModal);
+        document
+          .getElementById("cancelActivityBtn")
+          ?.addEventListener("click", closeAddActivityModal);
+        document
+          .getElementById("addActivityForm")
+          ?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const slug = document.getElementById("activityExpSlug").value;
+            const title = document.getElementById("activityTitle").value.trim();
+            const contentDurationMinutes =
+              Number(document.getElementById("activityContentMin").value) || 0;
+            const estimatedExecutionMinutes =
+              Number(document.getElementById("activityEffortMin").value) || 60;
+            const activityType =
+              document.getElementById("activityTypeInput").value;
+            const priority = document.getElementById(
+              "activityPriorityInput",
+            ).value;
+            const notes = document.getElementById("activityNotes").value.trim();
+
+            try {
+              await api.post(`/courses/${slug}/activities`, {
+                title,
+                contentDurationMinutes,
+                estimatedExecutionMinutes,
+                activityType,
+                priority,
+                notes,
+              });
+
+              showToast(`Activity "${title}" added!`, "success");
+              closeAddActivityModal();
+              if (currentSingleSlug === slug) {
+                await reloadSingleExpData(slug);
+              } else {
+                await loadExplorations();
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        // Direct Session Logger
+        document
+          .getElementById("closeLogSessionModal")
+          ?.addEventListener("click", closeLogSessionModal);
+        document
+          .getElementById("cancelLogSessionBtn")
+          ?.addEventListener("click", closeLogSessionModal);
+        document
+          .getElementById("logSessionForm")
+          ?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const slug = document.getElementById("logSessionSlug").value;
+            const minutesSpent = Number(
+              document.getElementById("logSessionMinutes").value,
+            );
+            const notes = document
+              .getElementById("logSessionNotes")
+              .value.trim();
+
+            try {
+              await api.post(`/courses/${slug}/log-session`, {
+                minutesSpent,
+                notes,
+              });
+
+              showToast(
+                `Recorded ${minutesSpent}m exploration session!`,
+                "success",
+              );
+              closeLogSessionModal();
+              if (currentSingleSlug === slug) {
+                await reloadSingleExpData(slug);
+              } else {
+                await loadExplorations();
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        // CSV Importer
+        const importModal = document.getElementById(
+          "exploreImportModalBackdrop",
+        );
+        document
+          .getElementById("btnOpenExploreImportModal")
+          ?.addEventListener("click", openImportModal);
+        document
+          .getElementById("btnCloseExploreImportModal")
+          ?.addEventListener("click", () =>
+            importModal.classList.add("hidden"),
+          );
+        document
+          .getElementById("btnDownloadExploreCsvTemplate")
+          ?.addEventListener("click", async () => {
+            try {
+              const port = window.location.port;
+              const apiBase =
+                port &&
+                port !== "5000" &&
+                ["localhost", "127.0.0.1"].includes(window.location.hostname)
+                  ? "http://localhost:5000"
+                  : "";
+              const token = localStorage.getItem("sarthi_token");
+              const response = await fetch(
+                `${apiBase}/api/courses/template/csv?kind=exploration`,
+                {
+                  headers: token ? { Authorization: `Bearer ${token}` } : {},
+                  credentials: "include",
+                },
+              );
+              if (!response.ok)
+                throw new Error(
+                  "Could not download the Exploration CSV template.",
+                );
+              const blob = await response.blob();
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement("a");
+              link.href = url;
+              link.download = "sarthi_exploration_template.csv";
+              link.click();
+              setTimeout(() => URL.revokeObjectURL(url), 1000);
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        document
+          .getElementById("exploreCsvFileInput")
+          ?.addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (evt) => {
+                document.getElementById("exploreCsvPasteArea").value =
+                  evt.target.result;
+              };
+              reader.readAsText(file);
+            }
+          });
+
+        document
+          .getElementById("btnPreviewExploreImport")
+          ?.addEventListener("click", async () => {
+            const text = document
+              .getElementById("exploreCsvPasteArea")
+              .value.trim();
+            if (!text) {
+              showToast("Please upload or paste CSV text first.", "error");
+              return;
+            }
+
+            try {
+              const targetSlug = document.getElementById(
+                "importTargetExploration",
+              ).value;
+              const res = await api.post("/courses/import/preview", {
+                csvText: text,
+                courseSlug: targetSlug,
+                category: "exploration",
+              });
+              if (!res.success)
+                throw new Error(res.error || "Failed to preview CSV");
+
+              exploreRecordsToCommit = res.records;
+              document.getElementById("explorePreviewSummary").innerHTML = `
+            <span class="badge badge-primary text-xs">${res.totalRows} Activities</span>
+            <span class="badge badge-neutral text-xs">${res.mainSectionCount} Main Sections</span>
+            ${res.subsectionCount > 0 ? `<span class="badge badge-neutral text-xs">${res.subsectionCount} Subsections</span>` : ""}
+            ${res.subSubsectionCount > 0 ? `<span class="badge badge-neutral text-xs">${res.subSubsectionCount} Sub-subsections</span>` : ""}
+          `;
+
+              const warnEl = document.getElementById("explorePreviewWarnings");
+              const allWarnings = [...(res.warnings || [])];
+              if (res.discrepancies && res.discrepancies.length > 0) {
+                res.discrepancies.forEach((d) =>
+                  allWarnings.push(`⚠️ ${d.message}`),
+                );
+              }
+              if (allWarnings.length > 0) {
+                warnEl.innerHTML = allWarnings
+                  .map((w) => `<div>${escapeHtml(w)}</div>`)
+                  .join("");
+                warnEl.style.display = "block";
+              } else {
+                warnEl.style.display = "none";
+              }
+
+              const tbody = document.getElementById("explorePreviewTableBody");
+              const rows = [];
+              if (res.hierarchy && res.hierarchy.length > 0) {
+                for (const m of res.hierarchy) {
+                  rows.push(`
+                <tr style="background: var(--bg-subtle); font-weight: 700;">
+                  <td style="padding: 6px; border: 1px solid var(--border-hairline); color: var(--color-primary);">Section ${m.order}</td>
+                  <td style="padding: 6px; border: 1px solid var(--border-hairline);">${escapeHtml(m.name)}</td>
+                  <td style="padding: 6px; border: 1px solid var(--border-hairline);">${m.totalContentMinutes}m</td>
+                  <td style="padding: 6px; border: 1px solid var(--border-hairline);">${m.totalEffortMinutes}m</td>
+                  <td style="padding: 6px; border: 1px solid var(--border-hairline);"><span class="badge badge-neutral text-xs">${m.totalActivitiesCount} acts</span></td>
+                </tr>
+              `);
+                  if (m.subsections && m.subsections.length > 0) {
+                    for (const s of m.subsections) {
+                      rows.push(`
+                    <tr style="background: rgba(241, 245, 249, 0.5); font-weight: 600;">
+                      <td style="padding: 6px 6px 6px 16px; border: 1px solid var(--border-hairline);">↳ Sub ${s.order}</td>
+                      <td style="padding: 6px; border: 1px solid var(--border-hairline);">${escapeHtml(s.name)}</td>
+                      <td style="padding: 6px; border: 1px solid var(--border-hairline);">${s.totalContentMinutes}m</td>
+                      <td style="padding: 6px; border: 1px solid var(--border-hairline);">${s.totalEffortMinutes}m</td>
+                      <td style="padding: 6px; border: 1px solid var(--border-hairline);"><span class="badge badge-neutral text-xs">${s.totalActivitiesCount} acts</span></td>
+                    </tr>
+                  `);
+                      if (s.subSubsections && s.subSubsections.length > 0) {
+                        for (const ss of s.subSubsections) {
+                          rows.push(`
+                        <tr style="background: #FAFAFA;">
+                          <td style="padding: 6px 6px 6px 26px; border: 1px solid var(--border-hairline);">↳ ▸ ${ss.order}</td>
+                          <td style="padding: 6px; border: 1px solid var(--border-hairline);">${escapeHtml(ss.name)}</td>
+                          <td style="padding: 6px; border: 1px solid var(--border-hairline);">${ss.totalContentMinutes}m</td>
+                          <td style="padding: 6px; border: 1px solid var(--border-hairline);">${ss.totalEffortMinutes}m</td>
+                          <td style="padding: 6px; border: 1px solid var(--border-hairline);"><span class="badge badge-neutral text-xs">${ss.totalActivitiesCount} acts</span></td>
+                        </tr>
+                      `);
+                        }
+                      }
+                    }
+                  }
+                }
+              } else {
+                res.records.slice(0, 10).forEach((r) => {
+                  rows.push(`
+                <tr>
+                  <td style="padding: 6px; border: 1px solid var(--border-hairline);">#${r.serialNumber}</td>
+                  <td style="padding: 6px; border: 1px solid var(--border-hairline);">${escapeHtml(r.title)}</td>
+                  <td style="padding: 6px; border: 1px solid var(--border-hairline);">${r.contentDurationMinutes}m</td>
+                  <td style="padding: 6px; border: 1px solid var(--border-hairline);">${r.estimatedExecutionMinutes}m</td>
+                  <td style="padding: 6px; border: 1px solid var(--border-hairline);">${r.activityType}</td>
+                </tr>
+              `);
+                });
+              }
+
+              tbody.innerHTML = rows.join("");
+              document.getElementById("explorePreviewContainer").style.display =
+                "block";
+              showToast(
+                `Validated ${res.totalRows} activities across ${res.mainSectionCount} section(s).`,
+                "success",
+              );
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        document
+          .getElementById("btnCommitExploreImport")
+          ?.addEventListener("click", async () => {
+            if (!exploreRecordsToCommit || exploreRecordsToCommit.length === 0)
+              return;
+            const targetSlug = document.getElementById(
+              "importTargetExploration",
+            ).value;
+            if (!targetSlug) {
+              showToast(
+                "Please select or create an exploration first.",
+                "error",
+              );
+              return;
+            }
+
+            try {
+              const res = await api.post("/courses/import/commit", {
+                courseSlug: targetSlug,
+                courseTitle: currentExplorations.find(
+                  (x) => x.slug === targetSlug,
+                )?.title,
+                category: "exploration",
+                records: exploreRecordsToCommit,
+              });
+
+              if (res.success) {
+                showToast(
+                  `Committed ${res.totalActivities} activities!`,
+                  "success",
+                );
+                importModal.classList.add("hidden");
+                await loadExplorations();
+                await notifyCourseNavigationChanged();
+                if (currentSingleSlug === targetSlug) {
+                  await reloadSingleExpData(targetSlug);
+                }
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        // Quick synthesis form
+        document
+          .getElementById("synthesisForm")
+          ?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const title = document
+              .getElementById("synthesisTitle")
+              .value.trim();
+            const content = document
+              .getElementById("synthesisContent")
+              .value.trim();
+            if (!title || !content) return;
+
+            try {
+              await api.post("/personal/notes", {
+                title,
+                content,
+                type: "exploration",
+                tags: ["exploration", "takeaway"],
+              });
+
+              showToast("Takeaway recorded successfully!", "success");
+              document.getElementById("synthesisTitle").value = "";
+              document.getElementById("synthesisContent").value = "";
+              await loadSynthesisNotes();
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+      }
+
+      function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      init();
+    </script>
+  </body>
 </html>
