@@ -72,6 +72,10 @@ app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 app.use(cookieParser());
 
+// NoSQL operator injection and request body sanitization
+import { sanitizeRequest } from './middleware/sanitize.js';
+app.use(sanitizeRequest);
+
 // Serve static frontend files from client/
 app.use(express.static(CLIENT_DIR));
 app.use('/client', express.static(CLIENT_DIR));

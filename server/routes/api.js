@@ -12,10 +12,15 @@ import settingsRoutes from './settingsRoutes.js';
 import insightsRoutes from './insightsRoutes.js';
 import emotionalRoutes from './emotionalRoutes.js';
 import reminderRoutes from './reminderRoutes.js';
+import cycleRoutes from './cycleRoutes.js';
 import { getDBStatus, requireDB } from '../config/db.js';
 import { config } from '../config/env.js';
+import { validateObjectIdParams } from '../middleware/sanitize.js';
 
 const router = express.Router();
+
+// Validate all route parameters ending in 'id' or 'Id' to prevent BSON CastError crashes
+router.use(validateObjectIdParams);
 
 // Render / Load balancer liveness probe (does not depend on DB)
 router.get('/healthz', (req, res) => {
@@ -66,5 +71,6 @@ router.use('/settings', settingsRoutes);
 router.use('/insights', insightsRoutes);
 router.use('/emotional', emotionalRoutes);
 router.use('/reminders', reminderRoutes);
+router.use('/cycle', cycleRoutes);
 
 export default router;

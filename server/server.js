@@ -1,6 +1,6 @@
 import { app } from './app.js';
 import { config } from './config/env.js';
-import { connectDB } from './config/db.js';
+import { connectDB, closeDB } from './config/db.js';
 
 // ANSI escape codes for clean, consistent terminal output
 const CYAN = '\x1b[36m';
@@ -18,10 +18,11 @@ async function startServer() {
     console.log(`${BOLD}${CYAN}[SARTHI]${RESET} Environment: ${config.nodeEnv} | Timezone: ${config.timezone}`);
   });
 
-  const handleShutdown = () => {
+  const handleShutdown = async () => {
     console.log(`\n${BOLD}${CYAN}[SARTHI]${RESET} Gracefully stopping server...`);
-    server.close(() => {
-      console.log(`${BOLD}${CYAN}[SARTHI]${RESET} Server stopped.`);
+    server.close(async () => {
+      console.log(`${BOLD}${CYAN}[SARTHI]${RESET} HTTP Server closed.`);
+      await closeDB();
       process.exit(0);
     });
   };
