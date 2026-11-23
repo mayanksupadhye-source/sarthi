@@ -626,6 +626,88 @@
             <div
               style="display: flex; flex-direction: column; gap: var(--space-6)"
             >
+              <!-- Sunday Special: Body Measurement & Weekly Review -->
+              <div
+                class="card"
+                id="sundaySpecialCard"
+                style="
+                  display: none;
+                  border-left: 4px solid var(--accent-green);
+                  background: linear-gradient(
+                    135deg,
+                    rgba(5, 150, 105, 0.05) 0%,
+                    rgba(29, 78, 216, 0.03) 100%
+                  );
+                "
+              >
+                <div
+                  class="card-header"
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border: none;
+                    padding-bottom: 0;
+                  "
+                >
+                  <div>
+                    <div
+                      class="card-title"
+                      style="color: #065f46; display: flex; align-items: center; gap: var(--space-2);"
+                    >
+                      <span>⚖️ Sunday Body Measurement & Weight Check-in</span>
+                      <span class="badge badge-success text-xs">Sunday Special</span>
+                    </div>
+                    <div class="text-subtle text-xs" style="margin-top: 2px;">
+                      Weekly weigh-in baseline (Target: 73 kg · Friends Treat Unlock: 85.5 kg).
+                    </div>
+                  </div>
+                </div>
+                <div
+                  style="
+                    padding: var(--space-3) var(--space-4);
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    flex-wrap: wrap;
+                    gap: var(--space-3);
+                  "
+                >
+                  <div style="font-size: 0.875rem;">
+                    <strong>Latest Recorded Weight:</strong>
+                    <span id="sundayLatestWeightVal" style="color: var(--text-ink); font-weight: 700;">90.0 kg</span>
+                  </div>
+                  <form
+                    id="sundayWeightForm"
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: var(--space-2);
+                      flex-wrap: wrap;
+                    "
+                  >
+                    <input
+                      type="number"
+                      id="sundayWeightInput"
+                      class="form-input"
+                      placeholder="e.g. 85.5"
+                      step="0.1"
+                      min="30"
+                      max="200"
+                      required
+                      style="width: 130px; padding: 4px 8px; font-size: 0.875rem;"
+                    />
+                    <button
+                      type="submit"
+                      class="btn btn-primary btn-sm"
+                      id="btnSaveSundayWeight"
+                    >
+                      Save Sunday Weight
+                    </button>
+                  </form>
+                </div>
+              </div>
+
               <!-- 1. Scheduled Learning & Responsibilities -->
               <div class="card" id="scheduledWorkCard">
                 <div
@@ -1061,6 +1143,61 @@
       </div>
     </div>
 
+    <!-- Course / Exploration Lecture Partial Progress Modal -->
+    <div id="actPartialModal" class="modal-backdrop hidden">
+      <div class="modal-box">
+        <div class="card-header">
+          <div class="card-title">Log Lecture / Activity Headway</div>
+          <button id="closeActPartialModalBtn" class="btn btn-outline btn-sm">
+            ✕
+          </button>
+        </div>
+        <form id="actPartialForm">
+          <input type="hidden" id="actPartialId" />
+          <h4 id="actPartialTitleDisplay" style="font-size: 0.9375rem; font-weight: 700; color: var(--text-ink); margin-bottom: var(--space-2);">-</h4>
+          <p class="text-subtle text-sm" style="margin-bottom: var(--space-4)">
+            Log the actual minutes you spent (e.g. 10m, 20m, 90m). SARTHI preserves completed work, updates Courses Hub, and schedules only remaining effort.
+          </p>
+          <div class="form-group">
+            <label class="form-label">Actual Minutes Spent</label>
+            <input
+              type="number"
+              id="actPartialMinutesInput"
+              class="form-input"
+              value="20"
+              min="1"
+              step="5"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Brief Note on Where You Stopped</label>
+            <input
+              type="text"
+              id="actPartialNoteInput"
+              class="form-input"
+              placeholder="e.g. Watched 20 mins, completed code up to binary search partition"
+            />
+          </div>
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-4);
+            "
+          >
+            <button type="button" id="cancelActPartialBtn" class="btn btn-outline">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary" id="btnSaveActPartial">
+              Save Headway & Sync
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- Quick Exception Modal -->
     <div id="quickExcModal" class="modal-backdrop hidden">
       <div class="modal-box" style="max-width: 440px">
@@ -1398,6 +1535,23 @@
               `${s.remaining} / ${s.allowance}`;
           }
 
+          // 5.1 Sunday Special Card (Weight Loss & Measurement)
+          const sundayCard = document.getElementById("sundaySpecialCard");
+          if (sundayCard) {
+            const isSun = res.isSunday || new Date(targetDate).getDay() === 0;
+            if (isSun) {
+              sundayCard.style.display = "block";
+              if (res.latestWeightLog && res.latestWeightLog.weightKg) {
+                document.getElementById("sundayLatestWeightVal").textContent =
+                  `${res.latestWeightLog.weightKg} kg (${res.latestWeightLog.date})`;
+              } else {
+                document.getElementById("sundayLatestWeightVal").textContent = "90.0 kg (Baseline)";
+              }
+            } else {
+              sundayCard.style.display = "none";
+            }
+          }
+
           // 6. Day type badge
           document.getElementById("dayTypeBadge").textContent = (
             res.dayType || "weekday"
@@ -1470,25 +1624,176 @@
               linkLabel = "Academics →";
             }
 
+            const isCourseOrExplore =
+              item.type === "course" ||
+              item.type === "exploration" ||
+              item.sourceType === "CurriculumActivity";
+            const progressPercent =
+              item.totalEffortMinutes > 0
+                ? Math.min(
+                    100,
+                    Math.round(
+                      ((item.actualMinutes || 0) / item.totalEffortMinutes) *
+                        100,
+                    ),
+                  )
+                : 0;
+
             return `
-          <div class="work-item-card ${item.type}">
-            <div style="flex: 1; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: 2px;">
-                ${typeBadge}
-                ${getPriorityBadge(item.priority || "P2")}
-                <span style="font-weight: 600; font-size: 0.9375rem; color: var(--text-ink);">${escapeHtml(item.title)}</span>
+          <div class="work-item-card ${item.type}" style="display: block; padding: var(--space-4);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-3); flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: var(--space-2); margin-bottom: 4px; flex-wrap: wrap;">
+                  ${typeBadge}
+                  ${getPriorityBadge(item.priority || "P2")}
+                  ${item.sectionTitle ? `<span class="text-subtle text-xs" style="font-weight: 500;">[${escapeHtml(item.sectionTitle)}]</span>` : ""}
+                  <span style="font-weight: 700; font-size: 0.9375rem; color: var(--text-ink);">${escapeHtml(item.title)}</span>
+                </div>
+                <div class="text-subtle text-xs" style="margin-top: 2px;">
+                  ${metaDetail}
+                </div>
               </div>
-              <div class="text-subtle text-xs" style="margin-top: 2px;">
-                ${metaDetail}
+              <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;">
+                ${
+                  isCourseOrExplore
+                    ? `
+                  <button class="btn btn-success btn-sm btn-complete-act" data-id="${item.id}" data-rem="${item.remainingMinutes || item.totalEffortMinutes}" title="Mark completed and advance">✓ Mark Done</button>
+                  <button class="btn btn-outline btn-sm btn-partial-act" data-id="${item.id}" data-title="${escapeHtml(item.title)}" data-rem="${item.remainingMinutes || item.totalEffortMinutes}" title="Log partial minutes">⏱ Log Minutes</button>
+                `
+                    : item.type === "reading"
+                      ? `
+                  <button class="btn btn-primary btn-sm btn-complete-reading" data-id="${item.id}" data-title="${escapeHtml(item.title)}">✓ Done Today (35m)</button>
+                `
+                      : ""
+                }
+                <a href="${item.trackerUrl || "courses.html"}" class="btn btn-outline btn-sm">${linkLabel}</a>
               </div>
             </div>
-            <div style="display: flex; align-items: center; gap: var(--space-2);">
-              <a href="${item.trackerUrl || "courses.html"}" class="btn btn-outline btn-sm">${linkLabel}</a>
-            </div>
+
+            ${
+              item.hasPartialProgress
+                ? `
+              <div style="margin-top: 8px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; margin-bottom: 2px;">
+                  <span style="font-weight: 600; color: #b45309;">⚠️ In Progress: ${item.remainingMinutes}m remaining to finish</span>
+                  <span>${item.actualMinutes}m / ${item.totalEffortMinutes}m total (${progressPercent}%)</span>
+                </div>
+                <div class="progress-bar" style="height: 6px; background: rgba(245, 158, 11, 0.2);">
+                  <div class="progress-fill" style="width: ${progressPercent}%; background: #f59e0b;"></div>
+                </div>
+              </div>
+            `
+                : ""
+            }
+
+            ${
+              item.coachingGuidance
+                ? `
+              <div style="background: rgba(245, 158, 11, 0.08); border-left: 3px solid #f59e0b; padding: 8px 12px; border-radius: 4px; margin-top: 8px; font-size: 0.8125rem; color: #92400e;">
+                <div style="font-weight: 700; margin-bottom: 2px;">💡 Pacing & Momentum Guidance:</div>
+                <div>${escapeHtml(item.coachingGuidance.message)}</div>
+                <div style="margin-top: 3px; font-weight: 600;">${escapeHtml(item.coachingGuidance.suggestedPacing)}</div>
+                <div style="margin-top: 3px; font-style: italic; color: #b45309;">${escapeHtml(item.coachingGuidance.p3Tip)}</div>
+              </div>
+            `
+                : ""
+            }
+
+            ${
+              item.type === "reading"
+                ? `
+              <div class="text-subtle text-xs" style="margin-top: 6px; font-size: 0.75rem; color: #64748b;">
+                💡 P3 Habit Protection: Keep at least 5–10m of daily reading to preserve your habit streak even when core technical subjects run tight.
+              </div>
+            `
+                : ""
+            }
+
+            ${
+              item.nextActivity
+                ? `
+              <div style="margin-top: 10px; padding: 8px 10px; background: var(--bg-canvas); border: 1px dashed var(--border-hairline); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                <div style="font-size: 0.8125rem; color: var(--text-ink);">
+                  <span style="font-weight: 700; color: var(--accent-blue);">⏭ Next Lecture:</span> ${escapeHtml(item.nextActivity.title)} 
+                  <span class="text-subtle text-xs">(${item.nextActivity.remainingMinutes}m effort · <span class="badge badge-neutral" style="font-size: 0.65rem;">Scheduled for Tomorrow</span>)</span>
+                </div>
+                <button class="btn btn-outline btn-sm btn-advance-act" data-id="${item.nextActivity.id}" data-title="${escapeHtml(item.nextActivity.title)}" data-rem="${item.nextActivity.remainingMinutes}" style="font-size: 0.75rem; padding: 2px 8px;">
+                  + Work in Advance
+                </button>
+              </div>
+            `
+                : ""
+            }
           </div>
         `;
           })
           .join("");
+
+        container.querySelectorAll(".btn-complete-act").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = btn.dataset.id;
+            const rem = parseInt(btn.dataset.rem, 10) || 30;
+            try {
+              btn.disabled = true;
+              btn.textContent = "Completing...";
+              await api.put(`/courses/activities/${id}/complete`, {
+                actualMinutes: rem,
+              });
+              showToast(
+                "Lecture completed! Synced to Courses Hub & Progress updated.",
+                "success",
+              );
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Could not complete lecture", "error");
+              btn.disabled = false;
+              btn.textContent = "✓ Mark Done";
+            }
+          });
+        });
+
+        container.querySelectorAll(".btn-partial-act").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            openActPartialModal(
+              btn.dataset.id,
+              btn.dataset.title,
+              btn.dataset.rem,
+            );
+          });
+        });
+
+        container.querySelectorAll(".btn-advance-act").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            openActPartialModal(
+              btn.dataset.id,
+              btn.dataset.title,
+              btn.dataset.rem,
+            );
+          });
+        });
+
+        container.querySelectorAll(".btn-complete-reading").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const bookId = btn.dataset.id;
+            try {
+              btn.disabled = true;
+              btn.textContent = "Logging...";
+              await api.post("/personal/reading", {
+                bookId,
+                date: selectedDate,
+                durationMinutes: 35,
+                startPage: 0,
+                endPage: 20,
+              });
+              showToast("Reading session logged! Habit honored.", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Could not log reading", "error");
+              btn.disabled = false;
+              btn.textContent = "✓ Done Today (35m)";
+            }
+          });
+        });
       }
 
       function renderCompletedToday(completedList) {
@@ -1692,23 +1997,102 @@
                   ? `<span class="badge badge-sky text-xs" style="font-size: 0.65rem;">${b.courseSlug.toUpperCase()}</span>`
                   : "";
 
+            const isNightRoutine = /night routine/i.test(b.label);
+            const isGym = b.category === "gym" || /gym/i.test(b.label);
+
             return `
-          <div class="timetable-item ${b.category || ""} ${b.isProtected ? "protected" : ""}">
-            <div style="flex: 1; min-width: 0;">
-              <div style="display: flex; align-items: center; gap: var(--space-2);">
-                <span style="font-weight: 600; color: var(--text-ink);">${formatTimeRange(b.startTime, b.endTime)}</span>
-                ${typeBadge}
+          <div class="timetable-item ${b.category || ""} ${b.isProtected ? "protected" : ""}" style="display: block; padding: 0.65rem 0.75rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: var(--space-2);">
+                  <span style="font-weight: 600; color: var(--text-ink);">${formatTimeRange(b.startTime, b.endTime)}</span>
+                  ${typeBadge}
+                </div>
+                <div class="text-subtle text-xs" style="margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  ${escapeHtml(b.label)}
+                </div>
               </div>
-              <div class="text-subtle text-xs" style="margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${escapeHtml(b.label)}
-              </div>
-              ${/night routine/i.test(b.label) ? renderRoutineSteps(routineHabits) : ""}
+              <span class="badge ${b.isProtected ? "badge-p1" : "badge-neutral"}" style="margin-left: var(--space-2);">${b.durationMinutes}m</span>
             </div>
-            <span class="badge ${b.isProtected ? "badge-p1" : "badge-neutral"}" style="margin-left: var(--space-2);">${b.durationMinutes}m</span>
+
+            ${
+              isNightRoutine
+                ? `
+              <div style="margin-top: 8px;">
+                <button type="button" class="btn-night-routine-toggle" id="nightRoutineToggleBtn" aria-expanded="false" style="background: var(--bg-canvas); border: 1px solid var(--border-hairline); border-radius: 4px; cursor: pointer; padding: 3px 8px; font-size: 0.75rem; color: var(--accent-blue); font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                  <span>Night Routine Details (6 activities)</span> <span id="nightRoutineArrow">▼</span>
+                </button>
+                <div id="nightRoutineDetailsContainer" style="display: none; max-height: 160px; overflow-y: auto; margin-top: 8px; padding: 8px 10px; background: var(--bg-surface); border: 1px solid var(--border-hairline); border-radius: 6px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
+                  ${renderRoutineSteps(routineHabits)}
+                </div>
+              </div>
+            `
+                : ""
+            }
+
+            ${
+              isGym
+                ? `
+              <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-success btn-sm btn-gym-done" style="font-size: 0.75rem; padding: 2px 8px;" data-duration="${b.durationMinutes || 60}">
+                  ✓ Workout Done
+                </button>
+                <button type="button" class="btn btn-outline btn-sm btn-gym-missed" style="font-size: 0.75rem; padding: 2px 8px;">
+                  ✕ Missed Today (Reschedule)
+                </button>
+              </div>
+            `
+                : ""
+            }
           </div>
         `;
           })
           .join("");
+
+        const nightToggle = container.querySelector("#nightRoutineToggleBtn");
+        if (nightToggle) {
+          nightToggle.addEventListener("click", () => {
+            const details = container.querySelector(
+              "#nightRoutineDetailsContainer",
+            );
+            const arrow = container.querySelector("#nightRoutineArrow");
+            if (!details) return;
+            const isHidden = details.style.display === "none";
+            details.style.display = isHidden ? "block" : "none";
+            arrow.textContent = isHidden ? "▲" : "▼";
+            nightToggle.setAttribute(
+              "aria-expanded",
+              isHidden ? "true" : "false",
+            );
+          });
+        }
+
+        container.querySelectorAll(".btn-gym-done").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            try {
+              const dur = parseInt(btn.dataset.duration, 10) || 60;
+              await api.post("/personal/fitness", {
+                date: selectedDate,
+                workoutType: "Strength & Gym Workout",
+                durationMinutes: dur,
+                notes: "Logged from Today's section",
+              });
+              showToast("Gym session logged and marked done!", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Failed to log gym session", "error");
+            }
+          });
+        });
+
+        container.querySelectorAll(".btn-gym-missed").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            showToast(
+              "Gym session marked missed for today. Rest and recover! It does not consume a Slack Day.",
+              "info",
+            );
+          });
+        });
 
         container.querySelectorAll(".today-routine-check").forEach((input) =>
           input.addEventListener("change", async () => {
@@ -1978,6 +2362,83 @@
             }
           });
 
+        // Sunday Weight Form Setup
+        document
+          .getElementById("sundayWeightForm")
+          ?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const weightVal = parseFloat(
+              document.getElementById("sundayWeightInput").value,
+            );
+            const btnSave = document.getElementById("btnSaveSundayWeight");
+
+            try {
+              btnSave.disabled = true;
+              btnSave.textContent = "Saving...";
+              await api.post("/personal/weight", {
+                weightKg: weightVal,
+                date: selectedDate,
+                notes: "Sunday weekly weigh-in check",
+              });
+              showToast(
+                "Sunday weight logged! Keep up the consistency.",
+                "success",
+              );
+              document.getElementById("sundayLatestWeightVal").textContent =
+                `${weightVal} kg (${selectedDate})`;
+              document.getElementById("sundayWeightInput").value = "";
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Failed to log weight", "error");
+            } finally {
+              btnSave.disabled = false;
+              btnSave.textContent = "Save Sunday Weight";
+            }
+          });
+
+        // Act Partial Modal Setup
+        document
+          .getElementById("closeActPartialModalBtn")
+          ?.addEventListener("click", closeActPartialModal);
+        document
+          .getElementById("cancelActPartialBtn")
+          ?.addEventListener("click", closeActPartialModal);
+
+        document
+          .getElementById("actPartialForm")
+          ?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const id = document.getElementById("actPartialId").value;
+            const minutes =
+              parseInt(
+                document.getElementById("actPartialMinutesInput").value,
+                10,
+              ) || 20;
+            const notes = document.getElementById("actPartialNoteInput").value;
+            const btnSave = document.getElementById("btnSaveActPartial");
+
+            try {
+              btnSave.disabled = true;
+              btnSave.textContent = "Saving...";
+              await api.post(`/courses/activities/${id}/partial`, {
+                minutesSpent: minutes,
+                notes,
+                date: selectedDate,
+              });
+              showToast(
+                "Headway preserved! Synced to Courses Hub & Remaining Effort adjusted.",
+                "success",
+              );
+              closeActPartialModal();
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Failed to log headway", "error");
+            } finally {
+              btnSave.disabled = false;
+              btnSave.textContent = "Save Headway & Sync";
+            }
+          });
+
         // Quick Exception modal setup
         const quickExcModal = document.getElementById("quickExcModal");
         document
@@ -2035,6 +2496,21 @@
       }
       function closePartialModal() {
         document.getElementById("partialModal").classList.add("hidden");
+      }
+
+      function openActPartialModal(id, title, remaining) {
+        document.getElementById("actPartialId").value = id;
+        document.getElementById("actPartialTitleDisplay").textContent =
+          title || "Curriculum Activity";
+        document.getElementById("actPartialMinutesInput").value =
+          remaining && Number(remaining) > 0
+            ? Math.min(Number(remaining), 30)
+            : 20;
+        document.getElementById("actPartialNoteInput").value = "";
+        document.getElementById("actPartialModal").classList.remove("hidden");
+      }
+      function closeActPartialModal() {
+        document.getElementById("actPartialModal").classList.add("hidden");
       }
 
       init();

@@ -232,6 +232,14 @@
         margin-bottom: var(--space-3);
       }
     </style>
+    <style>
+      @media (max-width: 768px) {
+        .track-grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: var(--space-4);
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="app-layout">
@@ -2755,6 +2763,24 @@
               );
               if (!res.success)
                 throw new Error(res.error || "Failed to update exploration");
+
+              if (targetDate) {
+                try {
+                  const distRes = await api.post(`/courses/${encodeURIComponent(slug)}/distribute`, {
+                    targetDate,
+                    multiplier: defaultPracticeMultiplier,
+                  });
+                  if (distRes.success && distRes.distribution?.pacingCoaching) {
+                    const c = distRes.distribution.pacingCoaching;
+                    if (c.type === "narrow_budget") {
+                      showToast(`⚠️ Schedule tight: Recommended multiplier is ${c.recommendedMultiplier || "lower"}. Check Calendar!`, "warning", 6000);
+                    }
+                  }
+                } catch (distErr) {
+                  console.warn("Exploration auto-distribution error:", distErr);
+                }
+              }
+
               showToast(`Exploration "${title}" updated!`, "success");
               closeEditExpModal();
               await notifyCourseNavigationChanged();

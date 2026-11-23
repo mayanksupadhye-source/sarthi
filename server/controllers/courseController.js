@@ -8,6 +8,13 @@ import {
   cleanLegacySeededCourses,
 } from "../services/curriculumMigration.js";
 import { Setting } from "../models/Setting.js";
+import { ScheduleTemplate } from "../models/ScheduleTemplate.js";
+import { Examination } from "../models/Examination.js";
+import { Hackathon } from "../models/Hackathon.js";
+import { SlackDayLog } from "../models/SlackDayLog.js";
+import { Task } from "../models/Task.js";
+import { PlannerEngine } from "../services/plannerEngine.js";
+import { getTodayString, shiftDate } from "../utils/timeFormat.js";
 import {
   parseWebDevMarkdown,
   parseDSAMarkdown,
@@ -905,7 +912,40 @@ export async function commitCsvImport(req, res, next) {
       }
     }
 
-    return res.json({ success: true, ...result });
+    // Auto-distribute timeline if course has startDate and targetDate configured
+    let distribution = null;
+    try {
+      const courseRecord = await Course.findOne({ userId: req.user.id, slug: courseSlug });
+      if (courseRecord && courseRecord.startDate && courseRecord.targetDate) {
+        const activities = await CurriculumActivity.find({
+          userId: req.user.id,
+          courseSlug,
+        }).sort({ orderIndex: 1, sequenceOrder: 1, createdAt: 1 });
+
+        distribution = await PlannerEngine.distributeCourseTimeline({
+          course: courseRecord,
+          activities,
+          userId: req.user.id,
+          startDate: courseRecord.startDate,
+          targetDate: courseRecord.targetDate,
+          multiplier: courseRecord.defaultPracticeMultiplier || 2.0,
+        });
+
+        if (distribution && distribution.allocations && distribution.allocations.length > 0) {
+          const actOps = distribution.allocations.map((alloc) => ({
+            updateOne: {
+              filter: { _id: alloc.activityId, userId: req.user.id },
+              update: { $set: { scheduledDate: alloc.scheduledDate } },
+            },
+          }));
+          await CurriculumActivity.bulkWrite(actOps);
+        }
+      }
+    } catch (distErr) {
+      console.warn("Timeline auto-distribution warning on CSV commit:", distErr.message);
+    }
+
+    return res.json({ success: true, ...result, distribution });
   } catch (err) {
     next(err);
   }
@@ -1028,6 +1068,114 @@ export async function completeCourseActivity(req, res, next) {
         .json({ success: false, error: "Activity not found." });
     }
     return res.json({ success: true, activity });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function logPartialCourseActivity(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { minutesSpent, notes = "", date } = req.body;
+    const activity = await CurriculumActivity.findOne({
+      _id: id,
+      userId: req.user.id,
+    });
+    if (!activity) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Activity not found." });
+    }
+
+    const minutes = Number(minutesSpent) || 0;
+    if (minutes <= 0) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Minutes spent must be greater than 0." });
+    }
+
+    const result = await ExecutionSyncService.recordWork({
+      userId: req.user.id,
+      activityId: activity._id,
+      taskId: activity.taskId,
+      courseSlug: activity.courseSlug,
+      minutesSpent: minutes,
+      notes,
+      date: date || getTodayString(),
+      isCompleted: false,
+    });
+
+    return res.json({
+      success: true,
+      activity: result.activity,
+      executionRecord: result.executionRecord,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function distributeCourse(req, res, next) {
+  try {
+    const { slug } = req.params;
+    const { startDate, targetDate, dailyStudyMinutes, multiplier } = req.body;
+    const course = await Course.findOne({ slug, userId: req.user.id });
+    if (!course) {
+      return res.status(404).json({ success: false, error: "Course not found." });
+    }
+
+    if (startDate) course.startDate = startDate;
+    if (targetDate) course.targetDate = targetDate;
+    if (multiplier && Number(multiplier) > 0) course.defaultPracticeMultiplier = Number(multiplier);
+    await course.save();
+
+    const activities = await CurriculumActivity.find({
+      userId: req.user.id,
+      courseSlug: slug,
+    }).sort({ orderIndex: 1, sequenceOrder: 1, createdAt: 1 });
+
+    const distribution = await PlannerEngine.distributeCourseTimeline({
+      course,
+      activities,
+      userId: req.user.id,
+      startDate: course.startDate || startDate,
+      targetDate: course.targetDate || targetDate,
+      dailyStudyMinutes: dailyStudyMinutes ? Number(dailyStudyMinutes) : null,
+      multiplier: course.defaultPracticeMultiplier || multiplier,
+    });
+
+    if (distribution.allocations && distribution.allocations.length > 0) {
+      const actOps = distribution.allocations.map((alloc) => ({
+        updateOne: {
+          filter: { _id: alloc.activityId, userId: req.user.id },
+          update: { $set: { scheduledDate: alloc.scheduledDate } },
+        },
+      }));
+      await CurriculumActivity.bulkWrite(actOps);
+
+      const allocatedActIds = distribution.allocations.map((a) => a.activityId);
+      const allocatedActs = await CurriculumActivity.find({
+        _id: { $in: allocatedActIds },
+        userId: req.user.id,
+        taskId: { $ne: null },
+      }).select("taskId scheduledDate");
+
+      if (allocatedActs.length > 0) {
+        const taskOps = allocatedActs.map((a) => ({
+          updateOne: {
+            filter: { _id: a.taskId, userId: req.user.id },
+            update: { $set: { scheduledDate: a.scheduledDate } },
+          },
+        }));
+        await Task.bulkWrite(taskOps);
+      }
+    }
+
+    return res.json({
+      success: true,
+      course,
+      distribution,
+    });
   } catch (err) {
     next(err);
   }

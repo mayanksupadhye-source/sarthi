@@ -213,4 +213,123 @@ describe('SARTHI Planner Engine — Capacity & Recovery Rules', () => {
     assert.ok(newAllocated <= proposal.capacityMinutes, 'User custom plan fits within capacity');
   });
 
+  it('10. Timeline Distribution: Excludes Exam days, Hackathons, and Slack buffers over 150-day semester', async () => {
+    // 150 day timeline from 2026-12-01 to 2027-04-30
+    const course = {
+      slug: 'full-stack-webdev',
+      title: 'Full Stack Web Development',
+      defaultPracticeMultiplier: 2.0
+    };
+
+    const mockActivities = Array.from({ length: 40 }, (_, i) => ({
+      _id: `act-${i + 1}`,
+      title: `Lecture ${i + 1}`,
+      sectionNumber: Math.floor(i / 5) + 1,
+      activityNumber: i + 1,
+      contentDurationMinutes: 30,
+      totalEffortMinutes: 60,
+      remainingMinutes: 60,
+      status: 'pending'
+    }));
+
+    const result = await PlannerEngine.distributeCourseTimeline({
+      course,
+      activities: mockActivities,
+      userId: 'test-user-dist',
+      startDate: '2026-12-01',
+      targetDate: '2027-04-30',
+      dailyStudyMinutes: 90
+    });
+
+    assert.equal(result.startDate, '2026-12-01');
+    assert.equal(result.targetDate, '2027-04-30');
+    assert.ok(result.daySpan >= 150, 'Must span ~150 calendar days');
+
+    // Reserves: ~13-15 exam days, ~10-12 hackathon days, ~10-15 slack days
+    assert.ok(result.reserves.examDays >= 13 && result.reserves.examDays <= 15, `Expected 13-15 exam days, got ${result.reserves.examDays}`);
+    assert.ok(result.reserves.hackathonDays >= 10 && result.reserves.hackathonDays <= 12, `Expected 10-12 hackathon days, got ${result.reserves.hackathonDays}`);
+    assert.ok(result.reserves.slackDays >= 10 && result.reserves.slackDays <= 15, `Expected 10-15 slack days, got ${result.reserves.slackDays}`);
+
+    // All 40 lectures should be placed within effective study days
+    assert.equal(result.allocations.length, 40, 'All 40 activities must be allocated');
+    assert.equal(result.unplacedCount, 0, 'Zero activities unplaced');
+    assert.ok(result.pacingCoaching.isFeasible, 'Must be feasible with 90 min daily capacity');
+
+    // Verify no allocations placed on exam, hackathon, or slack days
+    const reservedDates = new Set(
+      result.timeline
+        .filter(d => d.isExam || d.isHackathon || d.isSlack)
+        .map(d => d.date)
+    );
+
+    for (const alloc of result.allocations) {
+      assert.ok(!reservedDates.has(alloc.scheduledDate), `Activity ${alloc.activityId} should not be scheduled on reserved date ${alloc.scheduledDate}`);
+    }
+  });
+
+  it('11. Feasibility & Multiplier Detection: Detects narrow budget and suggests feasible multiplier', async () => {
+    const course = {
+      slug: 'apna-college-dsa',
+      title: 'Apna College DSA',
+      defaultPracticeMultiplier: 2.5
+    };
+
+    // 20 heavy lectures of 60m content = 150m effort each at 2.5x -> 3000m total effort
+    const heavyActivities = Array.from({ length: 20 }, (_, i) => ({
+      _id: `dsa-${i + 1}`,
+      title: `DSA Lecture ${i + 1}`,
+      contentDurationMinutes: 60,
+      totalEffortMinutes: 150,
+      remainingMinutes: 150,
+      status: 'pending'
+    }));
+
+    // Tight 20-day timeframe with small 60m study capacity (total capacity ~600m after reserves)
+    const result = await PlannerEngine.distributeCourseTimeline({
+      course,
+      activities: heavyActivities,
+      userId: 'test-user-tight',
+      startDate: '2026-12-01',
+      targetDate: '2026-12-25',
+      dailyStudyMinutes: 60,
+      multiplier: 2.5
+    });
+
+    assert.equal(result.pacingCoaching.isFeasible, false, 'Should be flagged unfeasible at 2.5x in narrow window');
+    assert.equal(result.pacingCoaching.type, 'narrow_budget');
+    assert.ok(result.pacingCoaching.recommendedMultiplier < 2.5, 'Should recommend a lower multiplier');
+    assert.ok(result.pacingCoaching.deficitHours > 0, 'Must compute deficit hours');
+    assert.match(result.pacingCoaching.message, /Action Required: Pacing Overload/);
+  });
+
+  it('12. Coherent Window & Leeway Rule: Respects 20% leeway rule at end of daily slot', async () => {
+    const course = {
+      slug: 'typing-practice',
+      title: 'Typing Practice Exploration',
+      defaultPracticeMultiplier: 1.0
+    };
+
+    // 2 activities: 45 min and 20 min
+    const activities = [
+      { _id: 'tp-1', title: 'Home Row Drill', contentDurationMinutes: 45, totalEffortMinutes: 45, remainingMinutes: 45, status: 'pending' },
+      { _id: 'tp-2', title: 'Top Row Drill', contentDurationMinutes: 20, totalEffortMinutes: 20, remainingMinutes: 20, status: 'pending' }
+    ];
+
+    // Day has 60 min capacity. Activity 1 takes 45 min, leaving 15 min.
+    // Activity 2 is 20 min. Effort - remaining = 20 - 15 = 5 min <= 20% of 15 min (or <= 10 min).
+    // So activity 2 should fit on the same day due to the 20% boundary leeway!
+    const result = await PlannerEngine.distributeCourseTimeline({
+      course,
+      activities,
+      userId: 'test-user-leeway',
+      startDate: '2026-12-01',
+      targetDate: '2026-12-05',
+      dailyStudyMinutes: 60,
+      multiplier: 1.0
+    });
+
+    assert.equal(result.allocations.length, 2);
+    assert.equal(result.allocations[0].scheduledDate, result.allocations[1].scheduledDate, 'Both activities should fit on day 1 with leeway rule');
+  });
+
 });

@@ -90,18 +90,105 @@
         color: #047857;
         font-weight: 600;
       }
+      @media (max-width: 768px) {
+        .calendar-scroll {
+          max-width: 100%;
+          overflow-x: auto;
+          overscroll-behavior-x: contain;
+          -webkit-overflow-scrolling: touch;
+        }
+        .calendar-grid {
+          min-width: 560px;
+        }
+      }
       .cal-event-pill.holiday {
         border-left-color: #2563eb;
         background-color: #eff6ff;
         color: #1d4ed8;
         font-weight: 600;
       }
+      .cal-event-pill.lecture {
+        border-left-color: #0284c7;
+        background-color: #f0f9ff;
+        color: #0369a1;
+        font-weight: 600;
+      }
+      .cal-event-pill.hackathon {
+        border-left-color: #9333ea;
+        background-color: #faf5ff;
+        color: #7e22ce;
+        font-weight: 700;
+      }
       .cal-day-cell {
         cursor: pointer;
-        transition: background-color 0.15s ease;
+        transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
       }
       .cal-day-cell:hover {
         background-color: #f8fafc;
+      }
+      .cal-day-cell.selected-day {
+        background-color: #f0fdf4 !important;
+        border: 2px solid #16a34a !important;
+        box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.25);
+      }
+      .month-target-bar {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--space-4);
+        padding: var(--space-4);
+        background: var(--color-bg-paper);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-4);
+        box-shadow: var(--shadow-sm);
+      }
+      .target-stat {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .target-stat-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--color-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .target-stat-val {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--color-ink);
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+      }
+      .target-stat-sub {
+        font-size: 0.75rem;
+        color: var(--color-muted);
+        font-weight: normal;
+      }
+      .progress-bar-container {
+        height: 6px;
+        background: var(--color-bg-subtle);
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 4px;
+      }
+      .progress-bar-fill {
+        height: 100%;
+        background: var(--color-primary);
+        border-radius: 999px;
+        transition: width 0.3s ease;
+      }
+      .inspector-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-2) var(--space-3);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-sm);
+        background: var(--color-bg-paper);
+        font-size: 0.875rem;
       }
     </style>
   </head>
@@ -186,15 +273,94 @@
             </button>
           </div>
 
+          <!-- Whole Month Target Summary Bar -->
+          <div id="monthTargetSummaryBar" class="month-target-bar" style="display: none;">
+            <div class="target-stat">
+              <span class="target-stat-label">📚 Lectures Target</span>
+              <div class="target-stat-val">
+                <span id="targetSummaryLectures">0 / 0</span>
+                <span class="target-stat-sub" id="targetSummaryLecturesPct">(0%)</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="targetSummaryLecturesBar" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <div class="target-stat">
+              <span class="target-stat-label">⏱️ Study Hours</span>
+              <div class="target-stat-val">
+                <span id="targetSummaryHours">0h / 0h</span>
+                <span class="target-stat-sub" id="targetSummaryHoursPct">(0%)</span>
+              </div>
+              <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="targetSummaryHoursBar" style="width: 0%; background: #0284c7;"></div>
+              </div>
+            </div>
+
+            <div class="target-stat">
+              <span class="target-stat-label">🎯 Active Tracks</span>
+              <div class="target-stat-val">
+                <span id="targetSummaryCourses">0</span>
+                <span class="target-stat-sub">in progress</span>
+              </div>
+              <div class="text-xs text-muted" style="margin-top: 4px;" id="targetSummaryStatusNote">
+                Pacing balanced with exams & rest days
+              </div>
+            </div>
+          </div>
+
           <!-- Calendar Month Grid -->
-          <div class="calendar-grid" id="calendarGrid">
-            <div class="cal-header-cell">Sun</div>
-            <div class="cal-header-cell">Mon</div>
-            <div class="cal-header-cell">Tue</div>
-            <div class="cal-header-cell">Wed</div>
-            <div class="cal-header-cell">Thu</div>
-            <div class="cal-header-cell">Fri</div>
-            <div class="cal-header-cell">Sat</div>
+          <div
+            class="calendar-scroll"
+            role="region"
+            aria-label="Scrollable monthly calendar"
+          >
+            <div class="calendar-grid" id="calendarGrid">
+              <div class="cal-header-cell">Sun</div>
+              <div class="cal-header-cell">Mon</div>
+              <div class="cal-header-cell">Tue</div>
+              <div class="cal-header-cell">Wed</div>
+              <div class="cal-header-cell">Thu</div>
+              <div class="cal-header-cell">Fri</div>
+              <div class="cal-header-cell">Sat</div>
+            </div>
+          </div>
+
+          <!-- Interactive Day Schedule Inspector -->
+          <div class="card" id="dayScheduleInspector" style="margin-top: var(--space-6); display: none;">
+            <div
+              class="card-header"
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: var(--space-3);
+                border-bottom: 1px solid var(--color-border);
+                padding-bottom: var(--space-3);
+              "
+            >
+              <div>
+                <div style="display: flex; align-items: center; gap: var(--space-2);">
+                  <h3 id="inspectorDateHeading" style="margin: 0; font-size: 1.125rem;">Schedule for ...</h3>
+                  <div id="inspectorBadges" style="display: flex; gap: 4px; flex-wrap: wrap;"></div>
+                </div>
+                <div id="inspectorDateSubheading" class="text-subtle text-xs" style="margin-top: 4px;">
+                  Detailed chronological allocation for this date.
+                </div>
+              </div>
+              <div style="display: flex; gap: var(--space-2); align-items: center;">
+                <button id="inspectorOpenTodayBtn" class="btn btn-primary btn-sm">
+                  ⚡ Open in Today Execution
+                </button>
+                <button id="inspectorCloseBtn" class="btn btn-outline btn-sm" aria-label="Close Inspector">
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div id="inspectorContent" style="padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2);">
+              <!-- Populated dynamically -->
+            </div>
           </div>
         </div>
       </main>
@@ -209,12 +375,18 @@
 
       let currentYear = 2026;
       let currentMonth = 10; // 0-indexed: 10 is November
+      let selectedDate = null;
       let tasksMap = {};
       let examsMap = {};
       let prepDatesMap = {};
       let assignmentsMap = {};
       let slackDaysMap = {};
       let exceptionsMap = {};
+      let hackathonsMap = {};
+      let activitiesMap = {};
+      let coursesMap = {};
+      let executionRecordsMap = {};
+      let monthTargetSummary = null;
 
       async function init() {
         const user = await checkAuth();
@@ -224,6 +396,7 @@
         const today = new Date();
         currentYear = today.getFullYear();
         currentMonth = today.getMonth();
+        selectedDate = getTodayString();
 
         await checkGoogleStatus();
         await loadEvents();
@@ -262,8 +435,41 @@
           assignmentsMap = {};
           slackDaysMap = {};
           exceptionsMap = {};
+          hackathonsMap = {};
+          activitiesMap = {};
+          coursesMap = {};
+          executionRecordsMap = {};
+          monthTargetSummary = res.monthTargetSummary || null;
 
           if (res.success) {
+            (res.courses || []).forEach((c) => {
+              coursesMap[c.slug] = c;
+            });
+
+            (res.curriculumActivities || []).forEach((a) => {
+              const d = a.scheduledDate || (a.completedDate ? a.completedDate.slice(0, 10) : null);
+              if (d) {
+                activitiesMap[d] = activitiesMap[d] || [];
+                activitiesMap[d].push(a);
+              }
+            });
+
+            (res.hackathons || []).forEach((h) => {
+              if (h.startDate && h.endDate) {
+                let cur = new Date(h.startDate);
+                const end = new Date(h.endDate);
+                while (cur <= end) {
+                  const dStr = cur.toISOString().slice(0, 10);
+                  hackathonsMap[dStr] = hackathonsMap[dStr] || [];
+                  hackathonsMap[dStr].push(h);
+                  cur.setDate(cur.getDate() + 1);
+                }
+              } else if (h.startDate) {
+                hackathonsMap[h.startDate] = hackathonsMap[h.startDate] || [];
+                hackathonsMap[h.startDate].push(h);
+              }
+            });
+
             (res.tasks || []).forEach((t) => {
               const d = t.scheduledDate || t.deadline;
               if (d) {
@@ -306,13 +512,51 @@
                 exceptionsMap[exc.date] = exc;
               }
             });
+
+            (res.executionRecords || []).forEach((r) => {
+              if (r.date) {
+                executionRecordsMap[r.date] = executionRecordsMap[r.date] || [];
+                executionRecordsMap[r.date].push(r);
+              }
+            });
           }
         } catch (err) {
           showToast(err.message, "error");
         }
       }
 
+      function renderTargetSummary() {
+        const bar = document.getElementById("monthTargetSummaryBar");
+        if (!monthTargetSummary) {
+          bar.style.display = "none";
+          return;
+        }
+
+        bar.style.display = "grid";
+        const {
+          plannedLectures = 0,
+          completedLectures = 0,
+          lectureCompletionRate = 0,
+          plannedHours = 0,
+          completedHours = 0,
+          hourCompletionRate = 0,
+          activeCoursesCount = 0,
+        } = monthTargetSummary;
+
+        document.getElementById("targetSummaryLectures").textContent = `${completedLectures} / ${plannedLectures}`;
+        document.getElementById("targetSummaryLecturesPct").textContent = `(${lectureCompletionRate}%)`;
+        document.getElementById("targetSummaryLecturesBar").style.width = `${Math.min(100, lectureCompletionRate)}%`;
+
+        document.getElementById("targetSummaryHours").textContent = `${completedHours}h / ${plannedHours}h`;
+        document.getElementById("targetSummaryHoursPct").textContent = `(${hourCompletionRate}%)`;
+        document.getElementById("targetSummaryHoursBar").style.width = `${Math.min(100, hourCompletionRate)}%`;
+
+        document.getElementById("targetSummaryCourses").textContent = String(activeCoursesCount);
+      }
+
       function renderCalendar() {
+        renderTargetSummary();
+
         const monthNames = [
           "January",
           "February",
@@ -367,12 +611,15 @@
           const dateKey = `${currentYear}-${monthPad}-${dayPad}`;
 
           const isToday = dateKey === todayStr;
+          const isSelected = dateKey === selectedDate;
           const dayTasks = tasksMap[dateKey] || [];
           const dayExams = examsMap[dateKey] || [];
           const dayPreps = prepDatesMap[dateKey] || [];
           const dayAssignments = assignmentsMap[dateKey] || [];
           const daySlack = slackDaysMap[dateKey];
           const dayExc = exceptionsMap[dateKey];
+          const dayHackathons = hackathonsMap[dateKey] || [];
+          const dayActs = activitiesMap[dateKey] || [];
 
           let eventsHtml = "";
 
@@ -382,6 +629,10 @@
           if (dayExc) {
             eventsHtml += `<div class="cal-event-pill holiday" title="Schedule Override">🎯 ${String(dayExc.exceptionType || "Holiday").replace("_", " ")}</div>`;
           }
+
+          dayHackathons.slice(0, 1).forEach((h) => {
+            eventsHtml += `<div class="cal-event-pill hackathon" title="Hackathon Sprint">🚀 ${h.name}</div>`;
+          });
 
           dayExams.forEach((e) => {
             const timeStr = e.startTime
@@ -398,35 +649,257 @@
             eventsHtml += `<div class="cal-event-pill assignment">📝 Due: ${a.title}</div>`;
           });
 
+          // Course Lectures & Activities
+          dayActs.slice(0, 2).forEach((act) => {
+            const c = coursesMap[act.courseSlug];
+            const prefix = c ? `${c.emoji || "📚"} ` : "📚 ";
+            const check = act.status === "completed" ? "✓ " : "";
+            eventsHtml += `<div class="cal-event-pill lecture" title="${prefix}${act.title}">${check}${prefix}${act.title}</div>`;
+          });
+
+          // Tasks
           dayTasks.slice(0, 2).forEach((t) => {
             const p1Class = t.priority === "P1" ? "p1" : "";
             eventsHtml += `<div class="cal-event-pill ${p1Class}">${t.title}</div>`;
           });
 
-          const extraCount = Math.max(0, dayTasks.length - 2);
+          const totalDisplayed = (daySlack ? 1 : 0) + (dayExc ? 1 : 0) + Math.min(1, dayHackathons.length) + dayExams.length + dayPreps.length + dayAssignments.length + Math.min(2, dayActs.length) + Math.min(2, dayTasks.length);
+          const totalAll = (daySlack ? 1 : 0) + (dayExc ? 1 : 0) + dayHackathons.length + dayExams.length + dayPreps.length + dayAssignments.length + dayActs.length + dayTasks.length;
+          const extraCount = Math.max(0, totalAll - totalDisplayed);
           if (extraCount > 0) {
             eventsHtml += `<div class="text-subtle text-xs">+${extraCount} more</div>`;
           }
 
+          const cellClasses = [
+            "cal-day-cell",
+            isToday ? "today" : "",
+            isSelected ? "selected-day" : "",
+          ].filter(Boolean).join(" ");
+
           grid.innerHTML += `
-          <div class="cal-day-cell ${isToday ? "today" : ""}" data-date="${dateKey}" title="Click to open ${dateKey} in Today">
+          <div class="${cellClasses}" data-date="${dateKey}" title="Click to inspect ${dateKey} schedule (Double click to open Today)">
             <div class="cal-date-num">${d}</div>
             ${eventsHtml}
           </div>
         `;
         }
 
-        // Wire day-click navigation to Today
+        // Wire day-click selection & double click navigation
         grid
           .querySelectorAll(".cal-day-cell:not(.other-month)")
           .forEach((cell) => {
             cell.addEventListener("click", () => {
               const date = cell.dataset.date;
               if (date) {
+                selectedDate = date;
+                grid.querySelectorAll(".cal-day-cell").forEach((c) => c.classList.remove("selected-day"));
+                cell.classList.add("selected-day");
+                renderDayInspector(date);
+              }
+            });
+
+            cell.addEventListener("dblclick", () => {
+              const date = cell.dataset.date;
+              if (date) {
                 window.location.href = `dashboard.html?date=${date}`;
               }
             });
           });
+
+        if (selectedDate) {
+          renderDayInspector(selectedDate);
+        }
+      }
+
+      function renderDayInspector(dateStr) {
+        const inspector = document.getElementById("dayScheduleInspector");
+        if (!dateStr) {
+          inspector.style.display = "none";
+          return;
+        }
+
+        inspector.style.display = "block";
+
+        const parsedDate = new Date(`${dateStr}T00:00:00`);
+        const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+        const formattedDate = parsedDate.toLocaleDateString("en-US", options);
+
+        document.getElementById("inspectorDateHeading").textContent = formattedDate;
+
+        const badgesContainer = document.getElementById("inspectorBadges");
+        badgesContainer.innerHTML = "";
+
+        const isToday = dateStr === getTodayString();
+        if (isToday) {
+          badgesContainer.innerHTML += `<span class="badge badge-primary">Today</span>`;
+        }
+
+        const daySlack = slackDaysMap[dateStr];
+        if (daySlack) {
+          badgesContainer.innerHTML += `<span class="badge badge-success">🌿 Slack Day</span>`;
+        }
+
+        const dayExc = exceptionsMap[dateStr];
+        if (dayExc) {
+          badgesContainer.innerHTML += `<span class="badge badge-blue">🎯 ${String(dayExc.exceptionType || "Holiday").replace("_", " ")}</span>`;
+        }
+
+        const dayHackathons = hackathonsMap[dateStr] || [];
+        if (dayHackathons.length > 0) {
+          badgesContainer.innerHTML += `<span class="badge" style="background:#f3e8ff;color:#7e22ce;">🚀 Hackathon Sprint</span>`;
+        }
+
+        const dayExams = examsMap[dateStr] || [];
+        if (dayExams.length > 0) {
+          badgesContainer.innerHTML += `<span class="badge badge-danger">🎓 Exam Day</span>`;
+        }
+
+        const content = document.getElementById("inspectorContent");
+        content.innerHTML = "";
+
+        let itemsCount = 0;
+
+        // 1. Hackathons
+        dayHackathons.forEach((h) => {
+          itemsCount++;
+          content.innerHTML += `
+            <div class="inspector-item" style="border-left: 3px solid #9333ea; background: #faf5ff;">
+              <div>
+                <strong>🚀 ${h.name}</strong>
+                <div class="text-xs text-muted">Hackathon 24h Sprint mode active — normal lectures held without penalties</div>
+              </div>
+              <span class="badge badge-neutral">Hackathon</span>
+            </div>
+          `;
+        });
+
+        // 2. Exams
+        dayExams.forEach((e) => {
+          itemsCount++;
+          const time = e.startTime ? `@ ${formatTime12(e.startTime)}` : "";
+          content.innerHTML += `
+            <div class="inspector-item" style="border-left: 3px solid #dc2626; background: #fee2e2;">
+              <div>
+                <strong style="color: #991b1b;">🎓 ${e.subjectName} (${e.examType}) ${time}</strong>
+                <div class="text-xs text-muted">${e.syllabusDescription || "Official Examination"}</div>
+              </div>
+              <span class="badge badge-danger">Examination</span>
+            </div>
+          `;
+        });
+
+        // 3. Exam Prep
+        const dayPreps = prepDatesMap[dateStr] || [];
+        dayPreps.forEach((p) => {
+          itemsCount++;
+          content.innerHTML += `
+            <div class="inspector-item" style="border-left: 3px solid #ea580c; background: #ffedd5;">
+              <div>
+                <strong style="color: #9a3412;">📖 Prep Revision: ${p.subjectName}</strong>
+                <div class="text-xs text-muted">${p.topicsToRevise ? "Topics: " + p.topicsToRevise : "Planned revision session"}</div>
+              </div>
+              <span class="badge badge-neutral">Exam Prep</span>
+            </div>
+          `;
+        });
+
+        // 4. Course Curriculum Lectures & Activities
+        const dayActs = activitiesMap[dateStr] || [];
+        dayActs.forEach((act) => {
+          itemsCount++;
+          const c = coursesMap[act.courseSlug];
+          const courseLabel = c ? `${c.emoji || "📚"} ${c.title}` : "📚 Course";
+          const isDone = act.status === "completed";
+          const duration = act.totalEffortMinutes || Math.round((act.contentDurationMinutes || 0) * (act.effectiveMultiplier || 2)) || 45;
+
+          content.innerHTML += `
+            <div class="inspector-item" style="border-left: 3px solid #0284c7; background: #f0f9ff;">
+              <div>
+                <div style="font-size: 0.75rem; color: #0369a1; font-weight: 600;">${courseLabel} • Section ${act.sectionNumber || 1}</div>
+                <strong style="color: var(--color-ink);">${act.title}</strong>
+                <div class="text-xs text-muted">${duration} min planned effort</div>
+              </div>
+              <div>
+                ${
+                  isDone
+                    ? '<span class="badge badge-success">✓ Completed</span>'
+                    : '<span class="badge badge-neutral">Pending</span>'
+                }
+              </div>
+            </div>
+          `;
+        });
+
+        // 5. Assignments
+        const dayAssignments = assignmentsMap[dateStr] || [];
+        dayAssignments.forEach((a) => {
+          itemsCount++;
+          content.innerHTML += `
+            <div class="inspector-item" style="border-left: 3px solid #7c3aed; background: #f5f3ff;">
+              <div>
+                <strong style="color: #6d28d9;">📝 Assignment Due: ${a.title}</strong>
+                <div class="text-xs text-muted">Estimated: ${a.estimatedMinutes || 60}m</div>
+              </div>
+              <span class="badge badge-neutral">${a.status || "Pending"}</span>
+            </div>
+          `;
+        });
+
+        // 6. Tasks
+        const dayTasks = tasksMap[dateStr] || [];
+        dayTasks.forEach((t) => {
+          itemsCount++;
+          const isDone = t.status === "completed";
+          content.innerHTML += `
+            <div class="inspector-item" style="border-left: 3px solid var(--color-primary);">
+              <div>
+                <strong>${t.title}</strong>
+                <div class="text-xs text-muted">${t.estimatedMinutes || 30}m • Priority: ${t.priority || "P2"}</div>
+              </div>
+              <div>
+                ${
+                  isDone
+                    ? '<span class="badge badge-success">✓ Completed</span>'
+                    : '<span class="badge badge-neutral">To Do</span>'
+                }
+              </div>
+            </div>
+          `;
+        });
+
+        // 7. Execution Records
+        const dayLogs = executionRecordsMap[dateStr] || [];
+        dayLogs.forEach((rec) => {
+          itemsCount++;
+          content.innerHTML += `
+            <div class="inspector-item" style="border-left: 3px solid #10b981; background: #ecfdf5;">
+              <div>
+                <strong style="color: #047857;">⏱️ Logged Session: ${rec.minutesSpent}m</strong>
+                <div class="text-xs text-muted">${rec.notes || "Execution activity verified"}</div>
+              </div>
+              <span class="badge badge-success">Logged</span>
+            </div>
+          `;
+        });
+
+        if (itemsCount === 0) {
+          content.innerHTML = `
+            <div class="text-subtle text-sm" style="padding: var(--space-4); text-align: center;">
+              No lectures, exams, hackathons, or tasks scheduled for ${formattedDate}.
+            </div>
+          `;
+        }
+
+        const openBtn = document.getElementById("inspectorOpenTodayBtn");
+        openBtn.onclick = () => {
+          window.location.href = `dashboard.html?date=${dateStr}`;
+        };
+
+        const closeBtn = document.getElementById("inspectorCloseBtn");
+        closeBtn.onclick = () => {
+          inspector.style.display = "none";
+          document.querySelectorAll(".cal-day-cell").forEach((c) => c.classList.remove("selected-day"));
+        };
       }
 
       function setupEvents() {
@@ -460,6 +933,7 @@
             const today = new Date();
             currentYear = today.getFullYear();
             currentMonth = today.getMonth();
+            selectedDate = getTodayString();
             await loadEvents();
             renderCalendar();
           });

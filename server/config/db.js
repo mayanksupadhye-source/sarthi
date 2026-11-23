@@ -16,9 +16,9 @@ try {
   // Ignore fallback if platform restricts dns.setServers
 }
 
-// Fail fast on disconnected queries instead of buffering indefinitely
-mongoose.set("bufferCommands", false);
-mongoose.set("bufferTimeoutMS", 3000);
+// Gracefully buffer commands during initial connection & transient reconnects
+mongoose.set("bufferCommands", true);
+mongoose.set("bufferTimeoutMS", 15000);
 mongoose.set("strictQuery", true);
 
 let isConnected = false;
@@ -30,12 +30,12 @@ let lastConnectedTimestamp = null;
 let lastDisconnectedTimestamp = null;
 
 const HIGH_AVAILABILITY_OPTIONS = {
-  serverSelectionTimeoutMS: 5000,
-  connectTimeoutMS: 10000,
+  serverSelectionTimeoutMS: 15000,
+  connectTimeoutMS: 20000,
   socketTimeoutMS: 45000,
   heartbeatFrequencyMS: 10000,
   maxPoolSize: 25,
-  minPoolSize: 3,
+  minPoolSize: 2,
   retryWrites: true,
   retryReads: true,
   w: "majority",

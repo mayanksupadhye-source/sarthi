@@ -92,6 +92,14 @@
         flex-wrap: wrap;
       }
     </style>
+    <style>
+      @media (max-width: 768px) {
+        .courses-grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: var(--space-4);
+        }
+      }
+    </style>
   </head>
   <body>
     <div class="app-layout">
@@ -1384,7 +1392,30 @@
             try {
               if (editingSlug) {
                 await api.put(`/courses/${editingSlug}`, payload);
-                showToast("Course settings updated successfully.", "success");
+                if (payload.startDate && payload.targetDate) {
+                  try {
+                    const distRes = await api.post(`/courses/${editingSlug}/distribute`, {
+                      startDate: payload.startDate,
+                      targetDate: payload.targetDate,
+                      multiplier: payload.defaultPracticeMultiplier,
+                    });
+                    if (distRes.success && distRes.distribution?.pacingCoaching) {
+                      const c = distRes.distribution.pacingCoaching;
+                      if (c.type === "narrow_budget") {
+                        showToast(`⚠️ Schedule tight: Recommended multiplier is ${c.recommendedMultiplier || "lower"}. Check Calendar!`, "warning", 6000);
+                      } else {
+                        showToast(`Course timeline distributed! (${distRes.distribution.allocations?.length || 0} lectures scheduled)`, "success");
+                      }
+                    } else {
+                      showToast("Course settings updated successfully.", "success");
+                    }
+                  } catch (distErr) {
+                    console.warn("Auto-distribution error:", distErr);
+                    showToast("Course settings updated successfully.", "success");
+                  }
+                } else {
+                  showToast("Course settings updated successfully.", "success");
+                }
                 closeCourseModal();
                 await loadCourses();
                 await notifyCourseNavigationChanged();

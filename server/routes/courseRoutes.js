@@ -18,7 +18,9 @@ import {
   previewImportDiff,
   commitCsvImport,
   getCourseActivities,
-  completeCourseActivity
+  completeCourseActivity,
+  logPartialCourseActivity,
+  distributeCourse
 } from '../controllers/courseController.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -39,8 +41,10 @@ router.post('/import/preview', previewCsvImport);
 router.post('/import/diff', previewImportDiff);
 router.post('/import/commit', commitCsvImport);
 router.put('/activities/:id/complete', completeCourseActivity);
+router.post('/activities/:id/partial', logPartialCourseActivity);
 
 // Slug-specific routes
+router.post('/:slug/distribute', distributeCourse);
 router.get('/:slug/activities', getCourseActivities);
 router.post('/:slug/activities', createCourseActivity);
 router.post('/:slug/log-session', logCourseSession);

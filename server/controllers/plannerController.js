@@ -14,6 +14,7 @@ import { Hackathon } from "../models/Hackathon.js";
 import { ExecutionRecord } from "../models/ExecutionRecord.js";
 import { ExecutionSyncService } from "../services/executionSyncService.js";
 import { PlannerEngine } from "../services/plannerEngine.js";
+import { WeightLog } from "../models/WeightLog.js";
 import { getTodayString } from "../utils/timeFormat.js";
 import { removeJournalHistorySchedule } from "../services/journalScheduleMigration.js";
 
@@ -106,6 +107,44 @@ export async function getToday(req, res, next) {
       scheduledDate: today,
       status: { $ne: "completed" },
     });
+
+    // Dynamically ensure active courses or timetable blocks have today's target activity ready
+    const userActiveCourses = await Course.find({
+      userId,
+      status: { $ne: "archived" },
+    }).select("slug category title");
+
+    for (const c of userActiveCourses) {
+      const alreadyScheduled = scheduledActs.some((a) => a.courseSlug === c.slug);
+      if (!alreadyScheduled) {
+        const hasTimetableBlock =
+          blocks &&
+          blocks.some(
+            (b) =>
+              b.courseSlug === c.slug ||
+              b.category === c.slug ||
+              (c.category === "exploration" && b.category === "exploration"),
+          );
+        const nextPending = await CurriculumActivity.findOne({
+          userId,
+          courseSlug: c.slug,
+          status: { $ne: "completed" },
+        }).sort({ sectionNumber: 1, subsectionNumber: 1, activityNumber: 1 });
+
+        if (
+          nextPending &&
+          (hasTimetableBlock ||
+            nextPending.status === "in-progress" ||
+            scheduledActs.length === 0)
+        ) {
+          if (!nextPending.scheduledDate) {
+            nextPending.scheduledDate = today;
+            await nextPending.save();
+          }
+          scheduledActs.push(nextPending);
+        }
+      }
+    }
 
     for (const act of scheduledActs) {
       if (!act.taskId) {
@@ -293,6 +332,40 @@ export async function getToday(req, res, next) {
       })),
     ];
 
+    // Build next upcoming activities map for seamless continuation & advance study
+    const nextActivitiesMap = new Map();
+    for (const act of scheduledActs) {
+      const nextAct = await CurriculumActivity.findOne({
+        userId,
+        courseSlug: act.courseSlug,
+        status: { $ne: "completed" },
+        _id: { $ne: act._id },
+        $or: [
+          { sectionNumber: { $gt: act.sectionNumber } },
+          {
+            sectionNumber: act.sectionNumber,
+            activityNumber: { $gt: act.activityNumber },
+          },
+        ],
+      }).sort({ sectionNumber: 1, subsectionNumber: 1, activityNumber: 1 });
+      if (nextAct) {
+        nextActivitiesMap.set(act._id.toString(), {
+          id: nextAct._id,
+          title: nextAct.title,
+          sectionTitle: nextAct.sectionTitle,
+          sectionNumber: nextAct.sectionNumber,
+          activityNumber: nextAct.activityNumber,
+          contentDurationMinutes: nextAct.contentDurationMinutes,
+          totalEffortMinutes: nextAct.totalEffortMinutes,
+          remainingMinutes:
+            nextAct.remainingMinutes !== undefined
+              ? nextAct.remainingMinutes
+              : nextAct.totalEffortMinutes,
+          scheduledNote: "Scheduled for Tomorrow / Next Study Session",
+        });
+      }
+    }
+
     // Build unified Scheduled Work items with durations, multipliers and tracker links
     const scheduledWork = [
       ...scheduledActs.map((act) => {
@@ -309,6 +382,23 @@ export async function getToday(req, res, next) {
           : isExp
             ? `explore.html?slug=${act.courseSlug}`
             : `tracker.html?slug=${act.courseSlug}`;
+        const nextActivity = nextActivitiesMap.get(act._id.toString()) || null;
+        const hasPartialProgress =
+          (act.actualMinutes > 0 && act.remainingMinutes > 0) ||
+          act.status === "in-progress";
+        const remMins =
+          act.remainingMinutes !== undefined
+            ? act.remainingMinutes
+            : totalEffort;
+        const coachingGuidance = hasPartialProgress
+          ? {
+              message: `You have ${remMins}m remaining on "${act.title}" from an earlier session. Complete this lecture first before advancing to new material.`,
+              remainingMinutes: remMins,
+              suggestedPacing: `Finish these ${remMins}m first. Next lecture requires ${nextActivity ? nextActivity.remainingMinutes : 110}m. Aim for at least 100m in your available window.`,
+              p3Tip:
+                "If pressed for time, borrow 10–15m from P3 activities (Typing Practice or Book Reading), but keep at least 5–10m for Book Reading so your daily streak stays alive.",
+            }
+          : null;
         return {
           id: act._id,
           type: isExp ? "exploration" : isOratory ? "oratory" : "course",
@@ -321,15 +411,15 @@ export async function getToday(req, res, next) {
           contentDurationMinutes: contentMins,
           practiceMultiplier: multiplier,
           totalEffortMinutes: totalEffort,
-          remainingMinutes:
-            act.remainingMinutes !== undefined
-              ? act.remainingMinutes
-              : totalEffort,
+          remainingMinutes: remMins,
           actualMinutes: act.actualMinutes || 0,
           priority: act.priority || "P2",
           status: act.status || "pending",
           trackerUrl,
           taskId: act.taskId,
+          nextActivity,
+          hasPartialProgress,
+          coachingGuidance,
         };
       }),
       ...activeBooks.map((b) => ({
@@ -395,11 +485,15 @@ export async function getToday(req, res, next) {
         : 3;
     const recoveryStatus =
       await ExecutionSyncService.getRecoveryBalance(userId);
+    const isSunday = dayType === "sunday" || new Date(today).getDay() === 0;
+    const latestWeightLog = await WeightLog.findOne({ userId }).sort({ date: -1 });
 
     return res.json({
       success: true,
       today,
       dayType,
+      isSunday,
+      latestWeightLog,
       isException,
       exceptionDetails,
       targetCapacityMinutes: studyCapacityMinutes,
@@ -939,6 +1033,8 @@ export async function getCalendarEvents(req, res, next) {
       slackLogs,
       executionRecords,
       dailyPlans,
+      curriculumActivities,
+      courses,
     ] = await Promise.all([
       Task.find({
         userId,
@@ -981,7 +1077,50 @@ export async function getCalendarEvents(req, res, next) {
         userId,
         date: { $gte: startDateStr, $lte: endDateStr },
       }),
+      CurriculumActivity.find({
+        userId,
+        $or: [
+          { scheduledDate: { $gte: startDateStr, $lte: endDateStr } },
+          { completedDate: { $gte: startDateStr, $lte: endDateStr } },
+        ],
+      }),
+      Course.find({ userId }).select("slug title emoji category status totalLectures completedLectures totalMinutes completedMinutes"),
     ]);
+
+    // Calculate Whole Month Target Summary for course curriculum progress and study effort
+    const plannedActivities = curriculumActivities.filter(
+      (a) => a.scheduledDate >= startDateStr && a.scheduledDate <= endDateStr
+    );
+    const completedActivities = curriculumActivities.filter(
+      (a) =>
+        a.status === "completed" &&
+        ((a.completedDate && a.completedDate >= startDateStr && a.completedDate <= endDateStr) ||
+         (a.scheduledDate && a.scheduledDate >= startDateStr && a.scheduledDate <= endDateStr))
+    );
+
+    const plannedMinutes = plannedActivities.reduce((sum, a) => {
+      const mult = a.effectiveMultiplier || 2.0;
+      const dur = a.totalEffortMinutes || Math.round((a.contentDurationMinutes || 0) * mult) || 45;
+      return sum + dur;
+    }, 0);
+
+    const completedMinutes = executionRecords.reduce((sum, r) => sum + (r.minutesSpent || 0), 0);
+
+    const monthTargetSummary = {
+      plannedLectures: plannedActivities.length,
+      completedLectures: completedActivities.length,
+      lectureCompletionRate:
+        plannedActivities.length > 0
+          ? Math.round((completedActivities.length / plannedActivities.length) * 100)
+          : 0,
+      plannedHours: Math.round((plannedMinutes / 60) * 10) / 10,
+      completedHours: Math.round((completedMinutes / 60) * 10) / 10,
+      hourCompletionRate:
+        plannedMinutes > 0
+          ? Math.min(100, Math.round((completedMinutes / plannedMinutes) * 100))
+          : 0,
+      activeCoursesCount: courses.filter((c) => c.status === "active").length,
+    };
 
     return res.json({
       success: true,
@@ -995,6 +1134,9 @@ export async function getCalendarEvents(req, res, next) {
       slackLogs,
       executionRecords,
       dailyPlans,
+      curriculumActivities,
+      courses,
+      monthTargetSummary,
     });
   } catch (err) {
     next(err);

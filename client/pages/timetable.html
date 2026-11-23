@@ -368,7 +368,7 @@
           const select = document.getElementById('blockCourseSlug');
           if (select) {
             select.innerHTML = '<option value="">-- None / General Allocation --</option>' +
-              userCourses.map(c => `<option value="${c.slug}">${c.title} (${c.category || 'course'})</option>`).join('');
+              userCourses.map(c => `<option value="${c.slug}">${c.emoji ? c.emoji + ' ' : '📚 '}${c.title} (${c.category || 'course'})</option>`).join('');
           }
         }
       } catch (err) {

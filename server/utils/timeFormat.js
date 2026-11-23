@@ -121,3 +121,18 @@ export function formatTimeRange(startTime, endTime, tz = 'Asia/Kolkata') {
   if (!startTime) return formatTime12(endTime, tz);
   return `${formatTime12(startTime, tz)} – ${formatTime12(endTime, tz)}`;
 }
+
+/**
+ * Shifts a YYYY-MM-DD date string by a number of days without timezone drift.
+ * 
+ * @param {string} dateStr - YYYY-MM-DD
+ * @param {number} days - number of days to add (positive or negative)
+ * @returns {string} YYYY-MM-DD
+ */
+export function shiftDate(dateStr, days) {
+  if (!dateStr || typeof dateStr !== 'string') return getTodayString();
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + (Number(days) || 0));
+  return dt.toISOString().slice(0, 10);
+}

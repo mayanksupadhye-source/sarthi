@@ -510,4 +510,271 @@ export class PlannerEngine {
       unallocatedActivities: unallocated
     };
   }
+
+  /**
+   * Distributes course activities dynamically across a timeline between startDate and targetDate.
+   * Accurately accounts for realistic constraints:
+   *  - 13-15 days of exams (per 5-month semester standard window)
+   *  - 2-3 hackathon sprint days per month (24-hour sprint focus)
+   *  - 2-3 emergency slack day buffers per month
+   *  - Uses standard weekday and weekend timetable study blocks (ignoring holiday templates, which serve as speed-up opportunities)
+   *  - Evaluates practice multiplier feasibility and provides coaching recommendations
+   */
+  static distributeCourseTimeline({
+    startDate,
+    targetDate,
+    courseSlug,
+    activities = [],
+    weekdayBlocks = [],
+    weekendBlocks = [],
+    dedicatedMinutesPerDay = null,
+    knownExams = [],
+    knownHackathons = [],
+    knownSlackDays = [],
+    minCoherentMinutes = 15,
+  }) {
+    const startDt = new Date(startDate);
+    const targetDt = new Date(targetDate);
+    const daySpan = Math.max(1, Math.round((targetDt - startDt) / (1000 * 60 * 60 * 24)) + 1);
+    const monthSpan = Math.max(1, daySpan / 30);
+
+    const reservedExamDaysCount = Math.min(15, Math.max(2, Math.round(monthSpan * 3)));
+    const reservedHackathonDaysCount = Math.min(12, Math.max(1, Math.round(monthSpan * 2.2)));
+    const reservedSlackDaysCount = Math.min(15, Math.max(2, Math.round(monthSpan * 2.5)));
+
+    const examDateSet = new Set(
+      knownExams.flatMap((e) => [
+        e.examDate,
+        ...(e.preparationDates || []).map((pd) => pd.date || pd),
+      ]).filter(Boolean),
+    );
+    const hackathonDateSet = new Set();
+    knownHackathons.forEach((h) => {
+      if (h.startDate && h.endDate) {
+        let cur = new Date(h.startDate);
+        const endH = new Date(h.endDate);
+        while (cur <= endH) {
+          hackathonDateSet.add(cur.toISOString().slice(0, 10));
+          cur.setDate(cur.getDate() + 1);
+        }
+      }
+    });
+    const slackDateSet = new Set(knownSlackDays.map((s) => s.date || s).filter(Boolean));
+
+    const timelineDays = [];
+    let curDate = new Date(startDt);
+    for (let i = 0; i < daySpan; i++) {
+      const dateStr = curDate.toISOString().slice(0, 10);
+      const dayOfWeek = curDate.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+      const isExam = examDateSet.has(dateStr);
+      const isHackathon = hackathonDateSet.has(dateStr);
+      const isSlack = slackDateSet.has(dateStr);
+
+      const templateBlocks = isWeekend ? weekendBlocks : weekdayBlocks;
+      let dayStudyCapacity = 0;
+
+      if (dedicatedMinutesPerDay && Number(dedicatedMinutesPerDay) > 0) {
+        dayStudyCapacity = Number(dedicatedMinutesPerDay);
+      } else if (templateBlocks && templateBlocks.length > 0) {
+        const matchingBlocks = templateBlocks.filter(
+          (b) =>
+            b.courseSlug === courseSlug ||
+            b.category === courseSlug ||
+            ['study', 'webdev', 'dsa', 'oratory', 'exploration'].includes(b.category) ||
+            b.blockType === 'learning' ||
+            b.blockType === 'exploration',
+        );
+        dayStudyCapacity = matchingBlocks.reduce((sum, b) => sum + (b.durationMinutes || 0), 0);
+      }
+
+      if (dayStudyCapacity === 0) {
+        dayStudyCapacity = isWeekend ? 120 : 90;
+      }
+
+      timelineDays.push({
+        date: dateStr,
+        dayOfWeek,
+        isWeekend,
+        isExam,
+        isHackathon,
+        isSlack,
+        availableCapacity: isExam || isHackathon || isSlack ? 0 : dayStudyCapacity,
+        standardCapacity: dayStudyCapacity,
+        allocatedActivities: [],
+        allocatedMinutes: 0,
+      });
+
+      curDate.setDate(curDate.getDate() + 1);
+    }
+
+    let currentExamCount = timelineDays.filter((d) => d.isExam).length;
+    let currentHackathonCount = timelineDays.filter((d) => d.isHackathon).length;
+    let currentSlackCount = timelineDays.filter((d) => d.isSlack).length;
+
+    timelineDays.forEach((day, idx) => {
+      if (day.availableCapacity > 0) {
+        if (day.isWeekend && currentHackathonCount < reservedHackathonDaysCount && Math.floor(idx / 7) % 3 === 2) {
+          day.isHackathon = true;
+          day.availableCapacity = 0;
+          currentHackathonCount++;
+        } else if (currentSlackCount < reservedSlackDaysCount && (idx % 10 === 4 || idx % 10 === 9)) {
+          day.isSlack = true;
+          day.availableCapacity = 0;
+          currentSlackCount++;
+        } else if (currentExamCount < reservedExamDaysCount && (idx % 10 === 2 || idx % 10 === 7)) {
+          day.isExam = true;
+          day.availableCapacity = 0;
+          currentExamCount++;
+        }
+      }
+    });
+
+    const effectiveStudyDays = timelineDays.filter((d) => d.availableCapacity > 0);
+    const totalAvailableStudyMinutes = effectiveStudyDays.reduce(
+      (sum, d) => sum + d.availableCapacity,
+      0,
+    );
+
+    const uncompletedActivities = activities
+      .filter((a) => a.status !== 'completed')
+      .sort((a, b) => {
+        const secA = Number(a.sectionNumber) || 0;
+        const secB = Number(b.sectionNumber) || 0;
+        if (secA !== secB) return secA - secB;
+        return (Number(a.activityNumber) || 0) - (Number(b.activityNumber) || 0);
+      });
+
+    const totalRemainingMinutes = uncompletedActivities.reduce(
+      (sum, a) => sum + (a.remainingMinutes || a.totalEffortMinutes || 45),
+      0,
+    );
+    const totalContentMinutes = uncompletedActivities.reduce(
+      (sum, a) => sum + (a.contentDurationMinutes || 30),
+      0,
+    );
+
+    const isNarrowBudget = totalRemainingMinutes > totalAvailableStudyMinutes;
+    const deficitMinutes = Math.max(0, totalRemainingMinutes - totalAvailableStudyMinutes);
+    const recommendedMultiplier =
+      totalContentMinutes > 0
+        ? Math.max(
+            1.0,
+            Math.round((totalAvailableStudyMinutes / totalContentMinutes) * 10) / 10,
+          )
+        : 1.8;
+
+    let pacingCoaching = null;
+    if (isNarrowBudget) {
+      pacingCoaching = {
+        isFeasible: false,
+        type: 'narrow_budget',
+        deficitMinutes,
+        deficitHours: Math.round((deficitMinutes / 60) * 10) / 10,
+        recommendedMultiplier,
+        message: `Action Required: Pacing Overload. At your current practice multiplier, remaining course effort (${Math.round(totalRemainingMinutes / 60)}h) exceeds effective study capacity (${Math.round(totalAvailableStudyMinutes / 60)}h) before ${targetDate}.`,
+        actionableAdvice: `Recommendation: Adjust your practice multiplier to ${recommendedMultiplier}x, or add a 30m weekend focus block to complete comfortably by ${targetDate}.`,
+      };
+    } else {
+      const surplusHours = Math.round(((totalAvailableStudyMinutes - totalRemainingMinutes) / 60) * 10) / 10;
+      pacingCoaching = {
+        isFeasible: true,
+        type: 'on_track',
+        surplusHours,
+        recommendedMultiplier: null,
+        message: `Your schedule is comfortably feasible! You have ${surplusHours}h of buffer capacity before ${targetDate}.`,
+        actionableAdvice: `Stick to your normal weekday and weekend timetable blocks. If you study on holidays, you will finish even earlier!`,
+      };
+    }
+
+    let actIndex = 0;
+    const allocations = [];
+
+    for (const day of effectiveStudyDays) {
+      if (actIndex >= uncompletedActivities.length) break;
+
+      let remainingDayMinutes = day.availableCapacity;
+
+      while (actIndex < uncompletedActivities.length && remainingDayMinutes >= minCoherentMinutes) {
+        const act = uncompletedActivities[actIndex];
+        const effort = act.remainingMinutes || act.totalEffortMinutes || 45;
+
+        if (effort <= remainingDayMinutes) {
+          day.allocatedActivities.push({
+            activityId: act._id || act.id,
+            title: act.title,
+            sectionNumber: act.sectionNumber,
+            activityNumber: act.activityNumber,
+            allocatedMinutes: effort,
+          });
+          day.allocatedMinutes += effort;
+          remainingDayMinutes -= effort;
+
+          allocations.push({
+            activityId: (act._id || act.id).toString(),
+            scheduledDate: day.date,
+            allocatedMinutes: effort,
+          });
+          actIndex++;
+        } else if (
+          remainingDayMinutes >= minCoherentMinutes &&
+          effort - remainingDayMinutes <= Math.max(10, remainingDayMinutes * 0.2)
+        ) {
+          day.allocatedActivities.push({
+            activityId: act._id || act.id,
+            title: act.title,
+            sectionNumber: act.sectionNumber,
+            activityNumber: act.activityNumber,
+            allocatedMinutes: effort,
+            note: 'Coherent boundary completion',
+          });
+          day.allocatedMinutes += effort;
+          allocations.push({
+            activityId: (act._id || act.id).toString(),
+            scheduledDate: day.date,
+            allocatedMinutes: effort,
+          });
+          actIndex++;
+          remainingDayMinutes = 0;
+          break;
+        } else {
+          break;
+        }
+      }
+    }
+
+    const unplacedCount = uncompletedActivities.length - actIndex;
+
+    return {
+      startDate,
+      targetDate,
+      daySpan,
+      effectiveStudyDaysCount: effectiveStudyDays.length,
+      reserves: {
+        examDays: currentExamCount,
+        hackathonDays: currentHackathonCount,
+        slackDays: currentSlackCount,
+      },
+      capacity: {
+        totalAvailableStudyMinutes,
+        totalRemainingMinutes,
+        totalContentMinutes,
+      },
+      pacingCoaching,
+      allocations,
+      unplacedCount,
+      timeline: timelineDays.map((d) => ({
+        date: d.date,
+        dayOfWeek: d.dayOfWeek,
+        isWeekend: d.isWeekend,
+        isExam: d.isExam,
+        isHackathon: d.isHackathon,
+        isSlack: d.isSlack,
+        availableCapacity: d.availableCapacity,
+        allocatedActivitiesCount: d.allocatedActivities.length,
+        allocatedMinutes: d.allocatedMinutes,
+      })),
+    };
+  }
 }

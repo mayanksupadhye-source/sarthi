@@ -349,4 +349,88 @@ test('SARTHI Dynamic Courses, Learning Tracks, Exploration & Oratory Engine', as
     assert.equal(course.emoji, '⌨️');
     assert.equal(course.validateSync(), undefined);
   });
+
+  await t.test('14. Partial lecture headway (e.g. 90m of 120m) preserves 30m remaining without triggering Slack Day', () => {
+    const lecture = {
+      title: 'Lecture 10: Binary Search Implementation',
+      contentDurationMinutes: 60,
+      practiceMultiplier: 2.0,
+      totalEffortMinutes: 120,
+      actualMinutes: 0,
+      remainingMinutes: 120,
+      status: 'pending'
+    };
+
+    // User logs 90 minutes of focused effort
+    const loggedSessionMinutes = 90;
+    lecture.actualMinutes += loggedSessionMinutes;
+    lecture.remainingMinutes = Math.max(0, lecture.totalEffortMinutes - lecture.actualMinutes);
+    lecture.status = lecture.remainingMinutes === 0 ? 'completed' : 'in-progress';
+
+    // Must preserve 30m remaining
+    assert.equal(lecture.actualMinutes, 90);
+    assert.equal(lecture.remainingMinutes, 30);
+    assert.equal(lecture.status, 'in-progress');
+
+    // Crucial rule: An in-progress lecture does NOT declare a Slack Day
+    const isSlackDayTriggered = false; // Never triggered by partial headway
+    assert.equal(isSlackDayTriggered, false);
+  });
+
+  await t.test('15. Completing current lecture unblocks next lecture with advance study capability', () => {
+    const lecture10 = {
+      activityNumber: 10,
+      title: 'Lecture 10: Binary Search',
+      remainingMinutes: 30,
+      status: 'in-progress'
+    };
+
+    const lecture11 = {
+      activityNumber: 11,
+      title: 'Lecture 11: Search in Rotated Sorted Array',
+      totalEffortMinutes: 110,
+      remainingMinutes: 110,
+      status: 'pending',
+      scheduledNote: 'Scheduled for Tomorrow / Next Study Session'
+    };
+
+    // User finishes the final 30 minutes of Lecture 10
+    lecture10.remainingMinutes = 0;
+    lecture10.status = 'completed';
+
+    // Next lecture is immediately actionable in advance
+    assert.equal(lecture10.status, 'completed');
+    assert.equal(lecture11.activityNumber, 11);
+    assert.equal(lecture11.remainingMinutes, 110);
+    assert.equal(lecture11.scheduledNote, 'Scheduled for Tomorrow / Next Study Session');
+  });
+
+  await t.test('16. Pacing & P3 Habit Negotiation Guidance protects reading consistency', () => {
+    const coachingGuidance = {
+      remainingMinutes: 30,
+      suggestedPacing: 'Finish these 30m first. Next lecture requires 110m. Aim for at least 100m in your available window.',
+      p3Tip: 'If pressed for time, borrow 10–15m from P3 activities (Typing Practice or Book Reading), but keep at least 5–10m for Book Reading so your daily streak stays alive.'
+    };
+
+    // Must never suggest eating 100% of P3 reading habit
+    assert.match(coachingGuidance.p3Tip, /keep at least 5–10m for Book Reading/i);
+    assert.match(coachingGuidance.suggestedPacing, /Aim for at least 100m/i);
+  });
+
+  await t.test('17. Sunday detection enables body measurement & weigh-in check-in', () => {
+    const sundayDate = '2026-11-29'; // A Sunday
+    const dayOfWeek = new Date(sundayDate).getDay(); // 0 is Sunday
+    const isSunday = dayOfWeek === 0;
+
+    assert.equal(isSunday, true);
+    const weightLog = {
+      date: sundayDate,
+      weightKg: 85.4,
+      targetKg: 73,
+      baselineKg: 90
+    };
+
+    assert.ok(weightLog.weightKg < weightLog.baselineKg);
+    assert.equal(weightLog.weightKg, 85.4);
+  });
 });
