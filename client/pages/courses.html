@@ -1,0 +1,1584 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Courses & Curriculum Hub — SARTHI (सारथी)</title>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../assets/css/variables.css" />
+    <link rel="stylesheet" href="../assets/css/reset.css" />
+    <link rel="stylesheet" href="../assets/css/typography.css" />
+    <link rel="stylesheet" href="../assets/css/components.css" />
+    <link rel="stylesheet" href="../assets/css/layout.css" />
+    <style>
+      .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: var(--space-6);
+        margin-top: var(--space-4);
+      }
+      .course-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-md);
+        padding: var(--space-5);
+        box-shadow: var(--shadow-sm);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        transition: all var(--transition-fast);
+        position: relative;
+      }
+      .course-card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--accent-blue);
+        transform: translateY(-2px);
+      }
+      .course-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--space-3);
+        gap: var(--space-3);
+      }
+      .course-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: var(--text-ink);
+        line-height: 1.3;
+      }
+      .course-meta {
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+        margin-bottom: var(--space-3);
+        line-height: 1.5;
+      }
+      .course-stats-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8125rem;
+        color: var(--text-subtle);
+        margin-bottom: var(--space-2);
+      }
+      .course-actions {
+        display: flex;
+        gap: var(--space-2);
+        margin-top: var(--space-4);
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--border-hairline);
+        flex-wrap: wrap;
+      }
+      .diff-badge {
+        display: inline-block;
+        padding: 2px 6px;
+        border-radius: var(--radius-sm);
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .conversion-prompt-card {
+        margin-top: var(--space-4);
+        padding: var(--space-3) var(--space-4);
+        background: var(--bg-surface);
+        border: 1px solid var(--border-hairline);
+        border-radius: var(--radius-sm);
+      }
+      .conversion-prompt-card p {
+        margin: var(--space-1) 0 var(--space-3);
+      }
+      .conversion-prompt-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        flex-wrap: wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-layout">
+      <main class="app-main">
+        <header class="app-topbar">
+          <div class="topbar-left">
+            <button class="mobile-menu-btn" aria-label="Toggle Menu">☰</button>
+            <div class="page-headline">Universal Courses & Curriculum Hub</div>
+          </div>
+          <div
+            class="topbar-right"
+            style="display: flex; align-items: center; gap: var(--space-3)"
+          >
+            <div id="topbarFocusWidget"></div>
+            <button id="btnNewCourse" class="btn btn-primary btn-sm">
+              + Start a New Course
+            </button>
+          </div>
+        </header>
+
+        <div class="page-container">
+          <!-- Hero Banner with Logic Wave -->
+          <div
+            class="card card-hero-wave wave-motif-logic"
+            style="margin-bottom: var(--space-6)"
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: var(--space-4);
+              "
+            >
+              <div>
+                <span
+                  class="badge badge-primary"
+                  style="margin-bottom: var(--space-2)"
+                  >UNIVERSAL EXECUTION HUB</span
+                >
+                <h1
+                  style="
+                    font-size: 1.35rem;
+                    font-weight: 800;
+                    color: var(--text-ink);
+                    margin-bottom: var(--space-1);
+                  "
+                >
+                  Manage Any Course, Certification or Skill Roadmap
+                </h1>
+                <p class="text-subtle text-sm">
+                  Create custom courses, download CSV templates, import
+                  ChatGPT/Excel syllabi, and track progressive execution without
+                  writing code.
+                </p>
+              </div>
+              <div style="display: flex; gap: var(--space-2)">
+                <button
+                  type="button"
+                  data-download-template
+                  class="btn btn-outline btn-sm"
+                >
+                  📥 Download CSV Template
+                </button>
+              </div>
+            </div>
+            <section
+              class="conversion-prompt-card"
+              aria-labelledby="conversionPromptTitle"
+            >
+              <h2
+                id="conversionPromptTitle"
+                style="font-size: 0.95rem; font-weight: 700; margin: 0"
+              >
+                PDF to CSV Conversion Prompt
+              </h2>
+              <p class="text-subtle text-xs">
+                Copy these instructions when converting your timetable PDF into
+                the SARTHI CSV template.
+              </p>
+              <div class="conversion-prompt-actions">
+                <button
+                  type="button"
+                  id="btnCopyConversionPrompt"
+                  class="btn btn-outline btn-sm"
+                >
+                  <svg
+                    aria-hidden="true"
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="vertical-align: -2px; margin-right: 4px"
+                  >
+                    <rect x="8" y="8" width="13" height="13" rx="2"></rect>
+                    <path
+                      d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"
+                    ></path>
+                  </svg>
+                  Copy Conversion Prompt
+                </button>
+                <span
+                  id="conversionPromptCopyStatus"
+                  class="text-subtle text-xs"
+                  role="status"
+                  aria-live="polite"
+                ></span>
+              </div>
+            </section>
+            <div class="sarthi-wave-container" aria-hidden="true">
+              <svg
+                class="sarthi-wave-layer sarthi-wave-layer-1"
+                viewBox="0 0 1200 120"
+                preserveAspectRatio="none"
+              >
+                <path
+                  d="M0,50 Q150,20 300,50 T600,50 T900,50 T1200,50 L1200,120 L0,120 Z"
+                  fill="rgba(29, 78, 216, 0.07)"
+                ></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Filter / Status Pills -->
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: var(--space-3);
+              flex-wrap: wrap;
+              gap: var(--space-2);
+            "
+          >
+            <div class="tab-group" style="margin-bottom: 0">
+              <button class="tab-btn active" data-filter="all">
+                All Courses (<span id="countAll">0</span>)
+              </button>
+              <button class="tab-btn" data-filter="active">
+                Active (<span id="countActive">0</span>)
+              </button>
+              <button class="tab-btn" data-filter="paused">
+                Paused (<span id="countPaused">0</span>)
+              </button>
+              <button class="tab-btn" data-filter="archived">
+                Archived (<span id="countArchived">0</span>)
+              </button>
+            </div>
+            <span class="text-subtle text-xs" id="totalActivitiesCount"
+              >0 Total Activities</span
+            >
+          </div>
+
+          <!-- Courses Grid -->
+          <div id="coursesContainer" class="courses-grid">
+            <p class="text-muted text-sm" style="padding: var(--space-6) 0">
+              Loading courses...
+            </p>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Create New Course Modal -->
+    <div id="courseModalBackdrop" class="modal-backdrop hidden">
+      <div class="modal-box" style="max-width: 520px">
+        <div
+          class="modal-header"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+          "
+        >
+          <h3
+            class="modal-title"
+            id="courseModalTitle"
+            style="margin: 0; font-size: 1.125rem"
+          >
+            Start a New Course
+          </h3>
+          <button
+            id="btnCloseCourseModal"
+            class="btn btn-outline btn-sm"
+            style="padding: 2px 8px"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form
+          id="courseForm"
+          style="display: flex; flex-direction: column; gap: var(--space-3)"
+        >
+          <input type="hidden" id="editingCourseSlug" value="" />
+          <div>
+            <label class="form-label" for="courseTitleInput"
+              >Course Title *</label
+            >
+            <input
+              type="text"
+              id="courseTitleInput"
+              class="form-input"
+              placeholder="e.g. Machine Learning Specialization or Gate CS"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="form-label" for="courseEmojiInput"
+              >Course Icon / Emoji</label
+            >
+            <div
+              style="
+                display: flex;
+                gap: var(--space-2);
+                align-items: center;
+                flex-wrap: wrap;
+              "
+            >
+              <input
+                type="text"
+                id="courseEmojiInput"
+                class="form-input"
+                style="width: 60px; text-align: center; font-size: 1.25rem"
+                value="📚"
+                maxlength="8"
+              />
+              <div
+                style="display: flex; gap: 4px; flex-wrap: wrap"
+                id="emojiQuickPickRow"
+              >
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="📚"
+                >
+                  📚
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="💻"
+                >
+                  💻
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="🌐"
+                >
+                  🌐
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="🧠"
+                >
+                  🧠
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="⚡"
+                >
+                  ⚡
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="🚀"
+                >
+                  🚀
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="📊"
+                >
+                  📊
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="🎨"
+                >
+                  🎨
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="🔬"
+                >
+                  🔬
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="⌨️"
+                >
+                  ⌨️
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="🎯"
+                >
+                  🎯
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="💡"
+                >
+                  💡
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="🛠️"
+                >
+                  🛠️
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="🧪"
+                >
+                  🧪
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm emoji-quick-pick"
+                  data-emoji="📐"
+                >
+                  📐
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: var(--space-3);
+            "
+          >
+            <div>
+              <label class="form-label" for="courseInstructorInput"
+                >Instructor / Platform</label
+              >
+              <input
+                type="text"
+                id="courseInstructorInput"
+                class="form-input"
+                placeholder="e.g. Stanford / Coursera"
+              />
+            </div>
+            <div>
+              <label class="form-label" for="courseMultiplierInput"
+                >Practice Multiplier</label
+              >
+              <input
+                type="number"
+                id="courseMultiplierInput"
+                class="form-input"
+                value="2.0"
+                min="0.1"
+                max="10.0"
+                step="0.1"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label" for="courseDescInput"
+              >Description / Objective</label
+            >
+            <input
+              type="text"
+              id="courseDescInput"
+              class="form-input"
+              placeholder="e.g. Supervised learning, neural networks, loss function optimization"
+            />
+          </div>
+
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: var(--space-3);
+            "
+          >
+            <div>
+              <label class="form-label" for="courseStartDateInput"
+                >Start Date</label
+              >
+              <input type="date" id="courseStartDateInput" class="form-input" />
+            </div>
+            <div>
+              <label class="form-label" for="courseTargetDateInput"
+                >Target Completion Date</label
+              >
+              <input
+                type="date"
+                id="courseTargetDateInput"
+                class="form-input"
+              />
+            </div>
+          </div>
+
+          <div id="courseStatusGroup" style="display: none">
+            <label class="form-label" for="courseStatusInput"
+              >Course Status</label
+            >
+            <select id="courseStatusInput" class="form-select">
+              <option value="active">
+                Active (Appears in execution plans)
+              </option>
+              <option value="paused">Paused (On hold)</option>
+              <option value="archived">
+                Archived (Completed / historical)
+              </option>
+            </select>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+              margin-top: var(--space-3);
+              align-items: center;
+            "
+          >
+            <button
+              type="button"
+              id="btnDeleteCourse"
+              class="btn btn-outline btn-sm"
+              style="
+                color: var(--color-danger, #dc2626);
+                border-color: var(--color-danger, #dc2626);
+                margin-right: auto;
+                display: none;
+              "
+            >
+              🗑 Delete Course
+            </button>
+            <button
+              type="button"
+              id="btnCancelCourseModal"
+              class="btn btn-outline btn-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              id="btnSaveCourse"
+              class="btn btn-primary btn-sm"
+            >
+              Start Course →
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Universal CSV Syllabus Importer & Safe Re-import Diff Modal -->
+    <div id="importModalBackdrop" class="modal-backdrop hidden">
+      <div class="modal-box" style="max-width: 680px; width: 100%">
+        <div
+          class="modal-header"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+          "
+        >
+          <div>
+            <h3
+              class="modal-title"
+              id="importModalCourseTitle"
+              style="margin: 0; font-size: 1.125rem"
+            >
+              Import Course Syllabus
+            </h3>
+            <div class="text-subtle text-xs">
+              Safe idempotent CSV import with change detection & progress
+              protection
+            </div>
+          </div>
+          <button
+            id="btnCloseImportModal"
+            class="btn btn-outline btn-sm"
+            style="padding: 2px 8px"
+          >
+            ✕
+          </button>
+        </div>
+
+        <input type="hidden" id="importTargetSlug" value="" />
+
+        <div style="display: flex; flex-direction: column; gap: var(--space-3)">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              background: var(--bg-subtle);
+              padding: var(--space-3);
+              border-radius: var(--radius-sm);
+            "
+          >
+            <div>
+              <div style="font-weight: 600; font-size: 0.875rem">
+                Universal 3-Level CSV Template
+              </div>
+              <div class="text-subtle text-xs">
+                Main Section → Subsection → Sub-subsection → Activities with
+                durations and descriptions.
+              </div>
+            </div>
+            <button
+              type="button"
+              data-download-template
+              class="btn btn-outline btn-sm"
+            >
+              Template
+            </button>
+          </div>
+
+          <div>
+            <label class="form-label" for="csvFileInput">Upload CSV File</label>
+            <input
+              type="file"
+              id="csvFileInput"
+              accept=".csv"
+              class="form-input"
+              style="padding: var(--space-2)"
+            />
+          </div>
+
+          <div>
+            <label class="form-label" for="csvPasteInput"
+              >Or Paste CSV Text</label
+            >
+            <textarea
+              id="csvPasteInput"
+              class="form-input"
+              rows="4"
+              placeholder="main_section_id,main_section_name,main_section_description,main_section_order,main_section_total_content_minutes,main_section_total_effort_minutes,subsection_id,subsection_name,subsection_description,subsection_order,subsection_total_content_minutes,subsection_total_effort_minutes,sub_subsection_id,sub_subsection_name,sub_subsection_description,sub_subsection_order,sub_subsection_total_content_minutes,sub_subsection_total_effort_minutes,serial_number,activity_name,description,content_duration_minutes,estimated_execution_minutes,activity_type,priority,dependencies,optional_deadline,notes,course_name,activity_multiplier_override&#10;foundations,Algorithms,Core search,1,75,150,searching,Binary Search,Fast lookup,1,75,150,variations,Rotated Arrays,Pivot searches,1,75,150,1,Search in Rotated Sorted Array,Find pivot,45,90,problem,P1,,,Example Course,"
+            ></textarea>
+          </div>
+
+          <div
+            style="
+              display: flex;
+              justify-content: flex-end;
+              gap: var(--space-2);
+            "
+          >
+            <button
+              type="button"
+              id="btnDirectImport"
+              class="btn btn-primary btn-sm"
+            >
+              📥 Direct Import Now
+            </button>
+            <button
+              type="button"
+              id="btnPreviewDiff"
+              class="btn btn-outline btn-sm"
+            >
+              Preview Differences
+            </button>
+          </div>
+
+          <!-- Safe Diff Result Container -->
+          <div
+            id="diffResultContainer"
+            style="
+              display: none;
+              border-top: 1px solid var(--border-hairline);
+              padding-top: var(--space-3);
+            "
+          >
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: var(--space-2);
+              "
+            >
+              <div
+                id="diffSummaryBadgeRow"
+                style="display: flex; gap: var(--space-2); flex-wrap: wrap"
+              ></div>
+              <button
+                type="button"
+                id="btnCommitImport"
+                class="btn btn-primary btn-sm"
+              >
+                Confirm & Commit Syllabus
+              </button>
+            </div>
+
+            <div
+              style="
+                max-height: 220px;
+                overflow-y: auto;
+                border: 1px solid var(--border-hairline);
+                border-radius: var(--radius-sm);
+              "
+            >
+              <table
+                style="
+                  width: 100%;
+                  border-collapse: collapse;
+                  font-size: 0.8125rem;
+                "
+              >
+                <thead>
+                  <tr style="background: var(--bg-subtle)">
+                    <th
+                      style="
+                        padding: 6px;
+                        border: 1px solid var(--border-hairline);
+                        text-align: left;
+                      "
+                    >
+                      #
+                    </th>
+                    <th
+                      style="
+                        padding: 6px;
+                        border: 1px solid var(--border-hairline);
+                        text-align: left;
+                      "
+                    >
+                      Activity
+                    </th>
+                    <th
+                      style="
+                        padding: 6px;
+                        border: 1px solid var(--border-hairline);
+                        text-align: left;
+                      "
+                    >
+                      Duration
+                    </th>
+                    <th
+                      style="
+                        padding: 6px;
+                        border: 1px solid var(--border-hairline);
+                        text-align: left;
+                      "
+                    >
+                      Change Type
+                    </th>
+                  </tr>
+                </thead>
+                <tbody id="diffTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal with Prominent Warning -->
+    <div id="deleteConfirmModal" class="modal-backdrop hidden">
+      <div
+        class="modal-box"
+        style="
+          max-width: 480px;
+          border-top: 4px solid var(--color-danger, #dc2626);
+        "
+      >
+        <div
+          class="modal-header"
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-3);
+          "
+        >
+          <div>
+            <h3
+              style="
+                margin: 0;
+                font-size: 1.15rem;
+                color: var(--color-danger, #dc2626);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+              "
+            >
+              <span>⚠️</span>
+              <span id="deleteModalHeadline">Delete Course</span>
+            </h3>
+            <div class="text-subtle text-xs" style="margin-top: 2px">
+              This action removes the course syllabus
+            </div>
+          </div>
+          <button
+            type="button"
+            class="btn btn-outline btn-sm"
+            id="btnCloseDeleteConfirmModal"
+            style="padding: 2px 8px"
+          >
+            ✕
+          </button>
+        </div>
+        <div
+          style="
+            background: rgba(220, 38, 38, 0.06);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            border-radius: var(--radius-sm);
+            padding: var(--space-3);
+            margin-bottom: var(--space-4);
+          "
+        >
+          <div
+            style="
+              font-weight: 700;
+              font-size: 0.875rem;
+              color: #991b1b;
+              margin-bottom: 4px;
+            "
+          >
+            Warning: Irreversible Deletion
+          </div>
+          <p
+            style="
+              font-size: 0.8125rem;
+              color: #7f1d1d;
+              margin: 0;
+              line-height: 1.4;
+            "
+            id="deleteModalWarningText"
+          >
+            Are you sure you want to delete this course? Its curriculum roadmap,
+            lectures, and pending tasks will be permanently removed.
+          </p>
+          <div
+            style="
+              font-size: 0.75rem;
+              color: #166534;
+              background: #dcfce7;
+              padding: 4px 8px;
+              border-radius: 4px;
+              margin-top: var(--space-2);
+              font-weight: 600;
+            "
+          >
+            🛡 Historical execution records and actual completed minutes are
+            safely preserved.
+          </div>
+        </div>
+        <div
+          style="display: flex; justify-content: flex-end; gap: var(--space-2)"
+        >
+          <button
+            type="button"
+            class="btn btn-outline btn-sm"
+            id="btnCancelDeleteConfirm"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            class="btn btn-sm"
+            id="btnExecuteDeleteConfirm"
+            style="background: #dc2626; color: #ffffff; font-weight: 700"
+          >
+            Yes, Delete Permanently
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { checkAuth } from "../assets/js/auth.js";
+      import {
+        renderLayout,
+        setCourseNavigation,
+        notifyCourseNavigationChanged,
+      } from "../assets/js/nav.js";
+      import { api } from "../assets/js/api.js";
+      import {
+        formatMinutes,
+        formatCourseDisplayTitle,
+      } from "../assets/js/utils.js";
+      import { showToast } from "../assets/js/toast.js";
+      import { COURSES_CONVERSION_PROMPT } from "../assets/js/coursesConversionPrompt.js";
+
+      let allCourses = [];
+      let currentFilter = "all";
+      let parsedRecordsCache = null;
+      let courseToDelete = null;
+
+      function promptDeleteCourse(slug, title) {
+        if (!slug) return;
+        courseToDelete = { slug, title: title || slug };
+        document.getElementById("deleteModalHeadline").textContent =
+          `Delete Course — ${courseToDelete.title}`;
+        document.getElementById("deleteModalWarningText").textContent =
+          `Are you sure you want to delete course "${courseToDelete.title}"? Its curriculum roadmap, lectures, and pending tasks will be permanently removed.`;
+        document
+          .getElementById("deleteConfirmModal")
+          .classList.remove("hidden");
+      }
+
+      function closeDeleteConfirmModal() {
+        courseToDelete = null;
+        document.getElementById("deleteConfirmModal").classList.add("hidden");
+      }
+
+      async function copyConversionPrompt() {
+        const status = document.getElementById("conversionPromptCopyStatus");
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(COURSES_CONVERSION_PROMPT);
+          } else {
+            const temporaryInput = document.createElement("textarea");
+            temporaryInput.value = COURSES_CONVERSION_PROMPT;
+            temporaryInput.setAttribute("readonly", "");
+            temporaryInput.style.position = "fixed";
+            temporaryInput.style.opacity = "0";
+            document.body.appendChild(temporaryInput);
+            temporaryInput.select();
+            const copied = document.execCommand("copy");
+            temporaryInput.remove();
+            if (!copied) throw new Error("Clipboard copy was unavailable.");
+          }
+          status.textContent = "Prompt copied successfully!";
+        } catch (error) {
+          status.textContent = "Could not copy the prompt. Please try again.";
+        }
+      }
+
+      async function init() {
+        document
+          .getElementById("btnCopyConversionPrompt")
+          .addEventListener("click", copyConversionPrompt);
+        const user = await checkAuth();
+        if (!user) return;
+        renderLayout("courses");
+        await loadCourses();
+        setupEvents();
+      }
+
+      async function loadCourses() {
+        try {
+          const res = await api.get("/courses");
+          const rawList =
+            res && res.success && Array.isArray(res.courses) ? res.courses : [];
+          setCourseNavigation(rawList);
+
+          // Courses Hub displays only curriculum courses, never explorations or oratory
+          const isExp = (c) =>
+            c?.category === "exploration" ||
+            c?.slug === "exploration-lab" ||
+            c?.slug === "exploration";
+          const isOratory = (c) =>
+            c?.category === "oratory" || c?.slug === "oratory";
+          allCourses = rawList.filter((c) => !isExp(c) && !isOratory(c));
+
+          updateCounts();
+          renderCourses();
+        } catch (err) {
+          showToast(err.message || "Failed to load courses", "error");
+          allCourses = [];
+          updateCounts();
+          renderCourses();
+        }
+      }
+
+      async function downloadCsvTemplate(button) {
+        const baseUrl =
+          ["localhost", "127.0.0.1"].includes(window.location.hostname) &&
+          window.location.port &&
+          window.location.port !== "5000"
+            ? "http://localhost:5000"
+            : "";
+        const token = localStorage.getItem("sarthi_token");
+        button.disabled = true;
+        try {
+          const response = await fetch(`${baseUrl}/api/courses/template/csv`, {
+            method: "GET",
+            credentials: "include",
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
+          if (!response.ok) {
+            const result = await response.json().catch(() => ({}));
+            throw new Error(
+              result.error ||
+                `Template download failed (HTTP ${response.status}).`,
+            );
+          }
+          const fileUrl = URL.createObjectURL(await response.blob());
+          const downloadLink = document.createElement("a");
+          downloadLink.href = fileUrl;
+          downloadLink.download = "sarthi_curriculum_template.csv";
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          downloadLink.remove();
+          window.setTimeout(() => URL.revokeObjectURL(fileUrl), 1000);
+        } catch (error) {
+          showToast(
+            error.message || "Could not download the CSV template.",
+            "error",
+          );
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      function updateCounts() {
+        document.getElementById("countAll").textContent = allCourses.length;
+        document.getElementById("countActive").textContent = allCourses.filter(
+          (c) => (c.status || "active") === "active",
+        ).length;
+        document.getElementById("countPaused").textContent = allCourses.filter(
+          (c) => c.status === "paused",
+        ).length;
+        document.getElementById("countArchived").textContent =
+          allCourses.filter((c) => c.status === "archived").length;
+
+        const totalActs = allCourses.reduce(
+          (sum, c) => sum + (c.totalLectures || 0),
+          0,
+        );
+        document.getElementById("totalActivitiesCount").textContent =
+          `${totalActs} Total Activities Tracked`;
+      }
+
+      function renderCourses() {
+        const container = document.getElementById("coursesContainer");
+        const filtered = allCourses.filter((c) => {
+          if (currentFilter === "all") return true;
+          return (c.status || "active") === currentFilter;
+        });
+
+        // Active / pending courses appear first; completed courses appear at the last of the list
+        const isCourseCompleted = (c) =>
+          c.status === "archived" ||
+          (Number(c.totalLectures) > 0 &&
+            Number(c.completedLectures) >= Number(c.totalLectures));
+        filtered.sort((a, b) => {
+          const aDone = isCourseCompleted(a);
+          const bDone = isCourseCompleted(b);
+          if (aDone !== bDone) return aDone ? 1 : -1;
+          return (a.title || "").localeCompare(b.title || "");
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML =
+            '<p class="text-muted text-sm" style="padding: var(--space-6) 0;">No courses found for this filter. Click "+ Start a New Course" above to add your first learning track.</p>';
+          return;
+        }
+
+        container.innerHTML = filtered
+          .map((c) => {
+            const total = c.totalLectures || 0;
+            const done = c.completedLectures || 0;
+            const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+            const isCompleted = isCourseCompleted(c);
+            const statusBadge = isCompleted
+              ? '<span class="badge badge-neutral text-xs" style="background: rgba(100, 116, 139, 0.12); color: #475569;" title="Completed and retained in course history">✓ Completed</span>'
+              : c.status === "paused"
+                ? '<span class="badge badge-warning text-xs">Paused</span>'
+                : '<span class="badge badge-success text-xs">Active</span>';
+
+            const trackerLink =
+              c.slug === "exploration-lab"
+                ? "explore.html"
+                : `tracker.html?slug=${encodeURIComponent(c.slug)}`;
+            const displayTitle = formatCourseDisplayTitle(
+              c.title,
+              c.slug,
+            ).replace(
+              /[&<>"']/g,
+              (char) =>
+                ({
+                  "&": "&amp;",
+                  "<": "&lt;",
+                  ">": "&gt;",
+                  '"': "&quot;",
+                  "'": "&#39;",
+                })[char],
+            );
+            const emoji = c.emoji || "📚";
+
+            return `
+          <div class="course-card" id="course-${c.slug}" data-slug="${c.slug}">
+            <div>
+              <div class="course-header">
+                <div>
+                  <h3 class="course-title">
+                    <a href="${trackerLink}" style="text-decoration: none; color: inherit; display: inline-flex; align-items: center; gap: 6px;">
+                      <span>${emoji}</span>${displayTitle}
+                    </a>
+                  </h3>
+                  <div class="text-subtle text-xs" style="margin-top: 2px;">
+                    ${c.instructor ? `Instructor: ${c.instructor} · ` : ""}Practice: ${c.defaultPracticeMultiplier || 1.6}×
+                  </div>
+                </div>
+                ${statusBadge}
+              </div>
+
+              <p class="course-meta">${c.description || "Self-directed learning and mastery track."}</p>
+
+              <div class="course-stats-row">
+                <span>Progress: <strong>${done} / ${total}</strong> (${percent}%)</span>
+                <span>${formatMinutes(c.completedMinutes || 0)} done</span>
+              </div>
+
+              <div class="progress-bar" style="margin-bottom: var(--space-3);">
+                <div class="progress-fill" style="width: ${percent}%; background: var(--accent-blue);"></div>
+              </div>
+            </div>
+
+            <div class="course-actions">
+              <button class="btn btn-outline btn-sm btn-import-syllabus" data-slug="${c.slug}" data-title="${c.title}">📥 Import CSV</button>
+              <button class="btn btn-outline btn-sm btn-edit-course" data-slug="${c.slug}">⚙ Settings</button>
+              <button class="btn btn-outline btn-sm btn-delete-course" data-slug="${c.slug}" data-title="${escapeHtml(c.title)}" style="color: var(--color-danger, #dc2626); border-color: rgba(220, 38, 38, 0.4);" title="Delete course">🗑 Delete</button>
+              <a href="${trackerLink}" class="btn btn-primary btn-sm" style="margin-left: auto;">View Tracker →</a>
+            </div>
+          </div>
+        `;
+          })
+          .join("");
+
+        // Wire Actions
+        container.querySelectorAll(".btn-import-syllabus").forEach((btn) => {
+          btn.addEventListener("click", () =>
+            openImportModal(btn.dataset.slug, btn.dataset.title),
+          );
+        });
+        container.querySelectorAll(".btn-edit-course").forEach((btn) => {
+          btn.addEventListener("click", () =>
+            openEditCourseModal(btn.dataset.slug),
+          );
+        });
+        container.querySelectorAll(".btn-delete-course").forEach((btn) => {
+          btn.addEventListener("click", () =>
+            promptDeleteCourse(btn.dataset.slug, btn.dataset.title),
+          );
+        });
+        container.querySelectorAll(".btn-view-activities").forEach((btn) => {
+          btn.addEventListener("click", () =>
+            openActivitiesList(btn.dataset.slug, btn.dataset.title),
+          );
+        });
+        if (window.location.hash.startsWith("#course-")) {
+          const targetId = window.location.hash.slice(1);
+          const behavior = window.matchMedia("(prefers-reduced-motion: reduce)")
+            .matches
+            ? "auto"
+            : "smooth";
+          requestAnimationFrame(() =>
+            document
+              .getElementById(targetId)
+              ?.scrollIntoView({ behavior, block: "center" }),
+          );
+        }
+      }
+
+      function openActivitiesList(slug, title) {
+        window.location.href = `tracker.html?slug=${encodeURIComponent(slug)}`;
+      }
+
+      function openCreateCourseModal() {
+        document.getElementById("courseModalTitle").textContent =
+          "Start a New Course";
+        const saveBtn = document.getElementById("btnSaveCourse");
+        if (saveBtn) saveBtn.textContent = "Start Course →";
+        document.getElementById("editingCourseSlug").value = "";
+        document.getElementById("courseEmojiInput").value = "📚";
+        document.getElementById("courseTitleInput").value = "";
+        document.getElementById("courseInstructorInput").value = "";
+        document.getElementById("courseMultiplierInput").value = "2.0";
+        document.getElementById("courseDescInput").value = "";
+        document.getElementById("courseStartDateInput").value = "";
+        document.getElementById("courseTargetDateInput").value = "";
+        document.getElementById("courseStatusInput").value = "active";
+        document.getElementById("courseStatusGroup").style.display = "none";
+        const delBtn = document.getElementById("btnDeleteCourse");
+        if (delBtn) delBtn.style.display = "none";
+        document
+          .getElementById("courseModalBackdrop")
+          .classList.remove("hidden");
+      }
+
+      function openEditCourseModal(slug) {
+        const course = allCourses.find((c) => c.slug === slug);
+        if (!course) return;
+
+        document.getElementById("courseModalTitle").textContent =
+          `Edit Course — ${course.title}`;
+        const saveBtn = document.getElementById("btnSaveCourse");
+        if (saveBtn) saveBtn.textContent = "Save Changes";
+        document.getElementById("editingCourseSlug").value = course.slug;
+        document.getElementById("courseEmojiInput").value =
+          course.emoji || "📚";
+        document.getElementById("courseTitleInput").value = course.title;
+        document.getElementById("courseInstructorInput").value =
+          course.instructor || "";
+        document.getElementById("courseMultiplierInput").value =
+          course.defaultPracticeMultiplier || 2.0;
+        document.getElementById("courseDescInput").value =
+          course.description || "";
+        document.getElementById("courseStartDateInput").value =
+          course.startDate || "";
+        document.getElementById("courseTargetDateInput").value =
+          course.targetDate || "";
+        document.getElementById("courseStatusInput").value =
+          course.status || "active";
+        document.getElementById("courseStatusGroup").style.display = "block";
+        const delBtn = document.getElementById("btnDeleteCourse");
+        if (delBtn) delBtn.style.display = "inline-flex";
+        document
+          .getElementById("courseModalBackdrop")
+          .classList.remove("hidden");
+      }
+
+      function closeCourseModal() {
+        document.getElementById("courseModalBackdrop").classList.add("hidden");
+      }
+
+      function openImportModal(slug, title) {
+        document.getElementById("importTargetSlug").value = slug;
+        document.getElementById("importModalCourseTitle").textContent =
+          `Import Syllabus — ${title}`;
+        document.getElementById("csvFileInput").value = "";
+        document.getElementById("csvPasteInput").value = "";
+        document.getElementById("diffResultContainer").style.display = "none";
+        parsedRecordsCache = null;
+        document
+          .getElementById("importModalBackdrop")
+          .classList.remove("hidden");
+      }
+
+      function closeImportModal() {
+        document.getElementById("importModalBackdrop").classList.add("hidden");
+      }
+
+      function setupEvents() {
+        document
+          .querySelectorAll("[data-download-template]")
+          .forEach((button) => {
+            button.addEventListener("click", () => downloadCsvTemplate(button));
+          });
+
+        // Filter Tabs
+        document.querySelectorAll(".tab-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document
+              .querySelectorAll(".tab-btn")
+              .forEach((b) => b.classList.remove("active"));
+            btn.classList.add("active");
+            currentFilter = btn.dataset.filter;
+            renderCourses();
+          });
+        });
+
+        // Course Modal Controls
+        document
+          .getElementById("btnNewCourse")
+          .addEventListener("click", openCreateCourseModal);
+        document
+          .getElementById("btnCloseCourseModal")
+          .addEventListener("click", closeCourseModal);
+        document
+          .getElementById("btnCancelCourseModal")
+          .addEventListener("click", closeCourseModal);
+        document
+          .getElementById("courseModalBackdrop")
+          .addEventListener("click", (e) => {
+            if (e.target.id === "courseModalBackdrop") closeCourseModal();
+          });
+
+        // Delete Confirmation Modal Controls
+        document
+          .getElementById("btnCloseDeleteConfirmModal")
+          ?.addEventListener("click", closeDeleteConfirmModal);
+        document
+          .getElementById("btnCancelDeleteConfirm")
+          ?.addEventListener("click", closeDeleteConfirmModal);
+        document
+          .getElementById("deleteConfirmModal")
+          ?.addEventListener("click", (e) => {
+            if (e.target.id === "deleteConfirmModal") closeDeleteConfirmModal();
+          });
+
+        document
+          .getElementById("btnExecuteDeleteConfirm")
+          ?.addEventListener("click", async () => {
+            if (!courseToDelete?.slug) return;
+            const { slug, title } = courseToDelete;
+            const btn = document.getElementById("btnExecuteDeleteConfirm");
+            btn.disabled = true;
+            btn.textContent = "Deleting...";
+            try {
+              const res = await api.delete(
+                `/courses/${encodeURIComponent(slug)}`,
+              );
+              if (!res.success)
+                throw new Error(res.error || "Failed to delete course");
+              showToast(`Course "${title}" deleted permanently.`, "success");
+              closeDeleteConfirmModal();
+              closeCourseModal();
+              await loadCourses();
+              await notifyCourseNavigationChanged();
+            } catch (err) {
+              showToast(err.message || "Error deleting course", "error");
+            } finally {
+              btn.disabled = false;
+              btn.textContent = "Yes, Delete Permanently";
+            }
+          });
+
+        // Course Delete Trigger in Settings Modal
+        document
+          .getElementById("btnDeleteCourse")
+          ?.addEventListener("click", () => {
+            const slug = document.getElementById("editingCourseSlug").value;
+            const title = document.getElementById("courseTitleInput").value;
+            if (!slug) return;
+            promptDeleteCourse(slug, title);
+          });
+
+        // Course Form Submission
+        document.querySelectorAll(".emoji-quick-pick").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            document.getElementById("courseEmojiInput").value =
+              btn.dataset.emoji;
+          });
+        });
+
+        document
+          .getElementById("courseForm")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const editingSlug =
+              document.getElementById("editingCourseSlug").value;
+            const payload = {
+              title: document.getElementById("courseTitleInput").value.trim(),
+              emoji:
+                document.getElementById("courseEmojiInput").value.trim() ||
+                "📚",
+              instructor: document
+                .getElementById("courseInstructorInput")
+                .value.trim(),
+              defaultPracticeMultiplier:
+                parseFloat(
+                  document.getElementById("courseMultiplierInput").value,
+                ) || 2.0,
+              description: document
+                .getElementById("courseDescInput")
+                .value.trim(),
+              startDate:
+                document.getElementById("courseStartDateInput").value || null,
+              targetDate:
+                document.getElementById("courseTargetDateInput").value || null,
+              status:
+                document.getElementById("courseStatusInput").value || "active",
+            };
+
+            const saveBtn = document.getElementById("btnSaveCourse");
+            if (saveBtn) {
+              saveBtn.disabled = true;
+              saveBtn.textContent = editingSlug
+                ? "Saving..."
+                : "Starting Course...";
+            }
+
+            try {
+              if (editingSlug) {
+                await api.put(`/courses/${editingSlug}`, payload);
+                showToast("Course settings updated successfully.", "success");
+                closeCourseModal();
+                await loadCourses();
+                await notifyCourseNavigationChanged();
+              } else {
+                const createRes = await api.post("/courses", payload);
+                if (!createRes.success)
+                  throw new Error(createRes.error || "Failed to create course");
+                const createdCourse = createRes.course;
+                showToast(
+                  `Course "${createdCourse.title}" created! Opening course tracker...`,
+                  "success",
+                );
+                closeCourseModal();
+                await notifyCourseNavigationChanged();
+                window.location.href = `tracker.html?slug=${encodeURIComponent(createdCourse.slug)}`;
+                return;
+              }
+            } catch (err) {
+              showToast(err.message || "Error saving course", "error");
+            } finally {
+              if (saveBtn) {
+                saveBtn.disabled = false;
+                saveBtn.textContent = editingSlug
+                  ? "Save Changes"
+                  : "Start Course →";
+              }
+            }
+          });
+
+        // Import Modal Controls
+        document
+          .getElementById("btnCloseImportModal")
+          .addEventListener("click", closeImportModal);
+        document
+          .getElementById("importModalBackdrop")
+          .addEventListener("click", (e) => {
+            if (e.target.id === "importModalBackdrop") closeImportModal();
+          });
+
+        document
+          .getElementById("csvFileInput")
+          .addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (file) {
+              const reader = new FileReader();
+              reader.onload = (evt) => {
+                document.getElementById("csvPasteInput").value =
+                  evt.target.result;
+              };
+              reader.readAsText(file);
+            }
+          });
+
+        // Direct Import (without requiring preview first)
+        document
+          .getElementById("btnDirectImport")
+          ?.addEventListener("click", async () => {
+            const slug = document.getElementById("importTargetSlug").value;
+            const csvText = document
+              .getElementById("csvPasteInput")
+              .value.trim();
+            if (!csvText) {
+              showToast("Please upload or paste CSV data first.", "error");
+              return;
+            }
+
+            try {
+              const course = allCourses.find((c) => c.slug === slug);
+              const parseRes = await api.post("/courses/import/preview", {
+                csvText,
+                courseSlug: slug,
+              });
+              if (!parseRes.success)
+                throw new Error(parseRes.error || "Failed to parse CSV");
+
+              const commitRes = await api.post("/courses/import/commit", {
+                courseSlug: slug,
+                courseTitle: course ? course.title : slug,
+                records: parseRes.records,
+              });
+
+              if (commitRes.success) {
+                showToast(
+                  `Direct import complete: ${commitRes.totalActivities} activities committed!`,
+                  "success",
+                );
+                closeImportModal();
+                await loadCourses();
+                await notifyCourseNavigationChanged();
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        // Safe Preview Diff
+        document
+          .getElementById("btnPreviewDiff")
+          .addEventListener("click", async () => {
+            const slug = document.getElementById("importTargetSlug").value;
+            const csvText = document
+              .getElementById("csvPasteInput")
+              .value.trim();
+            if (!csvText) {
+              showToast("Please upload or paste CSV data first.", "error");
+              return;
+            }
+
+            try {
+              // 1. Validate & Parse CSV
+              const parseRes = await api.post("/courses/import/preview", {
+                csvText,
+                courseSlug: slug,
+              });
+              if (!parseRes.success)
+                throw new Error(parseRes.error || "Failed to parse CSV");
+              parsedRecordsCache = parseRes.records;
+
+              // 2. Fetch Reviewable Diff
+              const diffRes = await api.post("/courses/import/diff", {
+                courseSlug: slug,
+                records: parseRes.records,
+              });
+
+              // Render summary badges
+              const badgeRow = document.getElementById("diffSummaryBadgeRow");
+              badgeRow.innerHTML = `
+            <span class="diff-badge" style="background: #DCFCE7; color: #166534;">+${diffRes.newCount} New</span>
+            <span class="diff-badge" style="background: #FEF3C7; color: #92400E;">~${diffRes.modifiedCount} Modified</span>
+            <span class="diff-badge" style="background: #F1F5F9; color: #475569;">=${diffRes.unchangedCount} Unchanged</span>
+            ${diffRes.protectedCompletedCount > 0 ? `<span class="diff-badge" style="background: #DBEAFE; color: #1E40AF;">🛡 ${diffRes.protectedCompletedCount} Completed Protected</span>` : ""}
+          `;
+
+              // Render diff table
+              const tbody = document.getElementById("diffTableBody");
+              const previewRows = [
+                ...(diffRes.diff.newActivities || []).map(
+                  (a) =>
+                    `<tr><td style="padding: 6px; border: 1px solid var(--border-hairline);">${a.serialNumber}</td><td style="padding: 6px; border: 1px solid var(--border-hairline); font-weight: 600;">${a.title}</td><td style="padding: 6px; border: 1px solid var(--border-hairline);">${a.effortMinutes}m</td><td style="padding: 6px; border: 1px solid var(--border-hairline); color: var(--accent-green); font-weight: 600;">New</td></tr>`,
+                ),
+                ...(diffRes.diff.modifiedActivities || []).map(
+                  (a) =>
+                    `<tr><td style="padding: 6px; border: 1px solid var(--border-hairline);">${a.serialNumber}</td><td style="padding: 6px; border: 1px solid var(--border-hairline); font-weight: 600;">${a.title}</td><td style="padding: 6px; border: 1px solid var(--border-hairline);">-</td><td style="padding: 6px; border: 1px solid var(--border-hairline); color: var(--accent-amber);">${a.changes.join("<br>")}</td></tr>`,
+                ),
+                ...(diffRes.diff.unchangedActivities || [])
+                  .slice(0, 5)
+                  .map(
+                    (a) =>
+                      `<tr><td style="padding: 6px; border: 1px solid var(--border-hairline);">${a.serialNumber}</td><td style="padding: 6px; border: 1px solid var(--border-hairline);">${a.title}</td><td style="padding: 6px; border: 1px solid var(--border-hairline);">-</td><td style="padding: 6px; border: 1px solid var(--border-hairline); color: var(--text-subtle);">Unchanged</td></tr>`,
+                  ),
+              ];
+
+              tbody.innerHTML = previewRows.join("");
+              document.getElementById("diffResultContainer").style.display =
+                "block";
+              showToast(
+                `Differences analyzed: ${diffRes.newCount} new, ${diffRes.modifiedCount} modified.`,
+                "info",
+              );
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+
+        // Commit Import
+        document
+          .getElementById("btnCommitImport")
+          .addEventListener("click", async () => {
+            const slug = document.getElementById("importTargetSlug").value;
+            if (!parsedRecordsCache || parsedRecordsCache.length === 0) return;
+
+            try {
+              const res = await api.post("/courses/import/commit", {
+                courseSlug: slug,
+                courseTitle: allCourses.find((c) => c.slug === slug)?.title,
+                records: parsedRecordsCache,
+              });
+
+              if (res.success) {
+                showToast(
+                  `Syllabus committed: ${res.totalActivities} activities saved safely.`,
+                  "success",
+                );
+                closeImportModal();
+                await loadCourses();
+                await notifyCourseNavigationChanged();
+              }
+            } catch (err) {
+              showToast(err.message, "error");
+            }
+          });
+      }
+
+      init();
+    </script>
+  </body>
+</html>
