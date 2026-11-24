@@ -1420,6 +1420,45 @@
             </button>
           </div>
 
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: var(--space-3);
+              flex-wrap: wrap;
+              background: var(--bg-surface);
+              border: 1px solid var(--border-hairline);
+              border-radius: var(--radius-sm);
+              padding: var(--space-3) var(--space-4);
+            "
+          >
+            <div>
+              <div style="font-size: 0.875rem; font-weight: 700">
+                PDF to CSV Conversion Prompt
+              </div>
+              <div class="text-subtle text-xs">
+                Copy these instructions to convert a PDF or syllabus into the
+                Exploration CSV format with dynamic sections and preserved timings.
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--space-2)">
+              <button
+                type="button"
+                id="btnCopyExploreConversionPrompt"
+                class="btn btn-outline btn-sm"
+              >
+                Copy Conversion Prompt
+              </button>
+              <span
+                id="exploreConversionPromptCopyStatus"
+                class="text-subtle text-xs"
+                role="status"
+                aria-live="polite"
+              ></span>
+            </div>
+          </div>
+
           <div>
             <label class="form-label" for="exploreCsvFileInput"
               >Upload CSV File</label
@@ -1699,6 +1738,7 @@
       import { api } from "../assets/js/api.js";
       import { showToast } from "../assets/js/toast.js";
       import { formatMinutes } from "../assets/js/utils.js";
+      import { COURSES_CONVERSION_PROMPT } from "../assets/js/coursesConversionPrompt.js";
 
       let currentExplorations = [];
       let currentExpFilter = "active";
@@ -3046,6 +3086,33 @@
               setTimeout(() => URL.revokeObjectURL(url), 1000);
             } catch (err) {
               showToast(err.message, "error");
+            }
+          });
+
+        document
+          .getElementById("btnCopyExploreConversionPrompt")
+          ?.addEventListener("click", async () => {
+            const status = document.getElementById(
+              "exploreConversionPromptCopyStatus",
+            );
+            try {
+              if (navigator.clipboard && window.isSecureContext) {
+                await navigator.clipboard.writeText(COURSES_CONVERSION_PROMPT);
+              } else {
+                const temporaryInput = document.createElement("textarea");
+                temporaryInput.value = COURSES_CONVERSION_PROMPT;
+                temporaryInput.setAttribute("readonly", "");
+                temporaryInput.style.position = "fixed";
+                temporaryInput.style.opacity = "0";
+                document.body.appendChild(temporaryInput);
+                temporaryInput.select();
+                const copied = document.execCommand("copy");
+                temporaryInput.remove();
+                if (!copied) throw new Error("Clipboard copy was unavailable.");
+              }
+              status.textContent = "Prompt copied successfully!";
+            } catch (error) {
+              status.textContent = "Could not copy the prompt. Please try again.";
             }
           });
 

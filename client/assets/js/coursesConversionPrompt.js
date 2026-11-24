@@ -11,6 +11,8 @@ SARTHI organizes curriculum into a clean 3-level collapsible hierarchy:
 3. Sub-subsection (Optional)
 4. Activities (Compulsory items: lectures, problems, readings, exercises)
 
+Choose the hierarchy dynamically from the source material. Keep each chapter, unit, module, or major topic as a Main Section. When a Main Section contains many lectures or distinct related topics, group them into meaningful Subsections. When a Subsection contains many lectures or distinct topic groups, use meaningful Sub-subsections. Put each individual lecture, problem, reading, exercise, or other item on its own activity row under the most specific applicable section. Preserve the source order. Do not invent unnecessary hierarchy levels or topic names; use direct activities when the source has no meaningful lower-level grouping. Different Main Sections may use different hierarchy depths.
+
 The CSV MUST contain these exact 30 columns in this order:
 
 \`\`\`csv
@@ -57,12 +59,20 @@ main_section_id,main_section_name,main_section_description,main_section_order,ma
 - \`course_name\`: The overall course or exploration title.
 - \`activity_multiplier_override\`: Custom multiplier for this activity (e.g. \`2.5\` or \`1.0\`), or blank.
 
-## 3. THREE SUPPORTED STRUCTURES
+## 3. DYNAMIC HIERARCHY AND TIMING RULES
+- Preserve the hierarchy and order found in the source. Choose the structure dynamically for each Main Section; different Main Sections may use different hierarchy depths.
+- If a Main Section contains many lectures, activities, or distinct related topics, group them into meaningful Subsections. If a Subsection contains many activities or distinct topic groups, group them into meaningful Sub-subsections. Keep each individual lecture, problem, reading, exercise, or other item on its own activity row under the most specific applicable section.
+- Use direct activities when the source has no meaningful lower-level grouping. Do not invent topic names, unnecessary hierarchy levels, or artificial categories just to fill the CSV.
+- Preserve every activity's source-provided content duration and execution estimate exactly. Do not round, redistribute, rebalance, or otherwise change individual timings. If a source timing is missing or unclear, leave that activity timing blank.
+- Calculate each Sub-subsection's content and effort totals by summing its activities. Calculate each Subsection's totals by summing its activities and all nested Sub-subsection activities. Calculate each Main Section's totals by summing all its activities, including all nested Subsections and Sub-subsections.
+- Parent totals must equal the sum of their applicable child activities. Do not add extra time, double-count activities, or change individual timings to make totals match. If the needed source timings are unavailable, leave the corresponding total blank.
+
+## 4. THREE SUPPORTED STRUCTURES
 - **Structure A (Direct Activities):** Leave subsection and sub-subsection columns empty.
 - **Structure B (Main + Subsection):** Fill main section and subsection; leave sub-subsection columns empty.
 - **Structure C (Full 3-Level):** Fill main section, subsection, and sub-subsection.
 
-## 4. CONSTRAINTS
+## 5. CONSTRAINTS
 - Never invent times or dates if unavailable; leave them blank.
 - Quote fields containing commas or quotes.
 - Return pure valid CSV ready for direct paste into SARTHI.
