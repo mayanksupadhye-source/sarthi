@@ -37,7 +37,7 @@ const taskSchema = new mongoose.Schema({
     default: "general",
     index: true,
   },
-  estimatedMinutes: { type: Number, required: true, min: 5, default: 30 },
+  estimatedMinutes: { type: Number, required: true, min: 0, default: 30 },
   actualMinutes: { type: Number, default: 0, min: 0 },
   remainingMinutes: { type: Number, default: 30, min: 0 },
   scheduledDate: { type: String, index: true }, // Format: YYYY-MM-DD

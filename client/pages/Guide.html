@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <script src="../assets/js/route-guard.js"></script>
+
+<meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f7f1eb" />
     <meta
@@ -2215,6 +2217,7 @@
 
     <script type="module">
       import { api } from "../assets/js/api.js";
+      import { checkAuth } from "../assets/js/auth.js";
 
       const $ = (id) => document.getElementById(id);
       const state = {
@@ -2828,7 +2831,7 @@
           observer.observe(section);
         });
       }
-      loadAll();
+      if (await checkAuth()) loadAll();
     </script>
   </body>
 </html>

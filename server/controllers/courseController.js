@@ -68,12 +68,21 @@ export async function createCourse(req, res, next) {
       slug: courseSlug,
     });
     if (existing) {
-      return res
-        .status(409)
-        .json({
-          success: false,
-          error: `A course with slug "${courseSlug}" already exists.`,
-        });
+      // If the course already exists, restore/activate it and update its details instead of failing with 409
+      existing.title = title.trim();
+      if (emoji && typeof emoji === "string") existing.emoji = emoji.trim();
+      existing.category = category || "course";
+      if (instructor !== undefined) existing.instructor = instructor.trim();
+      if (description !== undefined) existing.description = description.trim();
+      if (notes !== undefined && typeof notes === "string") existing.notes = notes.trim();
+      if (defaultPracticeMultiplier) existing.defaultPracticeMultiplier = Number(defaultPracticeMultiplier) || 2.0;
+      if (startDate !== undefined) existing.startDate = startDate || null;
+      if (targetDate !== undefined) existing.targetDate = targetDate || null;
+      existing.status = "active";
+      existing.updatedAt = new Date();
+      await existing.save();
+
+      return res.status(200).json({ success: true, course: existing, restored: true });
     }
 
     const course = await Course.create({
@@ -113,6 +122,7 @@ export async function updateCourse(req, res, next) {
       status,
       startDate,
       targetDate,
+      category,
     } = req.body;
 
     const course = await Course.findOne({ userId: req.user.id, slug });
@@ -124,6 +134,7 @@ export async function updateCourse(req, res, next) {
 
     if (title !== undefined) course.title = title.trim();
     if (emoji !== undefined) course.emoji = emoji.trim() || "📚";
+    if (category !== undefined) course.category = category;
     if (instructor !== undefined) course.instructor = instructor.trim();
     if (description !== undefined) course.description = description.trim();
     if (notes !== undefined) course.notes = notes.trim();

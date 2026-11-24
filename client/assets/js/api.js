@@ -57,6 +57,11 @@ export async function apiRequest(endpoint, options = {}) {
         !endpoint.includes("/auth/login") &&
         !endpoint.includes("/auth/register")
       ) {
+        if (!window.location.pathname.toLowerCase().endsWith("/login.html") && !window.location.pathname.toLowerCase().endsWith("/intro.html") && window.location.pathname.toLowerCase().includes("/pages/")) {
+          try {
+            sessionStorage.setItem("sarthi_post_auth_target", `${window.location.pathname}${window.location.search}${window.location.hash}`);
+          } catch {}
+        }
         localStorage.removeItem("sarthi_token");
         localStorage.removeItem("sarthi_user");
         if (
@@ -66,7 +71,7 @@ export async function apiRequest(endpoint, options = {}) {
           const target = window.location.pathname.includes("/pages/")
             ? "intro.html"
             : "pages/intro.html";
-          window.location.href = target;
+          window.location.replace(target);
         }
         return;
       }

@@ -322,11 +322,8 @@ body.sidebar-collapsed .page-wave-backdrop {
   }
 }
 
-/* Native multi-page navigation stays intact; Chromium can animate same-origin
-   document changes while older WebViews keep their normal page transition. */
-@view-transition {
-  navigation: auto;
-}
+/* View Transitions: opt-in disabled to prevent Chromium InvalidStateError aborts during cross-document navigation */
+/* @view-transition { navigation: auto; } */
 ::view-transition-old(root) {
   animation: sarthi-page-out 140ms ease both;
 }

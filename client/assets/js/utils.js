@@ -13,6 +13,19 @@ export function formatMinutes(mins) {
   return rem > 0 ? `${hrs}h ${rem}m` : `${hrs}h`;
 }
 
+/**
+ * Escapes unsafe HTML characters to prevent XSS and template injection.
+ */
+export function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 /** Make an accidentally stored slug readable without changing its canonical slug. */
 export function formatCourseDisplayTitle(title, slug) {
   const rawTitle = String(title || "").trim();

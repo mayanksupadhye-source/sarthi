@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <script src="../assets/js/route-guard.js"></script>
+
+<meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sign In — SARTHI (सारथी)</title>
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
@@ -192,6 +194,16 @@
 
     <script type="module">
       import { api } from "../assets/js/api.js";
+      import { getPostAuthTarget } from "../assets/js/auth.js";
+
+      // Pre-fill remembered email if available, and prompt user for sign in
+      try {
+        const savedUser = JSON.parse(localStorage.getItem("sarthi_user") || "null");
+        if (savedUser && savedUser.email) {
+          const emailEl = document.getElementById("emailInput");
+          if (emailEl) emailEl.value = savedUser.email;
+        }
+      } catch {}
 
       let isRegisterMode = false;
 
@@ -244,7 +256,10 @@
               if (res.success && res.token) {
                 localStorage.setItem("sarthi_token", res.token);
                 localStorage.setItem("sarthi_user", JSON.stringify(res.user));
-                window.location.href = "dashboard.html";
+                try {
+                  sessionStorage.setItem("sarthi_session_active", "true");
+                } catch {}
+                window.location.replace("dashboard.html");
               }
             } else {
               submitBtn.textContent = "Signing In...";
@@ -252,7 +267,10 @@
               if (res.success && res.token) {
                 localStorage.setItem("sarthi_token", res.token);
                 localStorage.setItem("sarthi_user", JSON.stringify(res.user));
-                window.location.href = "dashboard.html";
+                try {
+                  sessionStorage.setItem("sarthi_session_active", "true");
+                } catch {}
+                window.location.replace("dashboard.html");
               }
             }
           } catch (err) {

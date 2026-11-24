@@ -148,6 +148,21 @@ export async function getToday(req, res, next) {
 
     for (const act of scheduledActs) {
       if (!act.taskId) {
+        const effortMinutes = Math.max(
+          1,
+          Math.round(
+            Number(act.totalEffortMinutes) ||
+              Number(act.remainingMinutes) ||
+              Number(act.contentDurationMinutes) * (Number(act.effectiveMultiplier) || 2) ||
+              45,
+          ),
+        );
+        const actualMins = Math.max(0, Math.round(Number(act.actualMinutes) || 0));
+        const remMins = Math.max(
+          0,
+          Math.round(Number(act.remainingMinutes) || effortMinutes - actualMins),
+        );
+
         const task = await Task.create({
           userId,
           title: `${act.courseTitle || act.courseSlug.toUpperCase()}: ${act.title}`,
@@ -157,10 +172,9 @@ export async function getToday(req, res, next) {
           )
             ? act.courseSlug
             : "general",
-          estimatedMinutes: act.totalEffortMinutes || 45,
-          actualMinutes: act.actualMinutes || 0,
-          remainingMinutes:
-            act.remainingMinutes || act.totalEffortMinutes || 45,
+          estimatedMinutes: effortMinutes,
+          actualMinutes: actualMins,
+          remainingMinutes: remMins,
           scheduledDate: today,
           status: act.status || "pending",
         });
@@ -950,14 +964,17 @@ export async function allocateCurriculum(req, res, next) {
       for (const act of activities) {
         const idStr = act._id.toString();
         if (allocation.allocatedActivityIds.includes(idStr) && !act.taskId) {
-          const effort = act.remainingMinutes || act.totalEffortMinutes || 45;
+          const effort = Math.max(
+            1,
+            Math.round(Number(act.remainingMinutes) || Number(act.totalEffortMinutes) || 45),
+          );
           const task = await Task.create({
             userId,
             title: `${act.courseTitle || (act.courseSlug || "").toUpperCase()}: ${act.title}`,
             priority: act.priority || "P2",
             category: act.courseSlug || "general",
             estimatedMinutes: effort,
-            actualMinutes: act.actualMinutes || 0,
+            actualMinutes: Math.max(0, Math.round(Number(act.actualMinutes) || 0)),
             remainingMinutes: effort,
             scheduledDate: date,
             status: "pending",

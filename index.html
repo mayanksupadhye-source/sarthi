@@ -8,12 +8,8 @@
     </title>
     <link rel="icon" type="image/svg+xml" href="client/favicon.svg" />
     <script>
-      // Intelligent redirect for Live Server (port 5500) and static hosting
-      const token = localStorage.getItem("sarthi_token");
-      const target = token
-        ? "client/pages/dashboard.html"
-        : "client/pages/intro.html";
-      window.location.replace(target);
+      // Start entry with the intro animation
+      window.location.replace("client/pages/intro.html");
     </script>
   </head>
   <body

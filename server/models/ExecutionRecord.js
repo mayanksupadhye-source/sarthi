@@ -18,6 +18,7 @@ const executionRecordSchema = new mongoose.Schema({
     type: String,
     enum: [
       "course",
+      "exploration",
       "academic",
       "reading",
       "oratory",

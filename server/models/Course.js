@@ -57,6 +57,7 @@ const courseSchema = new mongoose.Schema({
   startDate: { type: String }, // "YYYY-MM-DD"
   targetDate: { type: String }, // "YYYY-MM-DD"
   sections: [sectionSchema],
+  totalHours: { type: Number, default: 0 },
   totalLectures: { type: Number, default: 0 },
   completedLectures: { type: Number, default: 0 },
   totalMinutes: { type: Number, default: 0 },
@@ -73,25 +74,34 @@ courseSchema.methods.recalculateProgress = function () {
   let totalMin = 0;
   let doneMin = 0;
 
-  for (const sec of this.sections) {
-    for (const lec of sec.lectures) {
-      total++;
-      const mult =
-        lec.practiceMultiplier || this.defaultPracticeMultiplier || 2.0;
-      const effort =
-        lec.totalEffortMinutes || Math.round(lec.videoDurationMinutes * mult);
-      totalMin += effort;
-      if (lec.isWatched && lec.isCodeDone) {
-        done++;
-        doneMin += effort;
+  if (this.sections && this.sections.length > 0) {
+    for (const sec of this.sections) {
+      for (const lec of sec.lectures) {
+        total++;
+        const mult =
+          lec.practiceMultiplier || this.defaultPracticeMultiplier || 2.0;
+        const effort =
+          lec.totalEffortMinutes || Math.round(lec.videoDurationMinutes * mult);
+        totalMin += effort;
+        if (lec.isWatched && lec.isCodeDone) {
+          done++;
+          doneMin += effort;
+        }
       }
     }
+    this.totalLectures = total;
+    this.completedLectures = done;
+    this.totalMinutes = totalMin;
+    this.completedMinutes = doneMin;
+    this.totalHours = Math.round((totalMin / 60) * 10) / 10;
+  } else {
+    // Preserve manual hours / minutes when no sections are populated yet
+    if (this.totalHours && this.totalHours > 0 && !this.totalMinutes) {
+      this.totalMinutes = Math.round(this.totalHours * 60);
+    } else if (this.totalMinutes && this.totalMinutes > 0 && !this.totalHours) {
+      this.totalHours = Math.round((this.totalMinutes / 60) * 10) / 10;
+    }
   }
-
-  this.totalLectures = total;
-  this.completedLectures = done;
-  this.totalMinutes = totalMin;
-  this.completedMinutes = doneMin;
   this.updatedAt = new Date();
 };
 

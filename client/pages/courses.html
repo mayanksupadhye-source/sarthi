@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
+    <script src="../assets/js/route-guard.js"></script>
+
+<meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Courses & Curriculum Hub — SARTHI (सारथी)</title>
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
@@ -903,9 +905,22 @@
       import {
         formatMinutes,
         formatCourseDisplayTitle,
+        escapeHtml,
       } from "../assets/js/utils.js";
       import { showToast } from "../assets/js/toast.js";
       import { COURSES_CONVERSION_PROMPT } from "../assets/js/coursesConversionPrompt.js";
+
+      // Local fallback for escapeHtml
+      const safeEscapeHtml = (str) => {
+        if (typeof escapeHtml === "function") return escapeHtml(str);
+        if (str === null || str === undefined) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      };
 
       let allCourses = [];
       let currentFilter = "all";
@@ -970,18 +985,18 @@
             res && res.success && Array.isArray(res.courses) ? res.courses : [];
           setCourseNavigation(rawList);
 
-          // Courses Hub displays only curriculum courses, never explorations or oratory
-          const isExp = (c) =>
-            c?.category === "exploration" ||
+          // Courses Hub displays all curriculum and custom courses, excluding only system singleton tools
+          const isSystemAnchor = (c) =>
             c?.slug === "exploration-lab" ||
-            c?.slug === "exploration";
-          const isOratory = (c) =>
-            c?.category === "oratory" || c?.slug === "oratory";
-          allCourses = rawList.filter((c) => !isExp(c) && !isOratory(c));
+            c?.slug === "exploration" ||
+            c?.slug === "oratory" ||
+            c?.category === "oratory";
+          allCourses = rawList.filter((c) => !isSystemAnchor(c));
 
           updateCounts();
           renderCourses();
         } catch (err) {
+          console.error("[Courses Hub load error]", err);
           showToast(err.message || "Failed to load courses", "error");
           allCourses = [];
           updateCounts();
@@ -1137,7 +1152,7 @@
             <div class="course-actions">
               <button class="btn btn-outline btn-sm btn-import-syllabus" data-slug="${c.slug}" data-title="${c.title}">📥 Import CSV</button>
               <button class="btn btn-outline btn-sm btn-edit-course" data-slug="${c.slug}">⚙ Settings</button>
-              <button class="btn btn-outline btn-sm btn-delete-course" data-slug="${c.slug}" data-title="${escapeHtml(c.title)}" style="color: var(--color-danger, #dc2626); border-color: rgba(220, 38, 38, 0.4);" title="Delete course">🗑 Delete</button>
+              <button class="btn btn-outline btn-sm btn-delete-course" data-slug="${c.slug}" data-title="${safeEscapeHtml(c.title)}" style="color: var(--color-danger, #dc2626); border-color: rgba(220, 38, 38, 0.4);" title="Delete course">🗑 Delete</button>
               <a href="${trackerLink}" class="btn btn-primary btn-sm" style="margin-left: auto;">View Tracker →</a>
             </div>
           </div>
@@ -1373,6 +1388,7 @@
               description: document
                 .getElementById("courseDescInput")
                 .value.trim(),
+              category: "course",
               startDate:
                 document.getElementById("courseStartDateInput").value || null,
               targetDate:
@@ -1425,7 +1441,9 @@
                   throw new Error(createRes.error || "Failed to create course");
                 const createdCourse = createRes.course;
                 showToast(
-                  `Course "${createdCourse.title}" created! Opening course tracker...`,
+                  createRes.restored
+                    ? `Course "${createdCourse.title}" ready! Opening tracker...`
+                    : `Course "${createdCourse.title}" created! Opening course tracker...`,
                   "success",
                 );
                 closeCourseModal();
