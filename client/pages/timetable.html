@@ -33,6 +33,10 @@
     .block-card.study, .block-card.webdev, .block-card.dsa, .block-card.oratory, .block-card.exploration {
       border-left: 4px solid var(--accent-blue);
     }
+    .block-card.academics {
+      border-left: 4px solid #7c3aed;
+      background-color: #faf5ff;
+    }
     .block-card.college {
       border-left: 4px solid var(--text-ink);
     }
@@ -81,6 +85,17 @@
     .exception-item:last-child {
       margin-bottom: 0;
     }
+    @media (max-width: 768px) {
+      .block-card {
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 10px 12px;
+      }
+      .exception-item {
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -121,7 +136,9 @@
                   </div>
                   <div class="text-subtle text-sm">Timezone: Asia/Kolkata · Fixed & Study Blocks</div>
                 </div>
-                <div style="display: flex; gap: var(--space-2);">
+                <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+                  <button class="btn btn-outline btn-sm" id="btnActivateProfile" title="Apply a timetable profile across a date range">📅 Use this timetable from date to date</button>
+                  <button class="btn btn-primary btn-sm" id="btnFinalizeDistribute" title="Distribute curriculum and recompute semester timeline">🚀 Finalize and distribute</button>
                   <button class="btn btn-outline btn-sm" id="btnNewVersion" title="Create a future semester schedule version with an effective start date">+ New Version</button>
                   <button class="btn btn-primary btn-sm" id="btnAddBlock">+ Add Block</button>
                 </div>
@@ -172,6 +189,43 @@
               </div>
             </div>
 
+            <!-- Exam Center & Profile Activations by Date Range -->
+            <div class="card">
+              <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div class="card-title">Exam Center & Activations</div>
+                  <div class="text-subtle text-xs">Date range overrides &amp; 14-day Exam Mode</div>
+                </div>
+                <button class="btn btn-outline btn-sm" id="btnOpenActivateModal">+ Activate</button>
+              </div>
+              <div id="confirmedRangeBanner" style="padding: 6px 10px; background: rgba(2, 132, 199, 0.08); border-left: 3px solid #0284c7; border-radius: 4px; font-size: 0.78rem; font-weight: 600; color: #0369a1; margin-top: 6px;">
+                Confirmed range: none yet · Assumed weekday/Sat/Sun defaults apply
+              </div>
+              <div id="examBudgetWidget" style="padding: 6px 10px; background: rgba(220, 38, 38, 0.08); border-left: 3px solid #dc2626; border-radius: 4px; font-size: 0.8125rem; font-weight: 600; color: #991b1b; margin-top: 6px;">
+                Exam days: used 0 of 14, 14 remaining
+              </div>
+              <form id="examCenterQuickForm" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; padding: 8px; background: var(--bg-canvas); border: 1px solid var(--border-hairline); border-radius: 6px;">
+                <div>
+                  <label class="form-label text-xs" for="examCenterStart">Exam Start</label>
+                  <input type="date" class="form-input" id="examCenterStart" style="padding: 4px 6px; font-size: 0.78rem;" required>
+                </div>
+                <div>
+                  <label class="form-label text-xs" for="examCenterEnd">Exam End</label>
+                  <input type="date" class="form-input" id="examCenterEnd" style="padding: 4px 6px; font-size: 0.78rem;" required>
+                </div>
+                <div style="grid-column: span 2; display: flex; gap: 6px; align-items: center;">
+                  <select class="form-select" id="examCenterProfile" style="padding: 4px 6px; font-size: 0.78rem; flex: 1;">
+                    <option value="exam">🎓 Exam Mode Schedule</option>
+                    <option value="holiday">🏖️ Holiday / Prep Leave</option>
+                  </select>
+                  <button type="submit" class="btn btn-primary btn-sm" style="white-space: nowrap; font-size: 0.75rem;">Apply Exam Dates</button>
+                </div>
+              </form>
+              <div id="activationsContainer" style="display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-2);">
+                <p class="text-muted text-xs">No active date-range activations.</p>
+              </div>
+            </div>
+
             <div class="card">
               <div class="card-header">
                 <div class="card-title">Schedule Principle</div>
@@ -211,47 +265,48 @@
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3);">
           <div>
-            <label class="form-label" for="blockCategory">Category</label>
-            <select class="form-select" id="blockCategory">
-              <option value="study">Study / Execution</option>
-              <option value="college">College / Lectures / Commute</option>
-              <option value="gym">Gym / Physical Workout</option>
-              <option value="routine">Routine / Meals / Grooming</option>
-              <option value="rest">Sleep / Rest</option>
-              <option value="exploration">Exploration / Research</option>
-              <option value="other">Other / Personal</option>
+            <label class="form-label" for="blockType">Block Type *</label>
+            <select class="form-select" id="blockType" required>
+              <option value="course">📚 Course (Web Dev, DSA, Typing, Excel)</option>
+              <option value="reading">📖 Reading</option>
+              <option value="night_routine">🌙 Night Routine (Expandable checklist)</option>
+              <option value="checklist">☑️ Checklist (College, Meals, Workout, Oratory)</option>
+              <option value="rest">😴 Rest / Sleep Window (Info only)</option>
+              <option value="needs_review">⚠️ Needs Review</option>
             </select>
           </div>
           <div>
-            <label class="form-label" for="blockType">Time Architecture Type</label>
-            <select class="form-select" id="blockType">
-              <option value="learning">Learning Course</option>
-              <option value="fixed_routine">Fixed Routine (Sleep, Meal, College)</option>
-              <option value="actionable_routine">Actionable Routine (Gym, Habit)</option>
-              <option value="exploration">Flexible Exploration</option>
-              <option value="deadline">Deadline / Submission</option>
+            <label class="form-label" for="blockCategory">Category</label>
+            <select class="form-select" id="blockCategory">
+              <optgroup label="Study &amp; Reading">
+                <option value="study">📚 Core Study / Course Execution</option>
+                <option value="exploration">⚡ Exploration &amp; Practice Labs</option>
+                <option value="reading">📖 Reading</option>
+                <option value="oratory">🎙️ Oratory &amp; Speech Mastery</option>
+              </optgroup>
+              <optgroup label="Routine &amp; Meals">
+                <option value="routine">🍽️ Routine &amp; Meals (Breakfast, Lunch, Dinner)</option>
+                <option value="gym">🏋️ Gym &amp; Physical Workout</option>
+                <option value="rest">😴 Sleep &amp; Rest Window</option>
+              </optgroup>
+              <optgroup label="College &amp; Personal">
+                <option value="college">🏫 College / Lectures / Commute</option>
+                <option value="other">👤 Other / Personal</option>
+              </optgroup>
             </select>
           </div>
         </div>
         <div id="blockCourseContainer">
-          <label class="form-label" for="blockCourseSlug">Linked Active Course</label>
+          <label class="form-label" for="blockCourseSlug">Linked Active Course / Exploration</label>
           <select class="form-select" id="blockCourseSlug">
             <option value="">-- None / General Allocation --</option>
           </select>
         </div>
-        <div style="display: flex; flex-direction: column; gap: var(--space-2); margin-top: var(--space-1);">
-          <div style="display: flex; align-items: center; gap: var(--space-2);">
-            <input type="checkbox" id="blockIsProtected" style="width: 16px; height: 16px; accent-color: var(--accent-blue);">
-            <label for="blockIsProtected" class="text-sm" style="font-weight: 500; cursor: pointer;">
-              Protected Block (Do not compress during adaptive replanning)
-            </label>
-          </div>
-          <div style="display: flex; align-items: center; gap: var(--space-2);">
-            <input type="checkbox" id="blockIsTrackable" style="width: 16px; height: 16px; accent-color: var(--accent-blue);">
-            <label for="blockIsTrackable" class="text-sm" style="font-weight: 500; cursor: pointer;">
-              Track in Today (Shows actionable checkbox / logging button)
-            </label>
-          </div>
+        <div id="blockFlexibleContainer" style="display: flex; align-items: center; gap: var(--space-2); padding: 8px 10px; background: rgba(14, 165, 233, 0.05); border: 1px solid rgba(14, 165, 233, 0.25); border-radius: 6px;">
+          <input type="checkbox" id="blockIsFlexible" style="width: 16px; height: 16px; accent-color: var(--accent-blue);">
+          <label for="blockIsFlexible" class="text-sm" style="font-weight: 500; cursor: pointer;">
+            Flexible: can be shortened, and can host overflow when needed.
+          </label>
         </div>
         <div>
           <label class="form-label" for="blockNotes">Notes (Optional)</label>
@@ -351,6 +406,71 @@
     </div>
   </div>
 
+  <!-- Date-Range Timetable Activation Modal -->
+  <div class="modal-backdrop hidden" id="activationModalBackdrop">
+    <div class="modal-box" style="max-width: 480px; width: 100%;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+        <h3 class="modal-title" id="actModalTitle" style="margin: 0; font-size: 1.125rem;">Use Timetable From Date to Date</h3>
+        <button class="block-btn-icon" id="btnCloseActivationModal" style="font-size: 1.25rem;">✕</button>
+      </div>
+      <p class="text-subtle text-sm" style="margin-bottom: var(--space-3);">
+        Activate a specific timetable profile over a continuous calendar date range (e.g., Exam Revision or Semester Break). Courses pause or rebalance cleanly without penalty.
+      </p>
+      <div id="actModalAlert" class="alert alert-warning" style="display: none; margin-bottom: var(--space-3); font-size: 0.8125rem;"></div>
+      <form id="activationForm" style="display: flex; flex-direction: column; gap: var(--space-3);">
+        <input type="hidden" id="actId" value="">
+        <div>
+          <label class="form-label" for="actProfileDayType">Timetable Profile to Apply *</label>
+          <select class="form-select" id="actProfileDayType">
+            <option value="exam">🎓 Exam Schedule (Web Dev, DSA & Explorations Paused)</option>
+            <option value="holiday">🏖️ Holiday / Preparation Leave Schedule</option>
+            <option value="weekday">🏢 Weekday Schedule</option>
+            <option value="saturday">⚡ Saturday Schedule</option>
+            <option value="sunday">🌱 Sunday Schedule</option>
+            <option value="custom">🛠️ Custom Schedule</option>
+          </select>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2);">
+          <div>
+            <label class="form-label" for="actStartDate">Start Date *</label>
+            <input type="date" class="form-input" id="actStartDate" required>
+          </div>
+          <div>
+            <label class="form-label" for="actEndDate">End Date *</label>
+            <input type="date" class="form-input" id="actEndDate" required>
+          </div>
+        </div>
+        <div>
+          <label class="form-label" for="actNotes">Notes / Purpose (Optional)</label>
+          <input type="text" class="form-input" id="actNotes" placeholder="e.g. End Semester Exam Revision Period">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-3);">
+          <button type="button" class="btn btn-outline btn-sm" id="btnCancelActivationModal">Cancel</button>
+          <button type="submit" class="btn btn-primary btn-sm" id="btnSaveActivation">Save Activation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Finalize & Distribute Feasibility Report Modal -->
+  <div class="modal-backdrop hidden" id="distributeModalBackdrop">
+    <div class="modal-box" style="max-width: 640px; width: 100%;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3);">
+        <h3 class="modal-title" style="margin: 0; font-size: 1.15rem;">🚀 Finalize & Distribute — Feasibility Report</h3>
+        <button class="block-btn-icon" id="btnCloseDistributeModal" style="font-size: 1.25rem;">✕</button>
+      </div>
+      <p class="text-subtle text-sm" style="margin-bottom: var(--space-4);">
+        The dynamic allocation engine calculated semester feasibility using your timetable capacity, practice multipliers, and a 25% safety buffer.
+      </p>
+      <div id="distributeModalContent">
+        <!-- Filled dynamically -->
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
+        <button type="button" class="btn btn-primary btn-sm" id="btnAckDistribute">Done & View Today</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { checkAuth } from '../assets/js/auth.js';
     import { renderLayout } from '../assets/js/nav.js';
@@ -362,15 +482,36 @@
     let currentTemplateData = null;
     let userCourses = [];
 
+    function getBlockStartMinutes(block) {
+      const [hours, minutes] = String(block.startTime || '00:00')
+        .split(':')
+        .map(Number);
+      return (hours || 0) * 60 + (minutes || 0);
+    }
+
     async function loadCourses() {
       try {
         const res = await api.get('/courses');
         if (res.success && res.courses) {
           userCourses = res.courses;
+          if (!userCourses.some(c => c.slug === 'oratory')) {
+            userCourses.push({
+              slug: 'oratory',
+              title: 'Oratory Club & Speech Mastery',
+              emoji: '🎙️',
+              category: 'oratory'
+            });
+          }
           const select = document.getElementById('blockCourseSlug');
           if (select) {
+            const coreCourses = userCourses.filter(c => c.slug !== 'oratory' && c.category !== 'exploration');
+            const oratoryCourses = userCourses.filter(c => c.slug === 'oratory');
+            const explorations = userCourses.filter(c => c.category === 'exploration' || (c.slug && (c.slug.includes('typing') || c.slug.includes('excel'))));
+
             select.innerHTML = '<option value="">-- None / General Allocation --</option>' +
-              userCourses.map(c => `<option value="${c.slug}">${c.emoji ? c.emoji + ' ' : '📚 '}${c.title} (${c.category || 'course'})</option>`).join('');
+              (coreCourses.length > 0 ? `<optgroup label="📚 Core Learning Courses">${coreCourses.map(c => `<option value="${c.slug}">${c.emoji ? c.emoji + ' ' : '📚 '}${c.title}</option>`).join('')}</optgroup>` : '') +
+              (explorations.length > 0 ? `<optgroup label="⚡ Explorations & Labs">${explorations.map(c => `<option value="${c.slug}">${c.emoji ? c.emoji + ' ' : '⚡ '}${c.title}</option>`).join('')}</optgroup>` : '') +
+              (oratoryCourses.length > 0 ? `<optgroup label="🎙️ Oratory">${oratoryCourses.map(c => `<option value="${c.slug}">${c.emoji ? c.emoji + ' ' : ''}${c.title}</option>`).join('')}</optgroup>` : '');
           }
         }
       } catch (err) {
@@ -385,6 +526,7 @@
       await loadCourses();
       await loadTemplate(currentDayType);
       await loadExceptions();
+      await loadActivations();
       await checkConflicts(currentDayType);
       setupEvents();
     }
@@ -407,15 +549,39 @@
         if (!t.blocks || t.blocks.length === 0) {
           container.innerHTML = '<p class="text-muted text-sm" style="padding: var(--space-4); text-align: center;">No blocks defined for this schedule. Click "+ Add Block" above to create one.</p>';
         } else {
-          container.innerHTML = t.blocks.map(b => `
+          const blocksInTimeOrder = [...t.blocks].sort(
+            (a, b) => getBlockStartMinutes(a) - getBlockStartMinutes(b),
+          );
+          const needsReviewList = blocksInTimeOrder.filter(b => b.blockType === 'needs_review');
+          let reviewBannerHtml = '';
+          if (needsReviewList.length > 0) {
+            reviewBannerHtml = `
+              <div style="margin-bottom: var(--space-3); padding: 10px 14px; background: #fffbeb; border: 1px solid #f59e0b; border-left: 4px solid #f59e0b; border-radius: 6px;">
+                <div style="font-weight: 700; color: #b45309; font-size: 0.875rem;">⚠️ ${needsReviewList.length} Block(s) Need Review</div>
+                <div class="text-xs text-subtle" style="margin-top: 2px;">
+                  The following blocks could not be classified automatically: <strong>${needsReviewList.map(b => escapeHtml(b.label)).join(', ')}</strong>. Please click Edit to assign their block type.
+                </div>
+              </div>
+            `;
+          }
+          container.innerHTML = reviewBannerHtml + blocksInTimeOrder.map(b => {
+            const bTypeLabel = {
+              course: 'Course',
+              reading: 'Reading',
+              night_routine: 'Night Routine',
+              checklist: 'Checklist',
+              rest: 'Rest (Info)',
+              needs_review: '⚠️ Needs Review',
+            }[b.blockType] || 'Course';
+            return `
             <div class="block-card ${b.category}" data-block-id="${b.blockId}">
               <div style="flex: 1; min-width: 0;">
                 <div style="font-weight: 700; font-size: 0.9375rem; color: var(--text-ink);">${formatTimeRange(b.startTime, b.endTime)}</div>
                 <div style="color: var(--text-muted); font-size: 0.875rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                   ${b.label}
-                  ${b.courseSlug ? `<span class="badge badge-sky text-xs" style="margin-left: 6px;">${b.courseSlug.toUpperCase()}</span>` : ''}
-                  ${b.blockType === 'fixed_routine' ? `<span class="badge badge-neutral text-xs" style="margin-left: 6px;">Fixed</span>` : ''}
-                  ${b.blockType === 'actionable_routine' ? `<span class="badge badge-sage text-xs" style="margin-left: 6px;">Trackable</span>` : ''}
+                  <span class="badge badge-neutral text-xs" style="margin-left: 6px;">${bTypeLabel}</span>
+                  ${b.courseSlug ? `<span class="badge badge-sky text-xs" style="margin-left: 4px;">${b.courseSlug.toUpperCase()}</span>` : ''}
+                  ${b.isFlexible ? `<span class="badge badge-sage text-xs" style="margin-left: 4px;">Flexible</span>` : ''}
                 </div>
                 <div class="block-actions">
                   <button type="button" class="block-btn-icon btn-edit-block" data-block-id="${b.blockId}">Edit</button>
@@ -423,11 +589,12 @@
                 </div>
               </div>
               <div style="text-align: right; margin-left: var(--space-3); flex-shrink: 0;">
-                <span class="badge ${b.isProtected ? 'badge-p1' : 'badge-neutral'}">${b.durationMinutes}m</span>
+                <span class="badge badge-neutral">${b.durationMinutes}m</span>
                 <div class="text-subtle text-xs" style="margin-top: 4px; text-transform: capitalize;">${b.category}</div>
               </div>
             </div>
-          `).join('');
+          `;
+          }).join('');
 
           // Wire Block Edit & Delete Buttons
           container.querySelectorAll('.btn-edit-block').forEach(btn => {
@@ -441,7 +608,7 @@
         // Calculate Breakdown
         let study = 0, college = 0, gym = 0, rest = 0;
         for (const b of (t.blocks || [])) {
-          if (['study', 'webdev', 'dsa', 'oratory', 'exploration'].includes(b.category)) study += b.durationMinutes;
+          if (['study', 'webdev', 'dsa', 'oratory', 'exploration', 'academics'].includes(b.category)) study += b.durationMinutes;
           else if (b.category === 'college') college += b.durationMinutes;
           else if (['gym', 'routine'].includes(b.category)) gym += b.durationMinutes;
           else if (b.category === 'rest') rest += b.durationMinutes;
@@ -496,6 +663,99 @@
       }
     }
 
+    let loadedActivationsList = [];
+
+    async function loadActivations() {
+      const container = document.getElementById('activationsContainer');
+      if (!container) return;
+      try {
+        const res = await api.get('/timetable/activations');
+        loadedActivationsList = res.activations || [];
+
+        const bannerEl = document.getElementById('confirmedRangeBanner');
+        if (bannerEl) {
+          if (res.confirmedUntil) {
+            bannerEl.textContent = `Confirmed schedule until ${res.confirmedUntil} · Assumed weekday/Sat/Sun defaults after that.`;
+          } else {
+            bannerEl.textContent = 'Confirmed range: none yet · Assumed weekday/Sat/Sun defaults apply.';
+          }
+        }
+
+        if (res.examBudget) {
+          const { total = 14, used = 0, remaining = 14 } = res.examBudget;
+          const budgetEl = document.getElementById('examBudgetWidget');
+          if (budgetEl) {
+            budgetEl.textContent = `Exam days: used ${used} of ${total}, ${remaining} remaining`;
+          }
+        }
+
+        if (loadedActivationsList.length === 0) {
+          container.innerHTML = '<p class="text-muted text-xs">No active date-range activations.</p>';
+          return;
+        }
+
+        container.innerHTML = loadedActivationsList.map(a => {
+          const isExam = a.profileId === 'exam';
+          const borderColor = isExam ? '#dc2626' : a.profileId === 'holiday' ? '#2563eb' : '#0284c7';
+          const bgColor = isExam ? '#fef2f2' : '#f0f9ff';
+          const titleColor = isExam ? '#991b1b' : '#0369a1';
+          return `
+          <div class="exception-item" style="border-left: 3px solid ${borderColor}; background: ${bgColor}; padding: 8px 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; gap: 6px;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-weight: 700; color: ${titleColor}; font-size: 0.8125rem;">📅 ${String(a.profileId || '').toUpperCase()}</span>
+                <span class="badge ${isExam ? 'badge-danger' : 'badge-neutral'}" style="font-size: 0.7rem; padding: 1px 5px;">${a.dayCount || 1} day${(a.dayCount || 1) === 1 ? '' : 's'}</span>
+              </div>
+              <div class="text-subtle text-xs" style="margin-top: 2px;">
+                ${a.startDate} ➔ ${a.endDate}
+                ${a.notes ? ` · <span style="font-style: italic;">${escapeHtml(a.notes)}</span>` : ''}
+              </div>
+            </div>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              <button type="button" class="btn btn-outline btn-sm btn-edit-activation" data-id="${a._id}" style="padding: 2px 6px; font-size: 0.725rem;" title="Edit activation">Edit</button>
+              <button type="button" class="btn btn-outline btn-sm btn-delete-activation" data-id="${a._id}" style="padding: 2px 6px; font-size: 0.725rem; color: #dc2626; border-color: rgba(220, 38, 38, 0.3);" title="Remove activation">✕</button>
+            </div>
+          </div>
+        `;
+        }).join('');
+
+        container.querySelectorAll('.btn-edit-activation').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const id = btn.dataset.id;
+            const a = loadedActivationsList.find(act => String(act._id) === String(id));
+            if (!a) return;
+            document.getElementById('actId').value = a._id;
+            document.getElementById('actModalTitle').textContent = `Edit Timetable Activation (${String(a.profileId).toUpperCase()})`;
+            document.getElementById('actProfileDayType').value = a.profileId;
+            document.getElementById('actStartDate').value = a.startDate;
+            document.getElementById('actEndDate').value = a.endDate;
+            document.getElementById('actNotes').value = a.notes || '';
+            const alertBox = document.getElementById('actModalAlert');
+            if (alertBox) alertBox.style.display = 'none';
+            document.getElementById('activationModalBackdrop').classList.remove('hidden');
+          });
+        });
+
+        container.querySelectorAll('.btn-delete-activation').forEach(btn => {
+          btn.addEventListener('click', async () => {
+            const id = btn.dataset.id;
+            if (!confirm('Are you sure you want to remove this timetable activation range? Dates will immediately revert to day-of-week defaults.')) return;
+            try {
+              btn.disabled = true;
+              await api.delete(`/timetable/activations/${id}`);
+              showToast('Profile activation removed. Dates reverted.', 'info');
+              await loadActivations();
+            } catch (err) {
+              showToast(err.message || 'Could not delete activation', 'error');
+              btn.disabled = false;
+            }
+          });
+        });
+      } catch (err) {
+        container.innerHTML = '<p class="text-muted text-xs">Could not load activations.</p>';
+      }
+    }
+
     async function checkConflicts(dayType) {
       try {
         const res = await api.get('/timetable/conflicts', { dayType });
@@ -527,17 +787,42 @@
       } catch (err) {}
     }
 
+    function syncFlexibleField(defaultVal = null) {
+      const bType = document.getElementById('blockType').value;
+      const flexContainer = document.getElementById('blockFlexibleContainer');
+      const flexChk = document.getElementById('blockIsFlexible');
+      if (!flexContainer || !flexChk) return;
+      if (bType === 'course' || bType === 'reading') {
+        flexContainer.style.display = 'flex';
+        if (defaultVal !== null) {
+          flexChk.checked = Boolean(defaultVal);
+        }
+      } else {
+        flexContainer.style.display = 'none';
+        flexChk.checked = false;
+      }
+    }
+
+    function computeDefaultFlexible() {
+      const bType = document.getElementById('blockType').value;
+      const cat = document.getElementById('blockCategory').value;
+      const slug = (document.getElementById('blockCourseSlug').value || '').toLowerCase();
+      if (bType === 'reading' || cat === 'exploration' || slug.includes('typing') || slug.includes('excel')) {
+        return true;
+      }
+      return false;
+    }
+
     function openAddBlockModal() {
       document.getElementById('blockModalTitle').textContent = `Add Block to ${document.getElementById('templateTitle').textContent}`;
       document.getElementById('modalBlockId').value = '';
       document.getElementById('blockLabel').value = '';
       document.getElementById('blockStartTime').value = '18:00';
       document.getElementById('blockEndTime').value = '19:30';
+      document.getElementById('blockType').value = 'course';
       document.getElementById('blockCategory').value = 'study';
-      document.getElementById('blockType').value = 'learning';
       document.getElementById('blockCourseSlug').value = '';
-      document.getElementById('blockIsProtected').checked = false;
-      document.getElementById('blockIsTrackable').checked = false;
+      syncFlexibleField(false);
       document.getElementById('blockNotes').value = '';
       document.getElementById('blockModalBackdrop').classList.remove('hidden');
     }
@@ -552,17 +837,10 @@
       document.getElementById('blockLabel').value = b.label || '';
       document.getElementById('blockStartTime').value = b.startTime || '';
       document.getElementById('blockEndTime').value = b.endTime || '';
-      document.getElementById('blockCategory').value = b.category || 'study';
-      document.getElementById('blockType').value = b.blockType || (
-        b.courseSlug ? 'learning' :
-        ['study', 'dsa', 'webdev', 'oratory'].includes(b.category) ? 'learning' :
-        b.category === 'exploration' ? 'exploration' :
-        ['routine', 'rest', 'college'].includes(b.category) ? (b.isTrackable ? 'actionable_routine' : 'fixed_routine') :
-        'learning'
-      );
-      document.getElementById('blockCourseSlug').value = b.courseSlug || '';
-      document.getElementById('blockIsProtected').checked = Boolean(b.isProtected);
-      document.getElementById('blockIsTrackable').checked = Boolean(b.isTrackable);
+      document.getElementById('blockCategory').value = (b.category === 'oratory' || b.courseSlug === 'oratory') ? 'oratory' : (b.category || 'study');
+      document.getElementById('blockType').value = b.blockType || 'course';
+      document.getElementById('blockCourseSlug').value = (b.category === 'oratory' || b.courseSlug === 'oratory') ? 'oratory' : (b.courseSlug || '');
+      syncFlexibleField(typeof b.isFlexible === 'boolean' ? b.isFlexible : computeDefaultFlexible());
       document.getElementById('blockNotes').value = b.notes || '';
       document.getElementById('blockModalBackdrop').classList.remove('hidden');
     }
@@ -630,6 +908,94 @@
         }
       });
 
+      // Preselect Block Type from title or linked course (dropdown remains source of truth)
+      document.getElementById('blockLabel')?.addEventListener('input', (e) => {
+        if (document.getElementById('modalBlockId').value) return; // Don't override on edit
+        const lbl = e.target.value.toLowerCase();
+        const typeEl = document.getElementById('blockType');
+        const catEl = document.getElementById('blockCategory');
+        if (lbl.includes('night routine') || lbl.includes('night-routine')) {
+          typeEl.value = 'night_routine';
+          catEl.value = 'routine';
+        } else if (lbl.includes('sleep')) {
+          typeEl.value = 'rest';
+          catEl.value = 'rest';
+        } else if (lbl.includes('reading')) {
+          typeEl.value = 'reading';
+          catEl.value = 'reading';
+        } else if (lbl.includes('gym') || lbl.includes('workout') || lbl.includes('breakfast') || lbl.includes('lunch') || lbl.includes('dinner') || lbl.includes('college') || lbl.includes('oratory')) {
+          typeEl.value = 'checklist';
+          if (lbl.includes('gym') || lbl.includes('workout')) catEl.value = 'gym';
+          else if (lbl.includes('college')) catEl.value = 'college';
+          else if (lbl.includes('oratory')) catEl.value = 'oratory';
+          else catEl.value = 'routine';
+        }
+        syncFlexibleField(computeDefaultFlexible());
+      });
+
+      document.getElementById('blockType')?.addEventListener('change', () => {
+        syncFlexibleField(computeDefaultFlexible());
+      });
+
+      document.getElementById('blockCategory')?.addEventListener('change', (e) => {
+        const val = e.target.value;
+        const typeEl = document.getElementById('blockType');
+        if (val === 'oratory') {
+          const select = document.getElementById('blockCourseSlug');
+          if (select) select.value = 'oratory';
+          if (typeEl) typeEl.value = 'checklist';
+        } else if (val === 'rest') {
+          if (typeEl) typeEl.value = 'rest';
+        } else if (val === 'reading') {
+          if (typeEl) typeEl.value = 'reading';
+        } else if (['routine', 'gym', 'college', 'other'].includes(val)) {
+          if (typeEl) typeEl.value = 'checklist';
+        } else if (['study', 'exploration'].includes(val)) {
+          if (typeEl) typeEl.value = 'course';
+        }
+        syncFlexibleField(computeDefaultFlexible());
+      });
+
+      document.getElementById('blockCourseSlug')?.addEventListener('change', (e) => {
+        const slug = e.target.value;
+        const catSelect = document.getElementById('blockCategory');
+        const typeSelect = document.getElementById('blockType');
+        if (slug === 'oratory') {
+          if (catSelect) catSelect.value = 'oratory';
+          if (typeSelect) typeSelect.value = 'checklist';
+        } else if (slug) {
+          const matchedCourse = userCourses.find(c => c.slug === slug);
+          if (typeSelect) typeSelect.value = 'course';
+          if (catSelect) {
+            catSelect.value = (matchedCourse?.category === 'exploration' || slug.includes('typing') || slug.includes('excel'))
+              ? 'exploration'
+              : 'study';
+          }
+        }
+        syncFlexibleField(computeDefaultFlexible());
+      });
+
+      // Exam Center quick form submission
+      document.getElementById('examCenterQuickForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const startDate = document.getElementById('examCenterStart').value;
+        const endDate = document.getElementById('examCenterEnd').value;
+        const profileId = document.getElementById('examCenterProfile').value || 'exam';
+        if (!startDate || !endDate) return;
+        try {
+          const res = await api.post('/timetable/activations', {
+            profileId,
+            startDate,
+            endDate,
+            notes: 'Applied from Exam Center',
+          });
+          showToast(res.overlapWarning || 'Exam range activated! Calendar & Today updated.', res.overlapWarning ? 'info' : 'success');
+          await loadActivations();
+        } catch (err) {
+          showToast(err.message || 'Blocked: Exam budget exceeded.', 'error');
+        }
+      });
+
       // Block Modal Events
       document.getElementById('btnAddBlock').addEventListener('click', openAddBlockModal);
       document.getElementById('btnCloseBlockModal').addEventListener('click', closeBlockModal);
@@ -642,15 +1008,15 @@
       document.getElementById('blockForm').addEventListener('submit', async (e) => {
         e.preventDefault();
         const blockId = document.getElementById('modalBlockId').value;
+        const bType = document.getElementById('blockType').value;
         const payload = {
           label: document.getElementById('blockLabel').value.trim(),
           startTime: document.getElementById('blockStartTime').value,
           endTime: document.getElementById('blockEndTime').value,
           category: document.getElementById('blockCategory').value,
-          blockType: document.getElementById('blockType').value,
+          blockType: bType,
           courseSlug: document.getElementById('blockCourseSlug').value || null,
-          isTrackable: document.getElementById('blockIsTrackable').checked,
-          isProtected: document.getElementById('blockIsProtected').checked,
+          isFlexible: (bType === 'course' || bType === 'reading') ? document.getElementById('blockIsFlexible').checked : false,
           notes: document.getElementById('blockNotes').value.trim()
         };
 
@@ -705,6 +1071,149 @@
         } catch (err) {
           showToast(err.message, 'error');
         }
+      });
+
+      // Profile Activation Modal Events
+      const actBackdrop = document.getElementById('activationModalBackdrop');
+      const openActModal = () => {
+        document.getElementById('actId').value = '';
+        document.getElementById('actModalTitle').textContent = 'Use Timetable From Date to Date';
+        const todayStr = getTodayString ? getTodayString() : new Date().toISOString().split('T')[0];
+        document.getElementById('actStartDate').value = todayStr;
+        const nextWeek = new Date();
+        nextWeek.setDate(nextWeek.getDate() + 7);
+        document.getElementById('actEndDate').value = nextWeek.toISOString().split('T')[0];
+        document.getElementById('actProfileDayType').value = 'exam';
+        document.getElementById('actNotes').value = '';
+        const alertBox = document.getElementById('actModalAlert');
+        if (alertBox) alertBox.style.display = 'none';
+        actBackdrop.classList.remove('hidden');
+      };
+
+      document.getElementById('btnActivateProfile')?.addEventListener('click', openActModal);
+      document.getElementById('btnOpenActivateModal')?.addEventListener('click', openActModal);
+      document.getElementById('btnCloseActivationModal')?.addEventListener('click', () => actBackdrop.classList.add('hidden'));
+      document.getElementById('btnCancelActivationModal')?.addEventListener('click', () => actBackdrop.classList.add('hidden'));
+      actBackdrop?.addEventListener('click', (e) => {
+        if (e.target.id === 'activationModalBackdrop') actBackdrop.classList.add('hidden');
+      });
+
+      document.getElementById('activationForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const actId = document.getElementById('actId').value;
+        const payload = {
+          profileId: document.getElementById('actProfileDayType').value,
+          startDate: document.getElementById('actStartDate').value,
+          endDate: document.getElementById('actEndDate').value,
+          notes: document.getElementById('actNotes').value.trim()
+        };
+
+        const executeSave = async (confirmExceed = false) => {
+          const body = { ...payload, confirmExceed };
+          if (actId) {
+            return await api.put(`/timetable/activations/${actId}`, body);
+          } else {
+            return await api.post('/timetable/activations', body);
+          }
+        };
+
+        try {
+          let res = await executeSave(false);
+          if (res.overlapWarning) {
+            showToast(res.overlapWarning, 'warning');
+          }
+          showToast(`Profile "${payload.profileId}" active from ${payload.startDate} to ${payload.endDate}!`, 'success');
+          actBackdrop.classList.add('hidden');
+          await loadActivations();
+        } catch (err) {
+          if (err.warning === 'exceeds_budget' || err.message?.includes('exceeds your remaining exam budget')) {
+            const proceed = confirm(err.message + '\n\nDo you want to confirm and proceed anyway?');
+            if (proceed) {
+              try {
+                let res = await executeSave(true);
+                if (res.overlapWarning) {
+                  showToast(res.overlapWarning, 'warning');
+                }
+                showToast(`Profile "${payload.profileId}" activated!`, 'success');
+                actBackdrop.classList.add('hidden');
+                await loadActivations();
+              } catch (retryErr) {
+                showToast(retryErr.message, 'error');
+              }
+              return;
+            }
+          }
+          showToast(err.message, 'error');
+        }
+      });
+
+      // Finalize & Distribute Modal Events
+      const distBackdrop = document.getElementById('distributeModalBackdrop');
+      document.getElementById('btnFinalizeDistribute')?.addEventListener('click', async () => {
+        const btn = document.getElementById('btnFinalizeDistribute');
+        try {
+          btn.disabled = true;
+          btn.textContent = 'Distributing...';
+          const todayStr = getTodayString ? getTodayString() : new Date().toISOString().split('T')[0];
+          const res = await api.post('/planner/distribute', { fromDate: todayStr });
+
+          let reportHtml = '';
+          const feas = res.feasibility || {};
+          const coursesList = Object.keys(feas);
+          if (coursesList.length === 0) {
+            reportHtml = '<div class="alert alert-info">All courses distributed across timetable capacity.</div>';
+          } else {
+            reportHtml = `
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                ${coursesList.map(slug => {
+                  const f = feas[slug];
+                  const statusBadge = f.isFeasible
+                    ? '<span class="badge badge-success text-xs">✓ Feasible</span>'
+                    : '<span class="badge badge-danger text-xs">⚠️ Shortfall Detected</span>';
+                  return `
+                    <div style="padding: 10px 12px; border: 1px solid var(--border-hairline); border-radius: 6px; background: ${f.isFeasible ? 'rgba(16, 185, 129, 0.04)' : 'rgba(239, 68, 68, 0.04)'};">
+                      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <strong>${escapeHtml(f.courseTitle || slug)}</strong>
+                        ${statusBadge}
+                      </div>
+                      <div class="text-xs text-muted">
+                        Needed: <strong>${f.totalEffortNeededMinutes}m</strong> · Buffered Capacity: <strong>${f.bufferedCapacityMinutes}m</strong>
+                        ${!f.isFeasible ? `<br><span style="color: #dc2626; font-weight: 600;">Shortfall: ${f.shortfallMinutes}m deficit.</span> Suggestion: Set practice multiplier to <strong>${f.suggestedFeasibleMultiplier}×</strong> or aim for <strong>${f.suggestedDailyMinutes} min/day</strong>.` : ''}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            `;
+          }
+
+          if (res.slackProposal && res.slackProposal.proposed) {
+            reportHtml += `
+              <div style="margin-top: 12px; padding: 10px 12px; background: rgba(245, 158, 11, 0.08); border-left: 3px solid #f59e0b; border-radius: 6px;">
+                <div style="font-size: 0.8125rem; font-weight: 700; color: #b45309;">🌿 Slack Day Proposal Recommended</div>
+                <div class="text-xs text-muted" style="margin-top: 2px;">${escapeHtml(res.slackProposal.reason)}</div>
+              </div>
+            `;
+          }
+
+          document.getElementById('distributeModalContent').innerHTML = reportHtml;
+          distBackdrop.classList.remove('hidden');
+          showToast('Curriculum distributed across semester timeline!', 'success');
+        } catch (err) {
+          showToast(err.message || 'Distribution failed', 'error');
+        } finally {
+          btn.disabled = false;
+          btn.textContent = '🚀 Finalize and distribute';
+        }
+      });
+
+      document.getElementById('btnCloseDistributeModal')?.addEventListener('click', () => distBackdrop.classList.add('hidden'));
+      document.getElementById('btnAckDistribute')?.addEventListener('click', () => {
+        distBackdrop.classList.add('hidden');
+        window.location.href = 'dashboard.html';
+      });
+      distBackdrop?.addEventListener('click', (e) => {
+        if (e.target.id === 'distributeModalBackdrop') distBackdrop.classList.add('hidden');
       });
     }
 

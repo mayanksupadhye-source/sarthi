@@ -53,6 +53,10 @@
         min-width: 110px;
       }
       @media (max-width: 600px) {
+        .page-container [style*="min-width: 280px"] {
+          min-width: 0 !important;
+          flex-basis: 100%;
+        }
         .concept-card {
           height: auto;
           min-height: 0;

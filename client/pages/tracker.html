@@ -125,6 +125,30 @@
         background-color: var(--bg-subtle);
         font-weight: 600;
       }
+      @media (max-width: 768px) {
+        .cluster-header {
+          padding: 10px 12px;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+        .cluster-body {
+          max-height: none;
+          padding: 6px;
+        }
+        .hierarchy-level-2,
+        .hierarchy-level-3 {
+          margin-left: 8px;
+        }
+        .hierarchy-level-2 .cluster-header,
+        .hierarchy-level-3 .cluster-header {
+          padding: 8px 10px;
+        }
+        .tracker-lecture-row {
+          flex-wrap: wrap;
+          gap: 8px;
+          padding: 10px 12px;
+        }
+      }
     </style>
   </head>
   <body>

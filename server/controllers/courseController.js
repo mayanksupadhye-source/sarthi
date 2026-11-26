@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Course } from "../models/Course.js";
 import { OratoryWeek } from "../models/OratoryWeek.js";
 import { CurriculumActivity } from "../models/CurriculumActivity.js";
@@ -15,21 +16,408 @@ import { SlackDayLog } from "../models/SlackDayLog.js";
 import { Task } from "../models/Task.js";
 import { PlannerEngine } from "../services/plannerEngine.js";
 import { getTodayString, shiftDate } from "../utils/timeFormat.js";
+import { AllocationService } from "../services/allocationService.js";
 import {
   parseWebDevMarkdown,
   parseDSAMarkdown,
   getOratoryWeeksSeed,
 } from "../services/courseSeeder.js";
 
+export async function syncCourseFromActivities(userId, courseSlug) {
+  if (!userId || !courseSlug) return null;
+  const course = await Course.findOne({ userId, slug: courseSlug });
+  if (!course) return null;
+
+  const allActs = await CurriculumActivity.find({ userId, courseSlug });
+  if (allActs.length > 0) {
+    course.totalLectures = allActs.length;
+    course.completedLectures = allActs.filter(
+      (a) => a.status === "completed" || (a.isWatched && a.isCodeDone),
+    ).length;
+    course.totalMinutes = Math.round(
+      allActs.reduce((s, a) => s + (a.totalEffortMinutes || 0), 0),
+    );
+    course.completedMinutes = Math.round(
+      allActs
+        .filter(
+          (a) => a.status === "completed" || (a.isWatched && a.isCodeDone),
+        )
+        .reduce(
+          (s, a) => s + (a.actualMinutes || a.totalEffortMinutes || 0),
+          0,
+        ),
+    );
+    course.totalHours = Math.round((course.totalMinutes / 60) * 10) / 10;
+    if (course.totalLectures > 0 && course.completedLectures >= course.totalLectures) {
+      course.status = "archived";
+    } else if (course.status === "archived" && course.completedLectures < course.totalLectures) {
+      course.status = "active";
+    }
+  } else {
+    // Manual hours course without CSV syllabus
+    if (course.totalHours > 0 && !course.totalMinutes) {
+      course.totalMinutes = Math.round(course.totalHours * 60);
+    } else if (course.totalMinutes > 0 && !course.totalHours) {
+      course.totalHours = Math.round((course.totalMinutes / 60) * 10) / 10;
+    }
+  }
+  course.updatedAt = new Date();
+  await course.save();
+
+  try {
+    await AllocationService.replanFrom(userId, getTodayString());
+  } catch (replanErr) {
+    // Non-blocking trigger notice
+  }
+
+  return course;
+}
+
+export async function ensureOratoryTrack(userId) {
+  if (!userId) return null;
+
+  // 1. Ensure OratoryWeek has all 13 weekly plans
+  let weeks = await OratoryWeek.find({ userId }).sort({ weekNumber: 1 });
+  if (weeks.length === 0) {
+    const seed = getOratoryWeeksSeed();
+    const docs = seed.map((w) => ({
+      userId,
+      weekNumber: w.weekNumber,
+      topic: w.topic,
+      primarySkill: w.primarySkill || "Public Speaking",
+      description: w.description || "",
+      isCompleted: false,
+    }));
+    await OratoryWeek.insertMany(docs);
+    weeks = await OratoryWeek.find({ userId }).sort({ weekNumber: 1 });
+  }
+
+  // 2. Ensure Course record exists for oratory
+  let course = await Course.findOne({ userId, slug: "oratory" });
+  if (!course) {
+    course = await Course.create({
+      userId,
+      slug: "oratory",
+      title: "Oratory Club & Speech Mastery",
+      emoji: "🎙️",
+      category: "oratory",
+      priority: "P2",
+      defaultPracticeMultiplier: 1.0,
+      description: "13-Week Speech & Public Speaking Programme covering speech structure, hooks, body language, vocal variety, and storytelling.",
+      totalLectures: weeks.length || 13,
+      completedLectures: weeks.filter((w) => w.isCompleted).length,
+      totalMinutes: (weeks.length || 13) * 45,
+      completedMinutes: weeks.filter((w) => w.isCompleted).length * 45,
+      totalHours: Math.round((((weeks.length || 13) * 45) / 60) * 10) / 10,
+      status: "active",
+    });
+  }
+
+  // 3. Ensure CurriculumActivity records exist for all 13 weeks
+  const existingActs = await CurriculumActivity.find({
+    userId,
+    courseSlug: "oratory",
+  });
+  if (existingActs.length < (weeks.length || 13)) {
+    const existingWeekNums = new Set(
+      existingActs.map((a) => Number(a.activityNumber)),
+    );
+    const actsToInsert = [];
+    for (const w of weeks) {
+      if (!existingWeekNums.has(w.weekNumber)) {
+        actsToInsert.push({
+          userId,
+          courseSlug: "oratory",
+          courseTitle: "Oratory Club & Speech Mastery",
+          sectionNumber: 1,
+          sectionTitle: "13-Week Speech & Public Speaking Programme",
+          subsectionNumber: 1,
+          subsectionTitle: "Weekly Speech Drills & Practice",
+          activityNumber: w.weekNumber,
+          title: `Week ${w.weekNumber}: ${w.topic}`,
+          description: `Primary Skill: ${w.primarySkill || "Speech Practice"}`,
+          contentDurationMinutes: 15,
+          practiceMultiplier: 2.0,
+          effectiveMultiplier: 2.0,
+          totalEffortMinutes: 45,
+          actualMinutes: w.isCompleted ? 45 : 0,
+          remainingMinutes: w.isCompleted ? 0 : 45,
+          priority: "P2",
+          status: w.isCompleted ? "completed" : "pending",
+          isWatched: Boolean(w.isCompleted),
+          isCodeDone: Boolean(w.isCompleted),
+          completedAt: w.completedAt || (w.isCompleted ? new Date() : null),
+          activityType: "speech",
+        });
+      }
+    }
+    if (actsToInsert.length > 0) {
+      await CurriculumActivity.insertMany(actsToInsert);
+    }
+  }
+
+  // 4. Bi-directional sync: ensure status in OratoryWeek matches CurriculumActivity
+  const allActs = await CurriculumActivity.find({
+    userId,
+    courseSlug: "oratory",
+  }).sort({ activityNumber: 1 });
+  const actMap = new Map(allActs.map((a) => [Number(a.activityNumber), a]));
+  for (const w of weeks) {
+    const act = actMap.get(w.weekNumber);
+    if (act) {
+      if (w.isCompleted && act.status !== "completed") {
+        act.status = "completed";
+        act.isWatched = true;
+        act.isCodeDone = true;
+        act.actualMinutes = act.actualMinutes || act.totalEffortMinutes || 45;
+        act.remainingMinutes = 0;
+        act.completedAt = w.completedAt || new Date();
+        await act.save();
+      } else if (!w.isCompleted && act.status === "completed") {
+        w.isCompleted = true;
+        w.completedAt = act.completedAt || new Date();
+        await w.save();
+      }
+    }
+  }
+
+  // 5. Keep Course progress in ground truth sync
+  await syncCourseFromActivities(userId, "oratory");
+  return { course, weeks, activities: allActs };
+}
+
+export async function runCourseTimelineDistribution(userId, course) {
+  if (!course || !course.startDate || !course.targetDate) return null;
+
+  let activities = await CurriculumActivity.find({
+    userId,
+    courseSlug: course.slug,
+  }).sort({ sectionNumber: 1, subsectionNumber: 1, activityNumber: 1, orderIndex: 1, sequenceOrder: 1, createdAt: 1 });
+
+  // If no discrete CSV activities exist yet, but manual hours/lectures exist:
+  if (activities.length === 0 && (course.totalHours > 0 || course.totalLectures > 0)) {
+    const startDt = new Date(course.startDate);
+    const endDt = new Date(course.targetDate);
+    const daySpan = Math.max(1, Math.round((endDt - startDt) / (1000 * 60 * 60 * 24)) + 1);
+    const totalHoursNum = Number(course.totalHours) || 0;
+    const totalLecturesNum = Number(course.totalLectures) || 0;
+    const totalMins = course.totalMinutes || Math.round(totalHoursNum * 60);
+    const sessionCount = totalLecturesNum > 0 ? totalLecturesNum : Math.min(daySpan, Math.max(5, Math.ceil(totalHoursNum || 10)));
+    const minutesPerSession = totalMins > 0 ? Math.max(20, Math.round(totalMins / sessionCount)) : 60;
+    const multiplier = course.defaultPracticeMultiplier || 2.0;
+    const contentPerSession = Math.max(10, Math.round(minutesPerSession / multiplier));
+
+    const actsToCreate = [];
+    let curDt = new Date(startDt);
+    const stepDays = Math.max(1, Math.floor(daySpan / sessionCount));
+
+    for (let i = 1; i <= sessionCount; i++) {
+      const schedDateStr = curDt <= endDt ? curDt.toISOString().slice(0, 10) : endDt.toISOString().slice(0, 10);
+      actsToCreate.push({
+        userId,
+        courseSlug: course.slug,
+        courseTitle: course.title,
+        activityType: course.category === "exploration" ? "exploration" : "course",
+        sectionNumber: 1,
+        sectionTitle: "Core Curriculum & Practice",
+        activityNumber: i,
+        title: `Session ${i}: Focus & Problem Solving`,
+        contentDurationMinutes: contentPerSession,
+        practiceMultiplier: multiplier,
+        effectiveMultiplier: multiplier,
+        totalEffortMinutes: minutesPerSession,
+        remainingMinutes: minutesPerSession,
+        scheduledDate: schedDateStr,
+        priority: course.priority || "P2",
+        status: "pending",
+      });
+      curDt.setDate(curDt.getDate() + stepDays);
+    }
+
+    await CurriculumActivity.insertMany(actsToCreate);
+    course.totalLectures = sessionCount;
+    course.totalMinutes = minutesPerSession * sessionCount;
+    course.totalHours = Math.round((course.totalMinutes / 60) * 10) / 10;
+    await course.save();
+
+    activities = await CurriculumActivity.find({
+      userId,
+      courseSlug: course.slug,
+    }).sort({ sectionNumber: 1, activityNumber: 1 });
+  }
+
+  const [weekdayTmpl, satTmpl, sunTmpl, exams, hackathons, slackLogs] = await Promise.all([
+    ScheduleTemplate.findOne({ userId, dayType: "weekday" }),
+    ScheduleTemplate.findOne({ userId, dayType: "saturday" }),
+    ScheduleTemplate.findOne({ userId, dayType: "sunday" }),
+    Examination.find({ userId }),
+    Hackathon.find({ userId }),
+    SlackDayLog.find({ userId }),
+  ]);
+
+  const distribution = await PlannerEngine.distributeCourseTimeline({
+    courseSlug: course.slug,
+    course,
+    activities,
+    userId,
+    startDate: course.startDate,
+    targetDate: course.targetDate,
+    multiplier: course.defaultPracticeMultiplier || 2.0,
+    weekdayBlocks: weekdayTmpl ? weekdayTmpl.blocks : [],
+    saturdayBlocks: satTmpl ? satTmpl.blocks : [],
+    sundayBlocks: sunTmpl ? sunTmpl.blocks : [],
+    weekendBlocks: satTmpl ? satTmpl.blocks : (sunTmpl ? sunTmpl.blocks : []),
+    knownExams: exams || [],
+    knownHackathons: hackathons || [],
+    knownSlackDays: slackLogs || [],
+  });
+
+  if (distribution && distribution.allocations && distribution.allocations.length > 0) {
+    const actOps = distribution.allocations.map((alloc) => ({
+      updateOne: {
+        filter: { _id: alloc.activityId, userId },
+        update: { $set: { scheduledDate: alloc.scheduledDate } },
+      },
+    }));
+    await CurriculumActivity.bulkWrite(actOps);
+
+    const allocatedActIds = distribution.allocations.map((a) => a.activityId);
+    const allocatedActs = await CurriculumActivity.find({
+      _id: { $in: allocatedActIds },
+      userId,
+      taskId: { $ne: null },
+    }).select("taskId scheduledDate");
+
+    if (allocatedActs.length > 0) {
+      const taskOps = allocatedActs.map((a) => ({
+        updateOne: {
+          filter: { _id: a.taskId, userId },
+          update: { $set: { scheduledDate: a.scheduledDate } },
+        },
+      }));
+      await Task.bulkWrite(taskOps);
+    }
+  }
+
+  return distribution;
+}
+
 export async function getCourses(req, res, next) {
   try {
+    // Ensure Oratory track and ground-truth activities exist
+    try {
+      await ensureOratoryTrack(req.user.id);
+    } catch (oratoryErr) {
+      console.warn("[getCourses] ensureOratoryTrack notice:", oratoryErr.message);
+    }
+
     const filter = { userId: req.user.id };
     if (req.query.category) {
       filter.category = req.query.category;
     }
     const courses = await Course.find(filter).select(
-      "slug title emoji category priority instructor description notes defaultPracticeMultiplier status startDate targetDate totalLectures completedLectures totalMinutes completedMinutes",
+      "slug title emoji category priority instructor description notes defaultPracticeMultiplier status startDate targetDate totalHours totalLectures completedLectures totalMinutes completedMinutes",
     );
+
+    // Ground-truth aggregation from CurriculumActivity so all lecture completions & additions ALWAYS reflect in Courses Hub
+    try {
+      const userObjId = mongoose.Types.ObjectId.isValid(req.user.id)
+        ? new mongoose.Types.ObjectId(req.user.id)
+        : req.user.id;
+      const stats = await CurriculumActivity.aggregate([
+        { $match: { userId: userObjId } },
+        {
+          $group: {
+            _id: "$courseSlug",
+            actCount: { $sum: 1 },
+            completedCount: {
+              $sum: {
+                $cond: [
+                  {
+                    $or: [
+                      { $eq: ["$status", "completed"] },
+                      {
+                        $and: [
+                          { $eq: ["$isWatched", true] },
+                          { $eq: ["$isCodeDone", true] },
+                        ],
+                      },
+                    ],
+                  },
+                  1,
+                  0,
+                ],
+              },
+            },
+            totalEffort: { $sum: { $ifNull: ["$totalEffortMinutes", 0] } },
+            completedEffort: {
+              $sum: {
+                $cond: [
+                  {
+                    $or: [
+                      { $eq: ["$status", "completed"] },
+                      {
+                        $and: [
+                          { $eq: ["$isWatched", true] },
+                          { $eq: ["$isCodeDone", true] },
+                        ],
+                      },
+                    ],
+                  },
+                  {
+                    $ifNull: [
+                      "$actualMinutes",
+                      { $ifNull: ["$totalEffortMinutes", 0] },
+                    ],
+                  },
+                  0,
+                ],
+              },
+            },
+          },
+        },
+      ]);
+
+      if (Array.isArray(stats) && stats.length > 0) {
+        const statsMap = new Map(stats.map((s) => [s._id, s]));
+        const updates = [];
+
+        for (const c of courses) {
+          const s = statsMap.get(c.slug);
+          if (s && s.actCount > 0) {
+            c.totalLectures = s.actCount;
+            c.completedLectures = s.completedCount;
+            c.totalMinutes = Math.round(s.totalEffort);
+            c.completedMinutes = Math.round(s.completedEffort);
+            c.totalHours = Math.round((s.totalEffort / 60) * 10) / 10;
+
+            updates.push(
+              Course.updateOne(
+                { _id: c._id },
+                {
+                  $set: {
+                    totalLectures: s.actCount,
+                    completedLectures: s.completedCount,
+                    totalMinutes: Math.round(s.totalEffort),
+                    completedMinutes: Math.round(s.completedEffort),
+                    totalHours: Math.round((s.totalEffort / 60) * 10) / 10,
+                  },
+                },
+              ),
+            );
+          }
+        }
+        if (updates.length > 0) {
+          await Promise.all(updates);
+        }
+      }
+    } catch (aggErr) {
+      console.warn(
+        "[getCourses] Activity stats aggregation notice:",
+        aggErr.message,
+      );
+    }
+
     return res.json({ success: true, count: courses.length, courses });
   } catch (err) {
     next(err);
@@ -50,6 +438,8 @@ export async function createCourse(req, res, next) {
       defaultPracticeMultiplier = 2.0,
       startDate,
       targetDate,
+      totalHours,
+      totalLectures,
     } = req.body;
     if (!title || typeof title !== "string") {
       return res
@@ -63,12 +453,15 @@ export async function createCourse(req, res, next) {
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "");
 
+    const totalHoursNum = totalHours !== undefined && Number(totalHours) > 0 ? Number(totalHours) : 0;
+    const totalMins = totalHoursNum > 0 ? Math.round(totalHoursNum * 60) : 0;
+    const totalLecturesNum = totalLectures !== undefined && Number(totalLectures) > 0 ? Number(totalLectures) : 0;
+
     const existing = await Course.findOne({
       userId: req.user.id,
       slug: courseSlug,
     });
     if (existing) {
-      // If the course already exists, restore/activate it and update its details instead of failing with 409
       existing.title = title.trim();
       if (emoji && typeof emoji === "string") existing.emoji = emoji.trim();
       existing.category = category || "course";
@@ -78,9 +471,19 @@ export async function createCourse(req, res, next) {
       if (defaultPracticeMultiplier) existing.defaultPracticeMultiplier = Number(defaultPracticeMultiplier) || 2.0;
       if (startDate !== undefined) existing.startDate = startDate || null;
       if (targetDate !== undefined) existing.targetDate = targetDate || null;
+      if (totalHoursNum > 0) {
+        existing.totalHours = totalHoursNum;
+        if (!existing.sections || existing.sections.length === 0) existing.totalMinutes = totalMins;
+      }
+      if (totalLecturesNum > 0 && (!existing.sections || existing.sections.length === 0)) {
+        existing.totalLectures = totalLecturesNum;
+      }
       existing.status = "active";
       existing.updatedAt = new Date();
       await existing.save();
+
+      // Ensure stats match ground-truth activities if any exist
+      await syncCourseFromActivities(req.user.id, courseSlug);
 
       return res.status(200).json({ success: true, course: existing, restored: true });
     }
@@ -98,9 +501,30 @@ export async function createCourse(req, res, next) {
       defaultPracticeMultiplier: Number(defaultPracticeMultiplier) || 2.0,
       startDate: startDate || null,
       targetDate: targetDate || null,
+      totalHours: totalHoursNum,
+      totalMinutes: totalMins,
+      totalLectures: totalLecturesNum,
       status: "active",
       sections: [],
     });
+
+    // Check if any activities were pre-existing for this slug and sync
+    await syncCourseFromActivities(req.user.id, courseSlug);
+
+    // If dates provided, auto-generate structured sessions and distribute timeline
+    if (course.startDate && course.targetDate) {
+      try {
+        await runCourseTimelineDistribution(req.user.id, course);
+      } catch (genErr) {
+        console.warn("[createCourse] Timeline distribution notice:", genErr.message);
+      }
+    }
+
+    try {
+      await AllocationService.replanFrom(req.user.id, getTodayString());
+    } catch (replanErr) {
+      console.warn("[createCourse] Replan notice:", replanErr.message);
+    }
 
     return res.status(201).json({ success: true, course });
   } catch (err) {
@@ -158,6 +582,44 @@ export async function updateCourse(req, res, next) {
       course.status = status;
     if (startDate !== undefined) course.startDate = startDate;
     if (targetDate !== undefined) course.targetDate = targetDate;
+    const actCount = await CurriculumActivity.countDocuments({
+      userId: req.user.id,
+      courseSlug: slug,
+    });
+    if (actCount > 0) {
+      const allActs = await CurriculumActivity.find({
+        userId: req.user.id,
+        courseSlug: slug,
+      });
+      course.totalLectures = allActs.length;
+      course.completedLectures = allActs.filter(
+        (a) => a.status === "completed" || (a.isWatched && a.isCodeDone),
+      ).length;
+      course.totalMinutes = Math.round(
+        allActs.reduce((s, a) => s + (a.totalEffortMinutes || 0), 0),
+      );
+      course.completedMinutes = Math.round(
+        allActs
+          .filter(
+            (a) => a.status === "completed" || (a.isWatched && a.isCodeDone),
+          )
+          .reduce(
+            (s, a) => s + (a.actualMinutes || a.totalEffortMinutes || 0),
+            0,
+          ),
+      );
+      course.totalHours = Math.round((course.totalMinutes / 60) * 10) / 10;
+    } else {
+      if (req.body.totalHours !== undefined) {
+        course.totalHours = Number(req.body.totalHours) || 0;
+        if (!course.sections || course.sections.length === 0) {
+          course.totalMinutes = Math.round(course.totalHours * 60);
+        }
+      }
+      if (req.body.totalLectures !== undefined) {
+        course.totalLectures = Number(req.body.totalLectures) || 0;
+      }
+    }
 
     course.updatedAt = new Date();
     await course.save();
@@ -221,6 +683,20 @@ export async function updateCourse(req, res, next) {
       }
     }
 
+    if (course.startDate && course.targetDate) {
+      try {
+        await runCourseTimelineDistribution(req.user.id, course);
+      } catch (distErr) {
+        console.warn("[updateCourse] Timeline distribution notice:", distErr.message);
+      }
+    }
+
+    try {
+      await AllocationService.replanFrom(req.user.id, getTodayString());
+    } catch (replanErr) {
+      console.warn("[updateCourse] Replan notice:", replanErr.message);
+    }
+
     return res.json({ success: true, course });
   } catch (err) {
     next(err);
@@ -242,6 +718,12 @@ export async function deleteCourse(req, res, next) {
       { userId: req.user.id, courseSlug: slug, status: { $ne: "completed" } },
       { $set: { status: "deferred" } },
     );
+
+    try {
+      await AllocationService.replanFrom(req.user.id, getTodayString());
+    } catch (replanErr) {
+      console.warn("[deleteCourse] Replan notice:", replanErr.message);
+    }
 
     return res.json({
       success: true,
@@ -292,6 +774,40 @@ export async function getCourseBySlug(req, res, next) {
       userId: req.user.id,
       courseSlug: slug,
     }).sort({ sectionNumber: 1, activityNumber: 1 });
+
+    if (activities.length > 0) {
+      const completed = activities.filter(
+        (a) => a.status === "completed" || (a.isWatched && a.isCodeDone),
+      ).length;
+      const totalMin = Math.round(
+        activities.reduce((s, a) => s + (a.totalEffortMinutes || 0), 0),
+      );
+      const completedMin = Math.round(
+        activities
+          .filter(
+            (a) => a.status === "completed" || (a.isWatched && a.isCodeDone),
+          )
+          .reduce(
+            (s, a) => s + (a.actualMinutes || a.totalEffortMinutes || 0),
+            0,
+          ),
+      );
+
+      if (
+        course.totalLectures !== activities.length ||
+        course.completedLectures !== completed ||
+        course.totalMinutes !== totalMin ||
+        course.completedMinutes !== completedMin
+      ) {
+        course.totalLectures = activities.length;
+        course.completedLectures = completed;
+        course.totalMinutes = totalMin;
+        course.completedMinutes = completedMin;
+        course.totalHours = Math.round((totalMin / 60) * 10) / 10;
+        await course.save();
+      }
+    }
+
     const hierarchy = CurriculumImporter.buildHierarchyTree(
       activities,
       course.defaultPracticeMultiplier || 2,
@@ -324,9 +840,11 @@ export async function updateLectureProgress(req, res, next) {
     }
 
     let foundLecture = null;
+    let foundSectionNumber = 1;
     for (const sec of course.sections) {
       const lec = sec.lectures.id(lectureId);
       if (lec) {
+        foundSectionNumber = sec.sectionNumber || 1;
         if (isWatched !== undefined) lec.isWatched = Boolean(isWatched);
         if (isCodeDone !== undefined) lec.isCodeDone = Boolean(isCodeDone);
         if (req.body.isCompleted !== undefined) {
@@ -368,13 +886,14 @@ export async function updateLectureProgress(req, res, next) {
     }
     await course.save();
 
-    // Sync to normalized CurriculumActivity if it exists
+    // Sync to normalized CurriculumActivity and Task
     try {
       const isDone = Boolean(foundLecture.isWatched && foundLecture.isCodeDone);
-      await CurriculumActivity.updateOne(
+      const activity = await CurriculumActivity.findOneAndUpdate(
         {
           userId: req.user.id,
           courseSlug: slug,
+          sectionNumber: foundSectionNumber,
           activityNumber: foundLecture.lectureNumber,
         },
         {
@@ -389,7 +908,33 @@ export async function updateLectureProgress(req, res, next) {
             ...(difficulty !== undefined ? { difficulty } : {}),
           },
         },
+        { new: true },
       );
+
+      // If activity has an associated Task, keep task completed/pending status synchronized
+      if (activity && activity.taskId) {
+        if (isDone) {
+          await Task.updateOne(
+            { _id: activity.taskId, userId: req.user.id },
+            {
+              $set: {
+                status: "completed",
+                remainingMinutes: 0,
+                completedAt: foundLecture.completedAt || new Date(),
+              },
+            },
+          );
+        } else {
+          await Task.updateOne(
+            { _id: activity.taskId, userId: req.user.id },
+            {
+              $set: {
+                status: "pending",
+              },
+            },
+          );
+        }
+      }
     } catch (syncErr) {
       console.warn(
         "[courseController] CurriculumActivity sync notice:",
@@ -499,37 +1044,15 @@ export async function addCourseSection(req, res, next) {
 
 export async function getOratoryWeeks(req, res, next) {
   try {
-    let weeks = await OratoryWeek.find({ userId: req.user.id }).sort({
+    try {
+      await ensureOratoryTrack(req.user.id);
+    } catch (trackErr) {
+      console.warn("[getOratoryWeeks] ensureOratoryTrack notice:", trackErr.message);
+    }
+
+    const weeks = await OratoryWeek.find({ userId: req.user.id }).sort({
       weekNumber: 1,
     });
-    if (weeks.length === 0) {
-      // Auto-sync from CurriculumActivity if activities exist
-      const activities = await CurriculumActivity.find({
-        userId: req.user.id,
-        courseSlug: "oratory",
-      }).sort({ activityNumber: 1 });
-      if (activities.length > 0) {
-        for (const act of activities) {
-          await OratoryWeek.findOneAndUpdate(
-            { userId: req.user.id, weekNumber: act.activityNumber },
-            {
-              userId: req.user.id,
-              weekNumber: act.activityNumber,
-              topic: act.title.replace(/^Week \d+:\s*/i, ""),
-              primarySkill:
-                act.description.replace(/^Primary Skill:\s*/i, "") ||
-                "Public Speaking",
-              isCompleted: act.status === "completed",
-              completedAt: act.completedAt,
-            },
-            { upsert: true, new: true },
-          );
-        }
-        weeks = await OratoryWeek.find({ userId: req.user.id }).sort({
-          weekNumber: 1,
-        });
-      }
-    }
     return res.json({ success: true, count: weeks.length, weeks });
   } catch (err) {
     next(err);
@@ -708,10 +1231,8 @@ export async function createCourseActivity(req, res, next) {
       status: "pending",
     });
 
-    // Update course metadata
-    course.totalLectures = (course.totalLectures || 0) + 1;
-    course.totalMinutes = (course.totalMinutes || 0) + estEffort;
-    await course.save();
+    // Update course metadata accurately from ground-truth
+    await syncCourseFromActivities(req.user.id, slug);
 
     return res.status(201).json({ success: true, activity });
   } catch (err) {
@@ -755,6 +1276,8 @@ export async function logCourseSession(req, res, next) {
       notes: notes.trim(),
       isCompleted: Boolean(isCompleted),
     });
+
+    await syncCourseFromActivities(req.user.id, slug);
 
     return res.status(201).json({
       success: true,
@@ -801,6 +1324,32 @@ export async function updateOratoryWeek(req, res, next) {
     if (updates.isCompleted !== undefined) {
       week.isCompleted = Boolean(updates.isCompleted);
       if (week.isCompleted && !week.completedAt) week.completedAt = new Date();
+      if (!week.isCompleted) week.completedAt = null;
+
+      // Two-way sync: Update matching CurriculumActivity and Course
+      try {
+        await CurriculumActivity.findOneAndUpdate(
+          {
+            userId: req.user.id,
+            courseSlug: "oratory",
+            activityNumber: Number(weekNumber),
+          },
+          {
+            $set: {
+              status: week.isCompleted ? "completed" : "pending",
+              isWatched: week.isCompleted,
+              isCodeDone: week.isCompleted,
+              actualMinutes: week.isCompleted ? 45 : 0,
+              remainingMinutes: week.isCompleted ? 0 : 45,
+              completedAt: week.completedAt,
+              updatedAt: new Date(),
+            },
+          },
+        );
+        await syncCourseFromActivities(req.user.id, "oratory");
+      } catch (syncErr) {
+        console.warn("[updateOratoryWeek] activity sync notice:", syncErr.message);
+      }
     }
 
     week.updatedAt = new Date();
@@ -928,33 +1477,14 @@ export async function commitCsvImport(req, res, next) {
     try {
       const courseRecord = await Course.findOne({ userId: req.user.id, slug: courseSlug });
       if (courseRecord && courseRecord.startDate && courseRecord.targetDate) {
-        const activities = await CurriculumActivity.find({
-          userId: req.user.id,
-          courseSlug,
-        }).sort({ orderIndex: 1, sequenceOrder: 1, createdAt: 1 });
-
-        distribution = await PlannerEngine.distributeCourseTimeline({
-          course: courseRecord,
-          activities,
-          userId: req.user.id,
-          startDate: courseRecord.startDate,
-          targetDate: courseRecord.targetDate,
-          multiplier: courseRecord.defaultPracticeMultiplier || 2.0,
-        });
-
-        if (distribution && distribution.allocations && distribution.allocations.length > 0) {
-          const actOps = distribution.allocations.map((alloc) => ({
-            updateOne: {
-              filter: { _id: alloc.activityId, userId: req.user.id },
-              update: { $set: { scheduledDate: alloc.scheduledDate } },
-            },
-          }));
-          await CurriculumActivity.bulkWrite(actOps);
-        }
+        distribution = await runCourseTimelineDistribution(req.user.id, courseRecord);
       }
     } catch (distErr) {
       console.warn("Timeline auto-distribution warning on CSV commit:", distErr.message);
     }
+
+    // Keep parent course stats 100% synchronized
+    await syncCourseFromActivities(req.user.id, courseSlug);
 
     return res.json({ success: true, ...result, distribution });
   } catch (err) {
@@ -994,7 +1524,8 @@ export async function getCourseActivities(req, res, next) {
 export async function completeCourseActivity(req, res, next) {
   try {
     const { id } = req.params;
-    const { actualMinutes, confidence, status } = req.body;
+    const { actualMinutes, confidence, status, operationId } = req.body;
+    const opId = operationId || req.headers["x-operation-id"] || null;
 
     if (status === "pending") {
       const act = await CurriculumActivity.findOne({
@@ -1064,6 +1595,25 @@ export async function completeCourseActivity(req, res, next) {
         }
         await course.save();
       }
+
+      if (act.courseSlug === "oratory") {
+        try {
+          await OratoryWeek.findOneAndUpdate(
+            { userId: req.user.id, weekNumber: act.activityNumber },
+            {
+              $set: {
+                isCompleted: false,
+                completedAt: null,
+                updatedAt: new Date(),
+              },
+            },
+          );
+        } catch (orErr) {
+          console.warn("[completeCourseActivity] OratoryWeek uncomplete notice:", orErr.message);
+        }
+      }
+
+      await syncCourseFromActivities(req.user.id, act.courseSlug);
       return res.json({ success: true, activity: act });
     }
 
@@ -1072,12 +1622,14 @@ export async function completeCourseActivity(req, res, next) {
       activityId: id,
       actualMinutes,
       confidence,
+      operationId: opId,
     });
     if (!activity) {
       return res
         .status(404)
         .json({ success: false, error: "Activity not found." });
     }
+    await syncCourseFromActivities(req.user.id, activity.courseSlug);
     return res.json({ success: true, activity });
   } catch (err) {
     next(err);
@@ -1087,7 +1639,8 @@ export async function completeCourseActivity(req, res, next) {
 export async function logPartialCourseActivity(req, res, next) {
   try {
     const { id } = req.params;
-    const { minutesSpent, notes = "", date } = req.body;
+    const { minutesSpent, notes = "", date, operationId } = req.body;
+    const opId = operationId || req.headers["x-operation-id"] || null;
     const activity = await CurriculumActivity.findOne({
       _id: id,
       userId: req.user.id,
@@ -1114,12 +1667,16 @@ export async function logPartialCourseActivity(req, res, next) {
       notes,
       date: date || getTodayString(),
       isCompleted: false,
+      operationId: opId,
     });
+
+    await syncCourseFromActivities(req.user.id, activity.courseSlug);
 
     return res.json({
       success: true,
       activity: result.activity,
       executionRecord: result.executionRecord,
+      isDuplicate: Boolean(result.isDuplicate),
     });
   } catch (err) {
     next(err);
@@ -1140,52 +1697,20 @@ export async function distributeCourse(req, res, next) {
     if (multiplier && Number(multiplier) > 0) course.defaultPracticeMultiplier = Number(multiplier);
     await course.save();
 
-    const activities = await CurriculumActivity.find({
-      userId: req.user.id,
-      courseSlug: slug,
-    }).sort({ orderIndex: 1, sequenceOrder: 1, createdAt: 1 });
-
-    const distribution = await PlannerEngine.distributeCourseTimeline({
-      course,
-      activities,
-      userId: req.user.id,
-      startDate: course.startDate || startDate,
-      targetDate: course.targetDate || targetDate,
-      dailyStudyMinutes: dailyStudyMinutes ? Number(dailyStudyMinutes) : null,
-      multiplier: course.defaultPracticeMultiplier || multiplier,
-    });
-
-    if (distribution.allocations && distribution.allocations.length > 0) {
-      const actOps = distribution.allocations.map((alloc) => ({
-        updateOne: {
-          filter: { _id: alloc.activityId, userId: req.user.id },
-          update: { $set: { scheduledDate: alloc.scheduledDate } },
-        },
-      }));
-      await CurriculumActivity.bulkWrite(actOps);
-
-      const allocatedActIds = distribution.allocations.map((a) => a.activityId);
-      const allocatedActs = await CurriculumActivity.find({
-        _id: { $in: allocatedActIds },
-        userId: req.user.id,
-        taskId: { $ne: null },
-      }).select("taskId scheduledDate");
-
-      if (allocatedActs.length > 0) {
-        const taskOps = allocatedActs.map((a) => ({
-          updateOne: {
-            filter: { _id: a.taskId, userId: req.user.id },
-            update: { $set: { scheduledDate: a.scheduledDate } },
-          },
-        }));
-        await Task.bulkWrite(taskOps);
-      }
+    const distribution = await runCourseTimelineDistribution(req.user.id, course);
+    let allocationRes = null;
+    try {
+      allocationRes = await AllocationService.replanFrom(req.user.id, course.startDate || getTodayString());
+    } catch (allocErr) {
+      console.warn("[distributeCourse] AllocationService notice:", allocErr.message);
     }
 
     return res.json({
       success: true,
       course,
       distribution,
+      feasibility: allocationRes?.feasibility,
+      slackProposal: allocationRes?.slackProposal,
     });
   } catch (err) {
     next(err);

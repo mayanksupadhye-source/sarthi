@@ -34,6 +34,15 @@
         color: var(--text-ink);
         margin-bottom: var(--space-2);
       }
+      @media (max-width: 768px) {
+        .replan-box {
+          padding: 14px;
+          margin-top: 14px;
+        }
+        .diff-column {
+          padding: 12px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -168,13 +177,23 @@
                 />
               </div>
 
-              <button
-                id="generateProposalBtn"
-                class="btn btn-primary"
-                style="margin-left: auto"
-              >
-                🧠 Calculate Adaptive Replan
-              </button>
+              <div style="display: flex; gap: var(--space-2); margin-left: auto; flex-wrap: wrap;">
+                <button
+                  id="btnFinalizeDistributePlanner"
+                  type="button"
+                  class="btn btn-outline"
+                  title="Distribute course curriculum across full semester timeline"
+                >
+                  🚀 Finalize and distribute
+                </button>
+                <button
+                  id="generateProposalBtn"
+                  type="button"
+                  class="btn btn-primary"
+                >
+                  🧠 Calculate Adaptive Replan
+                </button>
+              </div>
             </div>
           </div>
 
@@ -500,6 +519,27 @@
         slackChk.addEventListener("change", () => {
           slackReason.style.display = slackChk.checked ? "block" : "none";
         });
+
+        document
+          .getElementById("btnFinalizeDistributePlanner")
+          ?.addEventListener("click", async () => {
+            const btn = document.getElementById("btnFinalizeDistributePlanner");
+            try {
+              btn.disabled = true;
+              btn.textContent = "Distributing...";
+              const todayStr = getTodayString ? getTodayString() : new Date().toISOString().split("T")[0];
+              const res = await api.post("/planner/distribute", { fromDate: todayStr });
+              showToast("Curriculum distributed across semester timeline!", "success");
+              setTimeout(() => {
+                window.location.href = "calendar.html";
+              }, 1000);
+            } catch (err) {
+              showToast(err.message || "Distribution failed", "error");
+            } finally {
+              btn.disabled = false;
+              btn.textContent = "🚀 Finalize and distribute";
+            }
+          });
 
         document
           .getElementById("generateProposalBtn")

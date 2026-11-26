@@ -16,12 +16,14 @@ import {
   getExamPrepSummary,
   addExamPrepDate,
   removeExamPrepDate,
+  toggleAcademicCheckin,
 } from "../controllers/academicController.js";
 import { authenticate } from "../middleware/auth.js";
 
 const router = express.Router();
 router.use(authenticate);
 
+router.post("/checkin", toggleAcademicCheckin);
 router.get("/subjects", getSubjects);
 router.post("/subjects", createSubject);
 router.delete("/subjects/:id", archiveSubject);

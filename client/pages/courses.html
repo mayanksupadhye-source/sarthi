@@ -19,6 +19,15 @@
         gap: var(--space-6);
         margin-top: var(--space-4);
       }
+      @media (max-width: 768px) {
+        .courses-grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 12px;
+        }
+        .course-card {
+          padding: 14px;
+        }
+      }
       .course-card {
         background: var(--bg-surface);
         border: 1px solid var(--border-hairline);
@@ -521,6 +530,45 @@
             </div>
           </div>
 
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: var(--space-3);
+              background: var(--color-bg-secondary, #f8fafc);
+              padding: var(--space-2) var(--space-3);
+              border-radius: var(--radius-md);
+              border: 1px dashed var(--color-border);
+            "
+          >
+            <div>
+              <label class="form-label" for="courseTotalHoursInput" style="font-size: var(--text-xs);"
+                >Total Hours (if no CSV yet)</label
+              >
+              <input
+                type="number"
+                id="courseTotalHoursInput"
+                class="form-input"
+                min="0"
+                step="0.5"
+                placeholder="e.g. 45"
+              />
+            </div>
+            <div>
+              <label class="form-label" for="courseTotalLecturesInput" style="font-size: var(--text-xs);"
+                >Est. Total Lectures / Sessions</label
+              >
+              <input
+                type="number"
+                id="courseTotalLecturesInput"
+                class="form-input"
+                min="0"
+                step="1"
+                placeholder="e.g. 60"
+              />
+            </div>
+          </div>
+
           <div id="courseStatusGroup" style="display: none">
             <label class="form-label" for="courseStatusInput"
               >Course Status</label
@@ -985,13 +1033,16 @@
             res && res.success && Array.isArray(res.courses) ? res.courses : [];
           setCourseNavigation(rawList);
 
-          // Courses Hub displays all curriculum and custom courses, excluding only system singleton tools
-          const isSystemAnchor = (c) =>
+          // Courses Hub displays all curriculum and custom courses, strictly excluding Exploration Lab items and system anchors
+          const isExplorationOrAnchor = (c) =>
+            c?.category === "exploration" ||
             c?.slug === "exploration-lab" ||
             c?.slug === "exploration" ||
+            c?.slug === "typing-practice" ||
+            c?.slug?.startsWith("exp-") ||
             c?.slug === "oratory" ||
             c?.category === "oratory";
-          allCourses = rawList.filter((c) => !isSystemAnchor(c));
+          allCourses = rawList.filter((c) => !isExplorationOrAnchor(c));
 
           updateCounts();
           renderCourses();
@@ -1090,9 +1141,14 @@
 
         container.innerHTML = filtered
           .map((c) => {
-            const total = c.totalLectures || 0;
-            const done = c.completedLectures || 0;
-            const percent = total > 0 ? Math.round((done / total) * 100) : 0;
+            const percent = (c.totalLectures > 0)
+              ? Math.min(100, Math.round(((c.completedLectures || 0) / c.totalLectures) * 100))
+              : (c.totalMinutes > 0)
+                ? Math.min(100, Math.round(((c.completedMinutes || 0) / c.totalMinutes) * 100))
+                : 0;
+            const progressDisplay = (c.totalLectures > 0)
+              ? `${c.completedLectures || 0} / ${c.totalLectures}`
+              : (c.totalHours > 0 ? `${Math.round(((c.completedMinutes || 0) / 60) * 10) / 10}h / ${c.totalHours}h` : "0 / 0");
             const isCompleted = isCourseCompleted(c);
             const statusBadge = isCompleted
               ? '<span class="badge badge-neutral text-xs" style="background: rgba(100, 116, 139, 0.12); color: #475569;" title="Completed and retained in course history">✓ Completed</span>'
@@ -1140,7 +1196,7 @@
               <p class="course-meta">${c.description || "Self-directed learning and mastery track."}</p>
 
               <div class="course-stats-row">
-                <span>Progress: <strong>${done} / ${total}</strong> (${percent}%)</span>
+                <span>Progress: <strong>${progressDisplay}</strong> (${percent}%)</span>
                 <span>${formatMinutes(c.completedMinutes || 0)} done</span>
               </div>
 
@@ -1212,6 +1268,8 @@
         document.getElementById("courseDescInput").value = "";
         document.getElementById("courseStartDateInput").value = "";
         document.getElementById("courseTargetDateInput").value = "";
+        document.getElementById("courseTotalHoursInput").value = "";
+        document.getElementById("courseTotalLecturesInput").value = "";
         document.getElementById("courseStatusInput").value = "active";
         document.getElementById("courseStatusGroup").style.display = "none";
         const delBtn = document.getElementById("btnDeleteCourse");
@@ -1243,6 +1301,10 @@
           course.startDate || "";
         document.getElementById("courseTargetDateInput").value =
           course.targetDate || "";
+        document.getElementById("courseTotalHoursInput").value =
+          course.totalHours || (course.totalMinutes ? Math.round((course.totalMinutes / 60) * 10) / 10 : "");
+        document.getElementById("courseTotalLecturesInput").value =
+          course.totalLectures || "";
         document.getElementById("courseStatusInput").value =
           course.status || "active";
         document.getElementById("courseStatusGroup").style.display = "block";
@@ -1393,6 +1455,10 @@
                 document.getElementById("courseStartDateInput").value || null,
               targetDate:
                 document.getElementById("courseTargetDateInput").value || null,
+              totalHours:
+                parseFloat(document.getElementById("courseTotalHoursInput").value) || (allCourses.find((c) => c.slug === editingSlug)?.totalHours || 0),
+              totalLectures:
+                parseInt(document.getElementById("courseTotalLecturesInput").value, 10) || (allCourses.find((c) => c.slug === editingSlug)?.totalLectures || 0),
               status:
                 document.getElementById("courseStatusInput").value || "active",
             };

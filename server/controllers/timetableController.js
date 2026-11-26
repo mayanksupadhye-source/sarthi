@@ -1,8 +1,24 @@
-import { ScheduleTemplate } from "../models/ScheduleTemplate.js";
+import {
+  ScheduleTemplate,
+  normalizeBlockType,
+  resolveBlockFlexible,
+} from "../models/ScheduleTemplate.js";
 import { ScheduleException } from "../models/ScheduleException.js";
+import { TimetableActivation } from "../models/TimetableActivation.js";
 import { Setting } from "../models/Setting.js";
+import { AllocationService } from "../services/allocationService.js";
+import { getTodayString } from "../utils/timeFormat.js";
 import { removeJournalHistorySchedule } from "../services/journalScheduleMigration.js";
 import mongoose from "mongoose";
+
+function calcDaysBetween(startDate, endDate) {
+  if (!startDate || !endDate) return 0;
+  const [y1, m1, day1] = startDate.split("-").map(Number);
+  const [y2, m2, day2] = endDate.split("-").map(Number);
+  const t1 = Date.UTC(y1, m1 - 1, day1);
+  const t2 = Date.UTC(y2, m2 - 1, day2);
+  return Math.max(0, Math.round((t2 - t1) / (1000 * 60 * 60 * 24)) + 1);
+}
 
 function timeToMinutes(timeStr) {
   if (!timeStr) return 0;
@@ -119,7 +135,42 @@ export async function getTemplates(req, res, next) {
       templates.push(holidayTmpl);
     }
 
-    return res.json({ success: true, count: templates.length, templates });
+    const hasExam = templates.some((t) => t.dayType === "exam");
+    if (!hasExam) {
+      const examTmpl = await ScheduleTemplate.create({
+        userId: req.user.id,
+        dayType: "exam",
+        title: "Exam Mode Schedule",
+        effectiveFrom: "2026-01-01",
+        version: 1,
+        isDefault: false,
+        blocks: [
+          { blockId: "exm-1", label: "Wakeup & Morning Routine", startTime: "06:00", endTime: "07:00", durationMinutes: 60, category: "routine", blockType: "checklist" },
+          { blockId: "exm-2", label: "Exam Prep Slot I", startTime: "07:00", endTime: "10:00", durationMinutes: 180, category: "college", blockType: "checklist" },
+          { blockId: "exm-3", label: "Breakfast & Rest", startTime: "10:00", endTime: "10:45", durationMinutes: 45, category: "routine", blockType: "checklist" },
+          { blockId: "exm-4", label: "Exam Prep Slot II / Paper", startTime: "10:45", endTime: "13:30", durationMinutes: 165, category: "college", blockType: "checklist" },
+          { blockId: "exm-5", label: "Lunch & Recovery", startTime: "13:30", endTime: "14:30", durationMinutes: 60, category: "routine", blockType: "checklist" },
+          { blockId: "exm-6", label: "Exam Prep Slot III", startTime: "14:30", endTime: "18:00", durationMinutes: 210, category: "college", blockType: "checklist" },
+          { blockId: "exm-7", label: "Gym & Walk", startTime: "18:00", endTime: "19:15", durationMinutes: 75, category: "gym", blockType: "checklist" },
+          { blockId: "exm-8", label: "Dinner & Light Revision", startTime: "19:30", endTime: "22:30", durationMinutes: 180, category: "routine", blockType: "checklist" },
+          { blockId: "exm-9", label: "Night Routine", startTime: "22:30", endTime: "23:40", durationMinutes: 70, category: "routine", blockType: "night_routine" },
+          { blockId: "exm-10", label: "Sleep Window", startTime: "23:40", endTime: "06:00", durationMinutes: 380, category: "rest", blockType: "rest" },
+        ],
+      });
+      templates.push(examTmpl);
+    }
+
+    const normalizedTemplates = templates.map((t) => {
+      const obj = t.toObject ? t.toObject() : t;
+      obj.blocks = (obj.blocks || []).map((b) => ({
+        ...b,
+        blockType: normalizeBlockType(b),
+        isFlexible: resolveBlockFlexible(b),
+      }));
+      return obj;
+    });
+
+    return res.json({ success: true, count: normalizedTemplates.length, templates: normalizedTemplates });
   } catch (err) {
     next(err);
   }
@@ -281,6 +332,27 @@ export async function getTemplateByDayType(req, res, next) {
             },
           ],
         });
+      } else if (dayType === "exam") {
+        template = await ScheduleTemplate.create({
+          userId: req.user.id,
+          dayType: "exam",
+          title: "Exam Mode Schedule",
+          effectiveFrom: "2026-01-01",
+          version: 1,
+          isDefault: false,
+          blocks: [
+            { blockId: "exm-1", label: "Wakeup & Morning Routine", startTime: "06:00", endTime: "07:00", durationMinutes: 60, category: "routine", blockType: "checklist" },
+            { blockId: "exm-2", label: "Exam Prep Slot I", startTime: "07:00", endTime: "10:00", durationMinutes: 180, category: "college", blockType: "checklist" },
+            { blockId: "exm-3", label: "Breakfast & Rest", startTime: "10:00", endTime: "10:45", durationMinutes: 45, category: "routine", blockType: "checklist" },
+            { blockId: "exm-4", label: "Exam Prep Slot II / Paper", startTime: "10:45", endTime: "13:30", durationMinutes: 165, category: "college", blockType: "checklist" },
+            { blockId: "exm-5", label: "Lunch & Recovery", startTime: "13:30", endTime: "14:30", durationMinutes: 60, category: "routine", blockType: "checklist" },
+            { blockId: "exm-6", label: "Exam Prep Slot III", startTime: "14:30", endTime: "18:00", durationMinutes: 210, category: "college", blockType: "checklist" },
+            { blockId: "exm-7", label: "Gym & Walk", startTime: "18:00", endTime: "19:15", durationMinutes: 75, category: "gym", blockType: "checklist" },
+            { blockId: "exm-8", label: "Dinner & Light Revision", startTime: "19:30", endTime: "22:30", durationMinutes: 180, category: "routine", blockType: "checklist" },
+            { blockId: "exm-9", label: "Night Routine", startTime: "22:30", endTime: "23:40", durationMinutes: 70, category: "routine", blockType: "night_routine" },
+            { blockId: "exm-10", label: "Sleep Window", startTime: "23:40", endTime: "06:00", durationMinutes: 380, category: "rest", blockType: "rest" },
+          ],
+        });
       } else {
         return res
           .status(404)
@@ -290,7 +362,13 @@ export async function getTemplateByDayType(req, res, next) {
           });
       }
     }
-    return res.json({ success: true, isException: false, template });
+    const normTemplate = template.toObject ? template.toObject() : template;
+    normTemplate.blocks = (normTemplate.blocks || []).map((b) => ({
+      ...b,
+      blockType: normalizeBlockType(b),
+      isFlexible: resolveBlockFlexible(b),
+    }));
+    return res.json({ success: true, isException: false, template: normTemplate });
   } catch (err) {
     next(err);
   }
@@ -378,6 +456,12 @@ export async function updateTemplate(req, res, next) {
     template.updatedAt = new Date();
     await template.save();
 
+    try {
+      await AllocationService.replanFrom(req.user.id, getTodayString());
+    } catch (e) {
+      console.warn("[updateTemplate] Replan notice:", e.message);
+    }
+
     return res.json({ success: true, template });
   } catch (err) {
     next(err);
@@ -392,11 +476,10 @@ export async function addBlockToTemplate(req, res, next) {
       startTime,
       endTime,
       category = "study",
-      isProtected = false,
       notes = "",
       courseSlug = null,
       blockType,
-      isTrackable = false,
+      isFlexible,
     } = req.body;
 
     if (!label || !startTime || !endTime) {
@@ -426,25 +509,19 @@ export async function addBlockToTemplate(req, res, next) {
     let dur = eMin - sMin;
     if (dur <= 0) dur += 24 * 60;
 
-    let finalBlockType = blockType;
-    if (!finalBlockType) {
-      if (
-        courseSlug ||
-        ["study", "dsa", "webdev", "oratory"].includes(category)
-      ) {
-        finalBlockType = "learning";
-      } else if (category === "exploration") {
-        finalBlockType = "exploration";
-      } else if (["routine", "rest", "college"].includes(category)) {
-        finalBlockType = Boolean(isTrackable)
-          ? "actionable_routine"
-          : "fixed_routine";
-      } else if (category === "gym") {
-        finalBlockType = "actionable_routine";
-      } else {
-        finalBlockType = "learning";
-      }
-    }
+    const finalBlockType = normalizeBlockType({
+      label,
+      category,
+      courseSlug,
+      blockType,
+    });
+    const finalIsFlexible = resolveBlockFlexible({
+      label,
+      category,
+      courseSlug,
+      blockType: finalBlockType,
+      isFlexible,
+    });
 
     const blockId = `blk-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
     const newBlock = {
@@ -456,14 +533,19 @@ export async function addBlockToTemplate(req, res, next) {
       category,
       blockType: finalBlockType,
       courseSlug: courseSlug || null,
-      isTrackable: Boolean(isTrackable),
-      isProtected: Boolean(isProtected),
+      isFlexible: finalIsFlexible,
       notes: (notes || "").trim(),
     };
 
     template.blocks.push(newBlock);
     template.updatedAt = new Date();
     await template.save();
+
+    try {
+      await AllocationService.replanFrom(req.user.id, getTodayString());
+    } catch (e) {
+      console.warn("[addBlockToTemplate] Replan notice:", e.message);
+    }
 
     return res.status(201).json({ success: true, block: newBlock, template });
   } catch (err) {
@@ -479,11 +561,10 @@ export async function updateBlockInTemplate(req, res, next) {
       startTime,
       endTime,
       category,
-      isProtected,
       notes,
       courseSlug,
       blockType,
-      isTrackable,
+      isFlexible,
     } = req.body;
 
     const template = mongoose.isValidObjectId(id)
@@ -510,11 +591,14 @@ export async function updateBlockInTemplate(req, res, next) {
     if (startTime !== undefined) block.startTime = startTime;
     if (endTime !== undefined) block.endTime = endTime;
     if (category !== undefined) block.category = category;
-    if (isProtected !== undefined) block.isProtected = Boolean(isProtected);
     if (notes !== undefined) block.notes = notes.trim();
     if (courseSlug !== undefined) block.courseSlug = courseSlug || null;
-    if (blockType !== undefined) block.blockType = blockType;
-    if (isTrackable !== undefined) block.isTrackable = Boolean(isTrackable);
+    if (blockType !== undefined) block.blockType = normalizeBlockType({ ...block.toObject(), blockType });
+    if (isFlexible !== undefined) {
+      block.isFlexible = Boolean(isFlexible);
+    } else if (blockType !== undefined || courseSlug !== undefined) {
+      block.isFlexible = resolveBlockFlexible(block.toObject());
+    }
 
     const sMin = timeToMinutes(block.startTime);
     const eMin = timeToMinutes(block.endTime);
@@ -524,6 +608,12 @@ export async function updateBlockInTemplate(req, res, next) {
 
     template.updatedAt = new Date();
     await template.save();
+
+    try {
+      await AllocationService.replanFrom(req.user.id, getTodayString());
+    } catch (e) {
+      console.warn("[updateBlockInTemplate] Replan notice:", e.message);
+    }
 
     return res.json({ success: true, block, template });
   } catch (err) {
@@ -551,6 +641,12 @@ export async function deleteBlockFromTemplate(req, res, next) {
     template.blocks = template.blocks.filter((b) => b.blockId !== blockId);
     template.updatedAt = new Date();
     await template.save();
+
+    try {
+      await AllocationService.replanFrom(req.user.id, getTodayString());
+    } catch (e) {
+      console.warn("[deleteBlockFromTemplate] Replan notice:", e.message);
+    }
 
     return res.json({
       success: true,
@@ -605,6 +701,12 @@ export async function createScheduleException(req, res, next) {
       { upsert: true, new: true, runValidators: true },
     );
 
+    try {
+      await AllocationService.replanFrom(req.user.id, date);
+    } catch (e) {
+      console.warn("[createScheduleException] Replan notice:", e.message);
+    }
+
     return res.status(201).json({ success: true, exception });
   } catch (err) {
     next(err);
@@ -623,6 +725,13 @@ export async function deleteScheduleException(req, res, next) {
         .status(404)
         .json({ success: false, error: "Schedule exception not found." });
     }
+
+    try {
+      await AllocationService.replanFrom(req.user.id, deleted.date);
+    } catch (e) {
+      console.warn("[deleteScheduleException] Replan notice:", e.message);
+    }
+
     return res.json({
       success: true,
       message: "Schedule exception removed successfully.",
@@ -639,8 +748,6 @@ export async function detectConflicts(req, res, next) {
       userId: req.user.id,
       dayType,
     });
-    const settings = await Setting.findOne({ userId: req.user.id });
-
     if (!template) {
       return res
         .status(404)
@@ -676,42 +783,6 @@ export async function detectConflicts(req, res, next) {
     }
 
     // 2. Specific Sunday Oratory vs Excel/Exploration conflict check (documented in DEFAULT_TIMETABLE.md)
-    if (dayType === "sunday") {
-      const oratoryBlock = blocks.find(
-        (b) =>
-          b.category === "oratory" || b.label.toLowerCase().includes("oratory"),
-      );
-      const excelBlock = blocks.find(
-        (b) =>
-          b.label.toLowerCase().includes("excel") ||
-          b.label.toLowerCase().includes("exploration"),
-      );
-
-      if (oratoryBlock && excelBlock) {
-        warnings.push({
-          type: "oratory_schedule_preference",
-          message:
-            "The 13-Week Oratory Program specifies a 2-hour practice slot (default 12:30–14:30 or 14:30–17:00). Current timetable slots Excel at 12:30–14:30 and Oratory at 14:30–17:00. This is balanced; choose your active preference in Timetable settings.",
-        });
-      }
-    }
-
-    // 3. Sleep window check (Monday-Friday 23:40 to 05:00 is 5h 20m)
-    if (dayType === "weekday") {
-      const sleepStart = timeToMinutes(settings?.sleepWindowStart || "23:40");
-      const sleepEnd = timeToMinutes(settings?.sleepWindowEnd || "05:00");
-      // Across midnight
-      const sleepDuration = 24 * 60 - sleepStart + sleepEnd;
-      if (sleepDuration < 360) {
-        warnings.push({
-          type: "short_sleep_window",
-          durationMinutes: sleepDuration,
-          hours: (sleepDuration / 60).toFixed(1),
-          message: `The weekday schedule allocates ${sleepDuration} min (${(sleepDuration / 60).toFixed(1)} hrs) for sleep between ${settings?.sleepWindowStart || "23:40"} and ${settings?.sleepWindowEnd || "05:00"}. Consider setting protected sleep to at least 6.5–7 hours.`,
-        });
-      }
-    }
-
     return res.json({
       success: true,
       dayType,
@@ -720,6 +791,235 @@ export async function detectConflicts(req, res, next) {
       warningsCount: warnings.length,
       warnings,
     });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getActivations(req, res, next) {
+  try {
+    const activations = await TimetableActivation.find({
+      userId: req.user.id,
+    }).sort({ startDate: 1 });
+
+    const setting = await Setting.findOne({ userId: req.user.id });
+    const totalExamBudget = Math.min(14, Math.max(1, Number(setting?.semesterExamDaysBudget) || 14));
+
+    let usedExamDays = 0;
+    let confirmedUntil = null;
+    const enriched = activations.map((a) => {
+      const dayCount = calcDaysBetween(a.startDate, a.endDate);
+      if (a.profileId === "exam") {
+        usedExamDays += dayCount;
+      }
+      if (!confirmedUntil || a.endDate > confirmedUntil) {
+        confirmedUntil = a.endDate;
+      }
+      return {
+        ...a.toObject(),
+        dayCount,
+      };
+    });
+
+    const remainingExamDays = Math.max(0, totalExamBudget - usedExamDays);
+
+    return res.json({
+      success: true,
+      count: enriched.length,
+      activations: enriched,
+      confirmedUntil,
+      examBudget: {
+        total: totalExamBudget,
+        used: usedExamDays,
+        remaining: remainingExamDays,
+        hardMax: 14,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function createActivation(req, res, next) {
+  try {
+    const { profileId, startDate, endDate, notes = "", confirmExceed = false } = req.body;
+    if (!profileId || !startDate || !endDate) {
+      return res.status(400).json({
+        success: false,
+        error: "profileId, startDate, and endDate are required.",
+      });
+    }
+
+    if (startDate > endDate) {
+      return res.status(400).json({
+        success: false,
+        error: "startDate must not be after endDate.",
+      });
+    }
+
+    const newDays = calcDaysBetween(startDate, endDate);
+
+    // Check existing activations for overlap & budget
+    const existing = await TimetableActivation.find({ userId: req.user.id });
+    const overlaps = existing.filter(
+      (a) => a.startDate <= endDate && startDate <= a.endDate,
+    );
+    let overlapWarning = null;
+    if (overlaps.length > 0) {
+      const names = overlaps.map((o) => `${o.profileId} (${o.startDate} to ${o.endDate})`).join(", ");
+      overlapWarning = `Notice: This range overlaps with: ${names}. This new activation will take precedence.`;
+    }
+
+    // Exam budget check (Hard maximum is 14 days, configurable down, never above 14)
+    if (profileId === "exam") {
+      const setting = await Setting.findOne({ userId: req.user.id });
+      const totalExamBudget = Math.min(14, Math.max(1, Number(setting?.semesterExamDaysBudget) || 14));
+      const currentUsed = existing
+        .filter((a) => a.profileId === "exam")
+        .reduce((sum, a) => sum + calcDaysBetween(a.startDate, a.endDate), 0);
+
+      if (currentUsed + newDays > totalExamBudget) {
+        const remaining = Math.max(0, totalExamBudget - currentUsed);
+        return res.status(400).json({
+          success: false,
+          exceededMax: true,
+          warning: "exceeds_budget",
+          error: `Blocked: Adding ${newDays} exam days would total ${currentUsed + newDays} days, exceeding the ${totalExamBudget}-day maximum (${currentUsed} used, ${remaining} remaining).`,
+          message: `Blocked: Adding ${newDays} exam days would total ${currentUsed + newDays} days, exceeding the ${totalExamBudget}-day maximum (${currentUsed} used, ${remaining} remaining).`,
+          budget: {
+            total: totalExamBudget,
+            used: currentUsed,
+            requested: newDays,
+            remaining,
+          },
+        });
+      }
+    }
+
+    const activation = await TimetableActivation.create({
+      userId: req.user.id,
+      profileId,
+      startDate,
+      endDate,
+      notes: notes.trim(),
+    });
+
+    try {
+      await AllocationService.replanFrom(req.user.id, startDate);
+    } catch (replanErr) {
+      console.warn("[createActivation] Replan notice:", replanErr.message);
+    }
+
+    return res.status(201).json({
+      success: true,
+      activation: { ...activation.toObject(), dayCount: newDays },
+      overlapWarning,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateActivation(req, res, next) {
+  try {
+    const { id } = req.params;
+    const { profileId, startDate, endDate, notes = "", confirmExceed = false } = req.body;
+
+    const existing = await TimetableActivation.findOne({ _id: id, userId: req.user.id });
+    if (!existing) {
+      return res.status(404).json({ success: false, error: "Activation not found." });
+    }
+
+    const finalStart = startDate || existing.startDate;
+    const finalEnd = endDate || existing.endDate;
+    const finalProfile = profileId || existing.profileId;
+
+    if (finalStart > finalEnd) {
+      return res.status(400).json({ success: false, error: "startDate must not be after endDate." });
+    }
+
+    const newDays = calcDaysBetween(finalStart, finalEnd);
+
+    // Overlap check against others
+    const others = await TimetableActivation.find({ userId: req.user.id, _id: { $ne: id } });
+    const overlaps = others.filter((a) => a.startDate <= finalEnd && finalStart <= a.endDate);
+    let overlapWarning = null;
+    if (overlaps.length > 0) {
+      const names = overlaps.map((o) => `${o.profileId} (${o.startDate} to ${o.endDate})`).join(", ");
+      overlapWarning = `Notice: This range overlaps with: ${names}. This updated activation will take precedence.`;
+    }
+
+    // Exam budget check (Hard maximum is 14 days, configurable down, never above 14)
+    if (finalProfile === "exam") {
+      const setting = await Setting.findOne({ userId: req.user.id });
+      const totalExamBudget = Math.min(14, Math.max(1, Number(setting?.semesterExamDaysBudget) || 14));
+      const otherUsed = others
+        .filter((a) => a.profileId === "exam")
+        .reduce((sum, a) => sum + calcDaysBetween(a.startDate, a.endDate), 0);
+
+      if (otherUsed + newDays > totalExamBudget) {
+        const remaining = Math.max(0, totalExamBudget - otherUsed);
+        return res.status(400).json({
+          success: false,
+          exceededMax: true,
+          warning: "exceeds_budget",
+          error: `Blocked: Updating to ${newDays} exam days would total ${otherUsed + newDays} days, exceeding the ${totalExamBudget}-day maximum (${otherUsed} used, ${remaining} remaining).`,
+          message: `Blocked: Updating to ${newDays} exam days would total ${otherUsed + newDays} days, exceeding the ${totalExamBudget}-day maximum (${otherUsed} used, ${remaining} remaining).`,
+          budget: {
+            total: totalExamBudget,
+            used: otherUsed,
+            requested: newDays,
+            remaining,
+          },
+        });
+      }
+    }
+
+    const oldStart = existing.startDate;
+    existing.profileId = finalProfile;
+    existing.startDate = finalStart;
+    existing.endDate = finalEnd;
+    existing.notes = notes !== undefined ? notes.trim() : existing.notes;
+    existing.updatedAt = new Date();
+    await existing.save();
+
+    const earliestStart = oldStart < finalStart ? oldStart : finalStart;
+    try {
+      await AllocationService.replanFrom(req.user.id, earliestStart);
+    } catch (replanErr) {
+      console.warn("[updateActivation] Replan notice:", replanErr.message);
+    }
+
+    return res.json({
+      success: true,
+      activation: { ...existing.toObject(), dayCount: newDays },
+      overlapWarning,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function deleteActivation(req, res, next) {
+  try {
+    const { id } = req.params;
+    const activation = await TimetableActivation.findOneAndDelete({
+      _id: id,
+      userId: req.user.id,
+    });
+    if (!activation) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Activation not found." });
+    }
+
+    try {
+      await AllocationService.replanFrom(req.user.id, activation.startDate);
+    } catch (replanErr) {
+      console.warn("[deleteActivation] Replan notice:", replanErr.message);
+    }
+
+    return res.json({ success: true, message: "Activation removed." });
   } catch (err) {
     next(err);
   }

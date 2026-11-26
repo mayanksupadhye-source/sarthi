@@ -5,6 +5,51 @@ import { Examination } from "../models/Examination.js";
 import { ScheduleException } from "../models/ScheduleException.js";
 import { Setting } from "../models/Setting.js";
 import { AttendanceEngine } from "../services/attendanceEngine.js";
+import { Task } from "../models/Task.js";
+import { getTodayString } from "../utils/timeFormat.js";
+
+export async function toggleAcademicCheckin(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const { date, label, blockId } = req.body;
+    const targetDate = date || getTodayString();
+    const taskTitle = label || "College Academics & Exam Prep";
+
+    let task = await Task.findOne({
+      userId,
+      scheduledDate: targetDate,
+      category: "academic",
+      $or: [
+        { title: taskTitle },
+        { title: { $regex: /academic/i } }
+      ]
+    });
+
+    if (!task) {
+      task = new Task({
+        userId,
+        title: taskTitle,
+        category: "academic",
+        scheduledDate: targetDate,
+        priority: "P2",
+        status: "completed",
+        completedAt: new Date(),
+        estimatedMinutes: 0,
+        actualMinutes: 0,
+        remainingMinutes: 0,
+        description: `Checklist completed for block ${blockId || ""}`.trim(),
+      });
+    } else {
+      task.status = task.status === "completed" ? "pending" : "completed";
+      task.completedAt = task.status === "completed" ? new Date() : null;
+    }
+
+    await task.save();
+    return res.json({ success: true, task });
+  } catch (err) {
+    next(err);
+  }
+}
 
 export async function getSubjects(req, res, next) {
   try {

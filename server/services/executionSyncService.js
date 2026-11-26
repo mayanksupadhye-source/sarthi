@@ -1,9 +1,11 @@
 import { CurriculumActivity } from '../models/CurriculumActivity.js';
 import { Task } from '../models/Task.js';
 import { Course } from '../models/Course.js';
+import { OratoryWeek } from '../models/OratoryWeek.js';
 import { DailyPlan } from '../models/DailyPlan.js';
 import { ExecutionRecord } from '../models/ExecutionRecord.js';
 import { RecoveryLedger } from '../models/RecoveryLedger.js';
+import { getTodayString } from '../utils/timeFormat.js';
 
 export class ExecutionSyncService {
   /**
@@ -16,29 +18,69 @@ export class ExecutionSyncService {
     activityId,
     courseSlug,
     minutesSpent,
-    date = new Date().toISOString().split('T')[0],
+    date = getTodayString(),
     type = 'regular',
     notes = '',
     isCompleted = false,
-    confidence
+    confidence,
+    operationId = null,
   }) {
     const minutes = Number(minutesSpent) || 0;
     if (minutes <= 0 && !isCompleted) return null;
 
+    // Idempotency check: if an operationId was provided, verify if this operation was already processed
+    if (operationId) {
+      const existing = await ExecutionRecord.findOne({ userId, operationId: String(operationId).trim() });
+      if (existing) {
+        // Return existing results without double-counting
+        const [existingTask, existingAct] = await Promise.all([
+          existing.taskId ? Task.findOne({ _id: existing.taskId, userId }) : null,
+          existing.activityId ? CurriculumActivity.findOne({ _id: existing.activityId, userId }) : null,
+        ]);
+        return {
+          executionRecord: existing,
+          task: existingTask,
+          activity: existingAct,
+          isDuplicate: true,
+        };
+      }
+    }
+
     // 1. Create an immutable ExecutionRecord
     let executionRecord = null;
     if (minutes > 0) {
-      executionRecord = await ExecutionRecord.create({
-        userId,
-        courseSlug: courseSlug || null,
-        activityId: activityId || null,
-        taskId: taskId || null,
-        module: courseSlug ? 'course' : 'general',
-        date,
-        minutesSpent: minutes,
-        type,
-        notes: notes.trim()
-      });
+      try {
+        executionRecord = await ExecutionRecord.create({
+          userId,
+          operationId: operationId ? String(operationId).trim() : null,
+          courseSlug: courseSlug || null,
+          activityId: activityId || null,
+          taskId: taskId || null,
+          module: courseSlug ? 'course' : 'general',
+          date,
+          minutesSpent: minutes,
+          type,
+          notes: notes.trim()
+        });
+      } catch (err) {
+        // If a duplicate key error on (userId, operationId) occurs due to race conditions
+        if (err.code === 11000 && operationId) {
+          const existing = await ExecutionRecord.findOne({ userId, operationId: String(operationId).trim() });
+          if (existing) {
+            const [existingTask, existingAct] = await Promise.all([
+              existing.taskId ? Task.findOne({ _id: existing.taskId, userId }) : null,
+              existing.activityId ? CurriculumActivity.findOne({ _id: existing.activityId, userId }) : null,
+            ]);
+            return {
+              executionRecord: existing,
+              task: existingTask,
+              activity: existingAct,
+              isDuplicate: true,
+            };
+          }
+        }
+        throw err;
+      }
     }
 
     // 2. Synchronize Task if linked
@@ -95,6 +137,24 @@ export class ExecutionSyncService {
         if (confidence !== undefined) activity.confidence = Number(confidence);
         if (notes) activity.notes = activity.notes ? `${activity.notes}\n[${date}]: ${notes}` : notes;
         await activity.save();
+
+        // Synchronize OratoryWeek if this activity is an oratory speech drill
+        if (activity.courseSlug === 'oratory') {
+          try {
+            await OratoryWeek.findOneAndUpdate(
+              { userId, weekNumber: activity.activityNumber },
+              {
+                $set: {
+                  isCompleted: activity.status === 'completed',
+                  completedAt: activity.status === 'completed' ? (activity.completedAt || new Date()) : null,
+                  updatedAt: new Date(),
+                },
+              }
+            );
+          } catch (e) {
+            console.warn('[SyncService] OratoryWeek sync notice:', e.message);
+          }
+        }
 
         // Sync Course progress and check if all activities are completed
         try {
@@ -174,6 +234,32 @@ export class ExecutionSyncService {
       });
     }
 
+    // 5b. If an activity or task is now completed, close any open RecoveryLedger entries for it
+    const nowCompleted = Boolean(isCompleted || activity?.status === 'completed' || task?.status === 'completed');
+    if (nowCompleted && (activityId || taskId) && RecoveryLedger.db?.readyState === 1) {
+      const orFilters = [];
+      if (activityId) orFilters.push({ activityId });
+      if (taskId) orFilters.push({ taskId });
+      const openLedgers = await RecoveryLedger.find({
+        userId,
+        status: { $in: ['active', 'partial'] },
+        $or: orFilters,
+      });
+      for (const ledger of openLedgers) {
+        const rem = ledger.remainingRecoveryMinutes || 0;
+        ledger.recoveredMinutes = (ledger.recoveredMinutes || 0) + rem;
+        ledger.remainingRecoveryMinutes = 0;
+        ledger.status = 'recovered';
+        ledger.updatedAt = new Date();
+        ledger.history.push({
+          date,
+          minutesRecovered: rem,
+          notes: notes || 'Completed directly; removed from pending recovery',
+        });
+        await ledger.save();
+      }
+    }
+
     return {
       executionRecord,
       task,
@@ -184,7 +270,7 @@ export class ExecutionSyncService {
   /**
    * Completes a curriculum activity via canonical recordWork.
    */
-  static async completeActivity({ userId, activityId, actualMinutes, confidence }) {
+  static async completeActivity({ userId, activityId, actualMinutes, confidence, operationId }) {
     const activity = await CurriculumActivity.findOne({ _id: activityId, userId });
     if (!activity) return null;
 
@@ -197,7 +283,8 @@ export class ExecutionSyncService {
       courseSlug: activity.courseSlug,
       minutesSpent: effort,
       isCompleted: true,
-      confidence
+      confidence,
+      operationId,
     });
 
     return result.activity;
@@ -206,7 +293,7 @@ export class ExecutionSyncService {
   /**
    * Completes a task via canonical recordWork.
    */
-  static async completeTask({ userId, taskId, actualMinutes }) {
+  static async completeTask({ userId, taskId, actualMinutes, operationId }) {
     const task = await Task.findOne({ _id: taskId, userId });
     if (!task) return null;
 
@@ -218,7 +305,8 @@ export class ExecutionSyncService {
       taskId: task._id,
       minutesSpent: effort,
       isCompleted: true,
-      type: isRecovery ? 'recovery' : 'regular'
+      type: isRecovery ? 'recovery' : 'regular',
+      operationId,
     });
 
     return result.task;
@@ -238,6 +326,19 @@ export class ExecutionSyncService {
   }) {
     const minutes = Number(missedMinutes) || 0;
     if (minutes <= 0) return null;
+
+    // Prevent duplicate active recovery entries for the same source item/date
+    const dupQuery = {
+      userId,
+      sourceDate,
+      status: { $in: ['active', 'partial'] },
+    };
+    if (activityId) dupQuery.activityId = activityId;
+    else if (taskId) dupQuery.taskId = taskId;
+    else dupQuery.title = title;
+
+    const existing = await RecoveryLedger.findOne(dupQuery);
+    if (existing) return existing;
 
     return await RecoveryLedger.create({
       userId,

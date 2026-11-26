@@ -13,9 +13,18 @@
     <link rel="stylesheet" href="../assets/css/components.css" />
     <link rel="stylesheet" href="../assets/css/layout.css" />
     <style>
+      .calendar-scroll {
+        width: 100%;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+      }
       .calendar-grid {
         display: grid;
-        grid-template-columns: repeat(7, 1fr);
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        min-width: 700px;
+        width: 100%;
+        box-sizing: border-box;
         gap: 1px;
         background-color: var(--color-border);
         border: 1px solid var(--color-border);
@@ -30,14 +39,19 @@
         font-size: 0.75rem;
         color: var(--color-muted);
         text-transform: uppercase;
+        min-width: 0;
       }
       .cal-day-cell {
         background-color: var(--color-bg-paper);
-        min-height: 100px;
+        min-width: 0;
+        min-height: 105px;
+        max-height: 165px;
+        overflow-y: auto;
         padding: var(--space-2);
         display: flex;
         flex-direction: column;
         gap: 4px;
+        box-sizing: border-box;
       }
       .cal-day-cell.other-month {
         background-color: var(--color-bg-base);
@@ -62,6 +76,9 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        max-width: 100%;
+        display: block;
+        box-sizing: border-box;
       }
       .cal-event-pill.p1 {
         border-left-color: var(--color-p1);
@@ -93,14 +110,41 @@
         font-weight: 600;
       }
       @media (max-width: 768px) {
-        .calendar-scroll {
-          max-width: 100%;
-          overflow-x: auto;
-          overscroll-behavior-x: contain;
-          -webkit-overflow-scrolling: touch;
-        }
         .calendar-grid {
-          min-width: 560px;
+          min-width: 0;
+        }
+        .cal-header-cell {
+          padding: 6px 2px;
+          font-size: 0.6rem;
+        }
+        .cal-day-cell {
+          min-height: 68px;
+          max-height: 105px;
+          padding: 4px 3px;
+        }
+        .cal-event-pill {
+          font-size: 0.58rem;
+          padding: 1px 3px;
+        }
+        .month-target-bar {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+          gap: 10px !important;
+          padding: 12px !important;
+        }
+        .inspector-item {
+          flex-direction: column;
+          align-items: flex-start !important;
+          gap: 6px;
+        }
+      }
+      @media (max-width: 420px) {
+        .cal-day-cell {
+          min-height: 54px;
+          max-height: 82px;
+          padding: 3px 2px;
+        }
+        .cal-date-num {
+          font-size: 0.72rem;
         }
       }
       .cal-event-pill.holiday {
@@ -208,50 +252,6 @@
         </header>
 
         <div class="page-container">
-          <!-- Integration Diagnostic Box -->
-          <div class="card" style="margin-bottom: var(--space-6)">
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: var(--space-4);
-              "
-            >
-              <div>
-                <div
-                  style="
-                    display: flex;
-                    align-items: center;
-                    gap: var(--space-2);
-                  "
-                >
-                  <div style="font-weight: 700">
-                    Google Calendar Integration
-                  </div>
-                  <span class="badge badge-neutral" style="font-size: 0.75rem"
-                    >Scaffolding Mode</span
-                  >
-                </div>
-                <div
-                  class="text-subtle text-sm"
-                  id="calendarIntegrationStatus"
-                  style="margin-top: 2px"
-                >
-                  Scaffolding Mode — All events recorded locally in SARTHI.
-                </div>
-                <div class="text-xs text-muted" style="margin-top: 2px">
-                  Core schedules, academic exams, and study blocks run directly
-                  on SARTHI's internal database without external dependency.
-                </div>
-              </div>
-              <a href="settings.html" class="btn btn-outline btn-sm"
-                >Configure Credentials in Settings</a
-              >
-            </div>
-          </div>
-
           <!-- Month Navigation -->
           <div
             class="card-header"
@@ -375,6 +375,17 @@
       import { getTodayString, formatTime12 } from "../assets/js/utils.js";
       import { showToast } from "../assets/js/toast.js";
 
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+      // Make escapeHtml globally available to avoid ReferenceError in async callbacks
+      window.escapeHtml = escapeHtml;
+
       let currentYear = 2026;
       let currentMonth = 10; // 0-indexed: 10 is November
       let selectedDate = null;
@@ -387,8 +398,31 @@
       let hackathonsMap = {};
       let activitiesMap = {};
       let coursesMap = {};
+      let dailyPlansMap = {};
+      let activationsMap = {};
+      let templatesMap = {};
       let executionRecordsMap = {};
       let monthTargetSummary = null;
+
+      function getAcademicBlocksForDate(dateStr) {
+        const dayActivation = activationsMap[dateStr];
+        const dayPlan = dailyPlansMap[dateStr];
+        const dayExc = exceptionsMap[dateStr];
+        let profileKey = null;
+        if (dayActivation) profileKey = dayActivation.profileId;
+        else if (dayExc && dayExc.templateOverride) profileKey = dayExc.templateOverride;
+        else if (dayPlan && dayPlan.activeProfile) profileKey = dayPlan.activeProfile;
+        else {
+          const [y, m, d] = dateStr.split("-").map(Number);
+          const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+          profileKey = dow === 0 ? "sunday" : dow === 6 ? "saturday" : "weekday";
+        }
+        const tmpl = templatesMap[profileKey];
+        if (!tmpl || !Array.isArray(tmpl.blocks)) return [];
+        return tmpl.blocks.filter(
+          (b) => b.category === "academics" || b.courseSlug === "academics" || b.blockType === "academics"
+        );
+      }
 
       async function init() {
         const user = await checkAuth();
@@ -400,27 +434,9 @@
         currentMonth = today.getMonth();
         selectedDate = getTodayString();
 
-        await checkGoogleStatus();
         await loadEvents();
         renderCalendar();
         setupEvents();
-      }
-
-      async function checkGoogleStatus() {
-        try {
-          const res = await api.get("/settings/integrations/status");
-          if (res.success && res.integrations.googleCalendar) {
-            const g = res.integrations.googleCalendar;
-            document.getElementById("calendarIntegrationStatus").textContent =
-              g.configured
-                ? "OAuth credentials detected (Scaffolding mode: local event storage active, external calendar sync is simulated)."
-                : g.message ||
-                  "Scaffolding Mode — All events recorded locally in SARTHI.";
-          }
-        } catch {
-          document.getElementById("calendarIntegrationStatus").textContent =
-            "Scaffolding Mode — All events recorded locally in SARTHI.";
-        }
       }
 
       async function loadEvents() {
@@ -440,10 +456,20 @@
           hackathonsMap = {};
           activitiesMap = {};
           coursesMap = {};
+          dailyPlansMap = {};
+          templatesMap = {};
           executionRecordsMap = {};
           monthTargetSummary = res.monthTargetSummary || null;
 
           if (res.success) {
+            (res.templates || []).forEach((t) => {
+              if (t.dayType) templatesMap[t.dayType] = t;
+            });
+
+            (res.dailyPlans || []).forEach((dp) => {
+              if (dp.date) dailyPlansMap[dp.date] = dp;
+            });
+
             (res.courses || []).forEach((c) => {
               coursesMap[c.slug] = c;
             });
@@ -512,6 +538,23 @@
             (res.exceptions || []).forEach((exc) => {
               if (exc.date) {
                 exceptionsMap[exc.date] = exc;
+              }
+            });
+
+            activationsMap = {};
+            (res.activations || []).forEach((act) => {
+              if (act.startDate && act.endDate) {
+                const [y1, m1, d1] = act.startDate.split("-").map(Number);
+                const [y2, m2, d2] = act.endDate.split("-").map(Number);
+                let cur = new Date(Date.UTC(y1, m1 - 1, d1));
+                const end = new Date(Date.UTC(y2, m2 - 1, d2));
+                while (cur <= end) {
+                  const dStr = cur.toISOString().slice(0, 10);
+                  if (!activationsMap[dStr]) {
+                    activationsMap[dStr] = act;
+                  }
+                  cur.setUTCDate(cur.getUTCDate() + 1);
+                }
               }
             });
 
@@ -623,53 +666,87 @@
           const dayHackathons = hackathonsMap[dateKey] || [];
           const dayActs = activitiesMap[dateKey] || [];
 
-          let eventsHtml = "";
+          const allPills = [];
+
+          // Authoritative Server-Allocated Course Plans (Direct API data, NO client calculation)
+          const dayPlan = dailyPlansMap[dateKey];
+
+          // Show activated timetable profile name if date is inside an activated range, or "Assumed" if beyond confirmed ranges
+          const dayActivation = activationsMap[dateKey];
+          const activeProfile = dayActivation ? dayActivation.profileId : dayPlan?.activeProfile;
+          const isConfirmed = Boolean(dayActivation || dayExc || dayPlan?.isConfirmedSchedule);
+          if (activeProfile && !["weekday", "saturday", "sunday"].includes(activeProfile)) {
+            const isExam = activeProfile === "exam";
+            const icon = isExam ? "🎓 " : activeProfile === "holiday" ? "🏖️ " : "📅 ";
+            const label = isExam ? "Exam Schedule" : String(activeProfile).toUpperCase();
+            allPills.push(`<div class="cal-event-pill ${isExam ? 'exam' : 'holiday'}" style="font-weight: 700;" title="Active Timetable Profile: ${activeProfile}">${icon}${label}</div>`);
+          } else if (!isConfirmed && dateKey >= todayStr) {
+            allPills.push(`<div class="cal-event-pill" style="background: rgba(100, 116, 139, 0.08); color: #64748b; border: 1px dashed rgba(100, 116, 139, 0.35); font-size: 0.68rem;" title="Schedule assumed from weekday/Sat/Sun defaults, not yet confirmed">Assumed default</div>`);
+          }
 
           if (daySlack) {
-            eventsHtml += `<div class="cal-event-pill slack" title="Slack Day">🌿 Slack Day</div>`;
+            allPills.push(`<div class="cal-event-pill slack" title="Slack Day">🌿 Slack Day</div>`);
           }
           if (dayExc) {
-            eventsHtml += `<div class="cal-event-pill holiday" title="Schedule Override">🎯 ${String(dayExc.exceptionType || "Holiday").replace("_", " ")}</div>`;
+            allPills.push(`<div class="cal-event-pill holiday" title="Schedule Override">🎯 ${String(dayExc.exceptionType || "Holiday").replace("_", " ")}</div>`);
           }
 
-          dayHackathons.slice(0, 1).forEach((h) => {
-            eventsHtml += `<div class="cal-event-pill hackathon" title="Hackathon Sprint">🚀 ${h.name}</div>`;
+          dayHackathons.forEach((h) => {
+            allPills.push(`<div class="cal-event-pill hackathon" title="Hackathon Sprint">🚀 ${h.name}</div>`);
           });
 
           dayExams.forEach((e) => {
             const timeStr = e.startTime
               ? ` @ ${formatTime12(e.startTime)}`
               : "";
-            eventsHtml += `<div class="cal-event-pill exam">🎓 ${e.subjectName} (${e.examType})${timeStr}</div>`;
+            allPills.push(`<div class="cal-event-pill exam" title="${e.subjectName} (${e.examType})${timeStr}">🎓 ${e.subjectName} (${e.examType})${timeStr}</div>`);
           });
 
           dayPreps.forEach((p) => {
-            eventsHtml += `<div class="cal-event-pill exam-prep">📖 Prep: ${p.subjectName}</div>`;
+            allPills.push(`<div class="cal-event-pill exam-prep" title="Prep: ${p.subjectName}">📖 Prep: ${p.subjectName}</div>`);
           });
 
           dayAssignments.forEach((a) => {
-            eventsHtml += `<div class="cal-event-pill assignment">📝 Due: ${a.title}</div>`;
+            allPills.push(`<div class="cal-event-pill assignment" title="Due: ${a.title}">📝 Due: ${a.title}</div>`);
           });
 
-          // Course Lectures & Activities
-          dayActs.slice(0, 2).forEach((act) => {
-            const c = coursesMap[act.courseSlug];
-            const prefix = c ? `${c.emoji || "📚"} ` : "📚 ";
-            const check = act.status === "completed" ? "✓ " : "";
-            eventsHtml += `<div class="cal-event-pill lecture" title="${prefix}${act.title}">${check}${prefix}${act.title}</div>`;
-          });
+          if (dayPlan && Array.isArray(dayPlan.coursePlans) && dayPlan.coursePlans.length > 0) {
+            dayPlan.coursePlans.forEach((cp) => {
+              const prefix = cp.category === "oratory" ? "🎙️ " : cp.category === "exploration" ? "⚡ " : "📚 ";
+              const carryBadge = cp.carryoverMin > 0 ? ` (+${cp.carryoverMin}m carryover)` : "";
+              allPills.push(`<div class="cal-event-pill lecture" style="background: rgba(14, 165, 233, 0.12); color: #0284c7; border: 1px solid rgba(14, 165, 233, 0.4);" title="${cp.courseTitle}: ${cp.effortMinTarget}m effort (${cp.lectureMinTarget}m lecture) · ${cp.startPosition} ➔ ${cp.endPosition}${carryBadge}">
+                ${prefix}${cp.courseTitle} (${cp.endPosition}, ${cp.effortMinTarget}m)
+              </div>`);
+            });
+          } else if (!dayPlan && activeProfile !== "exam" && dayActs.length > 0) {
+            // Group fallback activities by course so individual sub-tasks don't spam +22 MORE
+            const actsByCourse = {};
+            dayActs.forEach((act) => {
+              const slug = act.courseSlug || "general";
+              if (!actsByCourse[slug]) actsByCourse[slug] = [];
+              actsByCourse[slug].push(act);
+            });
+            Object.entries(actsByCourse).forEach(([slug, acts]) => {
+              const c = coursesMap[slug];
+              const prefix = c ? `${c.emoji || "📚"} ` : "📚 ";
+              const totalMins = acts.reduce((acc, a) => acc + (a.allocatedMinutes || a.totalEffortMinutes || 30), 0);
+              const title = c ? c.title : acts[0].title;
+              const allDone = acts.every((a) => a.status === "completed");
+              allPills.push(`<div class="cal-event-pill lecture" title="${prefix}${title} (${acts.length} items, ${totalMins}m)">${allDone ? "✓ " : ""}${prefix}${title} (${acts.length} items, ${totalMins}m)</div>`);
+            });
+          }
 
-          // Tasks
-          dayTasks.slice(0, 2).forEach((t) => {
+          // Tasks (skip academic checklist tasks already rendered above)
+          dayTasks.filter((t) => t.category !== "academic").forEach((t) => {
             const p1Class = t.priority === "P1" ? "p1" : "";
-            eventsHtml += `<div class="cal-event-pill ${p1Class}">${t.title}</div>`;
+            allPills.push(`<div class="cal-event-pill ${p1Class}" title="${t.title}">${t.title}</div>`);
           });
 
-          const totalDisplayed = (daySlack ? 1 : 0) + (dayExc ? 1 : 0) + Math.min(1, dayHackathons.length) + dayExams.length + dayPreps.length + dayAssignments.length + Math.min(2, dayActs.length) + Math.min(2, dayTasks.length);
-          const totalAll = (daySlack ? 1 : 0) + (dayExc ? 1 : 0) + dayHackathons.length + dayExams.length + dayPreps.length + dayAssignments.length + dayActs.length + dayTasks.length;
-          const extraCount = Math.max(0, totalAll - totalDisplayed);
-          if (extraCount > 0) {
-            eventsHtml += `<div class="text-subtle text-xs">+${extraCount} more</div>`;
+          const MAX_VISIBLE_PILLS = 3;
+          let eventsHtml = allPills.slice(0, MAX_VISIBLE_PILLS).join("");
+          if (allPills.length > MAX_VISIBLE_PILLS) {
+            const extraCount = allPills.length - MAX_VISIBLE_PILLS;
+            eventsHtml += `<div class="text-subtle text-xs" style="font-weight: 600; color: var(--color-muted); padding: 1px 2px;">+${extraCount} more</div>`;
           }
 
           const cellClasses = [
@@ -805,32 +882,70 @@
           `;
         });
 
-        // 4. Course Curriculum Lectures & Activities
-        const dayActs = activitiesMap[dateStr] || [];
-        dayActs.forEach((act) => {
-          itemsCount++;
-          const c = coursesMap[act.courseSlug];
-          const courseLabel = c ? `${c.emoji || "📚"} ${c.title}` : "📚 Course";
-          const isDone = act.status === "completed";
-          const duration = act.totalEffortMinutes || Math.round((act.contentDurationMinutes || 0) * (act.effectiveMultiplier || 2)) || 45;
+        // 4. Server-Allocated Course Plans (Direct API data, NO client calculation)
+        const dayPlanForInspector = dailyPlansMap[dateStr];
+        const inspectorProfile = activationsMap[dateStr]?.profileId || dayPlanForInspector?.activeProfile;
+        if (dayPlanForInspector && Array.isArray(dayPlanForInspector.coursePlans) && dayPlanForInspector.coursePlans.length > 0) {
+          dayPlanForInspector.coursePlans.forEach((cp) => {
+            itemsCount++;
+            const isOratory = cp.category === "oratory" || cp.courseSlug === "oratory";
+            const prefix = isOratory ? "🎙️ " : cp.category === "exploration" ? "⚡ " : "📚 ";
+            const carryTag = cp.carryoverMin > 0 ? `<span class="badge badge-warning" style="margin-left: 6px;">+${cp.carryoverMin}m carryover first</span>` : "";
+            const defaultTag = cp.source && cp.source !== "timetable" ? `<span class="badge badge-neutral" style="margin-left: 6px;">${escapeHtml(cp.source)}</span>` : "";
 
-          content.innerHTML += `
-            <div class="inspector-item" style="border-left: 3px solid #0284c7; background: #f0f9ff;">
-              <div>
-                <div style="font-size: 0.75rem; color: #0369a1; font-weight: 600;">${courseLabel} • Section ${act.sectionNumber || 1}</div>
-                <strong style="color: var(--color-ink);">${act.title}</strong>
-                <div class="text-xs text-muted">${duration} min planned effort</div>
+            content.innerHTML += `
+              <div class="inspector-item" style="border-left: 3px solid ${isOratory ? '#9333ea' : '#0284c7'}; background: #f0f9ff;">
+                <div>
+                  <div style="font-size: 0.75rem; color: #0369a1; font-weight: 600;">
+                    ${prefix}${cp.courseTitle} • ${cp.category.toUpperCase()}
+                    ${carryTag}
+                    ${defaultTag}
+                  </div>
+                  <strong style="color: var(--color-ink);">Target: ${cp.startPosition} ➔ ${cp.endPosition}</strong>
+                  <div class="text-xs text-muted">
+                    Effort Target: <strong>${cp.effortMinTarget}m</strong> · Lecture Target: <strong>${cp.lectureMinTarget}m</strong>
+                    ${cp.endPositionLabel ? ` (${cp.endPositionLabel})` : ""}
+                  </div>
+                  ${Array.isArray(cp.lectureBreakdown) && cp.lectureBreakdown.length > 0 ? `
+                    <div style="margin-top: 4px; font-size: 0.75rem; color: #0369a1;">
+                      ${cp.lectureBreakdown.map(lb => `<div>• <strong>Lec ${lb.lectureNumber}: ${lb.title}</strong> (${lb.videoMinutes}m video / ${lb.effortMinutes}m effort)</div>`).join("")}
+                    </div>
+                  ` : ""}
+                </div>
+                <div>
+                  <span class="badge ${cp.status === 'completed' ? 'badge-success' : 'badge-primary'}">${cp.status === 'completed' ? '✓ Completed' : 'Planned'}</span>
+                </div>
               </div>
-              <div>
-                ${
-                  isDone
-                    ? '<span class="badge badge-success">✓ Completed</span>'
-                    : '<span class="badge badge-neutral">Pending</span>'
-                }
+            `;
+          });
+        } else if (!dayPlanForInspector && inspectorProfile !== "exam") {
+          // Fallback to discrete activities if no coursePlan generated
+          const dayActs = activitiesMap[dateStr] || [];
+          dayActs.forEach((act) => {
+            itemsCount++;
+            const c = coursesMap[act.courseSlug];
+            const courseLabel = c ? `${c.emoji || "📚"} ${c.title}` : "📚 Course";
+            const isDone = act.status === "completed";
+            const duration = act.totalEffortMinutes || Math.round((act.contentDurationMinutes || 0) * (act.effectiveMultiplier || 2)) || 45;
+
+            content.innerHTML += `
+              <div class="inspector-item" style="border-left: 3px solid #0284c7; background: #f0f9ff;">
+                <div>
+                  <div style="font-size: 0.75rem; color: #0369a1; font-weight: 600;">${courseLabel} • Section ${act.sectionNumber || 1}</div>
+                  <strong style="color: var(--color-ink);">${act.title}</strong>
+                  <div class="text-xs text-muted">${duration} min planned effort</div>
+                </div>
+                <div>
+                  ${
+                    isDone
+                      ? '<span class="badge badge-success">✓ Completed</span>'
+                      : '<span class="badge badge-neutral">Pending</span>'
+                  }
+                </div>
               </div>
-            </div>
-          `;
-        });
+            `;
+          });
+        }
 
         // 5. Assignments
         const dayAssignments = assignmentsMap[dateStr] || [];

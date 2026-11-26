@@ -582,9 +582,21 @@ body[data-section="dashboard"] .hero-banner {
     padding-bottom: 88px; /* Offset for persistent mobile bottom navigation bar */
   }
 
-  .grid-2,
-  .grid-4 {
+  .sidebar-reopen-toggle {
+    display: none !important;
+  }
+
+  .grid-2 {
     grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .grid-asymmetric {
+    gap: 12px;
   }
 }
 
@@ -755,5 +767,82 @@ body[data-section="dashboard"] .hero-banner {
   .app-topbar .topbar-right .continuity-card {
     min-width: 0;
     max-width: 100%;
+  }
+}
+
+/* Keep page content usable on narrow phones across all app sections. */
+@media (max-width: 768px) {
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  .page-container > *,
+  .page-container :where(section, article, form, fieldset, .card, .card-hero) {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .page-container :where(p, label, a, button, th, td, .text-subtle, .text-muted) {
+    overflow-wrap: anywhere;
+  }
+
+  .page-container :where(.grid-2, .grid-asymmetric) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .page-container :where(.grid-3, .grid-4) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .page-container .tab-group {
+    display: flex;
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 6px;
+    padding-bottom: 4px;
+    max-width: 100%;
+  }
+  .page-container .tab-group::-webkit-scrollbar {
+    display: none;
+  }
+  .page-container .tab-group .tab-btn {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    min-height: 40px;
+    padding: 6px 12px;
+    font-size: 0.8125rem;
+  }
+
+  .page-container :where(.flex, .d-flex, .button-row, .actions, .form-actions) {
+    flex-wrap: wrap;
+  }
+
+  .page-container :where(canvas, svg, video, iframe) {
+    max-width: 100%;
+  }
+
+  .page-container iframe {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-container :where(.btn, .button, button, input[type="button"], input[type="submit"]) {
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .page-container :where(.card-header, .section-header, .page-header, .toolbar) {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 359px) {
+  .page-container :where(.grid-3, .grid-4) {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

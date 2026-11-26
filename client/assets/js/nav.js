@@ -264,7 +264,14 @@ export function renderLayout(activePageKey = "dashboard") {
       else if (restoreFocus) menuTrigger?.focus();
     };
     if (collapsed) document.body.classList.add("sidebar-collapsed");
-    reopenToggle.hidden = !collapsed;
+    const isMobileViewport = () => window.matchMedia("(max-width: 768px)").matches;
+    reopenToggle.hidden = !collapsed || isMobileViewport();
+    window.addEventListener("resize", () => {
+      if (!isMobileViewport() && sidebar?.classList.contains("open")) {
+        setMobileNavigationState(false);
+      }
+      reopenToggle.hidden = !document.body.classList.contains("sidebar-collapsed") || isMobileViewport();
+    });
     document
       .getElementById("sidebarCollapseToggle")
       ?.addEventListener("click", () => {

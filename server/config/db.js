@@ -282,7 +282,9 @@ export function getDBStatus() {
     lastConnectedTimestamp,
     lastDisconnectedTimestamp,
     poolSize:
-      mongoose.connection.getClient?.()?.topology?.s?.servers?.size || null,
+      HIGH_AVAILABILITY_OPTIONS.maxPoolSize,
+    activeServersCount:
+      mongoose.connection.getClient?.()?.topology?.s?.servers?.size || 0,
   };
 }
 

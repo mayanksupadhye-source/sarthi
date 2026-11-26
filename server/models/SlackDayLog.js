@@ -27,6 +27,8 @@ const slackDayLogSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
 });
 
+slackDayLogSchema.index({ userId: 1, date: 1 }, { unique: true });
+
 export const SlackDayLog =
   mongoose.models.SlackDayLog ||
   mongoose.model("SlackDayLog", slackDayLogSchema);

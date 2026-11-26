@@ -34,6 +34,8 @@ import { ScheduleException } from "../models/ScheduleException.js";
 import { ScheduleTemplate } from "../models/ScheduleTemplate.js";
 import { UserProfile } from "../models/UserProfile.js";
 import { HackathonNotification } from "../models/HackathonNotification.js";
+import { AllocationService } from "../services/allocationService.js";
+import { getTodayString } from "../utils/timeFormat.js";
 import { config } from "../config/env.js";
 
 export async function getSettings(req, res, next) {
@@ -89,6 +91,12 @@ export async function updateSettings(req, res, next) {
       { $set: updates },
       { new: true, upsert: true },
     );
+
+    try {
+      await AllocationService.replanFrom(req.user.id, getTodayString());
+    } catch (e) {
+      console.warn("[updateSettings] Replan notice:", e.message);
+    }
 
     return res.json({ success: true, settings });
   } catch (err) {

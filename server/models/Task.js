@@ -42,6 +42,7 @@ const taskSchema = new mongoose.Schema({
   remainingMinutes: { type: Number, default: 30, min: 0 },
   scheduledDate: { type: String, index: true }, // Format: YYYY-MM-DD
   deadline: { type: String }, // Format: YYYY-MM-DD
+  activityId: { type: mongoose.Schema.Types.ObjectId, ref: "CurriculumActivity", index: true },
   dependencies: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
   isProtected: { type: Boolean, default: false },
   isDeferred: { type: Boolean, default: false },

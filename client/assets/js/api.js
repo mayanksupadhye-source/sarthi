@@ -23,6 +23,12 @@ function getApiBaseUrl() {
   return "";
 }
 
+export function generateOperationId(prefix = "op") {
+  const ts = Date.now().toString(36);
+  const rand = Math.random().toString(36).substring(2, 9);
+  return `${prefix}_${ts}_${rand}`;
+}
+
 export async function apiRequest(endpoint, options = {}) {
   const base = getApiBaseUrl();
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
@@ -41,14 +47,26 @@ export async function apiRequest(endpoint, options = {}) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
+  // If options includes an operationId, send it via x-operation-id header
+  if (options.operationId) {
+    headers["x-operation-id"] = options.operationId;
+  }
+
+  // Bounded timeout (default 25 seconds) using AbortController
+  const timeoutMs = options.timeoutMs || 25000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   const config = {
     ...options,
     headers,
+    signal: options.signal || controller.signal,
     credentials: "include", // sends cookies
   };
 
   try {
     const response = await fetch(url, config);
+    clearTimeout(timeoutId);
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
@@ -80,6 +98,11 @@ export async function apiRequest(endpoint, options = {}) {
 
     return data;
   } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === "AbortError") {
+      console.error(`[API Timeout] [${options.method || "GET"} ${url}] Request timed out after ${timeoutMs}ms`);
+      throw new Error(`Request timed out after ${Math.round(timeoutMs / 1000)}s. Please check your network connection and retry.`);
+    }
     console.error(
       `[API Error] [${options.method || "GET"} ${url}]:`,
       err.message,

@@ -9,6 +9,9 @@ const dailyPlanSchema = new mongoose.Schema({
   },
   date: { type: String, required: true, index: true }, // YYYY-MM-DD
   dayType: { type: String, default: "weekday" },
+  activeProfile: { type: String, default: "" }, // Activated timetable profile (exam, holiday, weekday, custom)
+  isConfirmedSchedule: { type: Boolean, default: false }, // True if inside a manual activation or exception range; false = assumed default
+  scheduleSource: { type: String, default: "assumed-default" }, // 'activation' | 'exception' | 'assumed-default'
   targetCapacityMinutes: { type: Number, default: 330 },
   allocatedMinutes: { type: Number, default: 0 },
   completedMinutes: { type: Number, default: 0 },
@@ -22,6 +25,43 @@ const dailyPlanSchema = new mongoose.Schema({
       actualMinutes: { type: Number, default: 0 },
       status: { type: String, default: "pending" },
       isProtected: { type: Boolean, default: false },
+    },
+  ],
+  coursePlans: [
+    {
+      courseId: { type: mongoose.Schema.Types.ObjectId, ref: "Course" },
+      courseSlug: { type: String, required: true },
+      courseTitle: { type: String, default: "" },
+      category: { type: String, default: "course" }, // 'course' | 'exploration' | 'oratory'
+      priority: { type: String, default: "P2" },
+      lectureMinTarget: { type: Number, default: 0 },
+      effortMinTarget: { type: Number, default: 0 },
+      carryoverMin: { type: Number, default: 0 },
+      startPosition: { type: String, default: "" }, // e.g. "Lecture 1 (00:00)"
+      endPosition: { type: String, default: "" },   // e.g. "Lecture 2 (15:00)"
+      startLectureNumber: { type: Number, default: 1 },
+      endLectureNumber: { type: Number, default: 1 },
+      minAcceptableMarkMin: { type: Number, default: 0 },
+      lectureBreakdown: [
+        {
+          lectureNumber: { type: Number },
+          title: { type: String },
+          videoMinutes: { type: Number },
+          effortMinutes: { type: Number },
+        },
+      ],
+      source: {
+        type: String,
+        default: "timetable",
+      },
+      status: {
+        type: String,
+        enum: ["planned", "in-progress", "completed", "missed"],
+        default: "planned",
+      },
+      actualMinutes: { type: Number, default: 0 },
+      completedLecturesCount: { type: Number, default: 0 },
+      notes: { type: String, default: "" },
     },
   ],
   isSlackDay: { type: Boolean, default: false },

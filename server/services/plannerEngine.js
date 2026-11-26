@@ -11,6 +11,8 @@
  * - Slack Days Allowance
  */
 
+import { normalizeBlockType, resolveBlockFlexible } from "../models/ScheduleTemplate.js";
+
 export class PlannerEngine {
   /**
    * Calculate effective remaining minutes for a task.
@@ -117,24 +119,43 @@ export class PlannerEngine {
     // Case 1: Slack Day Requested
     if (slackDayStatus.isRequested) {
       if (slackDayStatus.available > 0) {
-        reasons.push(`Slack Day activated. Today's commitments deferred to protect recovery buffer without backlog penalty.`);
-        const tasksToDefer = [...existingScheduledTasks, ...missedOrUnfinishedTasks];
-        for (const t of tasksToDefer) {
-          changes.push({
-            taskId: t._id || t.id,
-            title: t.title,
-            action: 'defer_slack_day',
-            originalDate: targetDate,
-            newDate: null, // pushed to bounded backlog or next feasible slot
-            reason: 'Deferred due to activated Slack Day'
-          });
+        reasons.push(`Slack Day activated. Non-critical tasks deferred to protect recovery buffer while maintaining core streak.`);
+        // Slack day is a lighter, flexible execution day (not a 0-capacity wasteland).
+        // Essential P1 tasks and daily reading streak remain active.
+        const tasksToDefer = [];
+        const tasksToRetain = [];
+        const allCandidates = [...existingScheduledTasks, ...missedOrUnfinishedTasks];
+
+        for (const t of allCandidates) {
+          const priority = (t.priority || '').toUpperCase();
+          if (priority === 'P1' || t.isProtected || t.category === 'reading') {
+            tasksToRetain.push(t);
+          } else {
+            tasksToDefer.push(t);
+            changes.push({
+              taskId: t._id || t.id,
+              title: t.title,
+              action: 'defer_slack_day',
+              originalDate: targetDate,
+              newDate: null,
+              reason: 'Deferred to protect Slack Day recovery buffer'
+            });
+          }
         }
+
+        const slackCapacity = 90; // Light 90-minute intentional buffer window
+        const allocatedMinutes = tasksToRetain.reduce((sum, t) => sum + PlannerEngine.getRemainingEffort(t), 0);
+
         return {
           targetDate,
           isSlackDay: true,
-          capacityMinutes: 0,
-          allocatedMinutes: 0,
-          acceptedTasks: [],
+          capacityMinutes: slackCapacity,
+          allocatedMinutes,
+          acceptedTasks: tasksToRetain.map(t => ({
+            ...t,
+            remainingMinutes: PlannerEngine.getRemainingEffort(t),
+            priorityReason: 'Essential P1 / streak retained during Slack Day'
+          })),
           deferredTasks: tasksToDefer.map(t => ({
             ...t,
             remainingMinutes: PlannerEngine.getRemainingEffort(t),
@@ -374,6 +395,557 @@ export class PlannerEngine {
    * @param {number} params.minCoherentMinutes - Minimum fragment window (default 15 mins)
    * @returns {Object} allocation
    */
+  /**
+   * PURE ALLOCATION FUNCTION (No DB calls, no Date.now(), 100% deterministic)
+   * 
+   * @param {Object} inputs
+   * @param {Array} inputs.courses - Course objects with slug, title, category, priority, defaultPracticeMultiplier, startDate, targetDate, lectures
+   * @param {Array} [inputs.progressLogs=[]] - Append-only minute logs [{ courseSlug, date, minutesSpent, type }]
+   * @param {Object} [inputs.completedLectures={}] - Map of courseSlug -> Set of completed lecture numbers
+   * @param {Function|Object} inputs.timetablePerDate - (dateStr) => { dayType, blocks: [...] } or object map
+   * @param {Object} [inputs.specialDates={}] - { examDates: Set, hackathonDates: Set, slackDates: Set }
+   * @param {Object} [inputs.settings={}] - { fallbackHubEffortMinutes: 150, fallbackExplorationEffortMinutes: 45, availabilityBufferRatio: 0.25, dailyMaxWorkMinutes: 480 }
+   * @param {string} inputs.today - YYYY-MM-DD date in Asia/Kolkata
+   * @param {number} [inputs.horizonDays=150] - Number of days to plan forward
+   * @returns {Object} { dayPlans: Array<Object>, feasibility: Object, slackProposal: Object }
+   */
+  static allocate({
+    courses = [],
+    progressLogs = [],
+    completedLectures = {},
+    timetablePerDate,
+    specialDates = {},
+    settings = {},
+    today,
+    horizonDays = 150,
+  }) {
+    if (!today || typeof today !== "string") {
+      throw new Error("allocate requires today as a YYYY-MM-DD string.");
+    }
+
+    const fallbackHub = Number(settings.fallbackHubEffortMinutes) || 150;
+    const fallbackExp = Number(settings.fallbackExplorationEffortMinutes) || 45;
+    const bufferRatio = settings.availabilityBufferRatio !== undefined ? Number(settings.availabilityBufferRatio) : 0.25;
+    const dailyMax = Number(settings.dailyMaxWorkMinutes) || 480;
+
+    const examDates = specialDates.examDates instanceof Set ? specialDates.examDates : new Set(specialDates.examDates || []);
+    const hackathonDates = specialDates.hackathonDates instanceof Set ? specialDates.hackathonDates : new Set(specialDates.hackathonDates || []);
+    const slackDates = specialDates.slackDates instanceof Set ? specialDates.slackDates : new Set(specialDates.slackDates || []);
+
+    // Resolve timetable lookup function
+    const getTimetableForDate = (dateStr) => {
+      if (typeof timetablePerDate === "function") {
+        return timetablePerDate(dateStr) || { dayType: "weekday", blocks: [] };
+      }
+      if (timetablePerDate && typeof timetablePerDate === "object") {
+        if (timetablePerDate[dateStr]) return timetablePerDate[dateStr];
+        const [y, m, d] = dateStr.split("-").map(Number);
+        const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+        const key = dow === 0 ? "sunday" : dow === 6 ? "saturday" : "weekday";
+        return timetablePerDate[key] || { dayType: key, blocks: [] };
+      }
+      return { dayType: "weekday", blocks: [] };
+    };
+
+    // Pre-calculate which courses have blocks in any active template, and specifically in standard (weekday/sat/sun) templates
+    const coursesWithTemplateBlocks = new Set();
+    const coursesWithStandardBlocks = new Set();
+    const extractBlocks = (blocks, targetSet) => {
+      if (!Array.isArray(blocks)) return;
+      blocks.forEach((b) => {
+        if (b.courseSlug) targetSet.add(b.courseSlug);
+        if (b.category) targetSet.add(b.category);
+        courses.forEach((c) => {
+          const slugNorm = (c.slug || "").toLowerCase().replace(/[-_]/g, " ");
+          const bText = `${b.label || ""} ${b.category || ""}`.toLowerCase();
+          if (bText.includes(slugNorm) || (c.slug.includes("typing") && bText.includes("typing"))) {
+            targetSet.add(c.slug);
+          }
+        });
+      });
+    };
+
+    if (typeof timetablePerDate === "function") {
+      const [startYear, startMonth, startDay] = today.split("-").map(Number);
+      let scanDate = new Date(Date.UTC(startYear, startMonth - 1, startDay));
+      for (let i = 0; i < Math.min(horizonDays, 30); i++) {
+        const dStr = scanDate.toISOString().slice(0, 10);
+        const tmpl = getTimetableForDate(dStr);
+        extractBlocks(tmpl?.blocks, coursesWithTemplateBlocks);
+        if (["weekday", "saturday", "sunday"].includes(tmpl?.dayType)) {
+          extractBlocks(tmpl?.blocks, coursesWithStandardBlocks);
+        }
+        scanDate.setUTCDate(scanDate.getUTCDate() + 1);
+      }
+    } else if (timetablePerDate && typeof timetablePerDate === "object") {
+      Object.entries(timetablePerDate).forEach(([key, tmpl]) => {
+        extractBlocks(tmpl?.blocks, coursesWithTemplateBlocks);
+        if (["weekday", "saturday", "sunday"].includes(key)) {
+          extractBlocks(tmpl?.blocks, coursesWithStandardBlocks);
+        }
+      });
+    }
+
+    // Normalize courses and their sequential lecture definitions
+    const normalizedCourses = courses.map((c) => {
+      const slug = c.slug || c.id || "course";
+      const multiplier = Number(c.defaultPracticeMultiplier) || Number(c.multiplier) || 2.0;
+      let lecs = [];
+
+      if (Array.isArray(c.lectures) && c.lectures.length > 0) {
+        lecs = c.lectures.map((l, idx) => ({
+          lectureNumber: l.lectureNumber || idx + 1,
+          title: l.title || `Lecture ${idx + 1}`,
+          videoDurationMinutes: Number(l.videoDurationMinutes) || Number(l.contentDurationMinutes) || 30,
+          totalEffortMinutes: Number(l.totalEffortMinutes) || Math.round((Number(l.videoDurationMinutes) || 30) * multiplier),
+          isCompleted: Boolean(l.isCompleted),
+        }));
+      } else if (Array.isArray(c.sections) && c.sections.length > 0) {
+        let lNum = 1;
+        for (const sec of c.sections) {
+          if (Array.isArray(sec.lectures)) {
+            for (const l of sec.lectures) {
+              lecs.push({
+                lectureNumber: l.lectureNumber || lNum++,
+                title: l.title || `Lecture ${l.lectureNumber || lNum}`,
+                videoDurationMinutes: Number(l.videoDurationMinutes) || 30,
+                totalEffortMinutes: Number(l.totalEffortMinutes) || Math.round((Number(l.videoDurationMinutes) || 30) * multiplier),
+                isCompleted: Boolean(l.isCompleted),
+              });
+            }
+          }
+        }
+      }
+
+      // If course has totalHours or totalLectures but no discrete list, synthesize standard lectures
+      if (lecs.length === 0) {
+        const totalLecs = Number(c.totalLectures) || Math.max(5, Math.ceil((Number(c.totalHours) || 10) * 1.5));
+        const totalMins = Number(c.totalMinutes) || Math.round((Number(c.totalHours) || 10) * 60);
+        const minsPerLec = Math.max(15, Math.round(totalMins / totalLecs / multiplier));
+        for (let i = 1; i <= totalLecs; i++) {
+          lecs.push({
+            lectureNumber: i,
+            title: `Lecture ${i}`,
+            videoDurationMinutes: minsPerLec,
+            totalEffortMinutes: Math.round(minsPerLec * multiplier),
+            isCompleted: false,
+          });
+        }
+      }
+
+      // Track completed lecture flags
+      const doneSet = completedLectures[slug] instanceof Set
+        ? completedLectures[slug]
+        : new Set(Array.isArray(completedLectures[slug]) ? completedLectures[slug] : []);
+
+      lecs.forEach((l) => {
+        if (doneSet.has(l.lectureNumber)) l.isCompleted = true;
+      });
+
+      return {
+        ...c,
+        slug,
+        multiplier,
+        lectures: lecs,
+        totalVideoMinutes: lecs.reduce((s, l) => s + l.videoDurationMinutes, 0),
+        totalEffortMinutes: lecs.reduce((s, l) => s + l.totalEffortMinutes, 0),
+      };
+    });
+
+    // Helper: Find position in lecture sequence given consumed video minutes
+    const formatLecturePos = (lectures, consumedVideoMins) => {
+      let remaining = Math.max(0, consumedVideoMins);
+      for (let i = 0; i < lectures.length; i++) {
+        const l = lectures[i];
+        if (remaining < l.videoDurationMinutes) {
+          const m = Math.floor(remaining);
+          const s = Math.round((remaining - m) * 60);
+          const timeStr = `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+          return {
+            lectureNumber: l.lectureNumber,
+            lectureIndex: i,
+            minuteOffset: remaining,
+            positionStr: `Lecture ${l.lectureNumber} (${timeStr})`,
+            formatted: `up to Lecture ${l.lectureNumber}, ${timeStr}`,
+            isFinished: false,
+          };
+        }
+        remaining -= l.videoDurationMinutes;
+      }
+      const lastL = lectures[lectures.length - 1];
+      return {
+        lectureNumber: lastL ? lastL.lectureNumber : 1,
+        lectureIndex: lectures.length,
+        minuteOffset: lastL ? lastL.videoDurationMinutes : 0,
+        positionStr: `Lecture ${lastL ? lastL.lectureNumber : 1} (Completed)`,
+        formatted: `Course Complete (All ${lectures.length} lectures finished)`,
+        isFinished: true,
+      };
+    };
+
+    // Calculate initial starting progress per course up to today
+    const courseState = new Map();
+    normalizedCourses.forEach((c) => {
+      const courseLogs = progressLogs.filter((p) => p.courseSlug === c.slug && p.date && p.date < today);
+      const pastLoggedEffort = courseLogs.reduce((s, p) => s + (Number(p.minutesSpent) || 0), 0);
+      let consumedVideo = pastLoggedEffort / c.multiplier;
+
+      // Completed flags also advance position
+      c.lectures.forEach((l) => {
+        if (l.isCompleted) {
+          consumedVideo = Math.max(consumedVideo, (l.lectureNumber * l.videoDurationMinutes));
+        }
+      });
+
+      // Calculate carryover from yesterday if yesterday had an unfulfilled target
+      const [y, m, d] = today.split("-").map(Number);
+      const yesterdayStr = new Date(Date.UTC(y, m - 1, d - 1)).toISOString().slice(0, 10);
+      const yesterdayLog = progressLogs.filter((p) => p.courseSlug === c.slug && p.date === yesterdayStr);
+      const yesterdayActual = yesterdayLog.reduce((s, p) => s + (Number(p.minutesSpent) || 0), 0);
+
+      let yesterdayTarget = 0;
+      if (progressLogs.length > 0 && (yesterdayLog.length > 0 || (c.startDate && yesterdayStr >= c.startDate))) {
+        const yesterdayTmpl = getTimetableForDate(yesterdayStr);
+        const yBlocks = (yesterdayTmpl.blocks || []).filter((b) => b.courseSlug === c.slug);
+        if (yBlocks.length > 0) {
+          yesterdayTarget = yBlocks.reduce((sum, b) => sum + (Number(b.durationMinutes) || 0), 0);
+        } else if (!coursesWithTemplateBlocks.has(c.slug)) {
+          yesterdayTarget = c.category === "exploration"
+            ? fallbackExp
+            : fallbackHub;
+        }
+      }
+
+      const carryoverEffort = (yesterdayTarget > 0 && yesterdayActual < yesterdayTarget)
+        ? Math.max(0, yesterdayTarget - yesterdayActual)
+        : 0;
+
+      courseState.set(c.slug, {
+        startingConsumedVideo: consumedVideo,
+        consumedVideoMinutes: consumedVideo,
+        carryoverEffortMinutes: carryoverEffort,
+        consecutiveMisses: 0,
+        lastPlannedDate: null,
+      });
+    });
+
+    // Check recent misses for slack evaluation:
+    // A course triggers slack proposal ONLY when it had scheduled blocks and missed 3 consecutive sessions
+    const recentMissesByCourse = new Map();
+    normalizedCourses.forEach((c) => {
+      let consecutiveMisses = 0;
+      for (let i = 1; i <= 3; i++) {
+        const [y, m, d] = today.split("-").map(Number);
+        const pastDate = new Date(Date.UTC(y, m - 1, d - i)).toISOString().slice(0, 10);
+        if (c.startDate && pastDate < c.startDate && !progressLogs.some((p) => p.courseSlug === c.slug && p.date === pastDate)) break;
+
+        const pastTmpl = getTimetableForDate(pastDate);
+        const hadBlock = (pastTmpl.blocks || []).some((b) => b.courseSlug === c.slug);
+        if (!hadBlock && coursesWithTemplateBlocks.has(c.slug)) {
+          continue; // Not scheduled on this day
+        }
+
+        const dayLogs = progressLogs.filter((p) => p.courseSlug === c.slug && p.date === pastDate);
+        const actual = dayLogs.reduce((s, p) => s + (Number(p.minutesSpent) || 0), 0);
+        if (actual === 0) {
+          // Check if this date was an active working day (user logged something or had scheduled blocks)
+          const hadAnyLogs = progressLogs.some((p) => p.date === pastDate);
+          if (hadAnyLogs || progressLogs.length === 0) {
+            consecutiveMisses++;
+          }
+        } else {
+          // Session was fulfilled, break consecutive miss streak
+          break;
+        }
+      }
+      if (consecutiveMisses >= 3) {
+        recentMissesByCourse.set(c.slug, consecutiveMisses);
+      }
+    });
+
+    // Project days forward
+    const dayPlans = [];
+    const [startYear, startMonth, startDay] = today.split("-").map(Number);
+    let curUtc = new Date(Date.UTC(startYear, startMonth - 1, startDay));
+
+    for (let dayOffset = 0; dayOffset < horizonDays; dayOffset++) {
+      const dateStr = curUtc.toISOString().slice(0, 10);
+      const dayOfWeek = curUtc.getUTCDay(); // 0 = Sun, 6 = Sat
+      const isExam = examDates.has(dateStr);
+      const isHackathon = hackathonDates.has(dateStr);
+      const isSlack = slackDates.has(dateStr);
+
+      const timetable = getTimetableForDate(dateStr);
+      const isExamProfile = timetable.dayType === "exam" || timetable.activeProfile === "exam" || isExam;
+
+      const dayPlan = {
+        date: dateStr,
+        dayType: timetable.dayType || (dayOfWeek === 0 ? "sunday" : dayOfWeek === 6 ? "saturday" : "weekday"),
+        activeProfile: timetable.activeProfile || timetable.dayType || (dayOfWeek === 0 ? "sunday" : dayOfWeek === 6 ? "saturday" : "weekday"),
+        isConfirmedSchedule: Boolean(timetable.isConfirmedSchedule),
+        scheduleSource: timetable.scheduleSource || (timetable.isConfirmedSchedule ? "activation" : "assumed-default"),
+        isExamDay: Boolean(isExam || isExamProfile),
+        isHackathon: Boolean(isHackathon),
+        isSlackDay: Boolean(isSlack),
+        targetCapacityMinutes: 0,
+        allocatedMinutes: 0,
+        coursePlans: [],
+        overflowSuggestions: [],
+      };
+
+      if (!isHackathon) {
+        for (const c of normalizedCourses) {
+          // Check date constraints: must be >= startDate and <= (endDate || targetDate)
+          if (c.startDate && dateStr < c.startDate) continue;
+          const courseEndDate = c.endDate || c.targetDate;
+          if (courseEndDate && dateStr > courseEndDate) continue;
+
+          const state = courseState.get(c.slug);
+          if (!state) continue;
+
+          // Check if course already finished all lectures
+          const currentPos = formatLecturePos(c.lectures, state.consumedVideoMinutes);
+          if (currentPos.isFinished) continue;
+
+          // Find matching blocks in today's active profile (skip fixed night_routine, checklist, rest)
+          const slugNorm = c.slug.toLowerCase().replace(/[-_]/g, " ");
+          const matchingBlocks = (timetable.blocks || []).filter((b) => {
+            const bType = normalizeBlockType(b);
+            if (["night_routine", "checklist", "rest"].includes(bType) && b.category !== "oratory") {
+              return false;
+            }
+            const bText = `${b.label || ""} ${b.category || ""} ${b.courseSlug || ""}`.toLowerCase();
+            return (
+              b.courseSlug === c.slug ||
+              b.category === c.slug ||
+              bText.includes(slugNorm) ||
+              (c.slug.includes("typing") && bText.includes("typing")) ||
+              (c.slug.includes("dsa") && bText.includes("dsa")) ||
+              (c.slug.includes("web") && bText.includes("web")) ||
+              (c.category === "exploration" && !b.courseSlug && b.category === "exploration") ||
+              (c.category === "oratory" && (b.category === "oratory" || bText.includes("oratory") || bText.includes("speech")))
+            );
+          });
+
+          const isExploration = c.category === "exploration" || c.slug.includes("typing");
+          let dailyCapacity = matchingBlocks.reduce((s, b) => s + (b.durationMinutes || 0), 0);
+          let source = "timetable";
+
+          if (isExamProfile) {
+            dailyCapacity = 0;
+          } else if (dailyCapacity === 0 && !isSlack) {
+            const isManualRange = Boolean(timetable.scheduleSource === "activation" || timetable.isConfirmedSchedule);
+            const isWeekend = timetable.dayType === "saturday" || timetable.dayType === "sunday";
+            const isAssumedWeekday = !isManualRange && !isWeekend && timetable.dayType === "weekday";
+
+            if (isWeekend || isManualRange) {
+              // User rule: Weekend timetable and manual ranges will NOT change on an assumption basis.
+              dailyCapacity = 0;
+            } else if (isAssumedWeekday && isExploration && !coursesWithStandardBlocks.has(c.slug)) {
+              // User rule: On assumed normal weekdays (Mon-Fri), assume 45m/day for active explorations
+              // that don't have a dedicated weekday/weekend block (except Saturday & Sunday remain unchanged).
+              dailyCapacity = fallbackExp || 45;
+              source = coursesWithTemplateBlocks.has(c.slug)
+                ? "default-assumption"
+                : "Not in your timetable yet, add a block";
+            } else {
+              // Check if course has blocks in any template or activation profile
+              const hasAssignedBlocks = coursesWithTemplateBlocks.has(c.slug) || (timetable.blocks && timetable.blocks.some(b => b.courseSlug === c.slug));
+              if (!hasAssignedBlocks) {
+                // The fallback (150 Hub / 45 Exploration) applies ONLY to a course with ZERO blocks in every template and activation profile.
+                // Label it "Not in your timetable yet, add a block" and nothing more.
+                const isHub = !isExploration && (c.category === "course" || ["dsa", "web-dev", "core"].includes(c.category));
+                dailyCapacity = isHub ? fallbackHub : fallbackExp;
+                source = "Not in your timetable yet, add a block";
+              } else {
+                // Course has dedicated blocks on other days, but NONE on today's active profile -> ABSENT (0 capacity)
+                dailyCapacity = 0;
+              }
+            }
+          }
+
+          if (isSlack && dailyCapacity > 0) {
+            // Slack Day: protected activities retain full allocation; eligible non-protected core courses are lightened by ~50%;
+            // flexible P3 explorations and remaining unprotected work are deferred to recovery.
+            if (c.isProtected) {
+              // Retain full protected allocation
+            } else if (!isExploration && (c.category === "course" || c.priority === "P1")) {
+              dailyCapacity = Math.max(30, Math.round(dailyCapacity * 0.5));
+            } else {
+              dailyCapacity = 0;
+            }
+          }
+
+          if (dailyCapacity > 0) {
+            const totalCarryover = state.carryoverEffortMinutes || 0;
+            // Catch-Up Priority Step 1: Carryover stays in its OWN block first, capped at block capacity
+            const ownCarryover = Math.min(totalCarryover, dailyCapacity);
+            const overflowExcess = Math.max(0, totalCarryover - dailyCapacity);
+
+            // Catch-Up Priority Step 2: ONLY if own block cannot absorb within cap, suggest a Flexible block on THIS date's timetable
+            if (overflowExcess > 0) {
+              const flexBlock = (timetable.blocks || []).find(
+                (b) => b.courseSlug !== c.slug && resolveBlockFlexible(b) === true
+              );
+              if (flexBlock) {
+                dayPlan.overflowSuggestions.push({
+                  fromCourseSlug: c.slug,
+                  fromCourseTitle: c.title,
+                  overflowMinutes: overflowExcess,
+                  targetBlockId: flexBlock.blockId,
+                  targetBlockLabel: flexBlock.label,
+                  targetBlockMinutes: flexBlock.durationMinutes,
+                  requiresConfirmation: true,
+                  reason: `${c.title} has ${totalCarryover}m unfinished work, exceeding its ${dailyCapacity}m block cap by ${overflowExcess}m. You can use "${flexBlock.label}" (${flexBlock.durationMinutes}m, Flexible) today if you confirm.`,
+                });
+              }
+            }
+
+            // Total target NEVER exceeds capacity. First ownCarryover is dedicated to yesterday's material.
+            const effortTarget = dailyCapacity;
+            const lectureMinTarget = Math.round(effortTarget / c.multiplier);
+
+            const startPosStr = currentPos.positionStr;
+            const nextVideoConsumed = state.consumedVideoMinutes + lectureMinTarget;
+            const endPos = formatLecturePos(c.lectures, nextVideoConsumed);
+
+            // Compute exact per-lecture breakdown (lecture names + minutes covered today)
+            const lectureBreakdown = [];
+            let lecCursor = 0;
+            for (const lec of c.lectures) {
+              const lecStart = lecCursor;
+              const lecEnd = lecCursor + lec.videoDurationMinutes;
+              const overlapStart = Math.max(state.consumedVideoMinutes, lecStart);
+              const overlapEnd = Math.min(nextVideoConsumed, lecEnd);
+              if (overlapEnd > overlapStart + 0.01) {
+                const vMin = Math.round(overlapEnd - overlapStart);
+                if (vMin > 0) {
+                  lectureBreakdown.push({
+                    lectureNumber: lec.lectureNumber,
+                    title: lec.title || `Lecture ${lec.lectureNumber}`,
+                    videoMinutes: vMin,
+                    effortMinutes: Math.round(vMin * c.multiplier),
+                  });
+                }
+              }
+              lecCursor = lecEnd;
+              if (lecCursor >= nextVideoConsumed) break;
+            }
+
+            dayPlan.coursePlans.push({
+              courseId: c._id || c.id,
+              courseSlug: c.slug,
+              courseTitle: c.title,
+              category: c.category || "course",
+              priority: c.priority || "P2",
+              lectureMinTarget,
+              effortMinTarget: effortTarget,
+              carryoverMin: ownCarryover,
+              overflowPendingMin: overflowExcess,
+              minAcceptableMarkMin: Math.round(effortTarget * 0.75),
+              startPosition: startPosStr,
+              endPosition: endPos.positionStr,
+              endPositionLabel: endPos.formatted,
+              startLectureNumber: currentPos.lectureNumber,
+              endLectureNumber: endPos.lectureNumber,
+              lectureBreakdown,
+              source,
+              status: "planned",
+              actualMinutes: 0,
+            });
+
+            dayPlan.allocatedMinutes += effortTarget;
+            state.consumedVideoMinutes = nextVideoConsumed;
+            state.carryoverEffortMinutes = overflowExcess; // Any excess beyond today's cap spreads to subsequent days unless user confirms overflow
+          }
+        }
+      }
+
+      dayPlans.push(dayPlan);
+      curUtc.setUTCDate(curUtc.getUTCDate() + 1);
+    }
+
+    // Feasibility Calculation per Course with Fixed Exam Mode Budget (Hard max 14)
+    const semesterExamBudget = Math.min(14, Math.max(1, Number(settings.semesterExamDaysBudget) || 14));
+    const scheduledExamDays = dayPlans.filter(dp => dp.isExamDay).length;
+    const unplacedExamDays = Math.max(0, semesterExamBudget - scheduledExamDays);
+
+    const feasibility = {};
+    normalizedCourses.forEach((c) => {
+      // Starting remaining video BEFORE projecting future days (reconciles progressLogs and checkbox isCompleted flags)
+      const startingConsumed = courseState.get(c.slug)?.startingConsumedVideo || 0;
+      const startingRemainingVideo = Math.max(0, c.totalVideoMinutes - startingConsumed);
+      const totalEffortNeeded = Math.round(startingRemainingVideo * c.multiplier);
+
+      // Count usable capacity on planned days before targetDate / endDate
+      const courseTarget = c.targetDate || c.endDate;
+      let usableEffortCapacity = 0;
+      let usableDaysCount = 0;
+
+      for (const dp of dayPlans) {
+        if (courseTarget && dp.date > courseTarget) break;
+        if (dp.isExamDay || dp.isHackathon) continue;
+
+        const cp = dp.coursePlans.find((p) => p.courseSlug === c.slug);
+        if (cp && cp.effortMinTarget > 0) {
+          usableEffortCapacity += cp.effortMinTarget;
+          usableDaysCount++;
+        }
+      }
+
+      // Reserve capacity for unplaced exam days so distribution does not overpromise
+      const effectiveDays = Math.max(0, usableDaysCount - unplacedExamDays);
+      const avgDailyCap = usableDaysCount > 0 ? (usableEffortCapacity / usableDaysCount) : 0;
+      const effectiveCapacity = Math.round(effectiveDays * avgDailyCap);
+
+      // Apply real-life buffer (25% default)
+      const discountedCapacity = Math.round(effectiveCapacity * (1 - bufferRatio));
+      const isFeasible = totalEffortNeeded <= discountedCapacity || totalEffortNeeded === 0;
+      const shortfallMinutes = Math.max(0, totalEffortNeeded - discountedCapacity);
+
+      feasibility[c.slug] = {
+        courseTitle: c.title,
+        multiplier: c.multiplier,
+        totalEffortNeededMinutes: totalEffortNeeded,
+        usableCapacityMinutes: effectiveCapacity,
+        bufferedCapacityMinutes: discountedCapacity,
+        isFeasible,
+        shortfallMinutes,
+        suggestedFeasibleMultiplier: startingRemainingVideo > 0
+          ? Math.max(1.0, Math.round((discountedCapacity / startingRemainingVideo) * 10) / 10)
+          : 1.0,
+        suggestedDailyMinutes: effectiveDays > 0
+          ? Math.ceil(totalEffortNeeded / effectiveDays)
+          : 120,
+        suggestedExtendedDays: avgDailyCap > 0 && shortfallMinutes > 0
+          ? Math.ceil(shortfallMinutes / (avgDailyCap * (1 - bufferRatio)))
+          : 0,
+      };
+    });
+
+    // Slack proposal evaluation
+    const slackProposal = {
+      proposed: false,
+      reason: "",
+      affectedCourses: [],
+    };
+
+    normalizedCourses.forEach((c) => {
+      const misses = recentMissesByCourse.get(c.slug) || 0;
+      if (misses >= 3) {
+        slackProposal.proposed = true;
+        slackProposal.reason = `${c.title} has 3 consecutive missed targets. Daily catch-up would exceed safe working capacity. Recommend taking a scheduled slack day to reset buffer without cognitive penalty.`;
+        slackProposal.affectedCourses.push(c.slug);
+      }
+    });
+
+    return {
+      dayPlans,
+      feasibility,
+      slackProposal,
+    };
+  }
+
   static allocateCurriculumToBlocks({ blocks = [], activities = [], minCoherentMinutes = 15 }) {
     // 1. Identify study / learning blocks
     const studyBlocks = blocks.filter(b => 
@@ -422,9 +994,40 @@ export class PlannerEngine {
         null
       );
 
-      const candidateSlugs = targetSlug 
-        ? [targetSlug] 
-        : Array.from(courseActivities.keys());
+      // Match candidate courses:
+      // 1. Exact match on targetSlug
+      // 2. Partial match (e.g. block mentions "typing" -> matches "typing-practice", "touch-typing", etc.)
+      // 3. Category match (block category 'exploration' matches all exploration courses)
+      let candidateSlugs = [];
+      const blockText = `${block.label || ''} ${block.category || ''} ${block.courseSlug || ''}`.toLowerCase();
+
+      if (targetSlug && courseActivities.has(targetSlug)) {
+        candidateSlugs.push(targetSlug);
+      }
+
+      // Check matching by course title or keywords in block text
+      for (const slug of courseActivities.keys()) {
+        if (!candidateSlugs.includes(slug)) {
+          const slugNorm = slug.toLowerCase().replace(/[-_]/g, ' ');
+          if (
+            (block.courseSlug && block.courseSlug === slug) ||
+            blockText.includes(slugNorm) ||
+            (blockText.includes('typing') && slug.includes('typing')) ||
+            (blockText.includes('web') && slug.includes('web')) ||
+            (blockText.includes('dsa') && slug.includes('dsa')) ||
+            (block.category === 'exploration' && slug.includes('exp')) ||
+            (block.category === 'oratory' && slug.includes('oratory'))
+          ) {
+            candidateSlugs.push(slug);
+          }
+        }
+      }
+
+      if (candidateSlugs.length === 0) {
+        if (!targetSlug) {
+          candidateSlugs = Array.from(courseActivities.keys());
+        }
+      }
 
       for (const slug of candidateSlugs) {
         const acts = courseActivities.get(slug) || [];
@@ -439,13 +1042,14 @@ export class PlannerEngine {
           if (effort <= remainingBlockMinutes) {
             assigned.push({
               activityId: actId,
-              courseSlug: act.courseSlug,
+              courseSlug: act.courseSlug || slug,
               sectionNumber: act.sectionNumber,
               sectionTitle: act.sectionTitle,
               activityNumber: act.activityNumber,
               title: act.title,
               allocatedMinutes: effort,
-              status: act.status || 'pending'
+              status: act.status || 'pending',
+              isManualSession: Boolean(act.isManualSession)
             });
             allocatedActivityIds.add(actId);
             allocatedActivities.push(act);
@@ -456,13 +1060,14 @@ export class PlannerEngine {
           else if (remainingBlockMinutes >= minCoherentMinutes && (effort - remainingBlockMinutes) <= Math.max(10, remainingBlockMinutes * 0.2)) {
             assigned.push({
               activityId: actId,
-              courseSlug: act.courseSlug,
+              courseSlug: act.courseSlug || slug,
               sectionNumber: act.sectionNumber,
               sectionTitle: act.sectionTitle,
               activityNumber: act.activityNumber,
               title: act.title,
               allocatedMinutes: effort,
               status: act.status || 'pending',
+              isManualSession: Boolean(act.isManualSession),
               note: 'Allocated with coherent section boundary completion'
             });
             allocatedActivityIds.add(actId);
@@ -470,14 +1075,17 @@ export class PlannerEngine {
             totalAllocatedMinutes += effort;
             remainingBlockMinutes = 0;
             break;
+          } else {
+            // Cannot fit activity into remaining block window
+            break;
           }
 
-          if (remainingBlockMinutes < minCoherentMinutes) {
+          if (remainingBlockMinutes <= 0) {
             break;
           }
         }
 
-        if (remainingBlockMinutes < minCoherentMinutes) {
+        if (remainingBlockMinutes <= 0) {
           break;
         }
       }
@@ -524,23 +1132,29 @@ export class PlannerEngine {
     startDate,
     targetDate,
     courseSlug,
+    course,
     activities = [],
     weekdayBlocks = [],
     weekendBlocks = [],
+    saturdayBlocks = [],
+    sundayBlocks = [],
     dedicatedMinutesPerDay = null,
+    dailyStudyMinutes = null,
     knownExams = [],
     knownHackathons = [],
     knownSlackDays = [],
     minCoherentMinutes = 15,
   }) {
-    const startDt = new Date(startDate);
-    const targetDt = new Date(targetDate);
-    const daySpan = Math.max(1, Math.round((targetDt - startDt) / (1000 * 60 * 60 * 24)) + 1);
-    const monthSpan = Math.max(1, daySpan / 30);
+    const effectiveStartDate = startDate || course?.startDate;
+    const effectiveTargetDate = targetDate || course?.targetDate;
+    const effectiveSlug = courseSlug || course?.slug;
+    const effectiveDedicatedMinutes = dedicatedMinutesPerDay !== null && dedicatedMinutesPerDay !== undefined
+      ? Number(dedicatedMinutesPerDay)
+      : (dailyStudyMinutes !== null && dailyStudyMinutes !== undefined ? Number(dailyStudyMinutes) : null);
 
-    const reservedExamDaysCount = Math.min(15, Math.max(2, Math.round(monthSpan * 3)));
-    const reservedHackathonDaysCount = Math.min(12, Math.max(1, Math.round(monthSpan * 2.2)));
-    const reservedSlackDaysCount = Math.min(15, Math.max(2, Math.round(monthSpan * 2.5)));
+    const startDt = new Date(effectiveStartDate);
+    const targetDt = new Date(effectiveTargetDate);
+    const daySpan = Math.max(1, Math.round((targetDt - startDt) / (1000 * 60 * 60 * 24)) + 1);
 
     const examDateSet = new Set(
       knownExams.flatMap((e) => [
@@ -563,6 +1177,11 @@ export class PlannerEngine {
 
     const timelineDays = [];
     let curDate = new Date(startDt);
+    const monthSpan = Math.max(1, daySpan / 30);
+    const reservedExamDaysCount = Math.min(15, Math.max(2, Math.round(monthSpan * 3)));
+    const reservedHackathonDaysCount = Math.min(12, Math.max(1, Math.round(monthSpan * 2.2)));
+    const reservedSlackDaysCount = Math.min(15, Math.max(2, Math.round(monthSpan * 2.5)));
+
     for (let i = 0; i < daySpan; i++) {
       const dateStr = curDate.toISOString().slice(0, 10);
       const dayOfWeek = curDate.getDay();
@@ -572,21 +1191,42 @@ export class PlannerEngine {
       const isHackathon = hackathonDateSet.has(dateStr);
       const isSlack = slackDateSet.has(dateStr);
 
-      const templateBlocks = isWeekend ? weekendBlocks : weekdayBlocks;
+      // Determine day's specific template blocks
+      let templateBlocks = weekdayBlocks;
+      if (dayOfWeek === 0) {
+        templateBlocks = sundayBlocks && sundayBlocks.length > 0 ? sundayBlocks : weekendBlocks;
+      } else if (dayOfWeek === 6) {
+        templateBlocks = saturdayBlocks && saturdayBlocks.length > 0 ? saturdayBlocks : weekendBlocks;
+      }
+
       let dayStudyCapacity = 0;
 
-      if (dedicatedMinutesPerDay && Number(dedicatedMinutesPerDay) > 0) {
-        dayStudyCapacity = Number(dedicatedMinutesPerDay);
+      if (effectiveDedicatedMinutes && effectiveDedicatedMinutes > 0) {
+        dayStudyCapacity = effectiveDedicatedMinutes;
       } else if (templateBlocks && templateBlocks.length > 0) {
-        const matchingBlocks = templateBlocks.filter(
+        const slugNorm = (effectiveSlug || '').toLowerCase().replace(/[-_]/g, ' ');
+        // 1. Prioritize blocks specifically dedicated to this course or category
+        const specificBlocks = templateBlocks.filter(
           (b) =>
-            b.courseSlug === courseSlug ||
-            b.category === courseSlug ||
-            ['study', 'webdev', 'dsa', 'oratory', 'exploration'].includes(b.category) ||
-            b.blockType === 'learning' ||
-            b.blockType === 'exploration',
+            (effectiveSlug && b.courseSlug === effectiveSlug) ||
+            (b.label && slugNorm && b.label.toLowerCase().includes(slugNorm)) ||
+            (effectiveSlug && effectiveSlug.includes('typing') && b.label && b.label.toLowerCase().includes('typing')) ||
+            (effectiveSlug && effectiveSlug.includes('web') && b.label && b.label.toLowerCase().includes('web')) ||
+            (effectiveSlug && effectiveSlug.includes('dsa') && b.label && b.label.toLowerCase().includes('dsa')),
         );
-        dayStudyCapacity = matchingBlocks.reduce((sum, b) => sum + (b.durationMinutes || 0), 0);
+        if (specificBlocks.length > 0) {
+          dayStudyCapacity = specificBlocks.reduce((sum, b) => sum + (b.durationMinutes || 0), 0);
+        } else {
+          // 2. Fall back to general study/exploration blocks
+          const matchingBlocks = templateBlocks.filter(
+            (b) =>
+              b.category === effectiveSlug ||
+              ['study', 'webdev', 'dsa', 'oratory', 'exploration'].includes(b.category) ||
+              b.blockType === 'learning' ||
+              b.blockType === 'exploration',
+          );
+          dayStudyCapacity = matchingBlocks.reduce((sum, b) => sum + (b.durationMinutes || 0), 0);
+        }
       }
 
       if (dayStudyCapacity === 0) {
@@ -600,7 +1240,7 @@ export class PlannerEngine {
         isExam,
         isHackathon,
         isSlack,
-        availableCapacity: isExam || isHackathon || isSlack ? 0 : dayStudyCapacity,
+        availableCapacity: isExam || isHackathon ? 0 : isSlack ? Math.min(dayStudyCapacity, 60) : dayStudyCapacity,
         standardCapacity: dayStudyCapacity,
         allocatedActivities: [],
         allocatedMinutes: 0,
@@ -613,23 +1253,26 @@ export class PlannerEngine {
     let currentHackathonCount = timelineDays.filter((d) => d.isHackathon).length;
     let currentSlackCount = timelineDays.filter((d) => d.isSlack).length;
 
-    timelineDays.forEach((day, idx) => {
-      if (day.availableCapacity > 0) {
-        if (day.isWeekend && currentHackathonCount < reservedHackathonDaysCount && Math.floor(idx / 7) % 3 === 2) {
-          day.isHackathon = true;
-          day.availableCapacity = 0;
-          currentHackathonCount++;
-        } else if (currentSlackCount < reservedSlackDaysCount && (idx % 10 === 4 || idx % 10 === 9)) {
-          day.isSlack = true;
-          day.availableCapacity = 0;
-          currentSlackCount++;
-        } else if (currentExamCount < reservedExamDaysCount && (idx % 10 === 2 || idx % 10 === 7)) {
-          day.isExam = true;
-          day.availableCapacity = 0;
-          currentExamCount++;
+    // Apply known or simulated semester buffers when explicit lists are not passed
+    if (knownExams.length === 0 && knownHackathons.length === 0 && knownSlackDays.length === 0 && daySpan >= 60) {
+      timelineDays.forEach((day, idx) => {
+        if (day.availableCapacity > 0) {
+          if (day.isWeekend && currentHackathonCount < reservedHackathonDaysCount && Math.floor(idx / 7) % 3 === 2) {
+            day.isHackathon = true;
+            day.availableCapacity = 0;
+            currentHackathonCount++;
+          } else if (currentSlackCount < reservedSlackDaysCount && (idx % 10 === 4 || idx % 10 === 9)) {
+            day.isSlack = true;
+            day.availableCapacity = 0;
+            currentSlackCount++;
+          } else if (currentExamCount < reservedExamDaysCount && (idx % 10 === 2 || idx % 10 === 7)) {
+            day.isExam = true;
+            day.availableCapacity = 0;
+            currentExamCount++;
+          }
         }
-      }
-    });
+      });
+    }
 
     const effectiveStudyDays = timelineDays.filter((d) => d.availableCapacity > 0);
     const totalAvailableStudyMinutes = effectiveStudyDays.reduce(
@@ -638,7 +1281,7 @@ export class PlannerEngine {
     );
 
     const uncompletedActivities = activities
-      .filter((a) => a.status !== 'completed')
+      .filter((a) => a.status !== 'completed' && !(a.isWatched && a.isCodeDone))
       .sort((a, b) => {
         const secA = Number(a.sectionNumber) || 0;
         const secB = Number(b.sectionNumber) || 0;
@@ -747,8 +1390,9 @@ export class PlannerEngine {
     const unplacedCount = uncompletedActivities.length - actIndex;
 
     return {
-      startDate,
-      targetDate,
+      startDate: effectiveStartDate,
+      targetDate: effectiveTargetDate,
+      courseSlug: effectiveSlug,
       daySpan,
       effectiveStudyDaysCount: effectiveStudyDays.length,
       reserves: {

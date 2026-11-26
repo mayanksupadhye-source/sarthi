@@ -10,7 +10,11 @@ import {
   getScheduleExceptions,
   createScheduleException,
   deleteScheduleException,
-  detectConflicts
+  detectConflicts,
+  getActivations,
+  createActivation,
+  updateActivation,
+  deleteActivation
 } from '../controllers/timetableController.js';
 import { authenticate } from '../middleware/auth.js';
 
@@ -33,5 +37,11 @@ router.delete('/exceptions/:id', deleteScheduleException);
 
 // Conflict Detection
 router.get('/conflicts', detectConflicts);
+
+// Profile Activations (Date range overrides: "Use this timetable from start to end")
+router.get('/activations', getActivations);
+router.post('/activations', createActivation);
+router.put('/activations/:id', updateActivation);
+router.delete('/activations/:id', deleteActivation);
 
 export default router;

@@ -40,6 +40,20 @@
         gap: var(--space-6);
         margin-bottom: var(--space-8);
       }
+      @media (max-width: 768px) {
+        .track-grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 12px;
+          margin-bottom: 18px;
+        }
+        .track-card {
+          padding: 14px;
+        }
+        .explore-banner {
+          padding: 16px;
+          margin-bottom: 14px;
+        }
+      }
       .track-card {
         background: var(--color-bg-paper);
         border: 1px solid var(--color-border);

@@ -3,6 +3,7 @@ import { DailyPlan } from "../models/DailyPlan.js";
 import { SlackDayLog } from "../models/SlackDayLog.js";
 import { ScheduleTemplate } from "../models/ScheduleTemplate.js";
 import { ScheduleException } from "../models/ScheduleException.js";
+import { TimetableActivation } from "../models/TimetableActivation.js";
 import { Setting } from "../models/Setting.js";
 import { Course } from "../models/Course.js";
 import { CurriculumActivity } from "../models/CurriculumActivity.js";
@@ -17,6 +18,8 @@ import { PlannerEngine } from "../services/plannerEngine.js";
 import { WeightLog } from "../models/WeightLog.js";
 import { getTodayString } from "../utils/timeFormat.js";
 import { removeJournalHistorySchedule } from "../services/journalScheduleMigration.js";
+import { ensureOratoryTrack } from "./courseController.js";
+import { AllocationService } from "../services/allocationService.js";
 
 function getMonthKey(dateStr) {
   return dateStr.slice(0, 7); // "YYYY-MM"
@@ -27,6 +30,11 @@ export async function getToday(req, res, next) {
     const today = req.query.date || getTodayString();
     const userId = req.user.id;
     await removeJournalHistorySchedule(userId);
+    try {
+      await ensureOratoryTrack(userId);
+    } catch (trackErr) {
+      console.warn("[getToday] ensureOratoryTrack notice:", trackErr.message);
+    }
 
     // 1. Get user settings
     const settings = (await Setting.findOne({ userId })) || {
@@ -34,18 +42,29 @@ export async function getToday(req, res, next) {
       monthlySlackDayAllowance: 3,
     };
 
-    // 2. Resolve date-specific ScheduleException first
+    // 2. Resolve date-range TimetableActivation (Priority 1: Most recently created wins)
+    const activeRange = await TimetableActivation.findOne({
+      userId,
+      startDate: { $lte: today },
+      endDate: { $gte: today },
+    }).sort({ createdAt: -1 });
+
     const dateException = await ScheduleException.findOne({
       userId,
       date: today,
     });
     let dayType = "weekday";
+    let activeProfile = "";
     let isException = false;
     let exceptionDetails = null;
 
-    if (dateException) {
+    if (activeRange) {
+      dayType = activeRange.profileId;
+      activeProfile = activeRange.profileId;
+    } else if (dateException) {
       isException = true;
       dayType = dateException.templateOverride || "holiday";
+      activeProfile = dayType;
       exceptionDetails = {
         type: dateException.exceptionType,
         notes: dateException.notes,
@@ -59,11 +78,14 @@ export async function getToday(req, res, next) {
       new Date(today) <= new Date(settings.examModeEndDate)
     ) {
       dayType = "exam";
+      activeProfile = "exam";
     } else {
-      const dayOfWeek = new Date(today).getDay(); // 0 is Sunday, 6 is Saturday
+      const [y, m, d] = today.split("-").map(Number);
+      const dayOfWeek = new Date(Date.UTC(y, m - 1, d)).getUTCDay(); // 0 is Sunday, 6 is Saturday
       if (dayOfWeek === 0) dayType = "sunday";
       else if (dayOfWeek === 6) dayType = "saturday";
       else dayType = "weekday";
+      activeProfile = dayType;
     }
 
     // 3. Get timetable template blocks for today
@@ -101,93 +123,234 @@ export async function getToday(req, res, next) {
       studyCapacityMinutes += dateException.extraAvailableMinutes;
     }
 
+    // Ensure DailyPlan is loaded before syncing today's CurriculumActivity list so Today & Calendar match 1:1
+    let dailyPlan = await DailyPlan.findOne({ userId, date: today });
+    if (!dailyPlan) {
+      try {
+        await AllocationService.replanFrom(userId, today, 30);
+        dailyPlan = await DailyPlan.findOne({ userId, date: today });
+      } catch (allocErr) {
+        console.warn("[getToday] AllocationService.replanFrom notice:", allocErr.message);
+      }
+    }
+
+    const plannedCourseSlugs = new Set(
+      (dailyPlan?.coursePlans || []).map((cp) => cp.courseSlug).filter(Boolean)
+    );
+    const isExamToday = dayType === "exam" || Boolean(dailyPlan?.isExamDay);
+
     // 4. Link any CurriculumActivity scheduled for today to a canonical Task
     const scheduledActs = await CurriculumActivity.find({
       userId,
       scheduledDate: today,
-      status: { $ne: "completed" },
+      status: { $nin: ["completed", "archived"] },
+      isWatched: { $ne: true },
     });
 
     // Dynamically ensure active courses or timetable blocks have today's target activity ready
-    const userActiveCourses = await Course.find({
+    // Respect Course startDate, targetDate, and DailyPlan allocations (never schedule during exam mode or outside date window)
+    const userActiveCourses = isExamToday ? [] : await Course.find({
       userId,
       status: { $ne: "archived" },
-    }).select("slug category title");
+      $or: [
+        { startDate: null },
+        { startDate: { $lte: today } },
+      ],
+    }).select("slug category title startDate targetDate totalHours totalMinutes completedMinutes completedLectures totalLectures");
 
     for (const c of userActiveCourses) {
-      const alreadyScheduled = scheduledActs.some((a) => a.courseSlug === c.slug);
-      if (!alreadyScheduled) {
-        const hasTimetableBlock =
-          blocks &&
-          blocks.some(
-            (b) =>
-              b.courseSlug === c.slug ||
-              b.category === c.slug ||
-              (c.category === "exploration" && b.category === "exploration"),
-          );
-        const nextPending = await CurriculumActivity.findOne({
+      // Check if course has already ended
+      if (c.targetDate && c.targetDate < today) continue;
+
+      const plannedForCourse = (dailyPlan?.coursePlans || []).find((cp) => cp.courseSlug === c.slug);
+      const slugNorm = (c.slug || '').toLowerCase().replace(/[-_]/g, ' ');
+      const titleNorm = (c.title || '').toLowerCase();
+      const matchingBlocks = (blocks || []).filter((b) => {
+        const bLabel = (b.label || '').toLowerCase();
+        return (
+          b.courseSlug === c.slug ||
+          b.category === c.slug ||
+          (slugNorm && bLabel.includes(slugNorm)) ||
+          (titleNorm && bLabel.includes(titleNorm)) ||
+          (c.slug.includes('typing') && bLabel.includes('typing')) ||
+          (c.slug.includes('web') && bLabel.includes('web')) ||
+          (c.slug.includes('dsa') && bLabel.includes('dsa')) ||
+          (c.slug === 'oratory' && (
+            b.category === 'oratory' ||
+            b.courseSlug === 'oratory' ||
+            bLabel.includes('oratory') ||
+            bLabel.includes('speech') ||
+            bLabel.includes('public speaking')
+          )) ||
+          (c.category === 'exploration' && (b.category === 'exploration' || b.blockType === 'exploration'))
+        );
+      });
+      const totalBlockMinutes = matchingBlocks.reduce((sum, b) => sum + (b.durationMinutes || 0), 0);
+
+      let currentCourseActs = scheduledActs.filter((a) => a.courseSlug === c.slug);
+      let currentScheduledMins = currentCourseActs.reduce(
+        (sum, a) => sum + (Number(a.remainingMinutes) || Number(a.totalEffortMinutes) || 30),
+        0
+      );
+
+      const isPlannedInDailyPlan = plannedCourseSlugs.has(c.slug);
+      const hasTimetableBlock = matchingBlocks.length > 0;
+      const targetMinsForCourse = plannedForCourse?.effortMinTarget || totalBlockMinutes || 45;
+
+      // Only pull/assign activities if the course is actually scheduled today in DailyPlan or has an explicit block
+      if (currentScheduledMins < targetMinsForCourse && (isPlannedInDailyPlan || hasTimetableBlock)) {
+        const excludeIds = scheduledActs.map((a) => a._id).filter(Boolean);
+        const morePending = await CurriculumActivity.find({
           userId,
           courseSlug: c.slug,
-          status: { $ne: "completed" },
-        }).sort({ sectionNumber: 1, subsectionNumber: 1, activityNumber: 1 });
+          status: { $nin: ["completed", "archived"] },
+          isWatched: { $ne: true },
+          _id: { $nin: excludeIds },
+        })
+          .sort({ sectionNumber: 1, subsectionNumber: 1, activityNumber: 1 })
+          .limit(10);
 
-        if (
-          nextPending &&
-          (hasTimetableBlock ||
-            nextPending.status === "in-progress" ||
-            scheduledActs.length === 0)
-        ) {
-          if (!nextPending.scheduledDate) {
-            nextPending.scheduledDate = today;
-            await nextPending.save();
+        for (const act of morePending) {
+          if (currentScheduledMins >= targetMinsForCourse) break;
+          if (!act.scheduledDate) {
+            act.scheduledDate = today;
+            await act.save();
           }
-          scheduledActs.push(nextPending);
+          scheduledActs.push(act);
+          const effort = Number(act.remainingMinutes) || Number(act.totalEffortMinutes) || 30;
+          currentScheduledMins += effort;
+        }
+
+        // If no curriculum activities exist in DB, but course has manual hours:
+        if (scheduledActs.filter((a) => a.courseSlug === c.slug).length === 0 && (c.totalHours > 0 || c.totalMinutes > 0)) {
+          const startStr = c.startDate || today;
+          const endStr = c.targetDate || today;
+          if (today >= startStr && (!c.targetDate || today <= endStr)) {
+            const startD = new Date(startStr);
+            const endD = new Date(endStr);
+            const totalDays = Math.max(1, Math.round((endD - startD) / (1000 * 60 * 60 * 24)) + 1);
+            const remainingMins = Math.max(0, (c.totalMinutes || c.totalHours * 60) - (c.completedMinutes || 0));
+            if (remainingMins > 0) {
+              const dailyPaceMins = Math.max(20, Math.round(remainingMins / totalDays));
+              const existingManualTask = await Task.findOne({
+                userId,
+                scheduledDate: today,
+                category: c.slug,
+                status: { $ne: "completed" },
+              });
+              if (!existingManualTask) {
+                await Task.create({
+                  userId,
+                  title: `${c.title}: Daily Study & Practice Session`,
+                  priority: "P2",
+                  category: c.slug,
+                  estimatedMinutes: dailyPaceMins,
+                  actualMinutes: 0,
+                  remainingMinutes: dailyPaceMins,
+                  scheduledDate: today,
+                  status: "pending",
+                });
+              }
+
+              // Also provide a synthetic activity so allocateCurriculumToBlocks can assign it to the timetable block
+              scheduledActs.push({
+                _id: `manual_${c.slug}`,
+                id: `manual_${c.slug}`,
+                activityId: `manual_${c.slug}`,
+                userId,
+                courseSlug: c.slug,
+                courseTitle: c.title,
+                title: `${c.title}: Daily Study & Practice Session`,
+                sectionNumber: 1,
+                activityNumber: 1,
+                totalEffortMinutes: Math.min(totalBlockMinutes || 60, dailyPaceMins),
+                remainingMinutes: Math.min(totalBlockMinutes || 60, dailyPaceMins),
+                allocatedMinutes: Math.min(totalBlockMinutes || 60, dailyPaceMins),
+                scheduledDate: today,
+                isManualSession: true,
+                status: "pending",
+              });
+            }
+          }
         }
       }
     }
 
     for (const act of scheduledActs) {
+      if (act.isManualSession) continue;
       if (!act.taskId) {
-        const effortMinutes = Math.max(
-          1,
-          Math.round(
-            Number(act.totalEffortMinutes) ||
-              Number(act.remainingMinutes) ||
-              Number(act.contentDurationMinutes) * (Number(act.effectiveMultiplier) || 2) ||
-              45,
-          ),
-        );
-        const actualMins = Math.max(0, Math.round(Number(act.actualMinutes) || 0));
-        const remMins = Math.max(
-          0,
-          Math.round(Number(act.remainingMinutes) || effortMinutes - actualMins),
-        );
-
-        const task = await Task.create({
+        const expectedTitle = `${act.courseTitle || act.courseSlug.toUpperCase()}: ${act.title}`;
+        // Prevent race condition: check if a Task already exists for this activity
+        let task = await Task.findOne({
           userId,
-          title: `${act.courseTitle || act.courseSlug.toUpperCase()}: ${act.title}`,
-          priority: act.priority || "P2",
-          category: ["dsa", "webdev", "oratory", "reading"].includes(
-            act.courseSlug,
-          )
-            ? act.courseSlug
-            : "general",
-          estimatedMinutes: effortMinutes,
-          actualMinutes: actualMins,
-          remainingMinutes: remMins,
           scheduledDate: today,
-          status: act.status || "pending",
+          status: { $nin: ["cancelled", "deferred"] },
+          $or: [
+            { activityId: act._id },
+            { title: expectedTitle },
+          ],
         });
+
+        if (!task) {
+          const effortMinutes = Math.max(
+            1,
+            Math.round(
+              Number(act.totalEffortMinutes) ||
+                Number(act.remainingMinutes) ||
+                Number(act.contentDurationMinutes) * (Number(act.effectiveMultiplier) || 2) ||
+                45,
+            ),
+          );
+          const actualMins = Math.max(0, Math.round(Number(act.actualMinutes) || 0));
+          const remMins = Math.max(
+            0,
+            Math.round(Number(act.remainingMinutes) || effortMinutes - actualMins),
+          );
+
+          task = await Task.create({
+            userId,
+            activityId: act._id,
+            title: expectedTitle,
+            priority: act.priority || "P2",
+            category: ["dsa", "webdev", "oratory", "reading"].includes(
+              act.courseSlug,
+            )
+              ? act.courseSlug
+              : "general",
+            estimatedMinutes: effortMinutes,
+            actualMinutes: actualMins,
+            remainingMinutes: remMins,
+            scheduledDate: today,
+            status: act.status || "pending",
+          });
+        } else if (!task.activityId) {
+          task.activityId = act._id;
+          await task.save();
+        }
         act.taskId = task._id;
-        await act.save();
+        if (typeof act.save === "function") {
+          await act.save();
+        }
       }
     }
 
-    // 5. Get tasks scheduled for today
-    const scheduledTasks = await Task.find({
+    // 5. Get tasks scheduled for today (exclude cancelled/deferred to prevent duplicate display)
+    const rawScheduledTasks = await Task.find({
       userId,
       scheduledDate: today,
-    }).sort({ priority: 1, deadline: 1 });
+      status: { $nin: ["cancelled", "deferred"] },
+    }).sort({ priority: 1, deadline: 1, createdAt: 1 });
+
+    // Safeguard deduplication by activityId or normalized title+date
+    const seenTaskKeys = new Set();
+    const scheduledTasks = [];
+    for (const t of rawScheduledTasks) {
+      const key = t.activityId ? `act:${t.activityId}` : `title:${(t.title || "").trim().toLowerCase()}`;
+      if (!seenTaskKeys.has(key)) {
+        seenTaskKeys.add(key);
+        scheduledTasks.push(t);
+      }
+    }
 
     // 6. Get missed tasks from past dates that are still pending/in-progress
     const missedTasks = await Task.find({
@@ -203,8 +366,7 @@ export async function getToday(req, res, next) {
       status: { $in: ["pending", "in-progress"] },
     }).limit(20);
 
-    // 8. Get or initialize DailyPlan
-    let dailyPlan = await DailyPlan.findOne({ userId, date: today });
+    // 8. Fallback create DailyPlan if still missing
     if (!dailyPlan) {
       dailyPlan = await DailyPlan.create({
         userId,
@@ -487,12 +649,20 @@ export async function getToday(req, res, next) {
       })),
     ];
 
+    // Build timetable block curriculum assignments
+    const blockCurriculumMap = PlannerEngine.allocateCurriculumToBlocks({
+      blocks,
+      activities: scheduledActs,
+    });
+    const blockAllocations = blockCurriculumMap?.blockAllocations || [];
+
     // 10. Slack days summary & Active Recovery Status
     const monthKey = getMonthKey(today);
-    const slackDaysCount = await SlackDayLog.countDocuments({
+    const slackLogsInMonth = await SlackDayLog.find({
       userId,
       monthKey,
-    });
+    }).sort({ date: -1 });
+    const slackDaysCount = slackLogsInMonth.length;
     const slackDayAllowance =
       settings.monthlySlackDayAllowance !== undefined
         ? settings.monthlySlackDayAllowance
@@ -506,13 +676,17 @@ export async function getToday(req, res, next) {
       success: true,
       today,
       dayType,
+      activeProfile: activeProfile || dayType,
+      activeRange,
       isSunday,
       latestWeightLog,
       isException,
       exceptionDetails,
       targetCapacityMinutes: studyCapacityMinutes,
       timetableBlocks: blocks,
+      blockAllocations,
       dailyPlan,
+      coursePlans: dailyPlan?.coursePlans || [],
       reflection: dailyPlan?.reflection || {
         whatWentWell: "",
         whatStruggled: "",
@@ -542,6 +716,11 @@ export async function getToday(req, res, next) {
         used: slackDaysCount,
         remaining: Math.max(0, slackDayAllowance - slackDaysCount),
         isTodaySlackDay: Boolean(dailyPlan && dailyPlan.isSlackDay),
+        declaredDates: slackLogsInMonth.map((s) => ({
+          date: s.date,
+          reason: s.reason,
+          type: s.type,
+        })),
         policy: "emergency_disruption_buffer",
       },
     });
@@ -559,6 +738,11 @@ export async function replanDay(req, res, next) {
     } = req.body;
     const userId = req.user.id;
     await removeJournalHistorySchedule(userId);
+    try {
+      await ensureOratoryTrack(userId);
+    } catch (trackErr) {
+      console.warn("[getToday] ensureOratoryTrack notice:", trackErr.message);
+    }
 
     // 1. Fetch settings
     const settings = (await Setting.findOne({ userId })) || {
@@ -706,28 +890,57 @@ export async function confirmReplan(req, res, next) {
         await t.save();
 
         const remaining = t.remainingMinutes || t.estimatedMinutes || 30;
-        await ExecutionSyncService.recordMissedWork({
+        // Avoid duplicate recovery entries for the same task and sourceDate
+        const existingLedger = await RecoveryLedger.findOne({
           userId,
-          sourceDate: targetDate,
-          title: t.title,
-          courseSlug: t.category,
           taskId: t._id,
-          missedMinutes: remaining,
+          sourceDate: targetDate,
+          status: { $in: ["active", "partial"] },
         });
+        if (!existingLedger) {
+          await ExecutionSyncService.recordMissedWork({
+            userId,
+            sourceDate: targetDate,
+            title: t.title,
+            courseSlug: t.category,
+            taskId: t._id,
+            missedMinutes: remaining,
+          });
+        }
       }
     }
 
-    // 3. If Slack Day, log it
+    // 3. If Slack Day, enforce 3-per-month limit & log it (upsert to prevent duplicate logs on retry)
     if (isSlackDay) {
       const monthKey = getMonthKey(targetDate);
-      await SlackDayLog.create({
-        userId,
-        date: targetDate,
-        monthKey,
-        reason: slackDayReason || "Intentional recovery / disruption buffer",
-        tasksDeferredCount: deferredTaskIds.length,
-        deferredTaskIds,
-      });
+      const existingOnDate = await SlackDayLog.findOne({ userId, date: targetDate });
+      if (!existingOnDate) {
+        const settings = (await Setting.findOne({ userId })) || { monthlySlackDayAllowance: 3 };
+        const allowance = Math.min(3, settings.monthlySlackDayAllowance !== undefined ? Number(settings.monthlySlackDayAllowance) : 3);
+        const usedInMonth = await SlackDayLog.countDocuments({ userId, monthKey });
+        if (usedInMonth >= allowance) {
+          return res.status(400).json({
+            success: false,
+            message: `Monthly Slack Day allowance (${allowance}) already exhausted for ${monthKey}. Unused days do not carry forward.`,
+          });
+        }
+      }
+      await SlackDayLog.findOneAndUpdate(
+        { userId, date: targetDate },
+        {
+          $set: {
+            monthKey,
+            reason: slackDayReason || "Intentional recovery / disruption buffer",
+            tasksDeferredCount: deferredTaskIds.length,
+            deferredTaskIds,
+            replanApplied: true,
+          },
+          $setOnInsert: {
+            createdAt: new Date(),
+          },
+        },
+        { upsert: true, new: true },
+      );
     }
 
     // 4. Update DailyPlan
@@ -779,13 +992,16 @@ export async function getSlackDays(req, res, next) {
     const monthKey = req.query.month || getMonthKey(today);
 
     const settings = (await Setting.findOne({ userId })) || {
-      monthlySlackDayAllowance: 4,
+      monthlySlackDayAllowance: 3,
     };
     const logs = await SlackDayLog.find({ userId, monthKey }).sort({
       date: -1,
     });
     const count = logs.length;
-    const allowance = settings.monthlySlackDayAllowance || 4;
+    const allowance = Math.min(
+      3,
+      settings.monthlySlackDayAllowance !== undefined ? Number(settings.monthlySlackDayAllowance) : 3,
+    );
 
     return res.json({
       success: true,
@@ -796,6 +1012,197 @@ export async function getSlackDays(req, res, next) {
       logs,
     });
   } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * Explicitly declare a Slack Day for a given date.
+ * - Enforces strict 3-per-calendar-month limit on backend.
+ * - Idempotent on repeated clicks/requests for the same date.
+ * - Evaluates Courses Hub, Exploration Hub, Oratory, and Reading Books (explicitly excludes Academics & Night Routine).
+ * - Creates a realistic lighter schedule without cancelling the entire day, preserves partial execution,
+ *   records genuinely unfinished work in RecoveryLedger, and replans future capacity cleanly.
+ */
+export async function declareSlackDay(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const {
+      date = getTodayString(),
+      reason = "Intentional recovery / disruption buffer",
+      type = "unavoidable_disruption",
+    } = req.body || {};
+
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({ success: false, message: "Valid YYYY-MM-DD date is required." });
+    }
+
+    const monthKey = getMonthKey(date);
+    const settings = (await Setting.findOne({ userId })) || { monthlySlackDayAllowance: 3 };
+    const allowance = Math.min(
+      3,
+      settings.monthlySlackDayAllowance !== undefined ? Number(settings.monthlySlackDayAllowance) : 3,
+    );
+
+    // Idempotency check: prevent duplicate declaration on same date
+    const existingLog = await SlackDayLog.findOne({ userId, date });
+    if (existingLog) {
+      const logs = await SlackDayLog.find({ userId, monthKey }).sort({ date: -1 });
+      return res.json({
+        success: true,
+        alreadyDeclared: true,
+        message: `Slack Day already declared for ${date}.`,
+        log: existingLog,
+        slackDayStatus: {
+          allowance,
+          used: logs.length,
+          remaining: Math.max(0, allowance - logs.length),
+        },
+      });
+    }
+
+    // Monthly limit enforcement (no carry-forward)
+    const usedInMonth = await SlackDayLog.countDocuments({ userId, monthKey });
+    if (usedInMonth >= allowance) {
+      return res.status(400).json({
+        success: false,
+        message: `Monthly Slack Day limit of ${allowance} reached for ${monthKey}. Unused days do not carry forward.`,
+      });
+    }
+
+    // Gather eligible scheduled work on this date across the 4 modules:
+    // Courses Hub, Exploration Hub, Oratory, Reading Books.
+    // Explicitly EXCLUDE Academics (category: academic/academics) and Night Routine.
+    const dayPlanBefore = await DailyPlan.findOne({ userId, date });
+    const scheduledActs = await CurriculumActivity.find({
+      userId,
+      scheduledDate: date,
+      status: { $nin: ["completed", "archived"] },
+      courseSlug: { $nin: ["academics", "academic"] },
+    });
+    const scheduledTasks = await Task.find({
+      userId,
+      scheduledDate: date,
+      status: { $nin: ["completed", "cancelled"] },
+      category: { $nin: ["academic", "academics", "night-routine", "night_routine"] },
+    });
+
+    const lightenedItems = [];
+    const deferredRecoveryItems = [];
+
+    // 1. Handle scheduled curriculum activities (Courses, Explorations, Oratory)
+    for (const act of scheduledActs) {
+      const totalPlanned = Number(act.totalEffortMinutes) || Number(act.allocatedMinutes) || 30;
+      const doneSoFar = Number(act.actualMinutes) || 0;
+      const genuineRemaining = Math.max(0, totalPlanned - doneSoFar);
+      if (genuineRemaining <= 0) continue;
+
+      const isExplorationOrOratory = act.courseSlug === "oratory" || act.category === "exploration";
+      if (isExplorationOrOratory) {
+        await ExecutionSyncService.recordMissedWork({
+          userId,
+          sourceDate: date,
+          title: act.title,
+          courseSlug: act.courseSlug,
+          activityId: act._id,
+          missedMinutes: genuineRemaining,
+        });
+        deferredRecoveryItems.push({
+          module: act.courseSlug === "oratory" ? "oratory" : "exploration",
+          title: act.title,
+          remainingMinutes: genuineRemaining,
+        });
+      } else {
+        // Core course: retain lighter portion (50%), move remaining to recovery
+        const retainedMins = Math.max(15, Math.round(genuineRemaining * 0.5));
+        const recoveredMins = genuineRemaining - retainedMins;
+        lightenedItems.push({
+          module: "course",
+          title: act.title,
+          retainedMinutes: retainedMins,
+        });
+        if (recoveredMins > 0) {
+          await ExecutionSyncService.recordMissedWork({
+            userId,
+            sourceDate: date,
+            title: `${act.title} (Slack buffer remainder)`,
+            courseSlug: act.courseSlug,
+            activityId: act._id,
+            missedMinutes: recoveredMins,
+          });
+          deferredRecoveryItems.push({
+            module: "course",
+            title: act.title,
+            remainingMinutes: recoveredMins,
+          });
+        }
+      }
+    }
+
+    // 2. Handle non-academic, non-night-routine tasks (e.g. Reading Books or general flexible tasks)
+    const deferredTaskIds = [];
+    for (const t of scheduledTasks) {
+      const rem = Math.max(0, (t.remainingMinutes ?? t.estimatedMinutes ?? 30));
+      if (rem <= 0) continue;
+
+      if (t.isProtected || t.priority === "P1") {
+        lightenedItems.push({ module: t.category || "task", title: t.title, retainedMinutes: rem });
+      } else {
+        t.scheduledDate = null;
+        t.isDeferred = true;
+        t.deferReason = "Deferred via Slack Day";
+        await t.save();
+        deferredTaskIds.push(t._id);
+
+        await ExecutionSyncService.recordMissedWork({
+          userId,
+          sourceDate: date,
+          title: t.title,
+          courseSlug: t.category || "reading",
+          taskId: t._id,
+          missedMinutes: rem,
+        });
+        deferredRecoveryItems.push({
+          module: t.category || "task",
+          title: t.title,
+          remainingMinutes: rem,
+        });
+      }
+    }
+
+    // 3. Create SlackDayLog (unique on userId + date)
+    const log = await SlackDayLog.create({
+      userId,
+      date,
+      monthKey,
+      reason,
+      type,
+      tasksDeferredCount: deferredTaskIds.length,
+      deferredTaskIds,
+      replanApplied: true,
+    });
+
+    // 4. Replan future dates (including this Slack Day's lighter schedule)
+    await AllocationService.replanFrom(userId, date, 150);
+
+    const updatedLogs = await SlackDayLog.find({ userId, monthKey }).sort({ date: -1 });
+    return res.status(201).json({
+      success: true,
+      message: `Slack Day declared for ${date}. Lighter schedule applied; ${deferredRecoveryItems.length} item(s) scheduled for gradual recovery.`,
+      log,
+      lightenedItems,
+      deferredRecoveryItems,
+      slackDayStatus: {
+        allowance,
+        used: updatedLogs.length,
+        remaining: Math.max(0, allowance - updatedLogs.length),
+      },
+      beforeAllocatedMinutes: dayPlanBefore?.allocatedMinutes || 0,
+    });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.json({ success: true, alreadyDeclared: true, message: "Slack Day already declared for this date." });
+    }
     next(err);
   }
 }
@@ -1025,12 +1432,31 @@ export async function saveDailyReflection(req, res, next) {
   }
 }
 
+export async function distributePlanner(req, res, next) {
+  try {
+    const userId = req.user.id;
+    const { fromDate, horizonDays } = req.body || {};
+    const today = fromDate || getTodayString();
+    const result = await AllocationService.replanFrom(
+      userId,
+      today,
+      Number(horizonDays) || 150,
+    );
+    return res.json(result);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export async function getCalendarEvents(req, res, next) {
   try {
     const userId = req.user.id;
-    const { month, start, end } = req.query;
+    const { month, start, end, from, to } = req.query;
     let startDateStr, endDateStr;
-    if (start && end) {
+    if (from && to) {
+      startDateStr = from;
+      endDateStr = to;
+    } else if (start && end) {
       startDateStr = start;
       endDateStr = end;
     } else {
@@ -1052,6 +1478,8 @@ export async function getCalendarEvents(req, res, next) {
       dailyPlans,
       curriculumActivities,
       courses,
+      activations,
+      templates,
     ] = await Promise.all([
       Task.find({
         userId,
@@ -1101,7 +1529,9 @@ export async function getCalendarEvents(req, res, next) {
           { completedDate: { $gte: startDateStr, $lte: endDateStr } },
         ],
       }),
-      Course.find({ userId }).select("slug title emoji category status totalLectures completedLectures totalMinutes completedMinutes"),
+      Course.find({ userId }).select("slug title emoji category status totalLectures completedLectures totalMinutes completedMinutes totalHours startDate targetDate"),
+      TimetableActivation.find({ userId }).sort({ createdAt: -1 }),
+      ScheduleTemplate.find({ userId }),
     ]);
 
     // Calculate Whole Month Target Summary for course curriculum progress and study effort
@@ -1115,11 +1545,27 @@ export async function getCalendarEvents(req, res, next) {
          (a.scheduledDate && a.scheduledDate >= startDateStr && a.scheduledDate <= endDateStr))
     );
 
-    const plannedMinutes = plannedActivities.reduce((sum, a) => {
+    let plannedMinutes = plannedActivities.reduce((sum, a) => {
       const mult = a.effectiveMultiplier || 2.0;
       const dur = a.totalEffortMinutes || Math.round((a.contentDurationMinutes || 0) * mult) || 45;
       return sum + dur;
     }, 0);
+
+    // Also include planned minutes for active courses with manual hours
+    for (const c of courses) {
+      if (c.status === "active" && c.totalHours > 0) {
+        const cStart = c.startDate || startDateStr;
+        const cEnd = c.targetDate || endDateStr;
+        if (cStart <= endDateStr && cEnd >= startDateStr) {
+          const overlapStart = cStart > startDateStr ? cStart : startDateStr;
+          const overlapEnd = cEnd < endDateStr ? cEnd : endDateStr;
+          const overlapDays = Math.max(1, Math.round((new Date(overlapEnd) - new Date(overlapStart)) / (1000 * 60 * 60 * 24)) + 1);
+          const totalDays = Math.max(1, Math.round((new Date(cEnd) - new Date(cStart)) / (1000 * 60 * 60 * 24)) + 1);
+          const courseDailyMins = (c.totalHours * 60) / totalDays;
+          plannedMinutes += Math.round(courseDailyMins * overlapDays);
+        }
+      }
+    }
 
     const completedMinutes = executionRecords.reduce((sum, r) => sum + (r.minutesSpent || 0), 0);
 
@@ -1153,6 +1599,8 @@ export async function getCalendarEvents(req, res, next) {
       dailyPlans,
       curriculumActivities,
       courses,
+      activations,
+      templates,
       monthTargetSummary,
     });
   } catch (err) {

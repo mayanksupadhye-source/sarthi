@@ -68,6 +68,29 @@ const courseSchema = new mongoose.Schema({
 
 courseSchema.index({ userId: 1, slug: 1 }, { unique: true });
 
+courseSchema.methods.syncFromActivities = function (activities = []) {
+  if (!activities || activities.length === 0) return;
+  this.totalLectures = activities.length;
+  this.completedLectures = activities.filter(
+    (a) => a.status === "completed" || (a.isWatched && a.isCodeDone)
+  ).length;
+  this.totalMinutes = Math.round(
+    activities.reduce((s, a) => s + (a.totalEffortMinutes || 0), 0)
+  );
+  this.completedMinutes = Math.round(
+    activities
+      .filter((a) => a.status === "completed" || (a.isWatched && a.isCodeDone))
+      .reduce((s, a) => s + (a.actualMinutes || a.totalEffortMinutes || 0), 0)
+  );
+  this.totalHours = Math.round((this.totalMinutes / 60) * 10) / 10;
+  if (this.totalLectures > 0 && this.completedLectures >= this.totalLectures) {
+    this.status = "archived";
+  } else if (this.status === "archived" && this.completedLectures < this.totalLectures) {
+    this.status = "active";
+  }
+  this.updatedAt = new Date();
+};
+
 courseSchema.methods.recalculateProgress = function () {
   let total = 0;
   let done = 0;
@@ -95,7 +118,7 @@ courseSchema.methods.recalculateProgress = function () {
     this.completedMinutes = doneMin;
     this.totalHours = Math.round((totalMin / 60) * 10) / 10;
   } else {
-    // Preserve manual hours / minutes when no sections are populated yet
+    // Preserve manual hours / minutes and existing lecture counts when no embedded sections exist
     if (this.totalHours && this.totalHours > 0 && !this.totalMinutes) {
       this.totalMinutes = Math.round(this.totalHours * 60);
     } else if (this.totalMinutes && this.totalMinutes > 0 && !this.totalHours) {

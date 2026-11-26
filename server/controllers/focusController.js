@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 import { FocusSession } from "../models/FocusSession.js";
 import { Task } from "../models/Task.js";
+import { ExecutionSyncService } from "../services/executionSyncService.js";
+import { getTodayString } from "../utils/timeFormat.js";
 import {
   getFocusHistoryFilter,
   normalizeFocusHistoryPagination,
@@ -179,28 +181,29 @@ export async function completeSession(req, res, next) {
     session.notes = reflection.value;
     await session.save();
 
-    // If linked to a task, update task's actual minutes and remaining minutes!
+    // Canonical progress recording: If linked to a task, synchronize via ExecutionSyncService!
     let updatedTask = null;
-    if (session.taskId) {
-      const task = await Task.findOne({
-        _id: session.taskId,
+    let executionRecord = null;
+    if (session.taskId && session.actualMinutes > 0) {
+      const today = getTodayString();
+      const opId = `focus_${session._id.toString()}`;
+      const syncResult = await ExecutionSyncService.recordWork({
         userId: req.user.id,
+        taskId: session.taskId,
+        courseSlug: session.courseSlug || null,
+        minutesSpent: session.actualMinutes,
+        date: today,
+        type: "focus",
+        notes: reflection.value || `Focus Session: ${session.title}`,
+        isCompleted: false, // let recordWork mark completed if remainingMinutes reaches 0
+        operationId: opId,
       });
-      if (task) {
-        task.actualMinutes = (task.actualMinutes || 0) + session.actualMinutes;
-        task.remainingMinutes = Math.max(
-          0,
-          task.estimatedMinutes - task.actualMinutes,
-        );
-        if (task.remainingMinutes === 0) {
-          task.status = "completed";
-          task.completedAt = new Date();
-        } else {
-          task.status = "in-progress";
-        }
-        await task.save();
-        updatedTask = task;
+      if (syncResult) {
+        updatedTask = syncResult.task;
+        executionRecord = syncResult.executionRecord;
       }
+    } else if (session.taskId) {
+      updatedTask = await Task.findOne({ _id: session.taskId, userId: req.user.id });
     }
 
     return res.json({
@@ -208,6 +211,7 @@ export async function completeSession(req, res, next) {
       message: `Focus session completed! Logged ${session.actualMinutes} focused minutes.`,
       session,
       task: updatedTask,
+      executionRecord,
     });
   } catch (err) {
     next(err);

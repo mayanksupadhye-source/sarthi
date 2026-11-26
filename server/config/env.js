@@ -35,12 +35,19 @@ if (nodeEnv === "production") {
       "[SARTHI CONFIG] In production, SESSION_SECRET must be explicitly defined with a strong unique value.",
     );
   }
+  if (!process.env.MONGODB_URI || !process.env.MONGODB_URI.trim()) {
+    throw new Error(
+      "[SARTHI CONFIG] In production, MONGODB_URI must be explicitly configured. Silent localhost fallback is strictly prohibited.",
+    );
+  }
 }
 
 export const config = {
   port: parseInt(process.env.PORT, 10) || 5000,
   nodeEnv,
-  mongodbUri: process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/sarthi",
+  mongodbUri:
+    process.env.MONGODB_URI ||
+    (nodeEnv === "production" ? "" : "mongodb://127.0.0.1:27017/sarthi"),
   jwtSecret,
   jwtRefreshSecret,
   sessionSecret,

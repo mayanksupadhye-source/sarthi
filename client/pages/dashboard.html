@@ -162,6 +162,88 @@
         border-color: var(--accent-blue);
         box-shadow: 0 0 0 2px rgba(29, 78, 216, 0.15);
       }
+      .dashboard-sidebar-sticky {
+        position: sticky;
+        top: 76px;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-5);
+        align-self: start;
+      }
+      @media (max-width: 1024px) {
+        .dashboard-sidebar-sticky {
+          position: static;
+        }
+      }
+      .quick-jump-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-2);
+      }
+      .quick-jump-pill {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 10px;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--border-hairline);
+        background: var(--bg-canvas);
+        color: var(--text-ink);
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all var(--transition-fast);
+      }
+      .quick-jump-pill:hover {
+        border-color: var(--accent-blue);
+        background: var(--accent-blue-subtle);
+        color: var(--accent-blue);
+      }
+      .slack-day-chip {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 8px;
+        border-radius: 4px;
+        background: rgba(220, 38, 38, 0.06);
+        border: 1px solid rgba(220, 38, 38, 0.18);
+        font-size: 0.75rem;
+        color: #991b1b;
+      }
+      @media (max-width: 768px) {
+        .hero-banner {
+          padding: 14px 16px;
+          margin-bottom: 12px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+        }
+        .capacity-gauge {
+          text-align: left;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+        }
+        .capacity-value {
+          font-size: 1.15rem;
+        }
+        .timetable-strip {
+          max-height: 400px;
+        }
+      }
+      @media (max-width: 480px) {
+        .task-row {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+        .task-actions {
+          width: 100%;
+          justify-content: flex-end;
+        }
+      }
     </style>
   </head>
   <body>
@@ -248,6 +330,7 @@
                 flex-wrap: wrap;
               "
             >
+              <span class="badge" id="statActiveProfileBadge" style="background: #e0f2fe; color: #0369a1; font-weight: 700;">Profile: Weekday</span>
               <span class="badge badge-sky" id="statPlannedCount"
                 >0 Planned</span
               >
@@ -347,6 +430,28 @@
             <a href="timetable.html" class="btn btn-outline btn-sm"
               >Manage Schedule</a
             >
+          </div>
+
+          <!-- Slack Day Active Banner -->
+          <div
+            id="slackDayActiveBanner"
+            class="alert"
+            style="
+              display: none;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: var(--space-4);
+              background: linear-gradient(135deg, rgba(220, 38, 38, 0.08) 0%, rgba(245, 158, 11, 0.08) 100%);
+              border: 1px solid rgba(220, 38, 38, 0.25);
+              border-left: 4px solid #dc2626;
+              color: #7f1d1d;
+            "
+          >
+            <div>
+              <strong>🛡️ Slack Day Buffer Active:</strong>
+              <span id="slackDayActiveText">Lighter schedule applied. Protected & core work retained; flexible items moved to gradual recovery.</span>
+            </div>
+            <a href="planner.html" class="btn btn-outline btn-sm">View Recovery Plan</a>
           </div>
 
           <!-- Disruption Recovery Banner -->
@@ -591,38 +696,83 @@
                 </div>
               </div>
 
-              <!-- 1. Scheduled Learning & Responsibilities -->
-              <div class="card" id="scheduledWorkCard">
+              <!-- 1. Unified Master Execution Timeline -->
+              <div class="card" id="unifiedExecutionTimelineCard">
                 <div
                   class="card-header"
                   style="
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+                    border-bottom: 1px solid var(--border-hairline);
+                    padding: var(--space-3) var(--space-4);
                   "
                 >
                   <div>
-                    <div class="card-title">
-                      Scheduled Learning & Responsibilities
+                    <div class="card-title" style="display: flex; align-items: center; gap: 8px;">
+                      <span>Today's Execution Timeline</span>
+                      <span class="badge badge-sky text-xs" id="clockLiveBadge">Clock-Aligned Flow</span>
                     </div>
-                    <div class="text-subtle text-sm">
-                      Course activities, reading, academics & exams
+                    <div class="text-subtle text-xs" style="margin-top: 2px;">
+                      Seamless live focus & remaining schedule according to the clock
                     </div>
                   </div>
-                  <div style="display: flex; gap: var(--space-2)">
-                    <a href="courses.html" class="btn btn-outline btn-sm"
-                      >Courses Hub</a
+                  <div style="display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap;">
+                    <button
+                      id="btnOpenSlackDayTop"
+                      type="button"
+                      class="btn btn-outline btn-sm"
+                      style="font-size: 0.75rem; padding: 2px 8px; border-color: rgba(220, 38, 38, 0.35); color: #b91c1c;"
+                      title="Declare an emergency Slack Day buffer (3/month)"
                     >
+                      🛡️ Slack Day
+                    </button>
+                    <button
+                      id="btnQuickException"
+                      class="btn btn-outline btn-sm"
+                      style="font-size: 0.75rem; padding: 2px 8px"
+                    >
+                      + Free Day
+                    </button>
+                    <a href="timetable.html" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 2px 8px;" title="View master timetable templates">Templates ↗</a>
+                    <a href="calendar.html" class="btn btn-outline btn-sm" style="font-size: 0.75rem; padding: 2px 8px;" title="View semester course breakdown">Calendar ↗</a>
                   </div>
                 </div>
-                <div id="scheduledWorkList">
-                  <p
-                    class="text-muted text-sm"
-                    style="padding: var(--space-2) 0"
-                  >
-                    No curriculum or academic sessions scheduled for this day.
-                  </p>
+
+                <!-- LIVE ACTIVE TARGET HERO (NOW & WHAT TO DO NEXT) -->
+                <div id="liveExecutionHero" style="padding: var(--space-4); border-bottom: 1px solid var(--border-hairline); background: linear-gradient(135deg, rgba(2, 132, 199, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);">
+                  <!-- Filled dynamically by renderUnifiedTimeline -->
                 </div>
+
+                <!-- REMAINING SCHEDULE (CLOCK-ALIGNED) -->
+                <div style="padding: var(--space-4);">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3);">
+                    <div style="font-size: 0.8125rem; font-weight: 700; color: var(--text-ink); text-transform: uppercase; letter-spacing: 0.5px;">
+                      🗓️ Remaining Day Schedule
+                    </div>
+                    <span class="text-subtle text-xs" id="remainingCountBadge">0 upcoming</span>
+                  </div>
+                  <div class="timetable-strip" id="remainingTimelineList">
+                    <p class="text-muted text-sm">Loading today's schedule...</p>
+                  </div>
+                </div>
+
+                <!-- EARLIER TODAY / PASSED MORNING SCHEDULE (COLLAPSED BY DEFAULT) -->
+                <div id="earlierTodayContainer" style="padding: 0 var(--space-4) var(--space-4) var(--space-4);">
+                  <details style="background: rgba(0,0,0,0.02); border: 1px dashed var(--border-hairline); border-radius: 8px; padding: 8px 12px;">
+                    <summary style="cursor: pointer; font-size: 0.8125rem; font-weight: 600; color: var(--text-muted); display: flex; align-items: center; justify-content: space-between;">
+                      <span id="earlierTodaySummaryText">▼ Earlier Today (Morning routines & passed schedule)</span>
+                      <span class="badge badge-neutral text-xs" id="earlierPassedCountBadge">0 passed</span>
+                    </summary>
+                    <div class="timetable-strip" id="earlierTimelineList" style="margin-top: 10px; border-top: 1px solid var(--border-hairline); padding-top: 8px;">
+                      <!-- Past blocks rendered here -->
+                    </div>
+                  </details>
+                </div>
+
+                <!-- Hidden fallback containers so legacy element lookups do not throw -->
+                <div id="scheduledWorkList" style="display: none;"></div>
+                <div id="timetableList" style="display: none;"></div>
               </div>
 
               <!-- 2. Today's Planned Tasks -->
@@ -780,11 +930,9 @@
               </div>
             </div>
 
-            <!-- Right Column: Timetable, Quick Exceptions & Buffer -->
-            <div
-              style="display: flex; flex-direction: column; gap: var(--space-6)"
-            >
-              <!-- Timetable Blocks -->
+            <!-- Right Column: Sticky Focus Status, Habits, Slack Days & Quick Jump -->
+            <div class="dashboard-sidebar-sticky">
+              <!-- Today's Execution Gauge & Status -->
               <div class="card">
                 <div
                   class="card-header"
@@ -794,28 +942,21 @@
                     align-items: center;
                   "
                 >
-                  <div class="card-title">Day Schedule</div>
-                  <div
-                    style="
-                      display: flex;
-                      align-items: center;
-                      gap: var(--space-2);
-                    "
-                  >
-                    <span class="badge badge-neutral" id="dayTypeBadge"
-                      >Weekday</span
-                    >
-                    <button
-                      id="btnQuickException"
-                      class="btn btn-outline btn-sm"
-                      style="font-size: 0.75rem; padding: 2px 8px"
-                    >
-                      + Free Day
-                    </button>
-                  </div>
+                  <div class="card-title">Today's Focus Status</div>
+                  <span class="badge badge-neutral" id="dayTypeBadgeRight">WEEKDAY</span>
                 </div>
-                <div class="timetable-strip" id="timetableList">
-                  <p class="text-muted text-sm">Loading timetable...</p>
+                <div style="padding: var(--space-3) var(--space-4);">
+                  <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+                    <span class="text-subtle text-xs">Capacity Progress</span>
+                    <strong id="sidebarStudyCapText" style="font-size: 0.9375rem; color: var(--text-ink);">-</strong>
+                  </div>
+                  <div style="height: 6px; background: rgba(0,0,0,0.06); border-radius: 999px; overflow: hidden; margin-bottom: 12px;">
+                    <div id="sidebarStudyCapProgress" style="height: 100%; width: 0%; background: var(--accent-green, #059669); transition: width 0.3s ease;"></div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted);">
+                    <span>Logged: <strong id="sidebarLoggedMins" style="color: var(--accent-green);">-</strong></span>
+                    <span>Target: <strong id="sidebarTargetMins">-</strong></span>
+                  </div>
                 </div>
               </div>
 
@@ -848,12 +989,13 @@
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+                    gap: var(--space-2);
                   "
                 >
                   <div>
                     <div
                       style="
-                        font-size: 1.25rem;
+                        font-size: 1.35rem;
                         font-weight: 800;
                         color: var(--text-ink);
                       "
@@ -861,12 +1003,21 @@
                     >
                       - / 3
                     </div>
-                    <div class="text-subtle text-sm">Slack Days Available</div>
+                    <div class="text-subtle text-xs">Slack Days Remaining</div>
                   </div>
-                  <a href="planner.html" class="btn btn-outline btn-sm"
-                    >Manage</a
+                  <button
+                    type="button"
+                    id="btnDeclareSlackDay"
+                    class="btn btn-outline btn-sm"
+                    style="border-color: rgba(220, 38, 38, 0.4); color: #b91c1c; font-weight: 600;"
                   >
+                    🛡️ Declare
+                  </button>
                 </div>
+                <div
+                  id="slackDayDeclaredList"
+                  style="display: flex; flex-direction: column; gap: 4px; margin-top: var(--space-3);"
+                ></div>
                 <div
                   style="
                     margin-top: var(--space-3);
@@ -879,12 +1030,28 @@
                 >
                   <span
                     class="text-xs text-subtle"
-                    title="Slack Days are emergency buffers, not planned holidays."
+                    title="Slack Days are emergency buffers (3/month, no carry-forward)."
                     >Monthly Policy:</span
                   >
-                  <span class="badge badge-neutral" style="font-size: 0.7rem"
-                    >3 Emergency Buffers/Mo</span
+                  <a href="planner.html" class="badge badge-neutral" style="font-size: 0.7rem; text-decoration: none;"
+                    >3/Mo · Planner →</a
                   >
+                </div>
+              </div>
+
+              <!-- Quick Jump Hub -->
+              <div class="card">
+                <div class="card-header" style="padding-bottom: var(--space-2);">
+                  <div class="card-title">Quick Jump</div>
+                  <span class="text-xs text-subtle">Sections</span>
+                </div>
+                <div class="quick-jump-grid">
+                  <a href="focus.html" class="quick-jump-pill">⏱ Focus Timer</a>
+                  <a href="courses.html" class="quick-jump-pill">📚 Courses Hub</a>
+                  <a href="explore.html" class="quick-jump-pill">🔬 Explorations</a>
+                  <a href="oratory.html" class="quick-jump-pill">🎙️ Oratory</a>
+                  <a href="reading.html" class="quick-jump-pill">📖 Reading</a>
+                  <a href="habits.html" class="quick-jump-pill">🌙 Night Routine</a>
                 </div>
               </div>
             </div>
@@ -1037,10 +1204,25 @@
         </div>
         <form id="actPartialForm">
           <input type="hidden" id="actPartialId" />
+          <input type="hidden" id="actPartialTotalEffort" value="30" />
           <h4 id="actPartialTitleDisplay" style="font-size: 0.9375rem; font-weight: 700; color: var(--text-ink); margin-bottom: var(--space-2);">-</h4>
-          <p class="text-subtle text-sm" style="margin-bottom: var(--space-4)">
-            Log the actual minutes you spent (e.g. 10m, 20m, 90m). SARTHI preserves completed work, updates Courses Hub, and schedules only remaining effort.
+          <p class="text-subtle text-sm" style="margin-bottom: var(--space-3)">
+            Log your progress percentage or actual minutes spent. SARTHI updates Courses Hub, preserves completed headway, and schedules only remaining effort.
           </p>
+
+          <div class="form-group" style="margin-bottom: var(--space-3);">
+            <label class="form-label" style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Quick Progress Percentage:</span>
+              <span id="actPartialPctLabel" class="text-subtle text-xs" style="font-weight: 600; color: var(--accent-blue);">Custom Minutes</span>
+            </label>
+            <div style="display: flex; gap: var(--space-2); margin-top: 4px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-outline btn-sm act-pct-btn" data-pct="25" style="flex: 1; padding: 4px 8px; font-size: 0.8125rem;">25%</button>
+              <button type="button" class="btn btn-outline btn-sm act-pct-btn" data-pct="50" style="flex: 1; padding: 4px 8px; font-size: 0.8125rem;">50% (Halfway)</button>
+              <button type="button" class="btn btn-outline btn-sm act-pct-btn" data-pct="75" style="flex: 1; padding: 4px 8px; font-size: 0.8125rem;">75%</button>
+              <button type="button" class="btn btn-success btn-sm act-pct-btn" data-pct="100" style="flex: 1; padding: 4px 8px; font-size: 0.8125rem;">100% (Complete)</button>
+            </div>
+          </div>
+
           <div class="form-group">
             <label class="form-label">Actual Minutes Spent</label>
             <input
@@ -1143,6 +1325,42 @@
       </div>
     </div>
 
+    <!-- Declare Slack Day Modal -->
+    <div id="slackDayModal" class="modal-backdrop hidden">
+      <div class="modal-box">
+        <div class="card-header">
+          <div class="card-title">🛡️ Declare Slack Day Buffer</div>
+          <button type="button" id="closeSlackDayModalBtn" class="btn btn-outline btn-sm">✕</button>
+        </div>
+        <p class="text-subtle text-sm" style="margin-bottom: var(--space-3);">
+          Use 1 of your 3 monthly emergency Slack Day buffers. Creates a lighter schedule (retaining protected &amp; core priorities, excluding Academics &amp; Night Routine) and schedules unfinished work for gradual recovery.
+        </p>
+        <form id="slackDayForm">
+          <div class="form-group">
+            <label class="form-label" for="slackDayDate">Date</label>
+            <input type="date" id="slackDayDate" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="slackDayType">Reason Category</label>
+            <select id="slackDayType" class="form-select">
+              <option value="unavoidable_disruption">Unavoidable Disruption</option>
+              <option value="intentional_rest">Intentional Recovery / Rest</option>
+              <option value="illness">Illness / Health</option>
+              <option value="family">Family / Emergency</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="slackDayReason">Notes (optional)</label>
+            <input type="text" id="slackDayReason" class="form-input" placeholder="Brief reason..." />
+          </div>
+          <div style="display: flex; justify-content: flex-end; gap: var(--space-2); margin-top: var(--space-4);">
+            <button type="button" id="cancelSlackDayBtn" class="btn btn-outline">Cancel</button>
+            <button type="submit" id="confirmSlackDayBtn" class="btn btn-primary">🛡️ Confirm Slack Day</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script type="module">
       import { checkAuth } from "../assets/js/auth.js";
       import { renderLayout } from "../assets/js/nav.js";
@@ -1158,6 +1376,7 @@
       import { showToast } from "../assets/js/toast.js";
 
       let currentDayData = null;
+      let currentBlockAllocations = [];
       const urlParams = new URLSearchParams(window.location.search);
       let selectedDate = urlParams.get("date") || getTodayString();
 
@@ -1286,13 +1505,33 @@
             ? `TODAY · ${formatReadableDate(targetDate).toUpperCase()}`
             : formatReadableDate(targetDate).toUpperCase();
 
-          // 1. Capacity Gauge
+          const profile = res.activeProfile || res.dayType || "weekday";
+          const profileEl = document.getElementById("statActiveProfileBadge");
+          if (profileEl) {
+            const isExam = profile === "exam";
+            profileEl.textContent = `Profile: ${profile.toUpperCase()}`;
+            profileEl.style.background = isExam ? "#fee2e2" : profile === "holiday" ? "#eff6ff" : "#f1f5f9";
+            profileEl.style.color = isExam ? "#991b1b" : profile === "holiday" ? "#1e40af" : "#334155";
+          }
+
+          // 1. Capacity Gauge & Sidebar Focus Status
           const target = res.targetCapacityMinutes || 330;
           const allocated = res.dailyPlan?.allocatedMinutes || 0;
+          const actualSpent = res.totalActualMinutesSpent || 0;
           document.getElementById("capacityVal").textContent =
             `${formatMinutes(allocated)} / ${formatMinutes(target)}`;
           const percent = Math.min(100, Math.round((allocated / target) * 100));
           document.getElementById("capacityBar").style.width = `${percent}%`;
+
+          const execPercent = target > 0 ? Math.min(100, Math.round((actualSpent / target) * 100)) : 0;
+          const capTextEl = document.getElementById("sidebarStudyCapText");
+          const capBarEl = document.getElementById("sidebarStudyCapProgress");
+          const loggedEl = document.getElementById("sidebarLoggedMins");
+          const targetEl = document.getElementById("sidebarTargetMins");
+          if (capTextEl) capTextEl.textContent = `${execPercent}% (${formatMinutes(actualSpent)} / ${formatMinutes(target)})`;
+          if (capBarEl) capBarEl.style.width = `${execPercent}%`;
+          if (loggedEl) loggedEl.textContent = formatMinutes(actualSpent);
+          if (targetEl) targetEl.textContent = formatMinutes(target);
 
           // 2. Stat Counts
           const plannedTotal =
@@ -1342,10 +1581,31 @@
           }
 
           // 5. Slack Days
+          const slackBanner = document.getElementById("slackDayActiveBanner");
           if (res.slackDayStatus) {
             const s = res.slackDayStatus;
-            document.getElementById("slackDaysVal").textContent =
-              `${s.remaining} / ${s.allowance}`;
+            const slackValEl = document.getElementById("slackDaysVal");
+            slackValEl.textContent = `${s.remaining} / ${s.allowance}`;
+            slackValEl.style.color = s.isTodaySlackDay ? "#dc2626" : "var(--text-ink)";
+            if (slackBanner) {
+              slackBanner.style.display = s.isTodaySlackDay ? "flex" : "none";
+            }
+            const declListEl = document.getElementById("slackDayDeclaredList");
+            if (declListEl) {
+              const dates = s.declaredDates || [];
+              if (dates.length === 0) {
+                declListEl.innerHTML = `<div class="text-xs text-subtle">No Slack Days used this month.</div>`;
+              } else {
+                declListEl.innerHTML = dates
+                  .map((d) => `<div class="slack-day-chip"><span><strong>${escapeHtml(d.date)}</strong></span><span>${escapeHtml(String(d.type || "buffer").replace(/_/g, " "))}</span></div>`)
+                  .join("");
+              }
+            }
+            const btnDecl = document.getElementById("btnDeclareSlackDay");
+            if (btnDecl) {
+              btnDecl.disabled = s.isTodaySlackDay || s.remaining <= 0;
+              btnDecl.textContent = s.isTodaySlackDay ? "✓ Active Today" : s.remaining <= 0 ? "0 Left" : "🛡️ Declare";
+            }
           }
 
           // 5.1 Sunday Special Card (Weight Loss & Measurement)
@@ -1366,30 +1626,44 @@
           }
 
           // 6. Day type badge
-          document.getElementById("dayTypeBadge").textContent = (
-            res.dayType || "weekday"
-          ).toUpperCase();
+          const dayTypeBadgeEl = document.getElementById("dayTypeBadgeRight") || document.getElementById("dayTypeBadge");
+          if (dayTypeBadgeEl) {
+            dayTypeBadgeEl.textContent = (res.dayType || "weekday").toUpperCase();
+          }
 
-          // 7. Timetable Blocks
-          renderTimetable(res.timetableBlocks || [], routineHabits);
-          updateNextUp(
+          // 7. Unified Clock-Aligned Execution Timeline
+          currentBlockAllocations = res.blockAllocations || [];
+          renderUnifiedTimeline(
             res.timetableBlocks || [],
-            res.scheduledTasks || [],
+            currentBlockAllocations,
+            res.scheduledWork || [],
             routineHabits,
+            res.totalActualMinutesSpent || 0,
+            res.targetCapacityMinutes || 0,
+            res.completedToday || []
           );
 
-          // 8. Scheduled Work (Courses, Books, Academics, Exam Prep)
-          renderScheduledWork(res.scheduledWork || []);
+          // Keep background compatibility lists populated (isolated so secondary cards cannot block timeline)
+          const safeRender = (label, fn) => {
+            try {
+              fn();
+            } catch (subErr) {
+              console.error(`[loadTodayData:${label}]`, subErr);
+            }
+          };
+          safeRender("timetable", () => renderTimetable(res.timetableBlocks || [], routineHabits, currentBlockAllocations));
+          safeRender("scheduledWork", () => renderScheduledWork(res.scheduledWork || []));
 
           // 9. Scheduled Tasks & Next Action
-          renderTasks(res.scheduledTasks || []);
+          safeRender("tasks", () => renderTasks(res.scheduledTasks || []));
 
           // 10. Completed Today
-          renderCompletedToday(res.completedToday || []);
+          safeRender("completed", () => renderCompletedToday(res.completedToday || []));
 
           // 11. Reflection Form
-          renderReflection(res.reflection || {});
+          safeRender("reflection", () => renderReflection(res.reflection || {}));
         } catch (err) {
+          console.error("[loadTodayData]", err);
           showToast(err.message || "Failed to load today data", "error");
         }
       }
@@ -1784,7 +2058,805 @@
         });
       }
 
-      function renderTimetable(blocks, routineHabits = []) {
+      function renderUnifiedTimeline(
+        blocks = [],
+        blockAllocations = [],
+        scheduledWork = [],
+        routineHabits = [],
+        totalActualMinutesSpent = 0,
+        targetCapacityMinutes = 0,
+        completedToday = []
+      ) {
+        const heroEl = document.getElementById("liveExecutionHero");
+        const remainingEl = document.getElementById("remainingTimelineList");
+        const remainingBadge = document.getElementById("remainingCountBadge");
+        const earlierContainer = document.getElementById("earlierTodayContainer");
+        const earlierListEl = document.getElementById("earlierTimelineList");
+        const earlierBadge = document.getElementById("earlierPassedCountBadge") || document.getElementById("earlierCountBadge");
+
+        if (!heroEl || !remainingEl) return;
+
+        // Update capacity gauge in the right sidebar
+        const focusCapacityGauge = document.getElementById("todayFocusGauge");
+        if (focusCapacityGauge) {
+          const pct = targetCapacityMinutes > 0 ? Math.min(100, Math.round((totalActualMinutesSpent / targetCapacityMinutes) * 100)) : 0;
+          focusCapacityGauge.style.width = `${pct}%`;
+          const minsEl = document.getElementById("todayFocusMins");
+          if (minsEl) minsEl.textContent = `${totalActualMinutesSpent}m / ${targetCapacityMinutes}m (${pct}%)`;
+        }
+
+        // Current time in Asia/Kolkata
+        const parts = new Intl.DateTimeFormat("en-GB", {
+          timeZone: "Asia/Kolkata",
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23",
+        }).format(new Date()).split(":").map(Number);
+        const now = parts[0] * 60 + parts[1];
+
+        const toMin = (t) => {
+          const [h, m] = String(t || "00:00").split(":").map(Number);
+          return h * 60 + m;
+        };
+
+        const serverCoursePlans = (currentDayData?.dailyPlan?.coursePlans) || [];
+        const activeBooks = (currentDayData?.reading?.activeBooks) || [];
+        const nearFinishBook = activeBooks.find(
+          (bk) => bk.totalPages && bk.currentPage && (bk.totalPages - bk.currentPage) <= 25 && (bk.totalPages - bk.currentPage) > 0
+        );
+
+        const processed = (blocks || []).map((b) => {
+          const rawSMin = toMin(b.startTime);
+          const rawEMin = toMin(b.endTime);
+          const isPostMidnightBlock = rawSMin < 240 && now >= 240;
+          const sMin = isPostMidnightBlock ? rawSMin + 1440 : rawSMin;
+          let eMin = rawEMin <= rawSMin ? rawEMin + 1440 : rawEMin;
+          if (isPostMidnightBlock && eMin < 1440) eMin += 1440;
+          const isNightRoutine = /night routine/i.test(b.label);
+          const isGym = b.category === "gym" || /gym/i.test(b.label);
+          const isMealOrRest = ["rest", "routine", "college"].includes(b.category) && !b.isTrackable && !isGym && !isNightRoutine;
+          
+          const matchingAlloc = (blockAllocations || []).find(
+            (ba) => ba.blockId === b.blockId || (ba.startTime === b.startTime && ba.endTime === b.endTime)
+          );
+          const assignedActs = matchingAlloc ? (matchingAlloc.assignedActivities || []) : [];
+
+          // Authoritative Server-Allocated CoursePlan (NO client-side calculation)
+          const matchedCoursePlan = serverCoursePlans.find((cp) => 
+            (b.courseSlug && cp.courseSlug && cp.courseSlug.toLowerCase() === b.courseSlug.toLowerCase()) ||
+            (b.category === "oratory" && cp.courseSlug === "oratory") ||
+            (b.category && cp.category && cp.category.toLowerCase() === b.category.toLowerCase())
+          );
+
+          // Match scheduledWork for reading or course activities
+          const matchingWork = (scheduledWork || []).filter((w) => {
+            if (b.courseSlug && w.courseSlug && w.courseSlug.toLowerCase() === b.courseSlug.toLowerCase()) return true;
+            if (b.category === "reading" && w.type === "reading") return true;
+            return false;
+          });
+
+          const canonicalType = ["course", "reading", "night_routine", "checklist", "rest"].includes(b.blockType)
+            ? b.blockType
+            : isNightRoutine
+              ? "night_routine"
+              : b.category === "rest" || (b.label || "").toLowerCase().includes("sleep")
+                ? "rest"
+                : b.category === "reading" || (b.label || "").toLowerCase().includes("reading")
+                  ? "reading"
+                  : b.courseSlug && b.courseSlug !== "oratory"
+                    ? "course"
+                    : ["study", "webdev", "dsa", "exploration"].includes(b.category) || b.blockType === "learning" || b.blockType === "exploration"
+                      ? "course"
+                      : "checklist";
+          const isCompleted = assignedActs.length > 0 && assignedActs.every((a) => a.status === "completed");
+
+          return {
+            ...b,
+            canonicalType,
+            sMin,
+            eMin,
+            isNightRoutine: canonicalType === "night_routine",
+            isGym,
+            isMealOrRest: canonicalType === "rest",
+            assignedActs,
+            matchedCoursePlan,
+            matchingWork,
+            isCompleted,
+          };
+        }).sort((a, b) => a.sMin - b.sMin);
+
+        const pastBlocks = [];
+        const upcomingBlocks = [];
+        let activeBlock = null;
+
+        for (const pb of processed) {
+          if (pb.eMin <= now) {
+            pastBlocks.push(pb);
+          } else if (pb.sMin <= now && now < pb.eMin) {
+            if (pb.isCompleted) {
+              pastBlocks.push(pb);
+            } else {
+              activeBlock = pb;
+            }
+          } else {
+            upcomingBlocks.push(pb);
+          }
+        }
+
+        // 1. RENDER LIVE EXECUTION HERO
+        if (activeBlock) {
+          const remWindow = activeBlock.eMin - now;
+          const assignedActs = activeBlock.assignedActs;
+          const uncompletedAct = assignedActs.find((a) => a.status !== "completed");
+          const hasDiscrete = assignedActs.some((a) => !String(a.activityId || "").startsWith("manual_"));
+          const nextInLine = upcomingBlocks[0];
+
+          let mainActivityHtml = "";
+
+          if (activeBlock.matchedCoursePlan) {
+            const cp = activeBlock.matchedCoursePlan;
+            const isOratory = cp.courseSlug === "oratory" || activeBlock.category === "oratory";
+            const badgeSky = isOratory
+              ? `<span class="badge text-xs" style="background: rgba(147, 51, 234, 0.12); color: #7e22ce; font-weight: 700;">🎙️ ORATORY · WEEKLY SPEECH MASTERY</span>`
+              : `<span class="badge badge-sky text-xs">${cp.courseSlug.toUpperCase()}</span>`;
+            const icon = isOratory ? "🎙️" : "📖";
+            const carryoverTag = cp.carryoverMin > 0 ? `<span class="badge badge-warning text-xs">⚠️ +${cp.carryoverMin}m carryover first</span>` : "";
+            const defaultTag = cp.source && cp.source !== "timetable" ? `<span class="badge badge-neutral text-xs" title="${escapeHtml(cp.source)}">${escapeHtml(cp.source)}</span>` : "";
+
+            mainActivityHtml = `
+              <div style="background: #ffffff; border: 1.5px solid ${isOratory ? '#9333ea' : '#0284c7'}; border-radius: 8px; padding: 12px 14px; margin-top: 10px; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.08);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap;">
+                      ${badgeSky}
+                      <span class="text-subtle text-xs" style="font-weight: 600;">
+                        Target: ${cp.effortMinTarget}m effort (${cp.lectureMinTarget}m lecture) · Sequence: ${cp.startPosition} ➔ ${cp.endPosition}
+                      </span>
+                      ${carryoverTag}
+                      ${defaultTag}
+                    </div>
+                    <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-ink); margin-bottom: 4px;">
+                      ${icon} ${escapeHtml(uncompletedAct ? uncompletedAct.title : cp.courseTitle)}
+                    </div>
+                    <div class="text-subtle text-xs">
+                      ${uncompletedAct ? `${uncompletedAct.remainingMinutes || cp.effortMinTarget}m remaining in this session.` : `Target range: ${cp.startPosition} to ${cp.endPosition}`}
+                    </div>
+                    ${Array.isArray(cp.lectureBreakdown) && cp.lectureBreakdown.length > 0 ? `
+                      <div style="margin-top: 6px; font-size: 0.75rem; color: #0369a1;">
+                        ${cp.lectureBreakdown.map(lb => `<div>• <strong>Lec ${lb.lectureNumber}: ${escapeHtml(lb.title)}</strong> (${lb.videoMinutes}m video / ${lb.effortMinutes}m effort)</div>`).join("")}
+                      </div>
+                    ` : ""}
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    ${uncompletedAct ? `
+                      <button type="button" class="btn btn-success btn-sm btn-complete-act" data-id="${uncompletedAct.activityId}" data-rem="${uncompletedAct.remainingMinutes || cp.effortMinTarget}" style="padding: 6px 14px; font-weight: 700;">
+                        ✓ Mark Lecture Done
+                      </button>
+                      <button type="button" class="btn btn-outline btn-sm btn-act-headway" data-id="${uncompletedAct.activityId}" data-title="${escapeHtml(uncompletedAct.title)}" data-rem="${uncompletedAct.remainingMinutes || cp.effortMinTarget}" data-effort="${cp.effortMinTarget}" style="padding: 6px 12px;">
+                        ⏱ Log %
+                      </button>
+                    ` : `
+                      <button type="button" class="btn btn-success btn-sm btn-complete-manual-session" data-slug="${cp.courseSlug}" data-mins="${cp.effortMinTarget}" style="padding: 6px 14px; font-weight: 700;">
+                        ✓ Mark Session Done
+                      </button>
+                    `}
+                    ${isOratory ? `<a href="oratory.html" class="btn btn-outline btn-sm" style="padding: 6px 10px; font-size: 0.75rem;">Studio →</a>` : ""}
+                  </div>
+                </div>
+
+                ${remWindow >= 15 ? `
+                  <div style="background: rgba(59, 130, 246, 0.08); border-left: 3px solid #3b82f6; padding: 8px 12px; border-radius: 6px; margin-top: 10px; font-size: 0.8125rem; color: #1e40af;">
+                    💡 <strong>Clock Notice:</strong> ${remWindow}m remaining in this block window! You have extra time: start the next section halfway or review key concepts to keep momentum.
+                  </div>
+                ` : ""}
+              </div>
+            `;
+          } else if (uncompletedAct && hasDiscrete) {
+            const mult = uncompletedAct.practiceMultiplier || 2.0;
+            const contentM = Math.round(uncompletedAct.contentDurationMinutes || (uncompletedAct.allocatedMinutes / mult));
+            const effortM = uncompletedAct.allocatedMinutes || uncompletedAct.totalEffortMinutes || 30;
+            const remainingEffort = uncompletedAct.remainingMinutes || effortM;
+
+            const isOratory = uncompletedAct.courseSlug === "oratory" || activeBlock.category === "oratory" || activeBlock.courseSlug === "oratory";
+            const badgeSky = isOratory
+              ? `<span class="badge text-xs" style="background: rgba(147, 51, 234, 0.12); color: #7e22ce; font-weight: 700;">🎙️ ORATORY · WEEK ${uncompletedAct.activityNumber || 1} OF 13</span>`
+              : `<span class="badge badge-sky text-xs">${(activeBlock.courseSlug || "COURSE").toUpperCase()}</span>`;
+            const icon = isOratory ? "🎙️" : "📖";
+            const metaInfo = isOratory
+              ? `<span class="text-subtle text-xs" style="font-weight: 600;">Speech & Public Speaking Drill · 45m Session Target</span>`
+              : `<span class="text-subtle text-xs" style="font-weight: 600;">Content: ${contentM}m · Practice Multiplier: ${mult}× · Personal Effort: ${effortM}m</span>`;
+            const effortNotice = isOratory
+              ? `${remainingEffort}m speech drill and recording remaining for Week ${uncompletedAct.activityNumber || 1}.`
+              : `${remainingEffort}m effort remaining to complete this lecture.`;
+            const completeLabel = isOratory ? "✓ Mark Week Done" : "✓ Mark 100% Done";
+            const logLabel = isOratory ? "⏱ Log Speech Practice" : "⏱ Log Progress / %";
+
+            mainActivityHtml = `
+              <div style="background: #ffffff; border: 1.5px solid ${isOratory ? '#9333ea' : '#0284c7'}; border-radius: 8px; padding: 12px 14px; margin-top: 10px; box-shadow: 0 2px 4px rgba(2, 132, 199, 0.08);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap;">
+                  <div>
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                      ${badgeSky}
+                      ${metaInfo}
+                    </div>
+                    <div style="font-size: 1.05rem; font-weight: 700; color: var(--text-ink); margin-bottom: 4px;">
+                      ${icon} ${escapeHtml(uncompletedAct.title)}
+                    </div>
+                    <div class="text-subtle text-xs">
+                      ${effortNotice}
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" class="btn btn-success btn-sm btn-complete-act" data-id="${uncompletedAct.activityId}" data-rem="${remainingEffort}" style="padding: 6px 14px; font-weight: 700;">
+                      ${completeLabel}
+                    </button>
+                    <button type="button" class="btn btn-outline btn-sm btn-act-headway" data-id="${uncompletedAct.activityId}" data-title="${escapeHtml(uncompletedAct.title)}" data-rem="${remainingEffort}" data-effort="${effortM}" style="padding: 6px 12px;">
+                      ${logLabel}
+                    </button>
+                    ${isOratory ? `<a href="oratory.html" class="btn btn-outline btn-sm" style="padding: 6px 10px; font-size: 0.75rem;">Studio →</a>` : ""}
+                  </div>
+                </div>
+
+                ${remWindow >= 15 ? `
+                  <div style="background: rgba(59, 130, 246, 0.08); border-left: 3px solid #3b82f6; padding: 8px 12px; border-radius: 6px; margin-top: 10px; font-size: 0.8125rem; color: #1e40af;">
+                    💡 <strong>Clock Notice:</strong> ${remWindow}m remaining in this block window! You have extra time: start the next section halfway or review key concepts to keep momentum.
+                  </div>
+                ` : ""}
+              </div>
+            `;
+          } else if (!hasDiscrete && assignedActs.length > 0) {
+            const manualAct = assignedActs[0];
+            mainActivityHtml = `
+              <div style="background: #ffffff; border: 1.5px solid #0284c7; border-radius: 8px; padding: 12px 14px; margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <div>
+                    <div class="badge badge-sky text-xs" style="margin-bottom: 4px;">${(activeBlock.courseSlug || "STUDY").toUpperCase()}</div>
+                    <div style="font-size: 1rem; font-weight: 700; color: var(--text-ink);">
+                      🎯 ${escapeHtml(manualAct.title || activeBlock.label)} (${activeBlock.durationMinutes}m planned study & practice)
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-success btn-sm btn-complete-manual-session" data-slug="${activeBlock.courseSlug || ''}" data-mins="${activeBlock.durationMinutes}" style="padding: 6px 14px; font-weight: 700;">
+                    ✓ Mark Session Done
+                  </button>
+                </div>
+              </div>
+            `;
+          } else if (activeBlock.isGym) {
+            mainActivityHtml = `
+              <div style="margin-top: 10px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <button type="button" class="btn btn-success btn-sm btn-gym-done" data-duration="${activeBlock.durationMinutes || 60}" style="padding: 6px 14px; font-weight: 700;">
+                  ✓ Workout Done
+                </button>
+                <button type="button" class="btn btn-outline btn-sm btn-gym-missed">✕ Missed Today (Reschedule)</button>
+              </div>
+            `;
+          } else if (activeBlock.isNightRoutine) {
+            const doneCount = (routineHabits || []).filter(h => h.checkedInToday).length;
+            const totalCount = (routineHabits || []).length;
+            mainActivityHtml = `
+              <div style="margin-top: 10px;">
+                <div class="text-xs text-subtle" style="margin-bottom: 6px; font-weight: 600;">🌙 Night Routine · ${doneCount} of ${totalCount} done</div>
+                ${renderRoutineSteps(routineHabits)}
+              </div>
+            `;
+          } else if (activeBlock.canonicalType === "checklist") {
+            mainActivityHtml = `
+              <div style="margin-top: 10px; padding: 10px 12px; background: rgba(5, 150, 105, 0.04); border: 1px solid rgba(5, 150, 105, 0.25); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                <span class="text-sm" style="font-weight: 600;">☑️ ${escapeHtml(activeBlock.label)}</span>
+                <button type="button" class="btn btn-success btn-sm btn-checklist-done" data-label="${escapeHtml(activeBlock.label)}" style="padding: 4px 12px; font-weight: 600;">✓ Mark Done</button>
+              </div>
+            `;
+          } else if (activeBlock.canonicalType === "rest") {
+            mainActivityHtml = `
+              <div style="margin-top: 8px; color: var(--text-muted); font-size: 0.875rem;">
+                😴 Protected rest / sleep window — nothing to track.
+              </div>
+            `;
+          } else if (activeBlock.category === "reading" || activeBlock.canonicalType === "reading" || activeBlock.matchingWork.some((w) => w.type === "reading")) {
+            const rWork = activeBlock.matchingWork.find((w) => w.type === "reading") || {};
+            mainActivityHtml = `
+              <div style="background: #ffffff; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 12px 14px; margin-top: 10px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                  <div>
+                    <span class="badge badge-warning text-xs">P3 READING</span>
+                    <div style="font-size: 1rem; font-weight: 700; color: var(--text-ink); margin-top: 3px;">
+                      📖 ${escapeHtml(rWork.title || "The Psychology of Money by Morgan Housel")}
+                    </div>
+                    <div class="text-subtle text-xs" style="margin-top: 2px;">
+                      Phase 1: Foundations of Wealth & Psychology · 35m planned daily reading
+                    </div>
+                  </div>
+                  <button type="button" class="btn btn-primary btn-sm btn-complete-reading" data-id="${rWork.id || ''}">
+                    ✓ Done Today (35m)
+                  </button>
+                </div>
+              </div>
+            `;
+          } else {
+            mainActivityHtml = `
+              <div style="margin-top: 8px; color: var(--text-muted); font-size: 0.875rem;">
+                ${activeBlock.isMealOrRest ? "Rest, nourishment, or routine transition window." : "Scheduled timetable block in progress."}
+              </div>
+            `;
+          }
+
+          heroEl.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <span class="badge badge-primary text-xs" style="font-weight: 700; letter-spacing: 0.5px;">⚡ HAPPENING NOW</span>
+                <span style="font-size: 0.8125rem; font-weight: 600; color: var(--text-muted); margin-left: 6px;">
+                  ${formatTimeRange(activeBlock.startTime, activeBlock.endTime)} (${remWindow}m remaining)
+                </span>
+              </div>
+              <span class="badge badge-neutral text-xs">${activeBlock.durationMinutes}m block</span>
+            </div>
+
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-ink); margin: 6px 0 2px 0;">
+              ${escapeHtml(activeBlock.label)}
+            </h3>
+
+            ${mainActivityHtml}
+
+            ${nextInLine ? `
+              <div style="margin-top: 12px; padding: 8px 12px; background: rgba(0,0,0,0.03); border-radius: 6px; font-size: 0.8125rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px;">
+                <span style="color: var(--text-muted);">
+                  ⏳ <strong>Next in line (@ ${formatTime12(nextInLine.startTime)}):</strong> ${escapeHtml(nextInLine.label)} (${nextInLine.durationMinutes}m)
+                </span>
+                <span class="badge badge-neutral text-xs">Starts in ${nextInLine.sMin - now}m</span>
+              </div>
+            ` : ""}
+          `;
+        } else if (upcomingBlocks.length > 0) {
+          const nextTarget = upcomingBlocks[0];
+          const diffMin = nextTarget.sMin - now;
+          const subsequent = upcomingBlocks[1];
+          const assignedActs = nextTarget.assignedActs || [];
+          const firstAct = assignedActs[0];
+
+          heroEl.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+              <div>
+                <span class="badge badge-success text-xs" style="font-weight: 700; letter-spacing: 0.5px;">⏳ NEXT TARGET UP</span>
+                <span style="font-size: 0.8125rem; font-weight: 600; color: var(--text-muted); margin-left: 6px;">
+                  Starts at ${formatTime12(nextTarget.startTime)} (in ${diffMin}m)
+                </span>
+              </div>
+              <span class="badge badge-neutral text-xs">${nextTarget.durationMinutes}m block</span>
+            </div>
+
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-ink); margin: 6px 0 2px 0;">
+              ${escapeHtml(nextTarget.label)}
+            </h3>
+
+            ${firstAct ? `
+              <div style="background: #ffffff; border: 1.5px solid #0284c7; border-radius: 8px; padding: 10px 12px; margin-top: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+                <div>
+                  <div style="font-size: 0.75rem; font-weight: 700; color: #0284c7; text-transform: uppercase;">Queued Next Lecture:</div>
+                  <div style="font-size: 0.9375rem; font-weight: 700; color: var(--text-ink);">${escapeHtml(firstAct.title)} (${firstAct.allocatedMinutes}m effort)</div>
+                </div>
+                <button type="button" class="btn btn-outline btn-sm btn-advance-act" data-id="${firstAct.activityId}" data-title="${escapeHtml(firstAct.title)}" data-rem="${firstAct.allocatedMinutes}" data-effort="${firstAct.totalEffortMinutes || firstAct.allocatedMinutes}">
+                  + Start Early / Focus
+                </button>
+              </div>
+            ` : `
+              <div class="text-subtle text-xs" style="margin-top: 4px;">
+                Upcoming scheduled block for ${formatTimeRange(nextTarget.startTime, nextTarget.endTime)}.
+              </div>
+            `}
+
+            ${subsequent ? `
+              <div style="margin-top: 10px; font-size: 0.8125rem; color: var(--text-muted);">
+                ➡️ <strong>Subsequent:</strong> ${escapeHtml(subsequent.label)} @ ${formatTime12(subsequent.startTime)} (${subsequent.durationMinutes}m)
+              </div>
+            ` : ""}
+          `;
+        } else {
+          heroEl.innerHTML = `
+            <div style="text-align: center; padding: var(--space-4) var(--space-2);">
+              <span class="badge badge-success text-sm" style="font-weight: 700;">🎉 Day's Execution Concluded</span>
+              <h3 style="font-size: 1.15rem; font-weight: 800; color: var(--text-ink); margin-top: 6px;">
+                All scheduled commitments have passed or completed.
+              </h3>
+              <p class="text-subtle text-sm" style="margin-top: 4px;">
+                Rest, engage in reading, or explore without cognitive baggage.
+              </p>
+            </div>
+          `;
+        }
+
+        // 2. RENDER REMAINING TIMELINE OF THE DAY
+        if (remainingBadge) {
+          remainingBadge.textContent = `${upcomingBlocks.length} upcoming`;
+        }
+        if (upcomingBlocks.length === 0) {
+          remainingEl.innerHTML = `
+            <div style="padding: 12px 14px; background: rgba(5, 150, 105, 0.05); border-radius: 8px; font-size: 0.875rem; color: #065f46; font-weight: 500;">
+              ✓ No more upcoming blocks remaining today. The horizon is clear!
+            </div>
+          `;
+        } else {
+          remainingEl.innerHTML = upcomingBlocks.map((b) => renderTimelineItemHtml(b, routineHabits, scheduledWork, nearFinishBook)).join("");
+        }
+
+        // 3. RENDER EARLIER TODAY (PAST BLOCKS)
+        if (earlierContainer && earlierListEl) {
+          if (pastBlocks.length === 0) {
+            earlierContainer.style.display = "none";
+          } else {
+            earlierContainer.style.display = "block";
+            if (earlierBadge) earlierBadge.textContent = `${pastBlocks.length} passed`;
+            earlierListEl.innerHTML = pastBlocks.map((pb) => `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--border-hairline); opacity: 0.72; font-size: 0.8125rem;">
+                <div>
+                  <span style="text-decoration: line-through; color: var(--text-muted); font-weight: 500;">${escapeHtml(pb.label)}</span>
+                  <span class="text-subtle text-xs" style="margin-left: 6px;">(${formatTimeRange(pb.startTime, pb.endTime)})</span>
+                </div>
+                <span class="badge badge-neutral text-xs">${pb.isCompleted ? "✓ Done" : "Passed"}</span>
+              </div>
+            `).join("");
+          }
+        }
+
+        // Wire events
+        wireUnifiedTimelineEvents(heroEl, remainingEl, routineHabits);
+      }
+
+      function renderTimelineItemHtml(b, routineHabits, scheduledWork, nearFinishBook = null) {
+        const bType = b.canonicalType || "course";
+        const typeBadgeMap = {
+          course: `<span class="badge badge-sky text-xs" style="font-size: 0.65rem;">${b.courseSlug ? b.courseSlug.toUpperCase() : "COURSE"}</span>`,
+          reading: '<span class="badge badge-warning text-xs" style="font-size: 0.65rem;">Reading</span>',
+          night_routine: '<span class="badge badge-sage text-xs" style="font-size: 0.65rem;">Night Routine</span>',
+          checklist: '<span class="badge badge-sage text-xs" style="font-size: 0.65rem;">Checklist</span>',
+          rest: '<span class="badge badge-neutral text-xs" style="font-size: 0.65rem;">Rest (Info)</span>',
+        };
+        const typeBadge = typeBadgeMap[bType] || "";
+
+        const assignedActs = b.assignedActs || [];
+        const hasDiscrete = assignedActs.some((a) => !String(a.activityId || "").startsWith("manual_"));
+
+        let innerContent = "";
+        if (bType === "rest") {
+          innerContent = `<div class="text-subtle text-xs" style="margin-top: 4px;">😴 Protected rest / sleep window (info only)</div>`;
+        } else if (bType === "night_routine" || b.isNightRoutine) {
+          const doneCount = (routineHabits || []).filter(h => h.isCompletedToday || h.checkedInToday).length;
+          const totalCount = (routineHabits || []).length;
+          innerContent = `
+            <div style="margin-top: 8px;">
+              <button type="button" class="btn-night-routine-toggle" aria-expanded="true" style="background: var(--bg-canvas); border: 1px solid var(--border-hairline); border-radius: 4px; cursor: pointer; padding: 3px 8px; font-size: 0.75rem; color: var(--accent-blue); font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                <span>🌙 Night Routine (${doneCount} of ${totalCount} done)</span> <span class="night-arrow">▲</span>
+              </button>
+              <div class="night-routine-details" style="display: block; max-height: 220px; overflow-y: auto; margin-top: 8px; padding: 8px 10px; background: var(--bg-surface); border: 1px solid var(--border-hairline); border-radius: 6px;">
+                ${renderRoutineSteps(routineHabits)}
+              </div>
+            </div>
+          `;
+        } else if (bType === "checklist" && !b.isGym) {
+          innerContent = `
+            <div style="margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 6px 10px; background: rgba(5, 150, 105, 0.04); border: 1px solid rgba(5, 150, 105, 0.2); border-radius: 6px;">
+              <span class="text-xs text-subtle">One-tap checklist item (does not affect course allocation)</span>
+              <button type="button" class="btn btn-success btn-sm btn-checklist-done" data-label="${escapeHtml(b.label)}" style="padding: 2px 10px; font-size: 0.75rem;">✓ Done</button>
+            </div>
+          `;
+        } else if (b.matchedCoursePlan) {
+          const cp = b.matchedCoursePlan;
+          const isOratory = cp.courseSlug === "oratory" || b.category === "oratory";
+          const firstUncompleted = assignedActs.find((a) => a.status !== "completed");
+          const min75 = Math.round((cp.effortMinTarget || 60) * 0.75);
+          innerContent = `
+            <div style="margin-top: 8px; padding: 8px 10px; background: ${isOratory ? 'rgba(147, 51, 234, 0.04)' : 'rgba(2, 132, 199, 0.04)'}; border: 1px solid ${isOratory ? 'rgba(147, 51, 234, 0.25)' : 'rgba(2, 132, 199, 0.2)'}; border-radius: 6px;">
+              ${cp.carryoverMin > 0 ? `
+                <div style="margin-bottom: 6px; padding: 5px 8px; background: rgba(245, 158, 11, 0.12); border-left: 3px solid #f59e0b; border-radius: 4px; font-size: 0.75rem; color: #92400e; font-weight: 600;">
+                  ⏱ Finish yesterday's ${cp.carryoverMin} min first, here, in this block (75% minimum mark: ${min75}m).
+                </div>
+              ` : ''}
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div>
+                  <div style="font-size: 0.8125rem; font-weight: 600; color: var(--text-ink);">
+                    ${isOratory ? '🎙️' : '📖'} <strong>${escapeHtml(cp.courseTitle)}</strong>
+                    <span class="text-subtle text-xs">(${cp.effortMinTarget}m effort, ${cp.lectureMinTarget}m lecture · 75% min: ${min75}m)</span>
+                  </div>
+                  <div class="text-subtle text-xs" style="margin-top: 2px;">
+                    Target: <strong>${cp.startPosition} ➔ up to ${cp.endPosition}</strong>
+                    ${cp.source && cp.source !== 'timetable' ? `<span class="badge badge-neutral text-xs" style="margin-left: 4px;">${escapeHtml(cp.source)}</span>` : ''}
+                  </div>
+                  ${Array.isArray(cp.lectureBreakdown) && cp.lectureBreakdown.length > 0 ? `
+                    <div style="margin-top: 4px; font-size: 0.73rem; color: #0369a1;">
+                      ${cp.lectureBreakdown.map(lb => `<div>• <strong>Lec ${lb.lectureNumber}: ${escapeHtml(lb.title)}</strong> (${lb.videoMinutes}m video / ${lb.effortMinutes}m effort)</div>`).join('')}
+                    </div>
+                  ` : ''}
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <input type="number" class="form-input input-course-mins" data-slug="${cp.courseSlug}" min="1" max="480" value="${cp.effortMinTarget}" style="width: 64px; padding: 2px 6px; font-size: 0.75rem;" title="Minutes completed">
+                  <button type="button" class="btn btn-outline btn-sm btn-log-course-mins" data-slug="${cp.courseSlug}" style="padding: 2px 8px; font-size: 0.75rem;">Log min</button>
+                  ${firstUncompleted ? `
+                    <button type="button" class="btn btn-success btn-sm btn-complete-act" data-id="${firstUncompleted.activityId}" data-rem="${firstUncompleted.allocatedMinutes || cp.effortMinTarget}" style="padding: 2px 8px; font-size: 0.75rem;">✓ Done</button>
+                  ` : `
+                    <button type="button" class="btn btn-success btn-sm btn-complete-manual-session" data-slug="${cp.courseSlug}" data-mins="${cp.effortMinTarget}" style="padding: 2px 8px; font-size: 0.75rem;">✓ Done</button>
+                  `}
+                </div>
+              </div>
+            </div>
+          `;
+        } else if (assignedActs.length > 0) {
+          if (hasDiscrete) {
+            const firstUncompleted = assignedActs.find((a) => a.status !== "completed");
+            const isOratory = firstUncompleted?.courseSlug === "oratory" || b.category === "oratory" || b.courseSlug === "oratory";
+            innerContent = `
+              <div style="margin-top: 8px; padding: 8px 10px; background: ${isOratory ? 'rgba(147, 51, 234, 0.04)' : 'rgba(2, 132, 199, 0.04)'}; border: 1px solid ${isOratory ? 'rgba(147, 51, 234, 0.25)' : 'rgba(2, 132, 199, 0.2)'}; border-radius: 6px;">
+                ${firstUncompleted ? `
+                  <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <div style="font-size: 0.8125rem; font-weight: 600; color: var(--text-ink);">
+                      ${isOratory ? '🎙️' : '📖'} ${escapeHtml(firstUncompleted.title)} <span class="text-subtle text-xs">(${firstUncompleted.allocatedMinutes}m)</span>
+                      ${isOratory ? `<span class="badge text-xs" style="background: rgba(147, 51, 234, 0.12); color: #7e22ce; margin-left: 4px;">Week ${firstUncompleted.activityNumber || 1} of 13</span>` : ''}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <button type="button" class="btn btn-success btn-sm btn-complete-act" data-id="${firstUncompleted.activityId}" data-rem="${firstUncompleted.allocatedMinutes}" style="padding: 2px 8px; font-size: 0.75rem;">${isOratory ? '✓ Mark Week Done' : '✓ Mark Done'}</button>
+                      <button type="button" class="btn btn-outline btn-sm btn-act-headway" data-id="${firstUncompleted.activityId}" data-title="${escapeHtml(firstUncompleted.title)}" data-rem="${firstUncompleted.allocatedMinutes}" data-effort="${firstUncompleted.totalEffortMinutes || firstUncompleted.allocatedMinutes}" style="padding: 2px 6px; font-size: 0.7rem;">⏱ Log %</button>
+                    </div>
+                  </div>
+                ` : `
+                  <span class="text-xs" style="color: #047857; font-weight: 600;">✓ All scheduled items for this block completed!</span>
+                `}
+                ${assignedActs.filter((a) => a !== firstUncompleted).map((act) => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 0; margin-top: 4px; font-size: 0.75rem; color: var(--text-muted); border-top: 1px dashed rgba(0,0,0,0.06);">
+                    <span>${act.status === "completed" ? "✓ Done:" : "⏱ Next:"} <strong>${escapeHtml(act.title)}</strong> (${act.allocatedMinutes}m)</span>
+                    ${act.status === "completed" ? '<span class="badge badge-success text-xs">Done</span>' : `<button type="button" class="btn btn-outline btn-sm btn-complete-act" data-id="${act.activityId}" data-rem="${act.allocatedMinutes}" style="padding: 1px 6px; font-size: 0.7rem;">✓ Mark Done</button>`}
+                  </div>
+                `).join("")}
+              </div>
+            `;
+          } else {
+            const manualAct = assignedActs[0];
+            innerContent = `
+              <div style="margin-top: 8px; padding: 8px 10px; background: rgba(2, 132, 199, 0.04); border: 1px solid rgba(2, 132, 199, 0.2); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span style="font-size: 0.8125rem; font-weight: 600; color: var(--text-ink);">
+                  🎯 ${escapeHtml(manualAct.title || b.label)} (${b.durationMinutes}m study session)
+                </span>
+                <button type="button" class="btn btn-success btn-sm btn-complete-manual-session" data-slug="${b.courseSlug || ''}" data-mins="${b.durationMinutes}" style="padding: 3px 8px; font-size: 0.75rem;">✓ Mark Done</button>
+              </div>
+            `;
+          }
+        } else if (b.category === "reading" || b.matchingWork?.some((w) => w.type === "reading")) {
+          const rWork = b.matchingWork?.find((w) => w.type === "reading") || {};
+          const finishPromptHtml = nearFinishBook ? `
+            <div style="margin-bottom: 6px; padding: 6px 10px; background: rgba(16, 185, 129, 0.12); border-left: 3px solid #10b981; border-radius: 4px; font-size: 0.8125rem; color: #065f46; font-weight: 600;">
+              🎉 <strong>Book Finish Prompt:</strong> Only ${nearFinishBook.totalPages - nearFinishBook.currentPage} pages left! Push through and finish "${escapeHtml(nearFinishBook.title)}" today!
+            </div>
+          ` : "";
+          innerContent = `
+            <div style="margin-top: 8px; padding: 8px 10px; background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px;">
+              ${finishPromptHtml}
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <div>
+                  <div style="font-size: 0.8125rem; font-weight: 700; color: var(--text-ink);">
+                    📖 ${escapeHtml(nearFinishBook ? nearFinishBook.title : (rWork.title || "The Psychology of Money by Morgan Housel"))}
+                  </div>
+                  <div class="text-subtle text-xs">
+                    ${nearFinishBook ? `Page ${nearFinishBook.currentPage} of ${nearFinishBook.totalPages} · Home stretch!` : "Phase 1: Foundations of Wealth & Psychology · 35m planned target"}
+                  </div>
+                </div>
+                <button type="button" class="btn btn-primary btn-sm btn-complete-reading" data-id="${nearFinishBook?._id || rWork.id || ''}" style="padding: 3px 10px; font-size: 0.75rem;">
+                  ✓ Done Today (35m)
+                </button>
+              </div>
+              <div class="text-subtle text-xs" style="margin-top: 4px; font-size: 0.72rem; color: #b45309;">
+                💡 P3 Habit Protection: Keep at least 5–10m daily reading to preserve habit momentum.
+              </div>
+            </div>
+          `;
+        } else if (b.isGym) {
+          innerContent = `
+            <div style="margin-top: 8px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <button type="button" class="btn btn-success btn-sm btn-gym-done" data-duration="${b.durationMinutes || 60}" style="padding: 2px 8px; font-size: 0.75rem;">
+                ✓ Workout Done
+              </button>
+              <button type="button" class="btn btn-outline btn-sm btn-gym-missed" style="padding: 2px 8px; font-size: 0.75rem;">
+                ✕ Missed Today (Reschedule)
+              </button>
+            </div>
+          `;
+        } else if (b.isNightRoutine) {
+          innerContent = `
+            <div style="margin-top: 8px;">
+              <button type="button" class="btn-night-routine-toggle" aria-expanded="false" style="background: var(--bg-canvas); border: 1px solid var(--border-hairline); border-radius: 4px; cursor: pointer; padding: 3px 8px; font-size: 0.75rem; color: var(--accent-blue); font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                <span>Night Routine Details (6 activities)</span> <span class="night-arrow">▼</span>
+              </button>
+              <div class="night-routine-details" style="display: none; max-height: 160px; overflow-y: auto; margin-top: 8px; padding: 8px 10px; background: var(--bg-surface); border: 1px solid var(--border-hairline); border-radius: 6px;">
+                ${renderRoutineSteps(routineHabits)}
+              </div>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="timetable-item ${b.category || ""} ${b.isProtected ? "protected" : ""}" style="display: block; padding: 0.75rem 0.875rem; margin-bottom: 8px; border: 1px solid var(--border-hairline); border-radius: 8px; background: var(--bg-surface);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div style="flex: 1; min-width: 0;">
+                <div style="display: flex; align-items: center; gap: var(--space-2);">
+                  <span style="font-weight: 700; color: var(--text-ink); font-size: 0.875rem;">${formatTimeRange(b.startTime, b.endTime)}</span>
+                  ${typeBadge}
+                </div>
+                <div class="text-subtle text-xs" style="margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500;">
+                  ${escapeHtml(b.label)}
+                </div>
+              </div>
+              <span class="badge ${b.isProtected ? "badge-p1" : "badge-neutral"}" style="margin-left: var(--space-2);">${b.durationMinutes}m</span>
+            </div>
+            ${innerContent}
+          </div>
+        `;
+      }
+
+      function wireUnifiedTimelineEvents(heroEl, remainingEl, routineHabits) {
+        const root = document.getElementById("unifiedExecutionTimelineCard");
+        if (!root) return;
+
+        // Complete discrete lecture
+        root.querySelectorAll(".btn-complete-act").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const rem = parseInt(btn.dataset.rem, 10) || 30;
+            try {
+              btn.disabled = true;
+              btn.textContent = "Completing...";
+              await api.put(`/courses/activities/${id}/complete`, { actualMinutes: rem });
+              showToast("Lecture marked complete! Synced to tracker & next lecture queued.", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Failed to complete lecture", "error");
+              btn.disabled = false;
+              btn.textContent = "✓ Mark Done";
+            }
+          });
+        });
+
+        // Partial / Headway
+        root.querySelectorAll(".btn-act-headway, .btn-advance-act").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openActPartialModal(btn.dataset.id, btn.dataset.title, btn.dataset.rem, btn.dataset.effort);
+          });
+        });
+
+        // Complete manual session
+        root.querySelectorAll(".btn-complete-manual-session").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const slug = btn.dataset.slug;
+            const mins = parseInt(btn.dataset.mins, 10) || 45;
+            try {
+              btn.disabled = true;
+              btn.textContent = "Saving...";
+              await api.post("/execution/work", {
+                category: slug || "general",
+                minutesSpent: mins,
+                date: selectedDate,
+                notes: `Completed timetable block study session (${mins}m)`,
+              });
+              showToast("Session logged and marked complete!", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Failed to log session", "error");
+              btn.disabled = false;
+              btn.textContent = "✓ Mark Session Done";
+            }
+          });
+        });
+
+        // Academics Checklist Done (Zero minute logging, peaceful tick mark)
+        root.querySelectorAll(".chk-academic-done").forEach((chk) => {
+          chk.addEventListener("change", async (e) => {
+            e.stopPropagation();
+            if (!chk.checked) return;
+            try {
+              chk.disabled = true;
+              const blockId = chk.dataset.blockId;
+              const label = chk.dataset.label;
+              await api.post("/academic/checkin", {
+                date: selectedDate,
+                label: label || "College Academics & Exam Prep",
+                blockId: blockId || "",
+              });
+              showToast("Academics marked complete! Great focus.", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Failed to mark done", "error");
+              chk.disabled = false;
+              chk.checked = false;
+            }
+          });
+        });
+
+        // Complete reading
+        root.querySelectorAll(".btn-complete-reading").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const bookId = btn.dataset.id;
+            try {
+              btn.disabled = true;
+              btn.textContent = "Logging...";
+              await api.post("/personal/reading", {
+                bookId: bookId || undefined,
+                date: selectedDate,
+                durationMinutes: 35,
+                startPage: 0,
+                endPage: 20,
+              });
+              showToast("Reading session logged! Habit honored.", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Could not log reading", "error");
+              btn.disabled = false;
+              btn.textContent = "✓ Done Today (35m)";
+            }
+          });
+        });
+
+        // Gym workout done
+        root.querySelectorAll(".btn-gym-done").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            try {
+              const dur = parseInt(btn.dataset.duration, 10) || 60;
+              await api.post("/personal/fitness", {
+                date: selectedDate,
+                workoutType: "Strength & Gym Workout",
+                durationMinutes: dur,
+                notes: "Logged from Today's section",
+              });
+              showToast("Gym session logged and marked done!", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Failed to log gym session", "error");
+            }
+          });
+        });
+
+        // Gym missed
+        root.querySelectorAll(".btn-gym-missed").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            showToast("Gym session marked missed for today. Rest and recover!", "info");
+          });
+        });
+
+        // Night routine toggle
+        root.querySelectorAll(".btn-night-routine-toggle").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const parent = btn.parentElement;
+            const details = parent ? parent.querySelector(".night-routine-details") : null;
+            const arrow = btn.querySelector(".night-arrow");
+            if (!details) return;
+            const isHidden = details.style.display === "none";
+            details.style.display = isHidden ? "block" : "none";
+            if (arrow) arrow.textContent = isHidden ? "▲" : "▼";
+            btn.setAttribute("aria-expanded", isHidden ? "true" : "false");
+          });
+        });
+
+        // Routine checkin
+        root.querySelectorAll(".today-routine-check").forEach((input) => {
+          input.addEventListener("change", async (e) => {
+            e.stopPropagation();
+            try {
+              await api.post("/personal/habits/checkin", {
+                habitId: input.dataset.id,
+                date: selectedDate,
+                completed: input.checked,
+              });
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message, "error");
+              input.checked = !input.checked;
+            }
+          });
+        });
+      }
+
+      function renderTimetable(blocks, routineHabits = [], blockAllocations = []) {
         const container = document.getElementById("timetableList");
         if (blocks.length === 0) {
           container.innerHTML =
@@ -1813,6 +2885,75 @@
             const isNightRoutine = /night routine/i.test(b.label);
             const isGym = b.category === "gym" || /gym/i.test(b.label);
 
+            // Find any assigned lectures/activities for this block
+            const matchingAlloc = blockAllocations.find((ba) => ba.blockId === b.blockId || (ba.startTime === b.startTime && ba.endTime === b.endTime));
+            const assignedActs = matchingAlloc ? matchingAlloc.assignedActivities || [] : [];
+
+            let assignedActsHtml = "";
+            if (assignedActs.length > 0) {
+              const hasDiscrete = assignedActs.some((a) => !String(a.activityId || '').startsWith('manual_'));
+              if (hasDiscrete) {
+                const totalMins = assignedActs.reduce((s, a) => s + (a.allocatedMinutes || 0), 0);
+                const firstUncompleted = assignedActs.find((a) => a.status !== 'completed');
+                const completedCount = assignedActs.filter((a) => a.status === 'completed').length;
+
+                assignedActsHtml = `
+                  <div style="margin-top: 8px; padding: 10px 12px; background: rgba(2, 132, 199, 0.05); border: 1px solid rgba(2, 132, 199, 0.28); border-radius: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                      <span style="font-size: 0.75rem; font-weight: 700; color: #0284c7; text-transform: uppercase; letter-spacing: 0.3px;">
+                        📢 Target: ${escapeHtml(b.label)} (${b.durationMinutes}m block · ${totalMins}m planned)
+                      </span>
+                      <span class="badge badge-sky text-xs">${completedCount} / ${assignedActs.length} Completed</span>
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px;">
+                      Start with this lecture, complete it, mark done, and proceed sequentially:
+                    </div>
+
+                    ${firstUncompleted ? `
+                      <div style="padding: 8px 10px; background: #ffffff; border: 1.5px solid #0284c7; border-radius: 6px; margin-bottom: 6px; box-shadow: 0 1px 3px rgba(2, 132, 199, 0.1);">
+                        <div style="font-size: 0.7rem; font-weight: 700; color: #0284c7; margin-bottom: 2px;">▶ START WITH THIS LECTURE:</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                          <span style="font-size: 0.8125rem; font-weight: 600; color: var(--text-ink);">
+                            📖 ${escapeHtml(firstUncompleted.title)} <span class="text-subtle text-xs">(${firstUncompleted.allocatedMinutes}m)</span>
+                          </span>
+                          <button type="button" class="btn btn-success btn-sm btn-complete-act" data-id="${firstUncompleted.activityId}" data-rem="${firstUncompleted.allocatedMinutes}" style="padding: 3px 10px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">✓ Mark Done</button>
+                        </div>
+                      </div>
+                    ` : `
+                      <div style="padding: 6px 8px; background: rgba(16, 185, 129, 0.08); border-radius: 6px; font-size: 0.8125rem; color: #047857; font-weight: 600; margin-bottom: 6px;">
+                        ✓ All scheduled lectures for this block are completed! Excellent execution.
+                      </div>
+                    `}
+
+                    ${assignedActs.filter((a) => a !== firstUncompleted).map((act) => `
+                      <div style="display: flex; justify-content: space-between; align-items: center; padding: 4px 6px; font-size: 0.75rem; color: var(--text-muted); border-top: 1px dashed rgba(0,0,0,0.08);">
+                        <span>${act.status === 'completed' ? '✓ Completed:' : '⏱️ Next in sequence:'} <strong>${escapeHtml(act.title)}</strong> (${act.allocatedMinutes}m)</span>
+                        ${act.status === 'completed'
+                          ? '<span class="badge badge-success text-xs">Done</span>'
+                          : `<button type="button" class="btn btn-outline btn-sm btn-complete-act" data-id="${act.activityId}" data-rem="${act.allocatedMinutes}" style="padding: 1px 6px; font-size: 0.7rem;">✓ Mark Done</button>`}
+                      </div>
+                    `).join('')}
+                  </div>
+                `;
+              } else {
+                // Manual hours course without CSV syllabus
+                const manualAct = assignedActs[0];
+                assignedActsHtml = `
+                  <div style="margin-top: 8px; padding: 10px 12px; background: rgba(2, 132, 199, 0.05); border: 1px solid rgba(2, 132, 199, 0.28); border-radius: 8px;">
+                    <div style="font-size: 0.75rem; font-weight: 700; color: #0284c7; margin-bottom: 4px; text-transform: uppercase;">
+                      📢 Target: ${escapeHtml(b.label)} (${b.durationMinutes}m planned study & practice session)
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                      <span style="font-size: 0.8125rem; font-weight: 600; color: var(--text-ink);">
+                        🎯 ${escapeHtml(manualAct.title || b.label)} (${b.durationMinutes}m)
+                      </span>
+                      <button type="button" class="btn btn-success btn-sm btn-complete-manual-session" data-slug="${manualAct.courseSlug || b.courseSlug || ''}" data-mins="${b.durationMinutes}" style="padding: 3px 10px; font-size: 0.75rem; font-weight: 600; white-space: nowrap;">✓ Mark Session Done</button>
+                    </div>
+                  </div>
+                `;
+              }
+            }
+
             return `
           <div class="timetable-item ${b.category || ""} ${b.isProtected ? "protected" : ""}" style="display: block; padding: 0.65rem 0.75rem;">
             <div style="display: flex; align-items: center; justify-content: space-between;">
@@ -1827,6 +2968,8 @@
               </div>
               <span class="badge ${b.isProtected ? "badge-p1" : "badge-neutral"}" style="margin-left: var(--space-2);">${b.durationMinutes}m</span>
             </div>
+
+            ${assignedActsHtml}
 
             ${
               isNightRoutine
@@ -1907,6 +3050,51 @@
           });
         });
 
+        container.querySelectorAll(".btn-complete-act").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const rem = parseInt(btn.dataset.rem, 10) || 30;
+            try {
+              btn.disabled = true;
+              btn.textContent = "Saving...";
+              await api.put(`/courses/activities/${id}/complete`, {
+                actualMinutes: rem,
+              });
+              showToast("Lecture marked complete! Synced to tracker & next lecture queued.", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Failed to complete lecture", "error");
+              btn.disabled = false;
+              btn.textContent = "✓ Mark Done";
+            }
+          });
+        });
+
+        container.querySelectorAll(".btn-complete-manual-session").forEach((btn) => {
+          btn.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            const slug = btn.dataset.slug;
+            const mins = parseInt(btn.dataset.mins, 10) || 45;
+            try {
+              btn.disabled = true;
+              btn.textContent = "Saving...";
+              await api.post("/execution/work", {
+                category: slug || "general",
+                minutesSpent: mins,
+                date: selectedDate,
+                notes: `Completed timetable block study session (${mins}m)`
+              });
+              showToast("Session logged and marked complete!", "success");
+              await loadTodayData(selectedDate);
+            } catch (err) {
+              showToast(err.message || "Failed to log session", "error");
+              btn.disabled = false;
+              btn.textContent = "✓ Mark Session Done";
+            }
+          });
+        });
+
         container.querySelectorAll(".today-routine-check").forEach((input) =>
           input.addEventListener("change", async () => {
             try {
@@ -1934,74 +3122,12 @@
           journaling: "11:30 PM–11:40 PM",
           "whole-routine": "10:30 PM–11:40 PM",
         };
-        return `<div style="margin-top:8px;padding:8px 10px;background:var(--color-bg-base);border-radius:8px">${habits.map((h) => `<label style="display:flex;align-items:center;gap:7px;padding:2px 0;font-size:.75rem"><input class="today-routine-check" type="checkbox" data-id="${h._id}" ${h.isCompletedToday ? "checked" : ""} ${h.isTrackable === false ? "disabled" : ""}><span>${escapeHtml(h.title)} <span class="text-subtle">${slots[h.routineGroup] || ""}</span></span></label>`).join("")}</div>`;
+        return `<div style="margin-top:8px;padding:8px 10px;background:var(--color-bg-base);border-radius:8px">${habits.map((h) => `<label style="display:flex;align-items:center;gap:7px;padding:2px 0;font-size:.75rem"><input class="today-routine-check" type="checkbox" data-id="${h._id}" ${(h.isCompletedToday || h.checkedInToday) ? "checked" : ""} ${h.isTrackable === false ? "disabled" : ""}><span>${escapeHtml(h.title || h.name)} <span class="text-subtle">${slots[h.routineGroup] || ""}</span></span></label>`).join("")}</div>`;
       }
 
-      function updateNextUp(blocks, tasks, routineHabits) {
+      function updateNextUp(blocks, tasks, routineHabits, blockAllocations = []) {
         const box = document.getElementById("nextUpBox");
-        const label = document.getElementById("nextUpText");
-        const parts = new Intl.DateTimeFormat("en-GB", {
-          timeZone: "Asia/Kolkata",
-          hour: "2-digit",
-          minute: "2-digit",
-          hourCycle: "h23",
-        })
-          .format(new Date())
-          .split(":")
-          .map(Number);
-        const now = parts[0] * 60 + parts[1];
-        const events = [];
-        const toMin = (t) => {
-          const [h, m] = String(t || "00:00")
-            .split(":")
-            .map(Number);
-          return h * 60 + m;
-        };
-        const routineBlock = blocks.find((b) => /night routine/i.test(b.label));
-        if (routineBlock) {
-          const base = toMin(routineBlock.startTime);
-          const offsets = {
-            vocabulary: 0,
-            hygiene: 5,
-            "meditation-breathing": 10,
-            reading: 25,
-            journaling: 60,
-          };
-          const seen = new Set();
-          for (const h of routineHabits) {
-            const group = h.routineGroup;
-            if (!group || group === "whole-routine" || seen.has(group))
-              continue;
-            seen.add(group);
-            const time = base + (offsets[group] || 0);
-            const nextStep = routineHabits.find(
-              (x) => x.routineGroup === group && !x.isCompletedToday,
-            );
-            if (nextStep && time >= now)
-              events.push({ time, title: nextStep.title });
-          }
-        }
-        for (const b of blocks) {
-          if (
-            /night routine/i.test(b.label) ||
-            ["rest", "college"].includes(b.category) ||
-            b.blockType === "fixed_routine"
-          )
-            continue;
-          const actionable =
-            b.isTrackable || b.courseSlug || /reading/i.test(b.label);
-          const time = toMin(b.startTime);
-          if (actionable && time >= now) events.push({ time, title: b.label });
-        }
-        const next = events.sort((a, b) => a.time - b.time)[0];
-        if (next) {
-          const hh = Math.floor(next.time / 60) % 24,
-            mm = next.time % 60;
-          label.textContent = `${next.title} · ${formatTime12(`${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`)}`;
-          box.style.display = "block";
-        } else {
-          box.style.display = "none";
-        }
+        if (box) box.style.display = "none";
       }
 
       function escapeHtml(value) {
@@ -2020,7 +3146,7 @@
 
       async function loadQuickHabits() {
         try {
-          const res = await api.get("/habits");
+          const res = await api.get("/personal/habits", { date: selectedDate });
           if (!res.success) return;
           const container = document.getElementById("quickHabitsList");
           if (!res.habits || res.habits.length === 0) {
@@ -2034,18 +3160,22 @@
           container.innerHTML = res.habits
             .slice(0, 4)
             .map((h) => {
-              const isDone = (h.completionHistory || []).some((entry) =>
-                (typeof entry === "string" ? entry : entry.date).startsWith(
-                  todayStr,
+              const isDone = Boolean(
+                h.isCompletedToday ||
+                h.checkedInToday ||
+                (h.completionHistory || []).some((entry) =>
+                  String(typeof entry === "string" ? entry : entry?.date || "").startsWith(
+                    todayStr,
+                  ),
                 ),
               );
               return `
             <div class="quick-checkin-item">
               <div>
-                <span style="font-size: 0.875rem; font-weight: 500; color: var(--text-ink);">${escapeHtml(h.name)}</span>
+                <span style="font-size: 0.875rem; font-weight: 500; color: var(--text-ink);">${escapeHtml(h.title || h.name)}</span>
                 <span class="text-subtle text-xs" style="margin-left: var(--space-2);">${h.streak || 0} streak</span>
               </div>
-              <input type="checkbox" class="habit-chk" data-id="${h._id}" ${isDone ? "checked disabled" : ""} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-green);">
+              <input type="checkbox" class="habit-chk" data-id="${h._id}" ${isDone ? "checked" : ""} style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent-green);">
             </div>
           `;
             })
@@ -2055,11 +3185,15 @@
             chk.addEventListener("change", async (e) => {
               const id = e.target.dataset.id;
               try {
-                await api.post(`/habits/${id}/complete`);
-                showToast("Habit checked in!", "success");
-                e.target.disabled = true;
+                await api.post("/personal/habits/checkin", {
+                  habitId: id,
+                  date: selectedDate,
+                  completed: e.target.checked,
+                });
+                showToast("Habit updated!", "success");
               } catch (err) {
                 showToast(err.message, "error");
+                e.target.checked = !e.target.checked;
               }
             });
           });
@@ -2217,6 +3351,20 @@
           .getElementById("cancelActPartialBtn")
           ?.addEventListener("click", closeActPartialModal);
 
+        // Percentage presets (25%, 50%, 75%, 100%)
+        document.querySelectorAll(".act-pct-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const pct = parseInt(btn.dataset.pct, 10);
+            const effort = parseInt(document.getElementById("actPartialTotalEffort").value, 10) || 30;
+            const computedMins = Math.max(1, Math.round(effort * (pct / 100)));
+            document.getElementById("actPartialMinutesInput").value = computedMins;
+            const labelEl = document.getElementById("actPartialPctLabel");
+            if (labelEl) {
+              labelEl.textContent = `${pct}% (~${computedMins}m of ${effort}m total)`;
+            }
+          });
+        });
+
         document
           .getElementById("actPartialForm")
           ?.addEventListener("submit", async (e) => {
@@ -2227,21 +3375,35 @@
                 document.getElementById("actPartialMinutesInput").value,
                 10,
               ) || 20;
+            const totalEffort = parseInt(document.getElementById("actPartialTotalEffort").value, 10) || 0;
             const notes = document.getElementById("actPartialNoteInput").value;
             const btnSave = document.getElementById("btnSaveActPartial");
 
             try {
               btnSave.disabled = true;
               btnSave.textContent = "Saving...";
-              await api.post(`/courses/activities/${id}/partial`, {
-                minutesSpent: minutes,
-                notes,
-                date: selectedDate,
-              });
-              showToast(
-                "Headway preserved! Synced to Courses Hub & Remaining Effort adjusted.",
-                "success",
-              );
+
+              if (totalEffort > 0 && minutes >= totalEffort) {
+                // 100% completed
+                await api.put(`/courses/activities/${id}/complete`, {
+                  actualMinutes: minutes,
+                  notes,
+                });
+                showToast(
+                  "Lecture 100% completed! Synced to Courses Hub & Progress updated.",
+                  "success",
+                );
+              } else {
+                await api.post(`/courses/activities/${id}/partial`, {
+                  minutesSpent: minutes,
+                  notes,
+                  date: selectedDate,
+                });
+                showToast(
+                  "Headway preserved! Synced to Courses Hub & Remaining Effort adjusted.",
+                  "success",
+                );
+              }
               closeActPartialModal();
               await loadTodayData(selectedDate);
             } catch (err) {
@@ -2292,6 +3454,56 @@
               showToast(err.message, "error");
             }
           });
+
+        // Slack Day modal setup
+        const slackDayModal = document.getElementById("slackDayModal");
+        const openSlackDayModal = () => {
+          document.getElementById("slackDayDate").value = selectedDate;
+          slackDayModal?.classList.remove("hidden");
+        };
+        document.getElementById("btnDeclareSlackDay")?.addEventListener("click", openSlackDayModal);
+        document.getElementById("btnOpenSlackDayTop")?.addEventListener("click", openSlackDayModal);
+        document.getElementById("closeSlackDayModalBtn")?.addEventListener("click", () => {
+          slackDayModal?.classList.add("hidden");
+        });
+        document.getElementById("cancelSlackDayBtn")?.addEventListener("click", () => {
+          slackDayModal?.classList.add("hidden");
+        });
+        document.getElementById("slackDayForm")?.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const confirmBtn = document.getElementById("confirmSlackDayBtn");
+          try {
+            if (confirmBtn) {
+              confirmBtn.disabled = true;
+              confirmBtn.textContent = "Applying...";
+            }
+            const res = await api.post("/planner/slack-days", {
+              date: document.getElementById("slackDayDate").value,
+              type: document.getElementById("slackDayType").value,
+              reason: document.getElementById("slackDayReason").value || "Slack Day buffer",
+            });
+            if (res.success) {
+              const rem = res.slackDayStatus?.remaining ?? "?";
+              showToast(
+                res.alreadyDeclared
+                  ? `Slack Day already declared for this date.`
+                  : `Slack Day declared! ${rem} remaining this month.`,
+                "success",
+              );
+              slackDayModal?.classList.add("hidden");
+              await loadTodayData(selectedDate);
+            } else {
+              showToast(res.message || "Could not declare Slack Day", "error");
+            }
+          } catch (err) {
+            showToast(err.message || "Could not declare Slack Day", "error");
+          } finally {
+            if (confirmBtn) {
+              confirmBtn.disabled = false;
+              confirmBtn.textContent = "🛡️ Confirm Slack Day";
+            }
+          }
+        });
       }
 
       function openTaskModal() {
@@ -2311,15 +3523,17 @@
         document.getElementById("partialModal").classList.add("hidden");
       }
 
-      function openActPartialModal(id, title, remaining) {
+      function openActPartialModal(id, title, remaining, totalEffort) {
         document.getElementById("actPartialId").value = id;
         document.getElementById("actPartialTitleDisplay").textContent =
           title || "Curriculum Activity";
-        document.getElementById("actPartialMinutesInput").value =
-          remaining && Number(remaining) > 0
-            ? Math.min(Number(remaining), 30)
-            : 20;
+        const effortVal = Number(totalEffort || remaining) || 30;
+        const remainingVal = Number(remaining) > 0 ? Number(remaining) : effortVal;
+        document.getElementById("actPartialTotalEffort").value = effortVal;
+        document.getElementById("actPartialMinutesInput").value = Math.min(remainingVal, 30);
         document.getElementById("actPartialNoteInput").value = "";
+        const labelEl = document.getElementById("actPartialPctLabel");
+        if (labelEl) labelEl.textContent = "Custom Minutes";
         document.getElementById("actPartialModal").classList.remove("hidden");
       }
       function closeActPartialModal() {

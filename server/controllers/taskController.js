@@ -154,13 +154,15 @@ export async function deleteTask(req, res, next) {
 export async function recordPartialCompletion(req, res, next) {
   try {
     const { id } = req.params;
-    const { minutesSpent, notes, date, type = "regular" } = req.body;
+    const { minutesSpent, notes, date, type = "regular", operationId } = req.body;
 
     if (!minutesSpent || Number(minutesSpent) <= 0) {
       return res
         .status(400)
         .json({ success: false, error: "Valid minutesSpent is required." });
     }
+
+    const opId = operationId || req.headers["x-operation-id"] || null;
 
     const result = await ExecutionSyncService.recordWork({
       userId: req.user.id,
@@ -170,6 +172,7 @@ export async function recordPartialCompletion(req, res, next) {
       type,
       notes: notes || "",
       isCompleted: false,
+      operationId: opId,
     });
 
     if (!result || !result.task) {
@@ -181,6 +184,7 @@ export async function recordPartialCompletion(req, res, next) {
       message: `Preserved ${result.task.actualMinutes} min of completed effort. Remaining: ${result.task.remainingMinutes} min.`,
       task: result.task,
       executionRecord: result.executionRecord,
+      isDuplicate: Boolean(result.isDuplicate),
     });
   } catch (err) {
     next(err);
@@ -190,12 +194,14 @@ export async function recordPartialCompletion(req, res, next) {
 export async function completeTask(req, res, next) {
   try {
     const { id } = req.params;
-    const { actualMinutes } = req.body || {};
+    const { actualMinutes, operationId } = req.body || {};
+    const opId = operationId || req.headers["x-operation-id"] || null;
 
     const task = await ExecutionSyncService.completeTask({
       userId: req.user.id,
       taskId: id,
       actualMinutes,
+      operationId: opId,
     });
 
     if (!task) {

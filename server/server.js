@@ -18,17 +18,29 @@ async function startServer() {
     console.log(`${BOLD}${CYAN}[SARTHI]${RESET} Environment: ${config.nodeEnv} | Timezone: ${config.timezone}`);
   });
 
-  const handleShutdown = async () => {
-    console.log(`\n${BOLD}${CYAN}[SARTHI]${RESET} Gracefully stopping server...`);
+  let isShuttingDown = false;
+  const handleShutdown = async (signal) => {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+    console.log(`\n${BOLD}${CYAN}[SARTHI]${RESET} Gracefully stopping server (${signal})...`);
+
+    // Hard deadline for shutdown (10s)
+    const forceExitTimer = setTimeout(() => {
+      console.error(`${BOLD}${CYAN}[SARTHI]${RESET} Graceful shutdown timed out after 10s. Forcing exit.`);
+      process.exit(1);
+    }, 10000);
+    forceExitTimer.unref();
+
     server.close(async () => {
       console.log(`${BOLD}${CYAN}[SARTHI]${RESET} HTTP Server closed.`);
       await closeDB();
+      clearTimeout(forceExitTimer);
       process.exit(0);
     });
   };
 
-  process.on('SIGTERM', handleShutdown);
-  process.on('SIGINT', handleShutdown);
+  process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+  process.on('SIGINT', () => handleShutdown('SIGINT'));
 }
 
 startServer();

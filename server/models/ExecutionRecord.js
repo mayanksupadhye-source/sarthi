@@ -7,6 +7,12 @@ const executionRecordSchema = new mongoose.Schema({
     required: true,
     index: true,
   },
+  operationId: {
+    type: String,
+    sparse: true,
+    index: true,
+    trim: true,
+  },
   courseSlug: { type: String, index: true }, // e.g. 'dsa', 'web-dev', 'machine-learning'
   activityId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -42,6 +48,10 @@ const executionRecordSchema = new mongoose.Schema({
 executionRecordSchema.index({ userId: 1, date: 1 });
 executionRecordSchema.index({ userId: 1, courseSlug: 1 });
 executionRecordSchema.index({ userId: 1, taskId: 1 });
+executionRecordSchema.index(
+  { userId: 1, operationId: 1 },
+  { unique: true, sparse: true },
+);
 
 export const ExecutionRecord =
   mongoose.models.ExecutionRecord ||

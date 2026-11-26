@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#2c2228">
   <title>Enter the Vyuha — SARTHI</title>
   <link rel="icon" type="image/svg+xml" href="../favicon.svg">
@@ -35,8 +35,6 @@
     .side-copy.right{left:auto;right:clamp(22px,7vw,110px);text-align:right}
     .side-copy .num{font-size:11px;letter-spacing:.28em;color:var(--gold);display:block;margin-bottom:12px}.side-copy strong{font:500 25px Georgia,serif;color:#fff3d9;display:block;margin-bottom:9px}.side-copy span:last-child{font-size:14px;line-height:1.65;color:#c4d0e5}
     .sigil{position:absolute;font-size:22px;color:#f3d28b;filter:drop-shadow(0 0 10px #f3d28b);animation:sigil-float 3.6s ease-in-out infinite}
-    .chariot{position:absolute;z-index:1;left:50%;bottom:15%;width:min(43vw,500px);height:auto;transform:translateX(-50%);opacity:.68;filter:drop-shadow(0 0 15px #ffbd6b85);animation:chariot-emerge 2.4s .8s cubic-bezier(.2,.8,.2,1) both}
-    .chariot svg{display:block;width:100%;height:auto;overflow:visible}.chariot .silhouette{fill:#101a31;stroke:#ffe0a0;stroke-opacity:.7;stroke-width:1.5}.chariot .light{fill:none;stroke:#ffd585;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.chariot .wheel{transform-box:fill-box;transform-origin:center;animation:spin 5s linear infinite}
     .sigil.a{top:27%;left:24%}.sigil.b{top:31%;right:23%;animation-delay:.6s}.sigil.c{bottom:25%;left:28%;animation-delay:1.1s}.sigil.d{bottom:27%;right:26%;animation-delay:1.7s}
     .theme-rail{position:absolute;bottom:10%;left:50%;transform:translateX(-50%);display:flex;gap:clamp(13px,3vw,38px);align-items:center;justify-content:center;z-index:4;white-space:nowrap;animation:rail-in 1s 1.25s both}
     .theme{display:flex;align-items:center;gap:8px;color:#d2dcef;font-size:12px;letter-spacing:.11em;text-transform:uppercase}.theme i{font-style:normal;font-size:20px;filter:drop-shadow(0 0 7px #f3d28b88)}.theme:nth-child(1){animation:theme-glint 7s 0s both}.theme:nth-child(2){animation:theme-glint 7s .88s both}.theme:nth-child(3){animation:theme-glint 7s 1.76s both}.theme:nth-child(4){animation:theme-glint 7s 2.64s both}.theme:nth-child(5){animation:theme-glint 7s 3.52s both}.theme:nth-child(6){animation:theme-glint 7s 4.4s both}
@@ -45,13 +43,13 @@
     .countdown time{font-variant-numeric:tabular-nums;color:#f1d393;min-width:24px}
     .closing{position:absolute;inset:0;display:grid;place-items:center;background:radial-gradient(circle,#ffcf6a38,transparent 52%);opacity:0;z-index:6;pointer-events:none;animation:closing 8s linear forwards}.closing span{font:italic 500 clamp(22px,3.4vw,40px) Georgia,serif;color:#fff5d9;letter-spacing:.08em;text-shadow:0 0 40px #e4b95dba}
     .intro.leaving{animation:leave .7s cubic-bezier(.7,0,.84,0) both}.intro.leaving .skip{opacity:0;transition:opacity .2s}
-    @keyframes world-in{from{opacity:0;filter:brightness(2)}to{opacity:1;filter:brightness(1)}}@keyframes star-drift{to{background-position:600px 440px}}@keyframes sun-rise{0%{opacity:0;transform:translateY(75px) scale(.72);filter:brightness(.8)}48%{opacity:1;transform:translateY(0) scale(1);filter:brightness(1.55)}100%{opacity:.95;transform:translateY(-16px) scale(1.04);filter:brightness(1.2)}}@keyframes chariot-emerge{from{opacity:0;translate:-50% 20px;filter:blur(7px)}to{opacity:.68;translate:-50% 0;filter:blur(0)}}@keyframes orbit-in{from{opacity:0;scale:.58;rotate:-22deg}to{opacity:1;scale:1;rotate:0}}@keyframes spin{to{rotate:360deg}}@keyframes ray-turn{to{rotate:-360deg}}@keyframes chakra-enter{from{opacity:0;scale:.4;rotate:-90deg}to{opacity:.8;scale:1;rotate:0}}@keyframes crest-rise{from{opacity:0;scale:.55;filter:blur(10px)}to{opacity:1;scale:1;filter:blur(0)}}@keyframes glow{to{transform:scale(1.38);opacity:.9}}@keyframes title-arrive{from{opacity:0;translate:0 16px;filter:blur(7px)}to{opacity:1;translate:0 0;filter:blur(0)}}@keyframes verse-in{from{opacity:0;letter-spacing:.7em;filter:blur(5px)}to{opacity:1;letter-spacing:.32em;filter:blur(0)}}@keyframes side-in{from{opacity:0;translate:0 12px}to{opacity:1;translate:0 0}}@keyframes sigil-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(12deg)}}@keyframes rail-in{from{opacity:0;translate:-50% 14px}to{opacity:1;translate:-50% 0}}@keyframes theme-glint{0%,100%{color:#d2dcef;filter:none}14%,30%{color:#fff1c9;filter:drop-shadow(0 0 10px #f3d28b)}}@keyframes progress{to{width:100%}}@keyframes closing{0%,72%{opacity:0}78%,94%{opacity:1}100%{opacity:0}}@keyframes leave{to{opacity:0;transform:scale(1.045);filter:blur(9px)}}
-    @media(max-width:700px){.side-copy{top:19%;left:18px;transform:none;max-width:155px}.side-copy.right{top:auto;bottom:21%;right:18px}.side-copy strong{font-size:19px}.side-copy span:last-child{font-size:12px}.theme-rail{bottom:8%;width:92%;flex-wrap:wrap;gap:14px 20px}.theme{font-size:11px}.countdown{bottom:20px}.meter{width:85px}.sanskrit{top:12%;font-size:15px}.chariot{width:min(70vw,390px);bottom:15%}.centerpiece{top:47%;width:190px;height:190px}.crest{width:116px;height:116px}.title-lockup{top:calc(47% + 129px)}.eyebrow{font-size:11px}h1{font-size:clamp(38px,10vw,58px)}.tagline{font-size:11px}.chakra{top:47%;width:min(84vw,460px)}.orbit{top:47%;width:min(110vw,650px)}.orbit-inner,.rays{top:47%}.sigil.a{left:15%;top:32%}.sigil.b{right:15%;top:34%}.sigil.c{left:18%;bottom:31%}.sigil.d{right:18%;bottom:31%}}
+    @keyframes world-in{from{opacity:0;filter:brightness(2)}to{opacity:1;filter:brightness(1)}}@keyframes star-drift{to{background-position:600px 440px}}@keyframes sun-rise{0%{opacity:0;transform:translateY(75px) scale(.72);filter:brightness(.8)}48%{opacity:1;transform:translateY(0) scale(1);filter:brightness(1.55)}100%{opacity:.95;transform:translateY(-16px) scale(1.04);filter:brightness(1.2)}}@keyframes orbit-in{from{opacity:0;scale:.58;rotate:-22deg}to{opacity:1;scale:1;rotate:0}}@keyframes spin{to{rotate:360deg}}@keyframes ray-turn{to{rotate:-360deg}}@keyframes chakra-enter{from{opacity:0;scale:.4;rotate:-90deg}to{opacity:.8;scale:1;rotate:0}}@keyframes crest-rise{from{opacity:0;scale:.55;filter:blur(10px)}to{opacity:1;scale:1;filter:blur(0)}}@keyframes glow{to{transform:scale(1.38);opacity:.9}}@keyframes title-arrive{from{opacity:0;translate:0 16px;filter:blur(7px)}to{opacity:1;translate:0 0;filter:blur(0)}}@keyframes verse-in{from{opacity:0;letter-spacing:.7em;filter:blur(5px)}to{opacity:1;letter-spacing:.32em;filter:blur(0)}}@keyframes side-in{from{opacity:0;translate:0 12px}to{opacity:1;translate:0 0}}@keyframes sigil-float{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-14px) rotate(12deg)}}@keyframes rail-in{from{opacity:0;translate:-50% 14px}to{opacity:1;translate:-50% 0}}@keyframes theme-glint{0%,100%{color:#d2dcef;filter:none}14%,30%{color:#fff1c9;filter:drop-shadow(0 0 10px #f3d28b)}}@keyframes progress{to{width:100%}}@keyframes closing{0%,72%{opacity:0}78%,94%{opacity:1}100%{opacity:0}}@keyframes leave{to{opacity:0;transform:scale(1.045);filter:blur(9px)}}
+    @media(max-width:700px){.side-copy{top:19%;left:18px;transform:none;max-width:155px}.side-copy.right{top:auto;bottom:21%;right:18px}.side-copy strong{font-size:19px}.side-copy span:last-child{font-size:12px}.theme-rail{bottom:8%;width:92%;flex-wrap:wrap;gap:14px 20px}.theme{font-size:11px}.countdown{bottom:20px}.meter{width:85px}.sanskrit{top:12%;font-size:15px}.centerpiece{top:47%;width:190px;height:190px}.crest{width:116px;height:116px}.title-lockup{top:calc(47% + 129px)}.eyebrow{font-size:11px}h1{font-size:clamp(38px,10vw,58px)}.tagline{font-size:11px}.chakra{top:47%;width:min(84vw,460px)}.orbit{top:47%;width:min(110vw,650px)}.orbit-inner,.rays{top:47%}.sigil.a{left:15%;top:32%}.sigil.b{right:15%;top:34%}.sigil.c{left:18%;bottom:31%}.sigil.d{right:18%;bottom:31%}}
     @media(max-height:620px){.side-copy{display:none}.sanskrit{top:7%}.centerpiece,.orbit,.orbit-inner,.chakra,.rays{top:43%}.title-lockup{top:calc(43% + 157px)}.theme-rail{bottom:8%}.sanskrit{font-size:13px}}
     @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important}.meter b{animation-duration:8s!important;animation-delay:0s!important}}
   </style>
   <style>
-    /* Ten-second story arc: dawn, chariot, chakra, pathways, then a clear invitation. */
+    /* Ten-second story arc: dawn, chakra, pathways, then a clear invitation. */
     body{--t:10s;background:radial-gradient(ellipse at 50% 68%,#f3a75b55 0,#7b544e42 22%,#704b5047 47%,#3e3038 73%,#2c2228 100%)}
     .intro{background:radial-gradient(ellipse at 50% 66%,#ffcd7a38 0,#e9a65a1c 20%,#263e6b38 48%,transparent 72%)}
     .horizon{background:radial-gradient(ellipse at 50% 0%,#fff0bacc 0,#ffb862ae 5%,#e9846354 17%,#6d7eac2b 38%,transparent 60%),linear-gradient(180deg,#171f3a00,#080c19 57%);border-top-color:#fff0b6;box-shadow:0 -26px 115px #ffb86168}
@@ -66,8 +64,6 @@
     .centerpiece{width:300px;height:300px;animation:crest-rise 1.4s 2.65s cubic-bezier(.16,1,.3,1) both}
     .crest{width:172px;height:172px;padding:9px;box-shadow:0 0 0 1px #fff6d7,0 0 48px #ffcb71d9,0 0 130px #ff994c78;animation:crest-halo 2.6s 3.6s ease-in-out infinite alternate}
     .crest-glow{background:radial-gradient(circle,#fff1be77 0,#ffd37855 26%,transparent 72%);animation:glow 2.7s 3.3s ease-in-out infinite alternate}
-    .chariot{width:min(48vw,560px);opacity:.82;filter:drop-shadow(0 0 23px #ffca79d1);animation:chariot-emerge 2.2s 2.4s cubic-bezier(.16,1,.3,1) both}
-    .chariot .silhouette{fill:#111b34;stroke:#fff0c4;stroke-opacity:.95}.chariot .light{stroke:#ffe3a1;stroke-width:2.4}
     .side-copy{animation:side-in 1.1s 2.9s cubic-bezier(.16,1,.3,1) both}.side-copy strong{color:#fff6e3;text-shadow:0 0 24px #ffca7066}.side-copy span:last-child{color:#e2e8f4}
     .sanskrit{color:#fff0c9;text-shadow:0 0 30px #ffc66eaf;animation:verse-in 1.6s .6s cubic-bezier(.16,1,.3,1) both}
     .title-lockup{top:calc(48% + 184px);animation:title-arrive 1.25s 3.65s cubic-bezier(.16,1,.3,1) both}
@@ -83,7 +79,7 @@
     @keyframes ray-reveal{from{opacity:0;scale:.64}to{opacity:.9;scale:1}}
     @keyframes crest-halo{from{box-shadow:0 0 0 1px #fff6d7,0 0 48px #ffcb71a8,0 0 100px #ff994c50}to{box-shadow:0 0 0 2px #fff9e4,0 0 62px #ffe09be8,0 0 145px #ff994c85}}
     @keyframes closing{0%,80%{opacity:0}86%,95%{opacity:1}100%{opacity:0}}
-    @media(max-width:700px){.centerpiece{width:210px;height:210px}.crest{width:128px;height:128px}.title-lockup{top:calc(47% + 142px)}.chakra{width:min(88vw,490px)}.rays{width:min(112vw,670px)}.chariot{width:min(76vw,410px)}.sun{width:min(140vw,760px)}.theme{font-size:11px}}
+    @media(max-width:700px){.centerpiece{width:210px;height:210px}.crest{width:128px;height:128px}.title-lockup{top:calc(47% + 142px)}.chakra{width:min(88vw,490px)}.rays{width:min(112vw,670px)}.sun{width:min(140vw,760px)}.theme{font-size:11px}}
     @media(max-height:620px){.centerpiece{width:220px;height:220px}.crest{width:130px;height:130px}.title-lockup{top:calc(43% + 164px)}}
     @media(prefers-reduced-motion:reduce){.meter b{animation-duration:8s!important}.sun{animation: none;opacity:1;filter:drop-shadow(0 0 60px #ffbd6a9c)}.sunbeams{animation:none;opacity:.35;clip-path:none}.rays{animation:none;opacity:.65;scale:1}}
   </style>
@@ -110,8 +106,6 @@
     .crest img{border-color:#2b2027}
     .crest-glow{background:radial-gradient(circle,#fff1be77 0,#ffd37855 26%,transparent 72%);animation:glow 2.7s 3.5s ease-in-out infinite alternate}
     .stars,.stars:before,.stars:after{animation-name:star-float}
-    .chariot{left:2.5%;bottom:5%;width:min(51vw,700px);transform:none;opacity:.86;filter:drop-shadow(0 0 23px #ffca79d1);animation:chariot-settle 2.2s 2.8s cubic-bezier(.16,1,.3,1) both}
-    .chariot .silhouette{fill:#211b24;stroke:#fff0c4;stroke-opacity:.98}.chariot .light{stroke:#ffe3a1;stroke-width:2.6}
     .side-copy{animation:side-in 1.1s 3.1s cubic-bezier(.16,1,.3,1) both}.side-copy strong{color:#fff6e3;text-shadow:0 0 24px #ffca7066}.side-copy span:last-child{color:#f0dfd2}
     .sanskrit{color:#fff0c9;text-shadow:0 0 30px #ffc66eaf;animation:verse-in 1.6s .65s cubic-bezier(.16,1,.3,1) both}
     .title-lockup{top:calc(48% + 184px);animation:title-arrive 1.3s 4.05s cubic-bezier(.16,1,.3,1) both}
@@ -133,7 +127,6 @@
     @keyframes beams-unfurl{0%{opacity:0;transform:scale(.42) rotate(-7deg)}32%{opacity:.92;transform:scale(1.04) rotate(0)}53%{opacity:.58}100%{opacity:.46;transform:scale(1) rotate(0)}}
     @keyframes ember-tide{0%{opacity:0;transform:translate3d(0,20px,0)}25%{opacity:.8}100%{opacity:.46;transform:translate3d(-14px,-22px,0)}}
     @keyframes lens-sweep{0%{opacity:0;scale:.05 1}22%{opacity:1;scale:1.1 1}58%{opacity:.68;scale:.72 1}100%{opacity:0;scale:.08 1}}
-    @keyframes chariot-settle{from{opacity:0;translate:-20px 24px}to{opacity:.86;translate:0 0}}
     @keyframes star-float{from{transform:translate3d(-.6%,.5%,0)}to{transform:translate3d(.6%,-.5%,0)}}
     @keyframes ray-reveal{from{opacity:0;scale:.62}to{opacity:.92;scale:1}}
     @keyframes crest-halo{from{scale:1}to{scale:1.035}}
@@ -145,7 +138,6 @@
       .sanskrit{top:calc(env(safe-area-inset-top) + 8%);left:16px;right:16px;font-size:clamp(10px,3vw,15px);letter-spacing:.12em;white-space:nowrap}
       .centerpiece,.orbit,.orbit-inner,.chakra,.rays{top:37%}.centerpiece{width:210px;height:210px}.crest{width:128px;height:128px}.title-lockup{top:calc(37% + 132px);padding:0 12px}.eyebrow{font-size:9px;letter-spacing:.28em}h1{font-size:clamp(35px,11vw,52px);margin:7px 0}.tagline{font-size:clamp(9px,2.7vw,12px);letter-spacing:.12em}
       .sun{width:min(145vw,780px)}.orbit{width:min(128vw,760px)}.orbit-inner{width:min(100vw,590px)}.chakra{width:min(100vw,450px)}.rays{width:min(130vw,690px)}
-      .chariot{left:3%;bottom:18%;width:min(61vw,300px);transform:none}
       .theme-rail{left:50%;bottom:calc(env(safe-area-inset-bottom) + 62px);width:min(92vw,440px);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px 7px;white-space:normal;text-align:center;animation:rail-clean 1s 5s cubic-bezier(.16,1,.3,1) both}
       .theme{justify-content:center;gap:4px;font-size:clamp(8px,2.6vw,10px);letter-spacing:.07em}.theme i{font-size:16px}
       .countdown{left:calc(env(safe-area-inset-left) + 16px);bottom:calc(env(safe-area-inset-bottom) + 16px);gap:7px;font-size:8px;letter-spacing:.12em}.meter{width:68px;height:2px}
@@ -156,24 +148,21 @@
     @media(max-width:390px){
       .centerpiece,.orbit,.orbit-inner,.chakra,.rays{top:35%}.title-lockup{top:calc(35% + 128px)}
       .theme-rail{width:94vw;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px 3px}.theme{font-size:8px;letter-spacing:.04em}.theme i{font-size:14px}
-      .chariot{left:2%;bottom:18%;width:58vw}.meter{width:52px}
     }
     @media(max-height:620px) and (max-width:700px) and (orientation:landscape){
       .sanskrit{top:calc(env(safe-area-inset-top) + 5%)}.centerpiece,.orbit,.orbit-inner,.chakra,.rays{top:32%}.centerpiece{width:178px;height:178px}.crest{width:108px;height:108px}.title-lockup{top:calc(32% + 112px)}
       .theme-rail{grid-template-columns:repeat(6,minmax(0,1fr));bottom:calc(env(safe-area-inset-bottom) + 35px);width:96vw;gap:2px}.theme{display:grid;gap:1px;font-size:7px}.theme i{font-size:13px}
-      .chariot{left:2%;bottom:15%;width:min(37vw,270px)}.countdown{bottom:calc(env(safe-area-inset-bottom) + 7px)}.skip{top:calc(env(safe-area-inset-top) + 8px);min-height:44px;padding:11px 16px}
     }
-    @media(max-height:520px) and (min-width:701px){.side-copy{display:none}.centerpiece,.orbit,.orbit-inner,.chakra,.rays{top:39%}.title-lockup{top:calc(39% + 165px)}.chariot{left:1%;bottom:3%;width:min(41vw,460px)}.theme-rail{bottom:7%}}
+    @media(max-height:520px) and (min-width:701px){.side-copy{display:none}.centerpiece,.orbit,.orbit-inner,.chakra,.rays{top:39%}.title-lockup{top:calc(39% + 165px)}.theme-rail{bottom:7%}}
     /* Phone scenes use a closer, quicker celestial camera while keeping the page stationary. */
     @media(max-width:700px){
-      .sun{animation-duration:6.8s,4s;filter:drop-shadow(0 0 54px #ffc879aa)}
-      .sunbeams{animation-duration:9.2s;filter:blur(1px)}
+      .sun{animation-duration:6.8s,4s;filter:none}
+      .sunbeams{animation-duration:9.2s;filter:none}
       .orbit-inner{animation-duration:2s,34s}
       .chakra{animation-duration:2.7s,42s}
       .rays{animation-duration:52s,2.8s}
       .embers{animation-duration:11s}
       .lens-streak{animation-duration:7.8s}
-      .chariot{filter:drop-shadow(0 0 14px #ffca8066)}
     }
     @media(max-width:390px){.sun{width:156vw}.orbit{width:140vw}.rays{width:142vw}.closing span{padding:16px 16px}.skip{right:calc(env(safe-area-inset-right) + 10px)}}
     @media(prefers-reduced-motion:reduce){.meter b{animation-duration:10s!important}.sun{animation:none;opacity:1;scale:1;filter:drop-shadow(0 0 65px #ffbf78c9)}.sunbeams{animation:none;opacity:.34;transform:none}.rays{animation:none;opacity:.65;scale:1}.embers,.lens-streak{animation:none;opacity:.35}.closing span,.closing small{animation:none}}
@@ -187,6 +176,8 @@
       .crest{transform:scale(1)}
       .theme-rail{padding-inline:max(4px,env(safe-area-inset-left)) max(4px,env(safe-area-inset-right))}
     }
+    .sun,.sunbeams,.orbit-inner,.chakra,.rays,.centerpiece,.closing,.stars{will-change:transform,opacity}
+    .countdown{contain:layout style}
     @media(max-width:360px){
       .centerpiece{width:184px;height:184px}
       .crest{width:116px;height:116px}
@@ -203,12 +194,6 @@
   <main class="intro" id="intro" aria-label="SARTHI cinematic introduction">
     <div class="stars" aria-hidden="true"></div><div class="horizon" aria-hidden="true"></div><div class="sun" aria-hidden="true"></div><div class="sunbeams" aria-hidden="true"></div><div class="embers" aria-hidden="true"></div><div class="lens-streak" aria-hidden="true"></div>
     <div class="orbit" aria-hidden="true"></div><div class="orbit-inner" aria-hidden="true"></div><div class="rays" aria-hidden="true"></div>
-    <div class="chariot" aria-hidden="true"><svg viewBox="0 0 500 140">
-      <g class="silhouette"><path d="M53 67c12-14 27-18 44-15l22 7 21-5 13 7-17 8-24-1-24 11-23 1-15 12-9-3 8-17-12-7 3-8zM76 75l-4 29-9 18h-6l5-20-3-23m31-4 2 28-7 18h-6l3-20-9-20m38-24 7 23 19 9 10 17h-7l-13-10-24-6-9-19m-51-16-13 19-15 6-5-4 12-12 8-18 8 4z"/><path d="M117 52c12-14 28-18 44-12l19 12 28 2 9 11-35 1-17-5-22 10-18-7zM151 62l-5 28-11 17h-6l7-20-1-22m28-12 7 30 15 13 5 15h-7l-12-12-18-11-9-21m-37-25-15 16-13 4-4-4 11-11 9-15z"/><path d="M215 62h76l-8 28h-61zM209 59h89l-8 8h-74zM221 91h60l-6 9h-48z"/><path d="M239 53l5-28 20-12 18 12 5 28-11 5h-26zM244 26l18-17 18 17M256 53V35m16 18V35"/></g>
-      <g class="light"><path d="M211 61 175 47M218 66 188 58M204 55 167 41M124 54l61 6M104 52l82 8"/>
-        <g class="wheel"><circle cx="226" cy="107" r="24"/><circle cx="226" cy="107" r="4"/><path d="M226 83v48m-24-24h48m-41-17 34 34m0-34-34 34"/></g>
-        <g class="wheel"><circle cx="286" cy="107" r="24"/><circle cx="286" cy="107" r="4"/><path d="M286 83v48m-24-24h48m-41-17 34 34m0-34-34 34"/></g></g>
-    </svg></div>
     <div class="chakra" aria-hidden="true"><svg viewBox="0 0 400 400"><circle cx="200" cy="200" r="182"/><circle cx="200" cy="200" r="158"/><circle cx="200" cy="200" r="127"/><circle cx="200" cy="200" r="92"/><circle class="core" cx="200" cy="200" r="53"/>
       <g class="spoke"> <path d="M200 18V147M200 253V382M18 200H147M253 200H382M71 71L163 163M237 237L329 329M329 71L237 163M163 237L71 329"/><path d="M129 32L176 150M224 250L271 368M32 129L150 176M250 224L368 271M271 32L224 150M176 250L129 368M368 129L250 176M150 224L32 271"/></g>
       <path d="M200 29 211 79 200 69 189 79Z M371 200 321 211 331 200 321 189Z M200 371 189 321 200 331 211 321Z M29 200 79 189 69 200 79 211Z"/>
@@ -244,9 +229,14 @@
           window.location.replace('login.html');
         }, 700);
       };
+      let lastDisplayedTenths = -1;
       const tick = now => {
         const left = Math.max(0, duration - (now - start));
-        remaining.textContent = (left / 1000).toFixed(1);
+        const displayedTenths = Math.ceil(left / 100);
+        if (displayedTenths !== lastDisplayedTenths) {
+          remaining.textContent = (left / 1000).toFixed(1);
+          lastDisplayedTenths = displayedTenths;
+        }
         if (left <= 700) finish();
         if (left > 0) requestAnimationFrame(tick);
       };

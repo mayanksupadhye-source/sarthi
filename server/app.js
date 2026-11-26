@@ -7,6 +7,7 @@ import cookieParser from 'cookie-parser';
 import compression from 'compression';
 import apiRouter from './routes/api.js';
 import { config } from './config/env.js';
+import { pingDatabase, getDBStatus } from './config/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,13 +18,50 @@ export const app = express();
 // Trust reverse proxy (Render, Cloudflare, Vercel) for secure cookies and accurate client IP
 app.set('trust proxy', 1);
 
-// Lightweight liveness probe for deployment infrastructure
+// Lightweight liveness probe for deployment infrastructure (checks if process is alive)
 app.get('/healthz', (req, res) => {
   res.status(200).json({
     status: 'ok',
     uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString()
   });
+});
+
+// Deep readiness probe (checks if MongoDB is actively reachable via ping)
+app.get('/readyz', async (req, res) => {
+  try {
+    const pingPromise = pingDatabase();
+    // Bounded timeout so readiness check never hangs indefinitely
+    const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ ok: false, error: 'Readiness ping timed out after 3000ms' }), 3000));
+    const pingResult = await Promise.race([pingPromise, timeoutPromise]);
+
+    const dbStatus = getDBStatus();
+    if (pingResult && pingResult.ok) {
+      return res.status(200).json({
+        status: 'ready',
+        database: 'connected',
+        latencyMs: pingResult.latencyMs,
+        uptime: Math.floor(process.uptime()),
+        timestamp: new Date().toISOString()
+      });
+    } else {
+      res.setHeader('Retry-After', '3');
+      return res.status(503).json({
+        status: 'not_ready',
+        database: dbStatus.stateDescription,
+        error: pingResult?.error || 'Database ping failed',
+        uptime: Math.floor(process.uptime()),
+        timestamp: new Date().toISOString()
+      });
+    }
+  } catch (err) {
+    res.setHeader('Retry-After', '3');
+    return res.status(503).json({
+      status: 'not_ready',
+      error: err.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 // Security middleware
@@ -107,9 +145,17 @@ app.use((err, req, res, next) => {
   const RESET = '\x1b[0m';
   console.error(`${BOLD}${RED}[SARTHI Error]${RESET} [${req.method} ${req.url}]:`, err.message);
 
+  // Redact potentially sensitive connection strings or internal database paths from production client errors
+  let safeErrorMessage = err.message || 'An unexpected internal error occurred.';
+  if (config.nodeEnv === 'production' && statusCode === 500) {
+    if (safeErrorMessage.includes('mongodb') || safeErrorMessage.includes('connect') || safeErrorMessage.includes('topology')) {
+      safeErrorMessage = 'Database service is temporarily unavailable. Please retry in a few moments.';
+    }
+  }
+
   res.status(statusCode).json({
     success: false,
-    error: err.message || 'An unexpected internal error occurred.',
+    error: safeErrorMessage,
     ...(config.nodeEnv === 'development' && { stack: err.stack })
   });
 });
